@@ -2,9 +2,9 @@ package com.github.kitakkun.back_in_time
 
 import com.github.kitakkun.back_in_time.annotations.DebuggableProperty
 import com.github.kitakkun.back_in_time.annotations.DebuggableStateHolder
-import org.jetbrains.kotlin.backend.common.extensions.FirIncompatiblePluginAPI
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -20,8 +20,9 @@ import org.jetbrains.kotlin.ir.types.isNullableAny
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
-import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 
 class DebuggableStateHolderIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
@@ -32,24 +33,12 @@ class DebuggableStateHolderIrGenerationExtension : IrGenerationExtension {
 class DebuggableStateHolderIrGenerationTransformer(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoid() {
-    companion object {
-        private val ANNOTATION_FQ_NAME = FqName(DebuggableStateHolder::class.java.name)
-        private val DEBUGGABLE_PROPERTY_ANNOTATION_FQ_NAME = FqName(DebuggableProperty::class.java.name)
-    }
-
-    val reporter = pluginContext.createDiagnosticReporter("backInTime")
-
     override fun visitClass(declaration: IrClass): IrStatement {
-        val annotation = declaration.getAnnotation(ANNOTATION_FQ_NAME) ?: return super.visitClass(declaration)
-        reporter.report(
-            message = "DebuggableStateHolderIrGenerationTransformer: ${annotation.valueArguments}",
-            severity = IrMessageLogger.Severity.WARNING,
-            location = null,
-        )
+        val annotation = declaration.getAnnotation(FqName(DebuggableStateHolder::class.java.name)) ?: return super.visitClass(declaration)
         val applyToAllProperties = (annotation.valueArguments.first() as? IrConst<*>)?.value as? Boolean ?: true
         if (applyToAllProperties) {
             // 全てのプロパティにアノテーションを付与する
-            val propertyAnnotation = pluginContext.referenceConstructors(ClassId.fromString(DEBUGGABLE_PROPERTY_ANNOTATION_FQ_NAME.asString())).first()
+            val propertyAnnotation = pluginContext.referenceConstructors(DebuggableProperty::class.java.classId).first()
             declaration.properties.forEach {
                 it.annotations += listOf(
                     IrConstructorCallImpl(
@@ -67,15 +56,14 @@ class DebuggableStateHolderIrGenerationTransformer(
         return super.visitClass(declaration)
     }
 
-    @OptIn(FirIncompatiblePluginAPI::class)
     override fun visitProperty(declaration: IrProperty): IrStatement {
-        if (!declaration.hasAnnotation(DEBUGGABLE_PROPERTY_ANNOTATION_FQ_NAME)) return super.visitProperty(declaration)
+        if (!declaration.hasAnnotation(FqName(DebuggableProperty::class.java.name))) return super.visitProperty(declaration)
 
         val throwableClass = pluginContext.irBuiltIns.throwableClass
         val throwableClassConstructor = throwableClass.constructors.first { it.owner.valueParameters.isEmpty() }
         val stackTraceParameter = throwableClass.getSimpleFunction("getStackTrace") ?: return super.visitProperty(declaration)
         val arrayGetFunction = pluginContext.irBuiltIns.arrayClass.getSimpleFunction("get") ?: return super.visitProperty(declaration)
-        val stackTraceElementClass = pluginContext.referenceClass(FqName("java.lang.StackTraceElement")) ?: return super.visitProperty(declaration)
+        val stackTraceElementClass = pluginContext.referenceClass(java.lang.StackTraceElement::class.java.classId) ?: return super.visitProperty(declaration)
 
         val setterBody = declaration.setter?.body as? IrBlockBody ?: IrBlockBodyImpl(
             startOffset = declaration.startOffset,
@@ -142,7 +130,12 @@ class DebuggableStateHolderIrGenerationTransformer(
             symbol = stackTraceVar.symbol,
         )
 
-        val println = pluginContext.referenceFunctions(FqName("kotlin.io.println")).first {
+        val println = pluginContext.referenceFunctions(
+            CallableId(
+                packageName = FqName("kotlin.io"),
+                callableName = Name.identifier("println")
+            )
+        ).first {
             it.owner.valueParameters.size == 1 && it.owner.valueParameters.single().type.isNullableAny()
         }
         val printlnCall = IrCallImpl(
