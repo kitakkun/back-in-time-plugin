@@ -14,7 +14,7 @@ kotlin {
 
     jvm()
     androidTarget {
-        publishLibraryVariants("debug")
+        publishAllLibraryVariants()
     }
 
     sourceSets {
@@ -48,10 +48,9 @@ android {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
-            from(components["kotlin"])
+        withType<MavenPublication> {
             groupId = "com.github.kitakkun.back_in_time"
-            artifactId = "annotations"
+            artifactId = "back-in-time"
             version = "1.0.0"
         }
     }
