@@ -11,6 +11,8 @@ dependencies {
 
     compileOnly("com.google.auto.service:auto-service:1.1.1")
     kapt("com.google.auto.service:auto-service:1.1.1")
+
+    testImplementation(kotlin("test"))
 }
 
 publishing {
@@ -24,5 +26,11 @@ publishing {
     }
     repositories {
         mavenLocal()
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xcontext-receivers")
     }
 }

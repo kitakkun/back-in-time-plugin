@@ -23,13 +23,19 @@ repositories {
     mavenLocal()
 }
 
+kotlin {
+    sourceSets.all {
+        languageSettings.languageVersion = "2.0"
+    }
+}
+
 configure<BackInTimeExtension> {
     enabled = true
     annotations = listOf("HogeAnnotation")
 }
 
 application {
-    mainClass = "MainKt"
+    mainClass = "com.github.kitakkun.back_in_time.MainKt"
 }
 
 dependencies {

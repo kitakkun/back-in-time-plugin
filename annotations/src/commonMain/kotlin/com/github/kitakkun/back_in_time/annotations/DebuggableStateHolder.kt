@@ -10,3 +10,7 @@ annotation class DebuggableStateHolder(val applyAllProperties: Boolean = true)
 @Suppress("unused")
 @Target(AnnotationTarget.PROPERTY)
 annotation class DebuggableProperty
+
+interface DebuggableStateHolderManipulator {
+    fun forceSetParameterForBackInTimeDebug(paramKey: String, value: String)
+}
