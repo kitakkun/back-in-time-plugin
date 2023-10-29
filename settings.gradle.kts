@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 rootProject.name = "back-in-time"
 include(":gradle-plugin")
 include(":kotlin-plugin")
-includeBuild("back-in-time.library")

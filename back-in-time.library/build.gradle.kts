@@ -50,7 +50,6 @@ publishing {
     publications {
         withType<MavenPublication> {
             groupId = "com.github.kitakkun.back_in_time"
-            artifactId = "back-in-time"
             version = "1.0.0"
         }
     }

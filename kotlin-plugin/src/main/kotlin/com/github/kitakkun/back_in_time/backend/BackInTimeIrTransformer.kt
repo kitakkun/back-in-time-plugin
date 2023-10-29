@@ -18,9 +18,6 @@ class BackInTimeIrTransformer(
         val ownerClass = declaration.parentClassOrNull ?: return super.visitFunction(declaration)
         if (!ownerClass.hasAnnotation(FqName(DebuggableStateHolder::class.java.name))) return super.visitFunction(declaration)
         if (declaration.name.asString() != "forceSetParameterForBackInTimeDebug") return super.visitFunction(declaration)
-        val properties = ownerClass.properties
-//        val overrideTarget = pluginContext.referenceFunctions(CallableId(DebuggableStateHolderManipulator::class.java.classId, Name.identifier("forceSetParameterForBackInTimeDebug"))).first()
-//        (declaration as IrSimpleFunction).overriddenSymbols += overrideTarget.owner.symbol
         declaration.body = IrBlockBodyBuilder(
             context = pluginContext,
             startOffset = declaration.startOffset,
@@ -31,7 +28,7 @@ class BackInTimeIrTransformer(
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = irUnit().type,
-                branches = properties.filter { it.isVar }.map { property ->
+                branches = ownerClass.properties.filter { it.isVar }.map { property ->
                     irBranch(
                         condition = irEquals(irGet(paramKey), irString(property.name.asString())),
                         result = irSetField(
@@ -45,10 +42,4 @@ class BackInTimeIrTransformer(
         }
         return super.visitFunction(declaration)
     }
-
-//    override fun visitClass(declaration: IrClass): IrStatement {
-//        if (!declaration.hasAnnotation(FqName(DebuggableStateHolder::class.java.name))) return super.visitClass(declaration)
-//        declaration.superTypes += pluginContext.referenceClass(DebuggableStateHolderManipulator::class.java.classId)!!.defaultType
-//        return super.visitClass(declaration)
-//    }
 }

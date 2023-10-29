@@ -4,10 +4,15 @@ plugins {
     `maven-publish`
 }
 
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0")
-    implementation(project(mapOf("path" to ":annotations")))
+    implementation("com.github.kitakkun.back_in_time:back-in-time.library:1.0.0")
 
     compileOnly("com.google.auto.service:auto-service:1.1.1")
     kapt("com.google.auto.service:auto-service:1.1.1")
