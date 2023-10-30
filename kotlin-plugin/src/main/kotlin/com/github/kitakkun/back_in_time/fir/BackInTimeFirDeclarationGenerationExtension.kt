@@ -1,5 +1,6 @@
 package com.github.kitakkun.back_in_time.fir
 
+import com.github.kitakkun.back_in_time.BackInTimeAnnotations
 import com.github.kitakkun.back_in_time.BackInTimeConsts
 import com.github.kitakkun.back_in_time.BackInTimePluginKey
 import com.github.kitakkun.back_in_time.BackInTimePredicate
@@ -40,7 +41,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        if (!classSymbol.hasAnnotation(BackInTimeConsts.debuggableStateHolderAnnotationClassId, session)) return emptySet()
+        if (!classSymbol.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptySet()
         return setOf(BackInTimeConsts.forceSetParameterForBackInDebugMethodName)
     }
 

@@ -1,6 +1,6 @@
 package com.github.kitakkun.back_in_time.fir
 
-import com.github.kitakkun.back_in_time.BackInTimeConsts
+import com.github.kitakkun.back_in_time.BackInTimeAnnotations
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
@@ -12,13 +12,13 @@ import org.jetbrains.kotlin.fir.types.toLookupTag
 
 class BackInTimeFirStateHolderManipulatorSuperTypeGenerationExtension(session: FirSession) : FirSupertypeGenerationExtension(session = session) {
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {
-        return declaration.hasAnnotation(BackInTimeConsts.debuggableStateHolderAnnotationClassId, session)
+        return declaration.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)
     }
 
     context(TypeResolveServiceContainer) override fun computeAdditionalSupertypes(classLikeDeclaration: FirClassLikeDeclaration, resolvedSupertypes: List<FirResolvedTypeRef>): List<FirResolvedTypeRef> {
-        if (!classLikeDeclaration.hasAnnotation(BackInTimeConsts.debuggableStateHolderAnnotationClassId, session)) return emptyList()
+        if (!classLikeDeclaration.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptyList()
         return listOf(buildResolvedTypeRef {
-            type = BackInTimeConsts.debuggableStateHolderManipulatorAnnotationClassId.toLookupTag().constructClassType(emptyArray(), false)
+            type = BackInTimeAnnotations.debuggableStateHolderManipulatorAnnotationClassId.toLookupTag().constructClassType(emptyArray(), false)
         })
     }
 }

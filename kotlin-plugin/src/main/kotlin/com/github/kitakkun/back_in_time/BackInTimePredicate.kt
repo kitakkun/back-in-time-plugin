@@ -4,6 +4,6 @@ import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 
 object BackInTimePredicate {
     val debuggableStateHolder = DeclarationPredicate.create {
-        annotated(BackInTimeConsts.debuggableStateHolderAnnotationFqName)
+        annotated(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)
     }
 }
