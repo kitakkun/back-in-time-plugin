@@ -1,9 +1,8 @@
 package com.github.kitakkun.back_in_time.fir
 
+import com.github.kitakkun.back_in_time.BackInTimeConsts
 import com.github.kitakkun.back_in_time.BackInTimePluginKey
 import com.github.kitakkun.back_in_time.BackInTimePredicate
-import com.github.kitakkun.back_in_time.annotations.DebuggableStateHolder
-import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
@@ -19,10 +18,6 @@ import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
 class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
-    companion object {
-        private val NAME_OF_GENERATED_FUNCTION = Name.identifier("forceSetParameterForBackInTimeDebug")
-    }
-
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
         return listOf(createForceSetParameterForBackInTimeDebug(ownerClass, callableId).symbol)
@@ -35,8 +30,8 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
             name = callableId.callableName,
             returnType = session.builtinTypes.unitType.coneType,
             config = {
-                valueParameter(Name.identifier("paramKey"), type = session.builtinTypes.stringType.coneType)
-                valueParameter(Name.identifier("value"), type = session.builtinTypes.stringType.coneType)
+                valueParameter(BackInTimeConsts.firstParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
+                valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
                 status { isOverride = true }
             },
         ).apply {
@@ -45,8 +40,8 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        if (!classSymbol.hasAnnotation(DebuggableStateHolder::class.java.classId, session)) return emptySet()
-        return setOf(NAME_OF_GENERATED_FUNCTION)
+        if (!classSymbol.hasAnnotation(BackInTimeConsts.debuggableStateHolderAnnotationClassId, session)) return emptySet()
+        return setOf(BackInTimeConsts.forceSetParameterForBackInDebugMethodName)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
