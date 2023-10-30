@@ -1,12 +1,11 @@
 package com.github.kitakkun.back_in_time.backend
 
-import com.github.kitakkun.back_in_time.BackInTimeAnnotations
 import com.github.kitakkun.back_in_time.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -16,7 +15,7 @@ class BackInTimeIrTransformer(
 ) : IrElementTransformerVoid() {
     override fun visitFunction(declaration: IrFunction): IrStatement {
         val ownerClass = declaration.parentClassOrNull ?: return super.visitFunction(declaration)
-        if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitFunction(declaration)
+        if (ownerClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitFunction(declaration)
         if (declaration.name != BackInTimeConsts.forceSetParameterForBackInDebugMethodName) return super.visitFunction(declaration)
         declaration.body = IrBlockBodyBuilder(
             context = pluginContext,
