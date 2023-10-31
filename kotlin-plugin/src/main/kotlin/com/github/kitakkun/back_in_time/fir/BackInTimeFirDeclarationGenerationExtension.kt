@@ -32,7 +32,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
             returnType = session.builtinTypes.unitType.coneType,
             config = {
                 valueParameter(BackInTimeConsts.firstParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
-                valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
+                valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.nullableAnyType.coneType)
                 status { isOverride = true }
             },
         ).apply {

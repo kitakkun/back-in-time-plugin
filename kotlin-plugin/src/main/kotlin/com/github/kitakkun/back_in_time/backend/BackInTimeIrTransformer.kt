@@ -23,13 +23,13 @@ class BackInTimeIrTransformer(
             endOffset = declaration.endOffset,
             scope = Scope(declaration.symbol),
         ).blockBody {
-            val paramKey = declaration.valueParameters[0]
+            val propertyName = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = irUnit().type,
                 branches = ownerClass.properties.filter { it.isVar }.map { property ->
                     irBranch(
-                        condition = irEquals(irGet(paramKey), irString(property.name.asString())),
+                        condition = irEquals(irGet(propertyName), irString(property.name.asString())),
                         result = irSetField(
                             receiver = irGet(declaration.dispatchReceiverParameter!!),
                             field = property.backingField!!,
