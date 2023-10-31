@@ -21,10 +21,10 @@ import org.jetbrains.kotlin.name.Name
 class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        return listOf(createForceSetParameterForBackInTimeDebug(ownerClass, callableId).symbol)
+        return listOf(createForceSetPropertyValueForBackInTimeDebug(ownerClass, callableId).symbol)
     }
 
-    private fun createForceSetParameterForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
+    private fun createForceSetPropertyValueForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
         return createMemberFunction(
             owner = ownerClass,
             key = BackInTimePluginKey,
@@ -42,7 +42,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         if (!classSymbol.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptySet()
-        return setOf(BackInTimeConsts.forceSetParameterForBackInDebugMethodName)
+        return setOf(BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {

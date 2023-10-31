@@ -20,7 +20,7 @@ class BackInTimeIrTransformer(
     override fun visitFunction(declaration: IrFunction): IrStatement {
         val ownerClass = declaration.parentClassOrNull ?: return super.visitFunction(declaration)
         if (ownerClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitFunction(declaration)
-        if (declaration.name != BackInTimeConsts.forceSetParameterForBackInDebugMethodName) return super.visitFunction(declaration)
+        if (declaration.name != BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName) return super.visitFunction(declaration)
         declaration.body = IrBlockBodyBuilder(
             context = pluginContext,
             startOffset = declaration.startOffset,

@@ -41,7 +41,7 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     fun manipulate(instanceKey: IdentityHashCode, paramKey: String, value: String) {
-        (instances[instanceKey]?.get() as? DebuggableStateHolderManipulator)?.forceSetParameterForBackInTimeDebug(
+        (instances[instanceKey]?.get() as? DebuggableStateHolderManipulator)?.forceSetPropertyValueForBackInTimeDebug(
             paramKey,
             value
         )

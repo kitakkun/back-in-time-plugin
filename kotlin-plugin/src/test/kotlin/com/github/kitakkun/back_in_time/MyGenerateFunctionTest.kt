@@ -7,6 +7,6 @@ class MyGenerateFunctionTest {
     fun test() {
 //        val target = TestTarget()
 //        target.hoge = "10"
-//        target.forceSetParameterForBackInTimeDebug("hoge", "20000")
+//        target.forceSetPropertyValueForBackInTimeDebug("hoge", "20000")
     }
 }

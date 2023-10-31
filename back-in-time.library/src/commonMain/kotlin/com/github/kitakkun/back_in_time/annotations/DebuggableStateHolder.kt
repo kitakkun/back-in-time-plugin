@@ -12,5 +12,5 @@ annotation class DebuggableStateHolder(val applyAllProperties: Boolean = true)
 annotation class DebuggableProperty
 
 interface DebuggableStateHolderManipulator {
-    fun forceSetParameterForBackInTimeDebug(propertyName: String, value: Any?)
+    fun forceSetPropertyValueForBackInTimeDebug(propertyName: String, value: Any?)
 }
