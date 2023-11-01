@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 class BackInTimeIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+        moduleFragment.transformChildrenVoid(BackInTimeForceSetPropertyValueGenerateTransformer(pluginContext))
         moduleFragment.transformChildrenVoid(BackInTimeIrTransformer(pluginContext))
     }
 }
