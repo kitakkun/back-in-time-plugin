@@ -68,10 +68,21 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
             }
 
             BackInTimeConsts.mutableStateFlowFqName -> {
-//                MessageCollectorHolder.messageCollector.report(
-//                    CompilerMessageSeverity.ERROR,
-//                    "STATEFLOW!!"
-//                )
+                val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateFlowValuePropertyCallableId).single()
+                val setter = valueProperty.owner.setter ?: return irBlock { }
+                return irCall(setter).apply {
+                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    putValueArgument(0, irGet(value))
+                }
+            }
+
+            BackInTimeConsts.mutableStateFqName -> {
+                val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateValuePropertyCallableId).single()
+                val setter = valueProperty.owner.setter ?: return irBlock { }
+                return irCall(setter).apply {
+                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    putValueArgument(0, irGet(value))
+                }
             }
         }
 

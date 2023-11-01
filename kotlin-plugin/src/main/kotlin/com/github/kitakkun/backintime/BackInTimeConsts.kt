@@ -13,11 +13,15 @@ object BackInTimeConsts {
     val secondParameterNameForGeneratedMethod = Name.identifier("value")
 
     val mutableLiveDataClassId = classId("androidx.lifecycle", "MutableLiveData")
+    val mutableStateFlowClassId = classId("kotlinx.coroutines.flow", "MutableStateFlow")
+    val mutableStateClassId = classId("androidx.compose.runtime", "MutableState")
     val mutableLiveDataFqName = mutableLiveDataClassId.asSingleFqName()
-    val mutableStateFlowFqName = FqName("kotlinx.coroutines.flow.MutableStateFlow")
-    val mutableStateFqName = FqName("androidx.compose.runtime.MutableState")
+    val mutableStateFlowFqName = mutableStateFlowClassId.asSingleFqName()
+    val mutableStateFqName = mutableStateClassId.asSingleFqName()
 
     val mutableLiveDataPostValueCallableId = CallableId(mutableLiveDataClassId, Name.identifier("postValue"))
+    val mutableStateFlowValuePropertyCallableId = CallableId(mutableStateFlowClassId, Name.identifier("value"))
+    val mutableStateValuePropertyCallableId = CallableId(mutableStateClassId, Name.identifier("value"))
 
     // StackTrace経由での呼び出し元メソッド名解決を行うための定数
     val getStackTraceFqName = FqName("kotlin.Throwable.getStackTrace")
