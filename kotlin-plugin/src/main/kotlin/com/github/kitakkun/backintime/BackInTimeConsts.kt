@@ -25,4 +25,5 @@ object BackInTimeConsts {
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
     val notifyPropertyChanged = "notifyPropertyChanged"
+    val registerFunctionName = "register"
 }
