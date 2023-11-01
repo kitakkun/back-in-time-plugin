@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.ir.types.isPrimitiveType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
-class BackInTimeIrTransformer(
+class BackInTimePropertySetterTransformer(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoid() {
     override fun visitProperty(declaration: IrProperty): IrStatement {
@@ -34,37 +34,8 @@ class BackInTimeIrTransformer(
                 endOffset = setter.endOffset,
                 scope = Scope(declaration.symbol),
             ).blockBody {
-                // Throwable().stackTrace[1].methodName
-                val throwable = irCall(callee = pluginContext.irBuiltIns.throwableClass.constructors.first { it.owner.valueParameters.isEmpty() })
-                val stackTrace = irCall(
-                    callee = pluginContext.irBuiltIns.throwableClass.functions.first { it.owner.fqNameWhenAvailable == BackInTimeConsts.getStackTraceFqName },
-                ).apply {
-                    dispatchReceiver = throwable
-                }
-                val stackTraceElement = irCall(
-                    callee = pluginContext.irBuiltIns.arrayClass.getSimpleFunction("get")!!,
-                ).apply {
-                    dispatchReceiver = stackTrace
-                    putValueArgument(0, irInt(1))
-                }
-                val getMethodName = irCall(
-                    callee = pluginContext.referenceFunctions(callableId = BackInTimeConsts.stackTraceGetMethodNameCallableId).first(),
-                ).apply {
-                    dispatchReceiver = stackTraceElement
-                }
-
-                val printlnFunction = pluginContext.referenceFunctions(callableId = BackInTimeConsts.printlnCallableId).first {
-                    it.owner.valueParameters.size == 1 && it.owner.valueParameters[0].type == pluginContext.irBuiltIns.anyNType
-                }
-
-                val printlnCall = irCall(
-                    callee = printlnFunction,
-                ).apply {
-                    putValueArgument(0, irGet(declaration.setter!!.dispatchReceiverParameter!!))
-                }
-
                 +setterBody.statements
-                +printlnCall
+                +notifyValueChangeToBackInTimeDebugService(declaration)
             }
             return super.visitProperty(declaration)
         }
@@ -85,5 +56,38 @@ class BackInTimeIrTransformer(
             }
         }
         return super.visitProperty(declaration)
+    }
+
+    private fun IrBuilderWithScope.notifyValueChangeToBackInTimeDebugService(property: IrProperty): List<IrStatement> {
+        // Throwable().stackTrace[1].methodName
+        val throwable = irCall(callee = pluginContext.irBuiltIns.throwableClass.constructors.first { it.owner.valueParameters.isEmpty() })
+        val stackTrace = irCall(
+            callee = pluginContext.irBuiltIns.throwableClass.functions.first { it.owner.fqNameWhenAvailable == BackInTimeConsts.getStackTraceFqName },
+        ).apply {
+            dispatchReceiver = throwable
+        }
+        val stackTraceElement = irCall(
+            callee = pluginContext.irBuiltIns.arrayClass.getSimpleFunction("get")!!,
+        ).apply {
+            dispatchReceiver = stackTrace
+            putValueArgument(0, irInt(1))
+        }
+        val getMethodName = irCall(
+            callee = pluginContext.referenceFunctions(callableId = BackInTimeConsts.stackTraceGetMethodNameCallableId).first(),
+        ).apply {
+            dispatchReceiver = stackTraceElement
+        }
+
+        val printlnFunction = pluginContext.referenceFunctions(callableId = BackInTimeConsts.printlnCallableId).first {
+            it.owner.valueParameters.size == 1 && it.owner.valueParameters[0].type == pluginContext.irBuiltIns.anyNType
+        }
+
+        val printlnCall = irCall(
+            callee = printlnFunction,
+        ).apply {
+            putValueArgument(0, irGet(property.setter!!.dispatchReceiverParameter!!))
+        }
+
+        return listOf(printlnCall)
     }
 }
