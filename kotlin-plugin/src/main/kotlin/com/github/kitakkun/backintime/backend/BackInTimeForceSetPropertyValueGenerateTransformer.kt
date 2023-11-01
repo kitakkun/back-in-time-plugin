@@ -58,11 +58,13 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
             )
         }
 
+        val parentClassAsReceiver = if (backingField.isStatic) null else irGet(declaration.dispatchReceiverParameter!!)
+
         when (backingFieldClass.owner.fqNameWhenAvailable) {
             BackInTimeConsts.mutableLiveDataFqName -> {
                 val postValueMethod = pluginContext.referenceFunctions(BackInTimeConsts.mutableLiveDataPostValueCallableId).single()
                 return irCall(postValueMethod).apply {
-                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
                     putValueArgument(0, irGet(value))
                 }
             }
@@ -71,7 +73,7 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
                 val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateFlowValuePropertyCallableId).single()
                 val setter = valueProperty.owner.setter ?: return irBlock { }
                 return irCall(setter).apply {
-                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
                     putValueArgument(0, irGet(value))
                 }
             }
@@ -80,7 +82,7 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
                 val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateValuePropertyCallableId).single()
                 val setter = valueProperty.owner.setter ?: return irBlock { }
                 return irCall(setter).apply {
-                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
                     putValueArgument(0, irGet(value))
                 }
             }
