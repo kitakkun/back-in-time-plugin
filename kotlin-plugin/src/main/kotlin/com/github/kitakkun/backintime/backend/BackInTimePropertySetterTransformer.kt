@@ -10,7 +10,9 @@ import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isPrimitiveType
-import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.getSimpleFunction
+import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 class BackInTimePropertySetterTransformer(
@@ -59,35 +61,25 @@ class BackInTimePropertySetterTransformer(
     }
 
     private fun IrBuilderWithScope.notifyValueChangeToBackInTimeDebugService(property: IrProperty): List<IrStatement> {
-        // Throwable().stackTrace[1].methodName
-        val throwable = irCall(callee = pluginContext.irBuiltIns.throwableClass.constructors.first { it.owner.valueParameters.isEmpty() })
-        val stackTrace = irCall(
-            callee = pluginContext.irBuiltIns.throwableClass.functions.first { it.owner.fqNameWhenAvailable == BackInTimeConsts.getStackTraceFqName },
+        // add BackInTimeDebugService.notifyPropertyChanged(this, "propertyName", value, value::class.qualifiedName)
+        val parentClassReceiver = property.setter!!.dispatchReceiverParameter!!
+        val propertyName = irString(property.name.identifier)
+        val value = irGet(property.setter!!.valueParameters[0], type = pluginContext.irBuiltIns.anyNType)
+        val valueTypeFqName = irString(property.backingField!!.type.classFqName!!.asString())
+
+        val debugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: return emptyList()
+        val notifyPropertyChangedFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged) ?: return emptyList()
+
+        val notifyPropertyChangedCall = irCall(
+            callee = notifyPropertyChangedFunction,
         ).apply {
-            dispatchReceiver = throwable
-        }
-        val stackTraceElement = irCall(
-            callee = pluginContext.irBuiltIns.arrayClass.getSimpleFunction("get")!!,
-        ).apply {
-            dispatchReceiver = stackTrace
-            putValueArgument(0, irInt(1))
-        }
-        val getMethodName = irCall(
-            callee = pluginContext.referenceFunctions(callableId = BackInTimeConsts.stackTraceGetMethodNameCallableId).first(),
-        ).apply {
-            dispatchReceiver = stackTraceElement
+            dispatchReceiver = irGetObject(debugServiceClass)
+            putValueArgument(0, irGet(parentClassReceiver))
+            putValueArgument(1, propertyName)
+            putValueArgument(2, value)
+            putValueArgument(3, valueTypeFqName)
         }
 
-        val printlnFunction = pluginContext.referenceFunctions(callableId = BackInTimeConsts.printlnCallableId).first {
-            it.owner.valueParameters.size == 1 && it.owner.valueParameters[0].type == pluginContext.irBuiltIns.anyNType
-        }
-
-        val printlnCall = irCall(
-            callee = printlnFunction,
-        ).apply {
-            putValueArgument(0, irGet(property.setter!!.dispatchReceiverParameter!!))
-        }
-
-        return listOf(printlnCall)
+        return listOf(notifyPropertyChangedCall)
     }
 }

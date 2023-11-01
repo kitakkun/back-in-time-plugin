@@ -17,7 +17,7 @@ typealias UUIDString = String
  * Singleton service for back-in-time debugger
  */
 object BackInTimeDebugService : CoroutineScope {
-    override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Main + SupervisorJob()
+    override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
     @VisibleForTesting
     val instances = WeakHashMap<Any, UUIDString>()
@@ -62,7 +62,7 @@ object BackInTimeDebugService : CoroutineScope {
         instance: Any,
         propertyName: String,
         value: Any?,
-        valueType: KClass<*>
+        valueTypeQualifiedName: String,
     ) {
         val serializedValue = jsonConverter?.serialize(value)
         launch {
@@ -71,7 +71,7 @@ object BackInTimeDebugService : CoroutineScope {
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
                     value = serializedValue.toString(),
-                    valueType = valueType.qualifiedName ?: return@launch
+                    valueType = valueTypeQualifiedName,
                 )
             )
         }

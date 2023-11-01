@@ -23,8 +23,6 @@ object BackInTimeConsts {
     val mutableStateFlowValuePropertyCallableId = CallableId(mutableStateFlowClassId, Name.identifier("value"))
     val mutableStateValuePropertyCallableId = CallableId(mutableStateClassId, Name.identifier("value"))
 
-    // StackTrace経由での呼び出し元メソッド名解決を行うための定数
-    val getStackTraceFqName = FqName("kotlin.Throwable.getStackTrace")
-    val stackTraceGetMethodNameCallableId = CallableId(FqName("java.lang"), FqName("StackTraceElement"), Name.identifier("getMethodName"))
-    val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
+    val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
+    val notifyPropertyChanged = "notifyPropertyChanged"
 }
