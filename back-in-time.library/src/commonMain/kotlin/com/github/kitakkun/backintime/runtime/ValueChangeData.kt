@@ -1,4 +1,4 @@
-package com.github.kitakkun.back_in_time.annotations
+package com.github.kitakkun.backintime.runtime
 
 data class ValueChangeData(
     val instanceUUID: UUIDString,

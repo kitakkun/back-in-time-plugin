@@ -1,11 +1,11 @@
-package com.github.kitakkun.back_in_time
+package com.github.kitakkun.backintime
 
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 object BackInTimeConsts {
-    val debuggableStateHolderManipulatorFqName = FqName("com.github.kitakkun.back_in_time.annotations.DebuggableStateHolderManipulator")
+    val debuggableStateHolderManipulatorFqName = FqName("com.github.kitakkun.backintime.runtime.DebuggableStateHolderManipulator")
 
     val forceSetPropertyValueForBackInDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
     val firstParameterNameForGeneratedMethod = Name.identifier("propertyName")

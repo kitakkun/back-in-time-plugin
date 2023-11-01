@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime
 
-import com.github.kitakkun.back_in_time.annotations.BackInTimeDebugService
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import org.junit.Test
 import java.lang.Thread.sleep
 import kotlin.test.assertEquals

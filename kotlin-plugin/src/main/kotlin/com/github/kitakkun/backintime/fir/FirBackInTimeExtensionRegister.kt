@@ -1,4 +1,4 @@
-package com.github.kitakkun.back_in_time.fir
+package com.github.kitakkun.backintime.fir
 
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 

@@ -1,4 +1,4 @@
-import com.github.kitakkun.back_in_time.BackInTimeExtension
+import com.github.kitakkun.backintime.BackInTimeExtension
 
 buildscript {
     repositories {
@@ -39,5 +39,5 @@ application {
 }
 
 dependencies {
-    implementation("com.github.kitakkun.back_in_time:back-in-time.library:1.0.0")
+    implementation("com.github.kitakkun.backintime:back-in-time.library:1.0.0")
 }

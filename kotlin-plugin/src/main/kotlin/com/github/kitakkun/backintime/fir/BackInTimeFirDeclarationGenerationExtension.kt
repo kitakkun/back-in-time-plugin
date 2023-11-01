@@ -1,9 +1,9 @@
-package com.github.kitakkun.back_in_time.fir
+package com.github.kitakkun.backintime.fir
 
-import com.github.kitakkun.back_in_time.BackInTimeAnnotations
-import com.github.kitakkun.back_in_time.BackInTimeConsts
-import com.github.kitakkun.back_in_time.BackInTimePluginKey
-import com.github.kitakkun.back_in_time.BackInTimePredicate
+import com.github.kitakkun.backintime.BackInTimeAnnotations
+import com.github.kitakkun.backintime.BackInTimeConsts
+import com.github.kitakkun.backintime.BackInTimePluginKey
+import com.github.kitakkun.backintime.BackInTimePredicate
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation

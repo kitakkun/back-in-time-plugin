@@ -1,4 +1,4 @@
-package com.github.kitakkun.back_in_time
+package com.github.kitakkun.backintime
 
 open class BackInTimeExtension(
     var enabled: Boolean = true,

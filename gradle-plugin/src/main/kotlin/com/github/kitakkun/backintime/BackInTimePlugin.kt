@@ -1,4 +1,4 @@
-package com.github.kitakkun.back_in_time
+package com.github.kitakkun.backintime
 
 import com.google.auto.service.AutoService
 import org.gradle.api.Project

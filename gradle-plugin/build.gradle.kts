@@ -9,7 +9,7 @@ gradlePlugin {
     plugins {
         create("backInTime") {
             id = "back-in-time-plugin"
-            implementationClass = "com.github.kitakkun.back_in_time.BackInTimePlugin"
+            implementationClass = "com.github.kitakkun.backintime.BackInTimePlugin"
         }
     }
 }

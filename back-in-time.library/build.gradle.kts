@@ -52,14 +52,14 @@ android {
         targetSdk = 34
         minSdk = 21
     }
-    namespace = "com.github.kitakkun.back_in_time"
+    namespace = "com.github.kitakkun.backintime"
 
 }
 
 publishing {
     publications {
         withType<MavenPublication> {
-            groupId = "com.github.kitakkun.back_in_time"
+            groupId = "com.github.kitakkun.backintime"
             version = "1.0.0"
         }
     }

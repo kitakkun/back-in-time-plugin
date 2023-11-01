@@ -1,6 +1,6 @@
-package com.github.kitakkun.back_in_time.backend
+package com.github.kitakkun.backintime.backend
 
-import com.github.kitakkun.back_in_time.BackInTimeConsts
+import com.github.kitakkun.backintime.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*

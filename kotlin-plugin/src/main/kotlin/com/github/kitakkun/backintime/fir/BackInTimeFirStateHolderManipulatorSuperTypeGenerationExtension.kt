@@ -1,6 +1,6 @@
-package com.github.kitakkun.back_in_time.fir
+package com.github.kitakkun.backintime.fir
 
-import com.github.kitakkun.back_in_time.BackInTimeAnnotations
+import com.github.kitakkun.backintime.BackInTimeAnnotations
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation

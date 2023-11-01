@@ -1,4 +1,4 @@
-package com.github.kitakkun.back_in_time.backend
+package com.github.kitakkun.backintime.backend
 
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
