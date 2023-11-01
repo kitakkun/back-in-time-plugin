@@ -86,7 +86,7 @@ class BackInTimeIrTransformer(
                 val printlnCall = irCall(
                     callee = printlnFunction,
                 ).apply {
-                    putValueArgument(0, getMethodName)
+                    putValueArgument(0, irGet(declaration.setter!!.dispatchReceiverParameter!!))
                 }
 
                 +setterBody.statements
