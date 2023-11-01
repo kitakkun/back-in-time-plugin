@@ -1,10 +1,24 @@
 package com.github.kitakkun.back_in_time
 
-fun main() {
-    val hoge = HogeViewModel()
-//    hoge.forceSetParameterForBackInTimeDebug("hoge", "20000")
-    hoge.hoge = "2000"
-//    hoge.fuga = 100
-//    hoge.foo = 200.0
-    hoge.set()
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+val hoge = HogeViewModel()
+
+suspend fun main() {
+    coroutineScope {
+        launch {
+            BackInTimeDebugService.valueChangeFlow.collect {
+                println("value changed: $it")
+            }
+        }
+        launch {
+            while (true) {
+                delay(1000)
+                hoge.set()
+            }
+        }
+    }
 }
