@@ -6,8 +6,6 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrTypeProjection
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
@@ -52,23 +50,21 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
         val backingField = property.backingField ?: return irBlock { }
         val backingFieldType = backingField.type
         val backingFieldClass = backingField.type.classOrNull ?: return irBlock { }
-        if (property.isVar) {
+        if (property.isVar && backingFieldType.isKotlinPrimitiveType()) {
             return irSetField(
                 receiver = irGet(declaration.dispatchReceiverParameter!!),
-                field = property.backingField!!,
+                field = backingField,
                 value = irGet(value),
             )
         }
 
         when (backingFieldClass.owner.fqNameWhenAvailable) {
             BackInTimeConsts.mutableLiveDataFqName -> {
-                val typeArguments = backingFieldType as? IrSimpleType
-                val genericTypeArgument = typeArguments?.arguments?.firstOrNull() as? IrTypeProjection ?: return irBlock { }
-                val genericType = genericTypeArgument.type.classOrNull ?: return irBlock { }
-//                MessageCollectorHolder.messageCollector.report(
-//                    CompilerMessageSeverity.ERROR,
-//                    "LIVEDATA!!" + genericTypeArgument.type.classFqName
-//                )
+                val postValueMethod = pluginContext.referenceFunctions(BackInTimeConsts.mutableLiveDataPostValueCallableId).single()
+                return irCall(postValueMethod).apply {
+                    dispatchReceiver = irGetField(receiver = null, field = backingField)
+                    putValueArgument(0, irGet(value))
+                }
             }
 
             BackInTimeConsts.mutableStateFlowFqName -> {
