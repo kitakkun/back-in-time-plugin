@@ -23,6 +23,12 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
+        val commonTest by getting {
+            dependencies {
+                dependsOn(commonMain)
+                implementation(kotlin("test"))
+            }
+        }
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
@@ -31,6 +37,10 @@ kotlin {
         }
         val jvmMain by getting {
             dependsOn(commonMain)
+        }
+        val jvmTest by getting {
+            dependsOn(commonTest)
+            dependsOn(jvmMain)
         }
     }
 }

@@ -6,54 +6,51 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
+import org.jetbrains.annotations.VisibleForTesting
+import java.util.UUID
+import java.util.WeakHashMap
 
-typealias IdentityHashCode = Int
-typealias DebugTargetWeakReference = WeakReference<Any>
+typealias UUIDString = String
 
 /**
  * Singleton service for back-in-time debugger
  */
 object BackInTimeDebugService : CoroutineScope {
-    override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Default + SupervisorJob()
+    override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Main + SupervisorJob()
 
-    val instances = mutableMapOf<IdentityHashCode, DebugTargetWeakReference>()
+    @VisibleForTesting
+    val instances = WeakHashMap<Any, UUIDString>()
+
     private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
     val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
 
     /**
      * register instance for debugging
+     * if the instance is garbage collected, it will be automatically removed from the list.
      * @param instance instance to be registered. must be annotated with [DebuggableStateHolder]
      */
-    fun register(instance: Any) {
-        val hashCode = System.identityHashCode(instance)
-        if (instances.containsKey(hashCode)) throw IllegalStateException("already registered: $instance")
-        instances[hashCode] = WeakReference(instance)
+    fun register(instance: Any): UUIDString {
+        val uuidString = UUID.randomUUID().toString()
+        instances[instance] = uuidString
+        return uuidString
     }
 
-    /**
-     * unregister instance for debugging
-     * @param instance instance to be unregistered. must be annotated with [DebuggableStateHolder]
-     */
-    fun unregister(instance: Any) {
-        if (!instances.containsKey(System.identityHashCode(instance))) throw IllegalStateException("not registered: $instance")
-        instances.remove(System.identityHashCode(instance))
+    fun manipulate(instanceUUID: UUIDString, propertyName: String, value: Any?) {
+        instances
+            .filterValues { uuidString -> uuidString == instanceUUID }
+            .keys
+            .filterIsInstance<DebuggableStateHolderManipulator>()
+            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, value)
     }
 
-    fun manipulate(instanceKey: IdentityHashCode, paramKey: String, value: String) {
-        (instances[instanceKey]?.get() as? DebuggableStateHolderManipulator)?.forceSetPropertyValueForBackInTimeDebug(
-            paramKey,
-            value
-        )
-    }
-
+    @Suppress("unused")
     fun notifyPropertyChanged(instance: Any, propertyName: String, value: Any?) {
         launch {
             mutableValueChangeFlow.emit(
                 ValueChangeData(
-                    System.identityHashCode(instance),
-                    propertyName,
-                    value.toString()
+                    instanceUUID = instances[instance] ?: return@launch,
+                    paramKey = propertyName,
+                    value = value.toString()
                 )
             )
         }

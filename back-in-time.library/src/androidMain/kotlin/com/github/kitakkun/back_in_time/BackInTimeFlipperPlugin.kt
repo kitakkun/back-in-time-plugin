@@ -20,7 +20,7 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                 connection?.send(
                     "valueChanged",
                     FlipperObject.Builder()
-                        .put("instanceId", it.instanceId)
+                        .put("instanceUUID", it.instanceUUID)
                         .put("paramKey", it.paramKey)
                         .put("value", it.value)
                         .build()
@@ -33,10 +33,10 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
         this.connection = connection
         this.connection?.apply {
             receive("forceUpdateState") { params, responder ->
-                val instanceId = params.getInt("instanceId")
-                val paramKey = params.getString("paramKey")
-                val value = params.getString("value")
-                service.manipulate(instanceId, paramKey, value)
+                val instanceUUID = params.getString("instanceUUID")
+                val propertyName = params.getString("propertyName")
+                val rawValue = params.getString("value")
+                service.manipulate(instanceUUID, propertyName, rawValue)
             }
         }
     }
