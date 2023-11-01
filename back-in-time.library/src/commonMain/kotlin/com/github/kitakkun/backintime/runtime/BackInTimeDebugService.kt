@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.UUID
 import java.util.WeakHashMap
+import kotlin.reflect.KClass
 
 typealias UUIDString = String
 
@@ -24,6 +25,9 @@ object BackInTimeDebugService : CoroutineScope {
     private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
     val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
 
+    // FIXME: this should be injected from outside
+    var jsonConverter: BackInTimeJSONConverter? = BackInTimeDefaultJSONConverter()
+
     /**
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
@@ -35,22 +39,39 @@ object BackInTimeDebugService : CoroutineScope {
         return uuidString
     }
 
-    fun manipulate(instanceUUID: UUIDString, propertyName: String, value: Any?) {
+    fun manipulate(
+        instanceUUID: UUIDString,
+        propertyName: String,
+        value: String,
+        valueTypeQualifiedName: String
+    ) {
+        val valueType = Class.forName(valueTypeQualifiedName).kotlin
+        val deserializedValue = jsonConverter?.deserialize(
+            value = value,
+            valueType = valueType,
+        )
         instances
             .filterValues { uuidString -> uuidString == instanceUUID }
             .keys
             .filterIsInstance<DebuggableStateHolderManipulator>()
-            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, value)
+            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, deserializedValue)
     }
 
     @Suppress("unused")
-    fun notifyPropertyChanged(instance: Any, propertyName: String, value: Any?) {
+    fun notifyPropertyChanged(
+        instance: Any,
+        propertyName: String,
+        value: Any?,
+        valueType: KClass<*>
+    ) {
+        val serializedValue = jsonConverter?.serialize(value)
         launch {
             mutableValueChangeFlow.emit(
                 ValueChangeData(
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
-                    value = value.toString()
+                    value = serializedValue.toString(),
+                    valueType = valueType.qualifiedName ?: return@launch
                 )
             )
         }

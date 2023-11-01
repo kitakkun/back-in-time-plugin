@@ -23,6 +23,7 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                         .put("instanceUUID", it.instanceUUID)
                         .put("paramKey", it.propertyName)
                         .put("value", it.value)
+                        .put("valueType", it.valueType)
                         .build()
                 )
             }
@@ -36,7 +37,8 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                 val instanceUUID = params.getString("instanceUUID")
                 val propertyName = params.getString("propertyName")
                 val rawValue = params.getString("value")
-                service.manipulate(instanceUUID, propertyName, rawValue)
+                val valueType = params.getString("valueType")
+                service.manipulate(instanceUUID, propertyName, rawValue, valueType)
             }
         }
     }
