@@ -21,7 +21,7 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                     "valueChanged",
                     FlipperObject.Builder()
                         .put("instanceUUID", it.instanceUUID)
-                        .put("paramKey", it.paramKey)
+                        .put("paramKey", it.propertyName)
                         .put("value", it.value)
                         .build()
                 )

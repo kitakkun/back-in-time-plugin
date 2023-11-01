@@ -49,7 +49,7 @@ object BackInTimeDebugService : CoroutineScope {
             mutableValueChangeFlow.emit(
                 ValueChangeData(
                     instanceUUID = instances[instance] ?: return@launch,
-                    paramKey = propertyName,
+                    propertyName = propertyName,
                     value = value.toString()
                 )
             )
