@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.runtime
 
+import com.github.kitakkun.backintime.converter.BackInTimeJSONConverter
 import kotlin.reflect.KClass
 
 class BackInTimeDefaultJSONConverter : BackInTimeJSONConverter {

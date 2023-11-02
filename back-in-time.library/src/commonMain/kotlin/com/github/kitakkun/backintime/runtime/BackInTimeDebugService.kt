@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.runtime
 
+import com.github.kitakkun.backintime.converter.BackInTimeJSONConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -9,7 +10,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.UUID
 import java.util.WeakHashMap
-import kotlin.reflect.KClass
 
 typealias UUIDString = String
 
