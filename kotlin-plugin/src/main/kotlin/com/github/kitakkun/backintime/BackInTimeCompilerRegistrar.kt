@@ -19,7 +19,7 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
     override val supportsK2: Boolean get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        if (configuration[BackInTimeCommandLineProcessor.KEY_ENABLED] == false) {
+        if (configuration[BackInTimeCompilerConfigurationKey.ENABLED] == false) {
             return
         }
 
