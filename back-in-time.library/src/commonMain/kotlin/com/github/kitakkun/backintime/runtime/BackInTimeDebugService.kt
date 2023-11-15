@@ -19,7 +19,7 @@ object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
     @VisibleForTesting
-    val instances = WeakHashMap<Any, UUIDString>()
+    val instances = WeakHashMap<DebuggableStateHolderManipulator, UUIDString>()
 
     private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
     val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
@@ -29,7 +29,7 @@ object BackInTimeDebugService : CoroutineScope {
      * if the instance is garbage collected, it will be automatically removed from the list.
      * @param instance instance to be registered. must be annotated with [DebuggableStateHolder]
      */
-    fun register(instance: Any): UUIDString {
+    fun register(instance: DebuggableStateHolderManipulator): UUIDString {
         val uuidString = UUID.randomUUID().toString()
         instances[instance] = uuidString
         return uuidString
@@ -43,13 +43,12 @@ object BackInTimeDebugService : CoroutineScope {
         instances
             .filterValues { uuidString -> uuidString == instanceUUID }
             .keys
-            .filterIsInstance<DebuggableStateHolderManipulator>()
             .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, value)
     }
 
     @Suppress("unused")
     fun notifyPropertyChanged(
-        instance: Any,
+        instance: DebuggableStateHolderManipulator,
         propertyName: String,
         value: Any?,
         valueTypeQualifiedName: String,
