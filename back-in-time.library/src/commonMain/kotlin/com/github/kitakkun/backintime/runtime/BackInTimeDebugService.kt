@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.runtime
 
-import com.github.kitakkun.backintime.converter.BackInTimeJSONConverter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,9 +24,6 @@ object BackInTimeDebugService : CoroutineScope {
     private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
     val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
 
-    // FIXME: this should be injected from outside
-    var jsonConverter: BackInTimeJSONConverter? = BackInTimeDefaultJSONConverter()
-
     /**
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
@@ -42,19 +38,13 @@ object BackInTimeDebugService : CoroutineScope {
     fun manipulate(
         instanceUUID: UUIDString,
         propertyName: String,
-        value: String,
-        valueTypeQualifiedName: String
+        value: Any?,
     ) {
-        val valueType = Class.forName(valueTypeQualifiedName).kotlin
-        val deserializedValue = jsonConverter?.deserialize(
-            value = value,
-            valueType = valueType,
-        )
         instances
             .filterValues { uuidString -> uuidString == instanceUUID }
             .keys
             .filterIsInstance<DebuggableStateHolderManipulator>()
-            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, deserializedValue)
+            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, value)
     }
 
     @Suppress("unused")
@@ -64,13 +54,12 @@ object BackInTimeDebugService : CoroutineScope {
         value: Any?,
         valueTypeQualifiedName: String,
     ) {
-        val serializedValue = jsonConverter?.serialize(value)
         launch {
             mutableValueChangeFlow.emit(
                 ValueChangeData(
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
-                    value = serializedValue.toString(),
+                    value = value,
                     valueType = valueTypeQualifiedName,
                 )
             )

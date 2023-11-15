@@ -8,29 +8,30 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
+abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
-    override fun getId() = "back-in-time"
-    override fun runInBackground() = false
+    final override fun getId() = "back-in-time"
+    final override fun runInBackground() = false
 
     init {
         launch {
-            service.valueChangeFlow.collect {
+            service.valueChangeFlow.collect { valueChangeData ->
+                val stringifiedValue = serializeValue(valueChangeData.value, valueChangeData.valueType)
                 connection?.send(
                     "valueChanged",
                     FlipperObject.Builder()
-                        .put("instanceUUID", it.instanceUUID)
-                        .put("paramKey", it.propertyName)
-                        .put("value", it.value)
-                        .put("valueType", it.valueType)
+                        .put("instanceUUID", valueChangeData.instanceUUID)
+                        .put("propertyName", valueChangeData.propertyName)
+                        .put("value", stringifiedValue)
+                        .put("valueType", valueChangeData.valueType)
                         .build()
                 )
             }
         }
     }
 
-    override fun onConnect(connection: FlipperConnection?) {
+    final override fun onConnect(connection: FlipperConnection?) {
         this.connection = connection
         this.connection?.apply {
             receive("forceUpdateState") { params, responder ->
@@ -38,12 +39,16 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                 val propertyName = params.getString("propertyName")
                 val rawValue = params.getString("value")
                 val valueType = params.getString("valueType")
-                service.manipulate(instanceUUID, propertyName, rawValue, valueType)
+                val value = deserializeValue(rawValue, valueType)
+                service.manipulate(instanceUUID, propertyName, value)
             }
         }
     }
 
-    override fun onDisconnect() {
+    final override fun onDisconnect() {
         connection = null
     }
+
+    abstract fun serializeValue(value: Any?, valueType: String): String
+    abstract fun deserializeValue(value: String, valueType: String): Any?
 }
