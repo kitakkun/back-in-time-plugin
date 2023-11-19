@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.flipper
 
+import android.util.Log
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
@@ -18,14 +19,16 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
         launch {
             service.valueChangeFlow.collect { valueChangeData ->
                 val stringifiedValue = serializeValue(valueChangeData.value, valueChangeData.valueType)
+                val eventObject = FlipperObject.Builder()
+                    .put("instanceUUID", valueChangeData.instanceUUID)
+                    .put("propertyName", valueChangeData.propertyName)
+                    .put("value", stringifiedValue)
+                    .put("valueType", valueChangeData.valueType)
+                    .build()
+                Log.d("BackInTimeFlipperPlugin", "valueChanged: $eventObject")
                 connection?.send(
                     "valueChanged",
-                    FlipperObject.Builder()
-                        .put("instanceUUID", valueChangeData.instanceUUID)
-                        .put("propertyName", valueChangeData.propertyName)
-                        .put("value", stringifiedValue)
-                        .put("valueType", valueChangeData.valueType)
-                        .build()
+                    eventObject
                 )
             }
         }
@@ -40,6 +43,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                 val rawValue = params.getString("value")
                 val valueType = params.getString("valueType")
                 val value = deserializeValue(rawValue, valueType)
+                Log.d("BackInTimeFlipperPlugin", "forceUpdateState: $instanceUUID, $propertyName, $value")
                 service.manipulate(instanceUUID, propertyName, value)
             }
         }
