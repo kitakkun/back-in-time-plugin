@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
-class BackInTimePropertySetterTransformer(
+class BackInTimePureVarPropertySetterTransformer(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoid() {
     override fun visitProperty(declaration: IrProperty): IrStatement {

@@ -27,4 +27,5 @@ object BackInTimeConsts {
     val notifyPropertyChanged = "notifyPropertyChanged"
     val registerFunctionName = "register"
     val systemClassId = classId("java.lang", "System")
+    val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 }

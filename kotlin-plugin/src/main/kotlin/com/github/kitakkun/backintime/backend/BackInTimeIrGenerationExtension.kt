@@ -8,8 +8,8 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 class BackInTimeIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer(pluginContext))
+//        moduleFragment.transformChildrenVoid(BackInTimePureVarPropertySetterTransformer(pluginContext))
         moduleFragment.transformChildrenVoid(BackInTimeIrValueChangeNotifyCodeGenerationExtension(pluginContext))
         moduleFragment.transformChildrenVoid(BackInTimeForceSetPropertyValueGenerateTransformer(pluginContext))
-//        moduleFragment.transformChildrenVoid(BackInTimePropertySetterTransformer(pluginContext))
     }
 }
