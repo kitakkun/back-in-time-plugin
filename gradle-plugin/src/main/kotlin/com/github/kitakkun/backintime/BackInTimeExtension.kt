@@ -9,13 +9,13 @@ val defaultCapturedCalls = mutableListOf(
 )
 
 val defaultValueGetters = mutableListOf(
-    "androidx.lifecycle.MutableLiveData:<get-value>",
+    "androidx.lifecycle.MutableLiveData:getValue",
     "kotlinx.coroutines.flow.MutableStateFlow:<get-value>",
     "androidx.compose.runtime.MutableState:<get-value>",
 )
 
 val defaultValueSetters = mutableListOf(
-    "androidx.lifecycle.MutableLiveData:<set-value>",
+    "androidx.lifecycle.MutableLiveData:setValue",
     "kotlinx.coroutines.flow.MutableStateFlow:<set-value>",
     "androidx.compose.runtime.MutableState:<set-value>",
 )
