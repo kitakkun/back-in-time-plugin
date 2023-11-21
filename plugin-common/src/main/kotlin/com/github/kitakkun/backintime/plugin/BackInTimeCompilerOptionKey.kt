@@ -4,4 +4,5 @@ object BackInTimeCompilerOptionKey {
     const val ENABLED = "enabled"
     const val CAPTURED_CALLS = "capturedCalls"
     const val VALUE_GETTERS = "valueGetters"
+    const val VALUE_SETTERS = "valueSetters"
 }

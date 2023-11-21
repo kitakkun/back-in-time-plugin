@@ -9,12 +9,15 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.getPropertySetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.name.CallableId
 
 class BackInTimeForceSetPropertyValueGenerateTransformer(
     private val pluginContext: IrPluginContext,
+    private val valueSetterCallableIds: List<CallableId>,
 ) : IrElementTransformerVoid() {
     private fun shouldGenerateFunctionBody(parentClass: IrClass, declaration: IrSimpleFunction): Boolean {
         return parentClass.superTypes.any { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }
@@ -34,7 +37,7 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
             val propertyName = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
-                type = irUnit().type,
+                type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties.map { property ->
                     irBranch(
                         condition = irEquals(irGet(propertyName), irString(property.name.asString())),
@@ -48,9 +51,10 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
 
     private fun IrBlockBodyBuilder.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression {
         val backingField = property.backingField ?: return irBlock { }
-        val backingFieldType = backingField.type
         val backingFieldClass = backingField.type.classOrNull ?: return irBlock { }
-        if (property.isVar && backingFieldType.isKotlinPrimitiveType()) {
+
+        // varのsetterならそのまま突っ込む
+        if (property.isVar) {
             return irSetField(
                 receiver = irGet(declaration.dispatchReceiverParameter!!),
                 field = backingField,
@@ -60,34 +64,18 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
 
         val parentClassAsReceiver = if (backingField.isStatic) null else irGet(declaration.dispatchReceiverParameter!!)
 
-        when (backingFieldClass.owner.fqNameWhenAvailable) {
-            BackInTimeConsts.mutableLiveDataFqName -> {
-                val postValueMethod = pluginContext.referenceFunctions(BackInTimeConsts.mutableLiveDataPostValueCallableId).single()
-                return irCall(postValueMethod).apply {
-                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
-                    putValueArgument(0, irGet(value))
-                }
-            }
+        val setterCallableId = valueSetterCallableIds.find { it.className == backingFieldClass.owner.fqNameWhenAvailable } ?: return irBlock {}
+        val propertySetterPattern = Regex("<set-(.*?)>")
+        val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
+        val valueSetter = if (matchResult != null) {
+            property.backingField?.type?.classOrNull?.getPropertySetter(matchResult.groupValues[1])
+        } else {
+            pluginContext.referenceFunctions(setterCallableId).firstOrNull()
+        } ?: return irBlock {}
 
-            BackInTimeConsts.mutableStateFlowFqName -> {
-                val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateFlowValuePropertyCallableId).single()
-                val setter = valueProperty.owner.setter ?: return irBlock { }
-                return irCall(setter).apply {
-                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
-                    putValueArgument(0, irGet(value))
-                }
-            }
-
-            BackInTimeConsts.mutableStateFqName -> {
-                val valueProperty = pluginContext.referenceProperties(callableId = BackInTimeConsts.mutableStateValuePropertyCallableId).single()
-                val setter = valueProperty.owner.setter ?: return irBlock { }
-                return irCall(setter).apply {
-                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
-                    putValueArgument(0, irGet(value))
-                }
-            }
+        return irCall(valueSetter).apply {
+            dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
+            putValueArgument(0, irGet(value))
         }
-
-        return irBlock { }
     }
 }

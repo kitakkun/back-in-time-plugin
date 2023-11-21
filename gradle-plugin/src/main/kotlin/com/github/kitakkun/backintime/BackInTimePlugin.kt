@@ -33,6 +33,8 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
                 SubpluginOption(key = BackInTimeCompilerOptionKey.CAPTURED_CALLS, value = it)
             } + extension.valueGetters.map {
                 SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_GETTERS, value = it)
+            } + extension.valueSetters.map {
+                SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_SETTERS, value = it)
             }
         }
     }

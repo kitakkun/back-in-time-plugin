@@ -38,6 +38,9 @@ configure<BackInTimeExtension> {
     valueGetters += listOf(
         "com.github.kitakkun.back_in_time.ValueContainer:<get-value>",
     )
+    valueSetters += listOf(
+        "com.github.kitakkun.back_in_time.ValueContainer:<set-value>",
+    )
 }
 
 application {

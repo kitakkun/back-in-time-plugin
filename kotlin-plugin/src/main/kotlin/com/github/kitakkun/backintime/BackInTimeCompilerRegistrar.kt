@@ -30,6 +30,10 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
             val (className, functionName) = it.split(":")
             CallableId(ClassId.fromString(className), Name.identifier(functionName))
         }
+        val valueSetterCallableIds = configuration[BackInTimeCompilerConfigurationKey.VALUE_SETTERS].orEmpty().map {
+            val (className, functionName) = it.split(":")
+            CallableId(ClassId.fromString(className), Name.identifier(functionName))
+        }
 
         if (!enabled) return
 
@@ -38,6 +42,7 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(
             capturedCallableIds = capturedCallableIds,
             valueGetterCallableIds = valueGetterCallableIds,
+            valueSetterCallableIds = valueSetterCallableIds,
         ))
     }
 }

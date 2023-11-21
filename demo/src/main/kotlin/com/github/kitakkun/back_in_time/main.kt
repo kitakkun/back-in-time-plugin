@@ -17,8 +17,10 @@ suspend fun main() {
         launch {
             while (true) {
                 delay(1000)
-                hoge.set()
-                hoge.hogehoge()
+                println(hoge.valueContainer.value)
+                hoge.forceSetPropertyValueForBackInTimeDebug("valueContainer", "hogehoge")
+//                hoge.set()
+//                hoge.hogehoge()
             }
         }
     }

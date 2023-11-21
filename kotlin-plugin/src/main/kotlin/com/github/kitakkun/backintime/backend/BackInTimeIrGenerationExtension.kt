@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.name.CallableId
 class BackInTimeIrGenerationExtension(
     private val capturedCallableIds: List<CallableId>,
     private val valueGetterCallableIds: List<CallableId>,
+    private val valueSetterCallableIds: List<CallableId>,
 ) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer(pluginContext))
@@ -19,6 +20,11 @@ class BackInTimeIrGenerationExtension(
                 valueGetterCallableIds = valueGetterCallableIds,
             )
         )
-        moduleFragment.transformChildrenVoid(BackInTimeForceSetPropertyValueGenerateTransformer(pluginContext))
+        moduleFragment.transformChildrenVoid(
+            BackInTimeForceSetPropertyValueGenerateTransformer(
+                pluginContext = pluginContext,
+                valueSetterCallableIds = valueSetterCallableIds,
+            )
+        )
     }
 }

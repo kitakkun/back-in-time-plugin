@@ -14,8 +14,15 @@ val defaultValueGetters = mutableListOf(
     "androidx.compose.runtime.MutableState:<get-value>",
 )
 
+val defaultValueSetters = mutableListOf(
+    "androidx.lifecycle.MutableLiveData:<set-value>",
+    "kotlinx.coroutines.flow.MutableStateFlow:<set-value>",
+    "androidx.compose.runtime.MutableState:<set-value>",
+)
+
 open class BackInTimeExtension(
     var enabled: Boolean = true,
     val capturedCalls: MutableList<String> = defaultCapturedCalls,
     val valueGetters: MutableList<String> = defaultValueGetters,
+    val valueSetters: MutableList<String> = defaultValueSetters,
 )
