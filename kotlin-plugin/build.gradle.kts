@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":plugin-common"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0")
 

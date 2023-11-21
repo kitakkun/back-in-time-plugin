@@ -15,6 +15,7 @@ gradlePlugin {
 }
 
 dependencies {
+    implementation(project(":plugin-common"))
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin-api")
 

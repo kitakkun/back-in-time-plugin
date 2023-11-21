@@ -31,7 +31,6 @@ kotlin {
 
 configure<BackInTimeExtension> {
     enabled = true
-    annotations = listOf("HogeAnnotation")
 }
 
 application {

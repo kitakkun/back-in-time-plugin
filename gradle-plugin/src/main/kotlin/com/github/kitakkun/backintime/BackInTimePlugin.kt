@@ -1,5 +1,7 @@
 package com.github.kitakkun.backintime
 
+import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
+import com.github.kitakkun.backintime.plugin.BackInTimePluginConsts
 import com.google.auto.service.AutoService
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
@@ -23,26 +25,20 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     }
 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
-        val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java)
-            ?: BackInTimeExtension()
-        if (extension.enabled && extension.annotations.isEmpty()) {
-            error("Back-in-time plugin is enabled but no annotations are specified.")
-        }
-
-        val annotationOptions = extension.annotations.map {
-            SubpluginOption(key = "myPluginAnnotation", value = it)
-        }
-        val enabledOption = SubpluginOption(
-            key = "enabled",
-            value = extension.enabled.toString(),
-        )
+        val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java) ?: BackInTimeExtension()
         return kotlinCompilation.target.project.provider {
-            listOf(enabledOption) + annotationOptions
+            listOf(
+                SubpluginOption(key = BackInTimeCompilerOptionKey.ENABLED, value = extension.enabled.toString()),
+            ) + extension.capturedCalls.map {
+                SubpluginOption(key = BackInTimeCompilerOptionKey.CAPTURED_CALLS, value = it)
+            } + extension.valueGetters.map {
+                SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_GETTERS, value = it)
+            }
         }
     }
 
     override fun getCompilerPluginId(): String {
-        return "back-in-time-plugin"
+        return BackInTimePluginConsts.pluginId
     }
 
     override fun getPluginArtifact(): SubpluginArtifact {

@@ -1,5 +1,7 @@
 package com.github.kitakkun.backintime
 
+import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
+import com.github.kitakkun.backintime.plugin.BackInTimePluginConsts
 import com.google.auto.service.AutoService
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
 import org.jetbrains.kotlin.compiler.plugin.CliOption
@@ -10,28 +12,31 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 @OptIn(ExperimentalCompilerApi::class)
 @AutoService(CommandLineProcessor::class)
 class BackInTimeCommandLineProcessor : CommandLineProcessor {
-    override val pluginId: String = "back-in-time-plugin"
+    override val pluginId: String = BackInTimePluginConsts.pluginId
     override val pluginOptions: Collection<AbstractCliOption> = listOf(
         CliOption(
-            optionName = "enabled",
+            optionName = BackInTimeCompilerOptionKey.ENABLED,
             valueDescription = "true|false",
-            description = "Whether MyPlugin is enabled or not.",
+            description = "Whether BackInTime plugin is enabled or not.",
         ),
         CliOption(
-            optionName = "myPluginAnnotation",
-            valueDescription = "annotation",
-            description = "Annotation to be processed by MyPlugin.",
+            optionName = BackInTimeCompilerOptionKey.CAPTURED_CALLS,
+            valueDescription = "functionName1,functionName2,...(ex: androidx.lifecycle.MutableLiveData.setValue, androidx.lifecycle.MutableLiveData.<set-value>)",
+            description = "Functions to be captured.",
             allowMultipleOccurrences = true,
         ),
+        CliOption(
+            optionName = BackInTimeCompilerOptionKey.VALUE_GETTERS,
+            valueDescription = "className1:functionName1,className2:functionName2,...(ex: androidx.lifecycle.MutableLiveData:<get-value>, androidx.compose.runtime.MutableState:<get-value>)",
+            description = "Value getters to be used.",
+            allowMultipleOccurrences = true,
+        )
     )
 
-    override fun processOption(
-        option: AbstractCliOption,
-        value: String,
-        configuration: CompilerConfiguration,
-    ) = when (option.optionName) {
-        "enabled" -> configuration.put(BackInTimeCompilerConfigurationKey.ENABLED, value.toBoolean())
-        "myPluginAnnotation" -> configuration.appendList(BackInTimeCompilerConfigurationKey.ANNOTATIONS, value)
+    override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) = when (option.optionName) {
+        BackInTimeCompilerOptionKey.ENABLED -> configuration.put(BackInTimeCompilerConfigurationKey.ENABLED, value.toBoolean())
+        BackInTimeCompilerOptionKey.CAPTURED_CALLS -> configuration.appendList(BackInTimeCompilerConfigurationKey.CAPTURED_CALLS, value)
+        BackInTimeCompilerOptionKey.VALUE_GETTERS -> configuration.appendList(BackInTimeCompilerConfigurationKey.VALUE_GETTERS, value)
         else -> error("Unexpected config option ${option.optionName}")
     }
 }

@@ -1,8 +1,10 @@
 package com.github.kitakkun.backintime
 
+import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import org.jetbrains.kotlin.config.CompilerConfigurationKey
 
 object BackInTimeCompilerConfigurationKey {
-    val ENABLED = CompilerConfigurationKey.create<Boolean>("my-plugin-enabled")
-    val ANNOTATIONS = CompilerConfigurationKey.create<List<String>>("my-plugin-annotations")
+    val ENABLED = CompilerConfigurationKey.create<Boolean>(BackInTimeCompilerOptionKey.ENABLED)
+    val CAPTURED_CALLS = CompilerConfigurationKey.create<List<String>>(BackInTimeCompilerOptionKey.CAPTURED_CALLS)
+    val VALUE_GETTERS = CompilerConfigurationKey.create<List<String>>(BackInTimeCompilerOptionKey.VALUE_GETTERS)
 }

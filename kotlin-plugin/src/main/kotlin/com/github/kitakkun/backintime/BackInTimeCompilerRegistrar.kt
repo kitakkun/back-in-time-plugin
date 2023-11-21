@@ -15,13 +15,14 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 @OptIn(ExperimentalCompilerApi::class)
 @AutoService(CompilerPluginRegistrar::class)
 class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
-    // For now, not intended to support K2.
     override val supportsK2: Boolean get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        if (configuration[BackInTimeCompilerConfigurationKey.ENABLED] == false) {
-            return
-        }
+        val enabled = configuration[BackInTimeCompilerConfigurationKey.ENABLED] ?: false
+        val capturedCalls = configuration[BackInTimeCompilerConfigurationKey.CAPTURED_CALLS] ?: emptyList()
+        val valueGetters = configuration[BackInTimeCompilerConfigurationKey.VALUE_GETTERS] ?: emptyList()
+
+        if (!enabled) return
 
         MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar())
