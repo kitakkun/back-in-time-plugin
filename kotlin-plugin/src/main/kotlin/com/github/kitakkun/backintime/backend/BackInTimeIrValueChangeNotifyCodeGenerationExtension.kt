@@ -93,8 +93,12 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
                     val propertyGetterPattern = Regex("<get-(.*?)>")
                     val matchResult = propertyGetterPattern.find(valueGetterCallableId.callableName.asString())
+
                     val valueGetter = if (matchResult != null) {
-                        property.backingField?.type?.classOrNull?.getPropertyGetter(matchResult.groupValues[1])
+                        val fieldName = matchResult.groupValues[1]
+                        property.backingField?.type?.classOrNull?.getPropertyGetter(fieldName)
+                        // 見つからなかったらスーパークラスを探す
+                            ?: property.backingField?.type?.superTypes()?.map { it.classOrNull?.getPropertyGetter(fieldName) }?.firstOrNull()
                     } else {
                         pluginContext.referenceFunctions(valueGetterCallableId).firstOrNull()
                     } ?: return super.visitCall(expression)
