@@ -28,4 +28,6 @@ object BackInTimeConsts {
     val registerFunctionName = "register"
     val systemClassId = classId("java.lang", "System")
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
+
+    val methodCallInfoClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeParentMethodCallInfo")
 }

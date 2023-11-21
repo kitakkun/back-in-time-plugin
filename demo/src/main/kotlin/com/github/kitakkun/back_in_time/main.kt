@@ -18,6 +18,7 @@ suspend fun main() {
             while (true) {
                 delay(1000)
                 hoge.set()
+                hoge.hogehoge()
             }
         }
     }

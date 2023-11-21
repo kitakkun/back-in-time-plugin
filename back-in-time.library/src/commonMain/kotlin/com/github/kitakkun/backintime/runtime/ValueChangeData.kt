@@ -5,4 +5,5 @@ data class ValueChangeData(
     val propertyName: String,
     val value: Any?,
     val valueType: String,
+    val methodCallInfo: BackInTimeParentMethodCallInfo,
 )

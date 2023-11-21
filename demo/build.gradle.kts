@@ -31,6 +31,13 @@ kotlin {
 
 configure<BackInTimeExtension> {
     enabled = true
+    capturedCalls += listOf(
+        "com.github.kitakkun.back_in_time.ValueContainer:<set-value>",
+        "com.github.kitakkun.back_in_time.ValueContainer:postValue",
+    )
+    valueGetters += listOf(
+        "com.github.kitakkun.back_in_time.ValueContainer:<get-value>",
+    )
 }
 
 application {

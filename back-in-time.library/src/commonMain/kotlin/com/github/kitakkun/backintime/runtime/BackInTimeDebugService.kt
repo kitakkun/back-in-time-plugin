@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.UUID
 import java.util.WeakHashMap
+import kotlin.coroutines.CoroutineContext
 
 typealias UUIDString = String
 
@@ -16,7 +17,7 @@ typealias UUIDString = String
  * Singleton service for back-in-time debugger
  */
 object BackInTimeDebugService : CoroutineScope {
-    override val coroutineContext: kotlin.coroutines.CoroutineContext get() = Dispatchers.Default + SupervisorJob()
+    override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
     @VisibleForTesting
     val instances = WeakHashMap<DebuggableStateHolderManipulator, UUIDString>()
@@ -52,6 +53,7 @@ object BackInTimeDebugService : CoroutineScope {
         propertyName: String,
         value: Any?,
         valueTypeQualifiedName: String,
+        methodCallInfo: BackInTimeParentMethodCallInfo,
     ) {
         launch {
             mutableValueChangeFlow.emit(
@@ -60,6 +62,7 @@ object BackInTimeDebugService : CoroutineScope {
                     propertyName = propertyName,
                     value = value,
                     valueType = valueTypeQualifiedName,
+                    methodCallInfo = methodCallInfo,
                 )
             )
         }

@@ -14,16 +14,27 @@ class HogeViewModel(
     constructor() : this("hogehoge")
 
     fun set() {
-        hoge = "hoge"
-        fuga = 100
-        foo = 200.0
+//        val a = java.util.UUID.randomUUID().toString()
+//        hoge = "hoge"
+//        fuga = 100
+//        foo = 200.0
         valueContainer.value = "fuga"
+        valueContainer.postValue("HOHO")
+    }
+
+    fun hogehoge(a: Int = 10): Int {
+//        hoge += hoge
+        return a
     }
 }
 
 
 class ValueContainer<T>(var value: T) {
     fun set(value: T) {
+        this.value = value
+    }
+
+    fun postValue(value: T) {
         this.value = value
     }
 }
