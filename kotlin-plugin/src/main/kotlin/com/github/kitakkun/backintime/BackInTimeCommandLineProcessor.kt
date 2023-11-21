@@ -19,24 +19,28 @@ class BackInTimeCommandLineProcessor : CommandLineProcessor {
             optionName = BackInTimeCompilerOptionKey.ENABLED,
             valueDescription = "true|false",
             description = "Whether BackInTime plugin is enabled or not.",
+            required = false,
         ),
         CliOption(
             optionName = BackInTimeCompilerOptionKey.CAPTURED_CALLS,
             valueDescription = "className1:functionName1,className2:functionName2,...(ex: androidx.lifecycle.MutableLiveData:<set-value>, androidx.compose.runtime.MutableState:<set-value>)",
             description = "Functions to be captured.",
             allowMultipleOccurrences = true,
+            required = false,
         ),
         CliOption(
             optionName = BackInTimeCompilerOptionKey.VALUE_GETTERS,
             valueDescription = "className1:functionName1,className2:functionName2,...(ex: androidx.lifecycle.MutableLiveData:<get-value>, androidx.compose.runtime.MutableState:<get-value>)",
             description = "Value getters to be used.",
             allowMultipleOccurrences = true,
+            required = false,
         ),
         CliOption(
             optionName = BackInTimeCompilerOptionKey.VALUE_SETTERS,
             valueDescription = "className1:functionName1,className2:functionName2,...(ex: androidx.lifecycle.MutableLiveData:<set-value>, androidx.compose.runtime.MutableState:<set-value>)",
             description = "Value setters to be used.",
             allowMultipleOccurrences = true,
+            required = false,
         )
     )
 
