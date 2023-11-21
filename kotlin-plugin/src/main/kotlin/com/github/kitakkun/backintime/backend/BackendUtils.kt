@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 
+@Suppress("UNUSED")
 fun IrType.isKotlinPrimitiveType(): Boolean {
     return when (this.classFqName?.asString()) {
         "kotlin.Boolean" -> true
@@ -41,6 +42,7 @@ fun IrProperty.getGenericTypes(): List<IrType> {
 }
 
 context(IrPluginContext)
+@Suppress("UNUSED")
 fun IrBuilderWithScope.generateDebugPrintCall(argument: IrExpression): IrCall {
     val printlnFunction = referenceFunctions(BackInTimeConsts.printlnCallableId).first {
         it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().type == irBuiltIns.anyNType
@@ -50,6 +52,7 @@ fun IrBuilderWithScope.generateDebugPrintCall(argument: IrExpression): IrCall {
     }
 }
 
+@Suppress("UNUSED")
 fun IrFunction.generateSignature(): String {
     return "${this.name}(${this.valueParameters.joinToString { "${it.name}: ${it.type.classFqName}" }}): ${this.returnType.classFqName}"
 }
