@@ -100,7 +100,10 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                         // 見つからなかったらスーパークラスを探す
                             ?: property.backingField?.type?.superTypes()?.map { it.classOrNull?.getPropertyGetter(fieldName) }?.firstOrNull()
                     } else {
-                        pluginContext.referenceFunctions(valueGetterCallableId).firstOrNull()
+                        val functionName = valueGetterCallableId.callableName.asString()
+                        property.backingField?.type?.classOrNull?.getSimpleFunction(functionName)
+                        // 見つからなかったらスーパークラスを探す
+                            ?: property.backingField?.type?.superTypes()?.map { it.classOrNull?.getSimpleFunction(functionName) }?.firstOrNull()
                     } ?: return super.visitCall(expression)
 
                     return irBlockBuilder.irComposite {
