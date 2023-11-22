@@ -3,16 +3,12 @@ package com.github.kitakkun.backintime.backend
 import com.github.kitakkun.backintime.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classFqName
-import org.jetbrains.kotlin.ir.types.typeOrNull
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 
 @Suppress("UNUSED")
@@ -75,4 +71,18 @@ fun irNotifyValueChangeCall(
         putValueArgument(3, irString(propertyTypeClassFqName))
         putValueArgument(4, irGet(callInfo))
     }
+}
+
+fun IrClass.getSimpleFunctionRecursively(name: String): IrSimpleFunctionSymbol? {
+    return getSimpleFunction(name)
+        ?: superTypes
+            .mapNotNull { it.classOrNull }
+            .firstNotNullOfOrNull { it.getSimpleFunction(name) }
+}
+
+fun IrClass.getPropertyGetterRecursively(name: String): IrSimpleFunctionSymbol? {
+    return getPropertyGetter(name)
+        ?: superTypes
+            .mapNotNull { it.classOrNull }
+            .firstNotNullOfOrNull { it.getPropertyGetter(name) }
 }

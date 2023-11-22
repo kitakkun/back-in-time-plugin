@@ -89,6 +89,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                     && dispatchReceiverForExpression is IrCall
                 ) {
                     val property = dispatchReceiverForExpression.symbol.owner.correspondingPropertySymbol?.owner ?: return super.visitCall(expression)
+                    val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return super.visitCall(expression)
                     val valueGetterCallableId = valueGetterCallableIds.firstOrNull { it.className == callingFunction.parentClassOrNull?.fqNameWhenAvailable } ?: return super.visitCall(expression)
 
                     val propertyGetterPattern = Regex("<get-(.*?)>")
@@ -96,14 +97,10 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
                     val valueGetter = if (matchResult != null) {
                         val fieldName = matchResult.groupValues[1]
-                        property.backingField?.type?.classOrNull?.getPropertyGetter(fieldName)
-                        // 見つからなかったらスーパークラスを探す
-                            ?: property.backingField?.type?.superTypes()?.map { it.classOrNull?.getPropertyGetter(fieldName) }?.firstOrNull()
+                        propertyClass.getPropertyGetterRecursively(fieldName)
                     } else {
                         val functionName = valueGetterCallableId.callableName.asString()
-                        property.backingField?.type?.classOrNull?.getSimpleFunction(functionName)
-                        // 見つからなかったらスーパークラスを探す
-                            ?: property.backingField?.type?.superTypes()?.map { it.classOrNull?.getSimpleFunction(functionName) }?.firstOrNull()
+                        propertyClass.getSimpleFunctionRecursively(functionName)
                     } ?: return super.visitCall(expression)
 
                     return irBlockBuilder.irComposite {
