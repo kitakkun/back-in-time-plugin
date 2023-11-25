@@ -1,5 +1,7 @@
 package com.github.kitakkun.backintime.runtime
 
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService.instances
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService.mutableValueChangeFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -7,6 +9,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
+import java.lang.ref.WeakReference
 import java.util.UUID
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
@@ -39,6 +42,15 @@ object BackInTimeDebugService : CoroutineScope {
         launch {
             mutableRegisteredInstanceFlow.emit(info)
         }
+    }
+
+    /**
+     * check if the instance is still alive
+     * this function is necessary because WeakHashMap doesn't have callback when the instance is garbage collected
+     * @param instanceUUID UUID of the instance
+     */
+    fun checkIfInstanceIsAlive(instanceUUID: UUIDString): Boolean {
+        return instances.containsValue(instanceUUID)
     }
 
     fun manipulate(

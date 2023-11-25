@@ -53,6 +53,16 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                 Log.d("BackInTimeFlipperPlugin", "forceUpdateState: $instanceUUID, $propertyName, $value")
                 service.manipulate(instanceUUID, propertyName, value)
             }
+            receive("refreshInstanceAliveStatus") { params, responder ->
+                val instanceUUIDs = params.getArray("instanceUUIDs").toStringList()
+                responder.success(
+                    FlipperArray.Builder().apply {
+                        instanceUUIDs.forEach {
+                            put(service.checkIfInstanceIsAlive(it))
+                        }
+                    }.build()
+                )
+            }
         }
     }
 
