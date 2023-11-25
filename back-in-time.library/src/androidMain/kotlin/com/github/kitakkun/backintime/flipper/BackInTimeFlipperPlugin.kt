@@ -13,7 +13,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
     final override fun getId() = "back-in-time"
-    final override fun runInBackground() = false
+    final override fun runInBackground() = true
 
     init {
         launch {
