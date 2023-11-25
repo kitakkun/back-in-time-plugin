@@ -18,4 +18,7 @@ object BackInTimeConsts {
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
     val methodCallInfoClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeParentMethodCallInfo")
+    val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
+    val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime", "PropertyInfo")
+    val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
 }

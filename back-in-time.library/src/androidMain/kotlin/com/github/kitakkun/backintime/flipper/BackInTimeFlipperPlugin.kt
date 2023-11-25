@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.flipper
 
 import android.util.Log
+import com.facebook.flipper.core.FlipperArray
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
@@ -30,6 +31,12 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                     "valueChanged",
                     eventObject
                 )
+            }
+        }
+
+        launch {
+            service.registeredInstanceFlow.collect { instanceInfo ->
+                connection?.send("register", instanceInfo.toFlipperObject())
             }
         }
     }

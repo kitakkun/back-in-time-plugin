@@ -22,6 +22,9 @@ object BackInTimeDebugService : CoroutineScope {
     @VisibleForTesting
     val instances = WeakHashMap<DebuggableStateHolderManipulator, UUIDString>()
 
+    private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>()
+    val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
+
     private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
     val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
 
@@ -29,11 +32,13 @@ object BackInTimeDebugService : CoroutineScope {
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
      * @param instance instance to be registered. must be annotated with [DebuggableStateHolder]
+     * @Param info information about the instance
      */
-    fun register(instance: DebuggableStateHolderManipulator): UUIDString {
-        val uuidString = UUID.randomUUID().toString()
-        instances[instance] = uuidString
-        return uuidString
+    fun register(instance: DebuggableStateHolderManipulator, info: InstanceInfo) {
+        instances[instance] = info.uuid
+        launch {
+            mutableRegisteredInstanceFlow.emit(info)
+        }
     }
 
     fun manipulate(

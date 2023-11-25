@@ -6,20 +6,25 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.types.classFqName
-import org.jetbrains.kotlin.ir.util.getSimpleFunction
-import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.util.statements
+import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 class BackInTimeCallRegisterOnInitTransformer(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoid() {
+    private val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
+    private val registerFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.registerFunctionName)!!
+    private val instanceInfoConstructor = pluginContext.referenceConstructors(BackInTimeConsts.instanceInfoClassId).first()
+    private val propertyInfoClass = pluginContext.referenceClass(BackInTimeConsts.propertyInfoClassId)!!
+    private val propertyInfoClassConstructor = propertyInfoClass.constructors.first()
+    private val listOfFunction = pluginContext.referenceFunctions(BackInTimeConsts.listOfFunctionId).first {
+        it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg
+    }
+
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
         if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitConstructor(declaration)
-
-        val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: return super.visitConstructor(declaration)
-        val registerFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.registerFunctionName) ?: return super.visitConstructor(declaration)
 
         declaration.body = IrBlockBodyBuilder(
             context = pluginContext,
@@ -31,6 +36,19 @@ class BackInTimeCallRegisterOnInitTransformer(
             +irCall(registerFunction).apply {
                 dispatchReceiver = irGetObject(backInTimeDebugServiceClass)
                 putValueArgument(0, irGet(parentClass.thisReceiver!!))
+                putValueArgument(1, irCallConstructor(instanceInfoConstructor, emptyList()).apply {
+                    putValueArgument(0, irString(parentClass.fqNameWhenAvailable?.asString() ?: return@blockBody))
+                    putValueArgument(1, irCall(listOfFunction).apply {
+                        putValueArgument(0, irVararg(propertyInfoClass.defaultType, parentClass.properties.map {
+                            irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
+                                putValueArgument(0, irString(it.name.asString()))
+                                putValueArgument(1, irBoolean(true)) // FIXME: 適当に入れてる
+                                putValueArgument(2, irString(it.backingField?.type?.classFqName?.asString() ?: "unknown"))
+                            }
+                        }.toList()))
+                        putTypeArgument(0, propertyInfoClass.defaultType)
+                    })
+                })
             }
         }
 
