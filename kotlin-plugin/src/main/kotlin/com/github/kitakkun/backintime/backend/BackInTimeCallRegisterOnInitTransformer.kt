@@ -39,11 +39,18 @@ class BackInTimeCallRegisterOnInitTransformer(
                 putValueArgument(1, irCallConstructor(instanceInfoConstructor, emptyList()).apply {
                     putValueArgument(0, irString(parentClass.fqNameWhenAvailable?.asString() ?: return@blockBody))
                     putValueArgument(1, irCall(listOfFunction).apply {
-                        putValueArgument(0, irVararg(propertyInfoClass.defaultType, parentClass.properties.map {
+                        putValueArgument(0, irVararg(propertyInfoClass.defaultType, parentClass.properties.map { irProperty ->
                             irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
-                                putValueArgument(0, irString(it.name.asString()))
+                                putValueArgument(0, irString(irProperty.name.asString()))
                                 putValueArgument(1, irBoolean(true)) // FIXME: 適当に入れてる
-                                putValueArgument(2, irString(it.backingField?.type?.classFqName?.asString() ?: "unknown"))
+                                val genericTypes = irProperty.getGenericTypes()
+                                if (genericTypes.isEmpty()) {
+                                    putValueArgument(2, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
+                                    putValueArgument(3, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
+                                } else {
+                                    putValueArgument(2, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
+                                    putValueArgument(3, irString(genericTypes.first().classFqName?.asString() ?: "unknown"))
+                                }
                             }
                         }.toList()))
                         putTypeArgument(0, propertyInfoClass.defaultType)
