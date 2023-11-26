@@ -1,11 +1,12 @@
 package com.github.kitakkun.backintime.flipper
 
-import android.util.Log
-import com.facebook.flipper.core.FlipperArray
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
+import com.github.kitakkun.backintime.flipper.events.FlipperIncomingEvent
+import com.github.kitakkun.backintime.flipper.events.FlipperOutgoingEvent
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -13,57 +14,18 @@ import kotlinx.coroutines.launch
 abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
+    private val gson = Gson()
+
     final override fun getId() = "back-in-time"
     final override fun runInBackground() = true
 
     init {
-        launch {
-            service.valueChangeFlow.collect { valueChangeData ->
-                val stringifiedValue = serializeValue(valueChangeData.value, valueChangeData.valueType)
-                val eventObject = FlipperObject.Builder()
-                    .put("instanceUUID", valueChangeData.instanceUUID)
-                    .put("propertyName", valueChangeData.propertyName)
-                    .put("value", stringifiedValue)
-                    .put("valueType", valueChangeData.valueType)
-                    .build()
-                Log.d("BackInTimeFlipperPlugin", "valueChanged: $eventObject")
-                connection?.send(
-                    "valueChanged",
-                    eventObject
-                )
-            }
-        }
-
-        launch {
-            service.registeredInstanceFlow.collect { instanceInfo ->
-                connection?.send("register", instanceInfo.toFlipperObject())
-            }
-        }
+        observeOutgoingEvents()
     }
 
     final override fun onConnect(connection: FlipperConnection?) {
         this.connection = connection
-        this.connection?.apply {
-            receive("forceUpdateState") { params, responder ->
-                val instanceUUID = params.getString("instanceUUID")
-                val propertyName = params.getString("propertyName")
-                val rawValue = params.getString("value")
-                val valueType = params.getString("valueType")
-                val value = deserializeValue(rawValue, valueType)
-                Log.d("BackInTimeFlipperPlugin", "forceUpdateState: $instanceUUID, $propertyName, $value")
-                service.manipulate(instanceUUID, propertyName, value)
-            }
-            receive("refreshInstanceAliveStatus") { params, responder ->
-                val instanceUUIDs = params.getArray("instanceUUIDs").toStringList()
-                responder.success(
-                    FlipperArray.Builder().apply {
-                        instanceUUIDs.forEach {
-                            put(service.checkIfInstanceIsAlive(it))
-                        }
-                    }.build()
-                )
-            }
-        }
+        this.connection?.observeIncomingEvents()
     }
 
     final override fun onDisconnect() {
@@ -72,4 +34,48 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
 
     abstract fun serializeValue(value: Any?, valueType: String): String
     abstract fun deserializeValue(value: String, valueType: String): Any?
+
+    private fun observeOutgoingEvents() {
+        launch {
+            service.registeredInstanceFlow.collect { instanceInfo ->
+                val event = FlipperOutgoingEvent.RegisterInstance(
+                    instanceInfo.uuid,
+                    instanceInfo.type,
+                    instanceInfo.properties,
+                    instanceInfo.registeredAt,
+                )
+                connection?.send(FlipperOutgoingEvent.RegisterInstance.EVENT_NAME, FlipperObject(gson.toJson(event)))
+            }
+        }
+
+        launch {
+            service.valueChangeFlow.collect { valueChangeData ->
+                val event = FlipperOutgoingEvent.NotifyValueChange(
+                    valueChangeData.instanceUUID,
+                    valueChangeData.propertyName,
+                    serializeValue(valueChangeData.value, valueChangeData.valueType),
+                    valueChangeData.methodCallInfo.callUuid,
+                )
+                connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(gson.toJson(event)))
+            }
+        }
+    }
+
+    private fun FlipperConnection.observeIncomingEvents() {
+        receive(FlipperIncomingEvent.ForceSetPropertyValue.EVENT_NAME) { params, responder ->
+            val event = gson.fromJson(params.toJsonString(), FlipperIncomingEvent.ForceSetPropertyValue::class.java)
+            with(event) {
+                service.manipulate(instanceUUID, propertyName, deserializeValue(value, valueType))
+            }
+            // FIXME: this should be called after the value is actually changed
+            //  error handling is also necessary
+            responder.success()
+        }
+
+        receive(FlipperIncomingEvent.CheckInstanceAlive.EVENT_NAME) { params, responder ->
+            val event = gson.fromJson(params.toJsonString(), FlipperIncomingEvent.CheckInstanceAlive::class.java)
+            val response = FlipperIncomingEvent.CheckInstanceAlive.Response(event.instanceUUIDs.associateWith { service.checkIfInstanceIsAlive(it) })
+            responder.success(FlipperObject(gson.toJson(response)))
+        }
+    }
 }
