@@ -1,9 +1,9 @@
 package com.github.kitakkun.backintime.runtime
 
-data class ValueChangeData(
+data class ValueChangeInfo(
     val instanceUUID: UUIDString,
     val propertyName: String,
     val value: Any?,
     val valueType: String,
-    val methodCallInfo: BackInTimeParentMethodCallInfo,
+    val methodCallUUID: String,
 )

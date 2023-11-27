@@ -4,9 +4,7 @@ import com.github.kitakkun.backintime.BackInTimeAnnotations
 import com.github.kitakkun.backintime.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsManglerIr.signatureString
 import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.deepCopyWithVariables
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
@@ -25,6 +23,9 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
     private val capturedCallableIds: List<CallableId>,
     private val valueGetterCallableIds: List<CallableId>,
 ) : IrElementTransformerVoid() {
+    private val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: error("backInTimeDebugServiceClassId is not found")
+    private val backInTimeNotifyMethodCallFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
+
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val ownerClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)
@@ -37,19 +38,18 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
             endOffset = declaration.endOffset,
         )
 
-        val methodCallInfo = pluginContext.referenceClass(BackInTimeConsts.methodCallInfoClassId) ?: return super.visitSimpleFunction(declaration)
-        val constructor = methodCallInfo.constructors.firstOrNull() ?: return super.visitSimpleFunction(declaration)
+        val uuidVariable = with(pluginContext) { irBuilder.generateUUIDVariable() } ?: return super.visitSimpleFunction(declaration)
 
-        val callInfo = with(irBuilder) {
-            irTemporary(
-                irCallConstructor(constructor, emptyList()).apply {
-                    putValueArgument(0, irString(declaration.signatureString(false)))
-                },
-                origin = IrDeclarationOrigin.DEFINED,
-            )
+        val notifyMethodCallFunctionCall = with(irBuilder) {
+            irCall(backInTimeNotifyMethodCallFunction).apply {
+                dispatchReceiver = irGetObject(backInTimeDebugServiceClass)
+                putValueArgument(0, irGet(declaration.dispatchReceiverParameter!!))
+                putValueArgument(1, irString(declaration.name.asString()))
+                putValueArgument(2, irGet(uuidVariable))
+            }
         }
 
-        (declaration.body as? IrBlockBody)?.statements?.add(0, callInfo)
+        (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
         declaration.transformChildrenVoid(object : IrElementTransformerVoid() {
             override fun visitCall(expression: IrCall): IrExpression {
@@ -76,7 +76,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                                     this.dispatchReceiver = dispatchReceiverForExpression.deepCopyWithVariables()
                                 },
                                 propertyTypeClassFqName = property.backingField?.type?.classFqName?.asString() ?: return@irComposite,
-                                callInfo = callInfo,
+                                methodCallUUID = uuidVariable,
                             )?.let { +it }
                         }
                     }
@@ -111,7 +111,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                                 propertyName = property.name.asString(),
                                 value = irCall(valueGetter).apply { this.dispatchReceiver = dispatchReceiverForExpression.deepCopyWithVariables() },
                                 propertyTypeClassFqName = property.getGenericTypes().first().classFqName?.asString() ?: return@irComposite,
-                                callInfo = callInfo,
+                                methodCallUUID = uuidVariable,
                             )?.let { +it }
                         }
                     }

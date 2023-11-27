@@ -59,7 +59,7 @@ fun irNotifyValueChangeCall(
     propertyName: String,
     propertyTypeClassFqName: String,
     value: IrExpression,
-    callInfo: IrVariable,
+    methodCallUUID: IrVariable,
 ): IrExpression? {
     val debugServiceClass = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: return null
     val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged) ?: return null
@@ -69,7 +69,7 @@ fun irNotifyValueChangeCall(
         putValueArgument(1, irString(propertyName))
         putValueArgument(2, value)
         putValueArgument(3, irString(propertyTypeClassFqName))
-        putValueArgument(4, irGet(callInfo))
+        putValueArgument(4, irGet(methodCallUUID))
     }
 }
 
@@ -85,4 +85,18 @@ fun IrClass.getPropertyGetterRecursively(name: String): IrSimpleFunctionSymbol? 
         ?: superTypes
             .mapNotNull { it.classOrNull }
             .firstNotNullOfOrNull { it.getPropertyGetter(name) }
+}
+
+context(IrPluginContext)
+fun IrBlockBuilder.generateUUIDVariable(): IrVariable? {
+    val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId) ?: return null
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName) ?: return null
+    val toStringFunction = uuidClass.getSimpleFunction("toString") ?: return null
+    return irTemporary(
+        value = irCall(toStringFunction).apply {
+            dispatchReceiver = irCall(randomUUIDFunction)
+        },
+        irType = irBuiltIns.stringType,
+        origin = IrDeclarationOrigin.DEFINED,
+    )
 }

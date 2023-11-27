@@ -13,12 +13,15 @@ object BackInTimeConsts {
     val secondParameterNameForGeneratedMethod = Name.identifier("value")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
-    val notifyPropertyChanged = "notifyPropertyChanged"
     val registerFunctionName = "register"
+    val notifyMethodCallFunctionName = "notifyMethodCall"
+    val notifyPropertyChanged = "notifyPropertyChanged"
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
-    val methodCallInfoClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeParentMethodCallInfo")
+    val methodCallInfoClassId = classId("com.github.kitakkun.backintime.runtime", "MethodCallInfo")
     val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
     val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime", "PropertyInfo")
     val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
+    val UUIDClassId = classId("java.util", "UUID")
+    val randomUUIDFunctionName = "randomUUID"
 }

@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.flipper
 
+import android.util.Log
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
@@ -39,22 +40,34 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
         launch {
             service.registeredInstanceFlow.collect { instanceInfo ->
                 val event = FlipperOutgoingEvent.RegisterInstance(
-                    instanceInfo.uuid,
-                    instanceInfo.type,
-                    instanceInfo.properties,
-                    instanceInfo.registeredAt,
+                    instanceUUID = instanceInfo.uuid,
+                    instanceType = instanceInfo.type,
+                    properties = instanceInfo.properties,
+                    registeredAt = instanceInfo.registeredAt,
                 )
                 connection?.send(FlipperOutgoingEvent.RegisterInstance.EVENT_NAME, FlipperObject(gson.toJson(event)))
             }
         }
 
         launch {
-            service.valueChangeFlow.collect { valueChangeData ->
+            service.notifyMethodCallFlow.collect { methodCallInfo ->
+                val event = FlipperOutgoingEvent.NotifyMethodCall(
+                    instanceUUID = methodCallInfo.instanceUUID,
+                    methodName = methodCallInfo.methodName,
+                    methodCallUUID = methodCallInfo.methodCallUUID,
+                    calledAt = methodCallInfo.calledAt,
+                )
+                connection?.send(FlipperOutgoingEvent.NotifyMethodCall.EVENT_NAME, FlipperObject(gson.toJson(event)))
+            }
+        }
+
+        launch {
+            service.notifyValueChangeFlow.collect { valueChangeInfo ->
                 val event = FlipperOutgoingEvent.NotifyValueChange(
-                    valueChangeData.instanceUUID,
-                    valueChangeData.propertyName,
-                    serializeValue(valueChangeData.value, valueChangeData.valueType),
-                    valueChangeData.methodCallInfo.callUuid,
+                    instanceUUID = valueChangeInfo.instanceUUID,
+                    propertyName = valueChangeInfo.propertyName,
+                    value = serializeValue(valueChangeInfo.value, valueChangeInfo.valueType),
+                    methodCallUUID = valueChangeInfo.methodCallUUID,
                 )
                 connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(gson.toJson(event)))
             }

@@ -1,7 +1,5 @@
 package com.github.kitakkun.backintime.runtime
 
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugService.instances
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugService.mutableValueChangeFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -9,8 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
-import java.lang.ref.WeakReference
-import java.util.UUID
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -28,8 +24,11 @@ object BackInTimeDebugService : CoroutineScope {
     private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>()
     val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
 
-    private val mutableValueChangeFlow = MutableSharedFlow<ValueChangeData>()
-    val valueChangeFlow = mutableValueChangeFlow.asSharedFlow()
+    private val mutableNotifyValueChangeFlow = MutableSharedFlow<ValueChangeInfo>()
+    val notifyValueChangeFlow = mutableNotifyValueChangeFlow.asSharedFlow()
+
+    private val mutableNotifyMethodCallFlow = MutableSharedFlow<MethodCallInfo>()
+    val notifyMethodCallFlow = mutableNotifyMethodCallFlow.asSharedFlow()
 
     /**
      * register instance for debugging
@@ -70,16 +69,33 @@ object BackInTimeDebugService : CoroutineScope {
         propertyName: String,
         value: Any?,
         valueTypeQualifiedName: String,
-        methodCallInfo: BackInTimeParentMethodCallInfo,
+        methodCallUUID: String,
     ) {
         launch {
-            mutableValueChangeFlow.emit(
-                ValueChangeData(
+            mutableNotifyValueChangeFlow.emit(
+                ValueChangeInfo(
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
                     value = value,
                     valueType = valueTypeQualifiedName,
-                    methodCallInfo = methodCallInfo,
+                    methodCallUUID = methodCallUUID,
+                )
+            )
+        }
+    }
+
+    fun notifyMethodCall(
+        instance: DebuggableStateHolderManipulator,
+        methodName: String,
+        methodCallUUID: String,
+    ) {
+        launch {
+            mutableNotifyMethodCallFlow.emit(
+                MethodCallInfo(
+                    instanceUUID = instances[instance] ?: return@launch,
+                    methodName = methodName,
+                    methodCallUUID = methodCallUUID,
+                    calledAt = System.currentTimeMillis(),
                 )
             )
         }
