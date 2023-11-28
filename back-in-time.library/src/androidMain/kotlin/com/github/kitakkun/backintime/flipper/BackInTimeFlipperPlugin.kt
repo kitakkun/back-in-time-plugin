@@ -9,6 +9,7 @@ import com.github.kitakkun.backintime.flipper.events.FlipperOutgoingEvent
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
@@ -38,6 +39,9 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
 
     private fun observeOutgoingEvents() {
         launch {
+            // wait until the connection is established
+            // temporary fix: this may not work property if the connection is disconnected and reconnected
+            while (connection == null);
             service.registeredInstanceFlow.collect { instanceInfo ->
                 val event = FlipperOutgoingEvent.RegisterInstance(
                     instanceUUID = instanceInfo.uuid,
