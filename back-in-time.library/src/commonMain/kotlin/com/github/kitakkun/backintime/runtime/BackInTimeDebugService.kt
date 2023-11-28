@@ -21,7 +21,10 @@ object BackInTimeDebugService : CoroutineScope {
     @VisibleForTesting
     val instances = WeakHashMap<DebuggableStateHolderManipulator, UUIDString>()
 
-    private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>()
+    // because FlipperPlugin instance is created after the app is launched.
+    // sometimes it fails to observe the first event.
+    // temporary fix: replay the last 10 events
+    private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>(replay = 10)
     val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
 
     private val mutableNotifyValueChangeFlow = MutableSharedFlow<ValueChangeInfo>()
