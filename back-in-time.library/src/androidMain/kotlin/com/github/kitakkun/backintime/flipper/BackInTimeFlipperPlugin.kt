@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.flipper
 
-import android.util.Log
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
@@ -17,31 +16,29 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
     private val gson = Gson()
+    private var observeOutgoingEventsJob: Job? = null
 
     final override fun getId() = "back-in-time"
     final override fun runInBackground() = true
 
-    init {
-        observeOutgoingEvents()
-    }
-
     final override fun onConnect(connection: FlipperConnection?) {
         this.connection = connection
         this.connection?.observeIncomingEvents()
+        observeOutgoingEventsJob?.cancel()
+        observeOutgoingEventsJob = observeOutgoingEvents()
     }
 
     final override fun onDisconnect() {
         connection = null
+        observeOutgoingEventsJob?.cancel()
+        observeOutgoingEventsJob = null
     }
 
     abstract fun serializeValue(value: Any?, valueType: String): String
     abstract fun deserializeValue(value: String, valueType: String): Any?
 
-    private fun observeOutgoingEvents() {
+    private fun observeOutgoingEvents() = launch {
         launch {
-            // wait until the connection is established
-            // temporary fix: this may not work property if the connection is disconnected and reconnected
-            while (connection == null);
             service.registeredInstanceFlow.collect { instanceInfo ->
                 val event = FlipperOutgoingEvent.RegisterInstance(
                     instanceUUID = instanceInfo.uuid,
