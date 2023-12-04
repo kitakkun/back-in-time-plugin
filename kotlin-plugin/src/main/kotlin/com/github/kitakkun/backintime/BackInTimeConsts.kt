@@ -24,4 +24,8 @@ object BackInTimeConsts {
     val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
     val UUIDClassId = classId("java.util", "UUID")
     val randomUUIDFunctionName = "randomUUID"
+
+    // Exception classes
+    val backInTimeRuntimeExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException")
+    val nullValueNotAssignableExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException.NullValueNotAssignableException")
 }

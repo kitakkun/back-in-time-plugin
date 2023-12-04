@@ -2,16 +2,15 @@ package com.github.kitakkun.backintime.backend
 
 import com.github.kitakkun.backintime.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.getPropertySetter
-import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.types.isNullable
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.CallableId
 
@@ -19,6 +18,10 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
     private val pluginContext: IrPluginContext,
     private val valueSetterCallableIds: List<CallableId>,
 ) : IrElementTransformerVoid() {
+    private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
+    private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
+        .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
+
     private fun shouldGenerateFunctionBody(parentClass: IrClass, declaration: IrSimpleFunction): Boolean {
         return parentClass.superTypes.any { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }
             && declaration.name == BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName
@@ -55,11 +58,26 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
 
         // varのsetterならそのまま突っ込む
         if (property.isVar) {
-            return irSetField(
-                receiver = irGet(declaration.dispatchReceiverParameter!!),
-                field = backingField,
-                value = irGet(value),
-            )
+            return if (backingField.type.isNullable()) {
+                irSetField(
+                    receiver = irGet(declaration.dispatchReceiverParameter!!),
+                    field = backingField,
+                    value = irGet(value),
+                )
+            } else {
+                irIfNull(type = value.type, subject = irGet(value), thenPart = irBlock {
+                    irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
+                        putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
+                        putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
+                    })
+                }, elsePart = irBlock {
+                    irSetField(
+                        receiver = irGet(declaration.dispatchReceiverParameter!!),
+                        field = backingField,
+                        value = irGet(value),
+                    )
+                })
+            }
         }
 
         val parentClassAsReceiver = if (backingField.isStatic) null else irGet(declaration.dispatchReceiverParameter!!)
@@ -73,9 +91,21 @@ class BackInTimeForceSetPropertyValueGenerateTransformer(
             pluginContext.referenceFunctions(setterCallableId).firstOrNull()
         } ?: return irBlock {}
 
-        return irCall(valueSetter).apply {
-            dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
-            putValueArgument(0, irGet(value))
+        return if (backingField.type.isNullable()) {
+            irCall(valueSetter).apply {
+                dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
+                putValueArgument(0, irGet(value))
+            }
+        } else {
+            irIfNull(type = pluginContext.irBuiltIns.anyNType, subject = irGet(value), thenPart = irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
+                putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
+                putValueArgument(1, irString(property.getGenericTypes().firstOrNull()?.classFqName?.asString() ?: "unknown"))
+            }), elsePart = irBlock {
+                irCall(valueSetter).apply {
+                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
+                    putValueArgument(0, irGet(value))
+                }
+            })
         }
     }
 }
