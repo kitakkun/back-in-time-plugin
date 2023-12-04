@@ -7,7 +7,6 @@ import com.github.kitakkun.backintime.BackInTimePredicate
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
-import org.jetbrains.kotlin.fir.expressions.builder.buildEmptyExpressionBlock
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
@@ -35,9 +34,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
                 valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.nullableAnyType.coneType)
                 status { isOverride = true }
             },
-        ).apply {
-            replaceBody(buildEmptyExpressionBlock())
-        }
+        )
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
