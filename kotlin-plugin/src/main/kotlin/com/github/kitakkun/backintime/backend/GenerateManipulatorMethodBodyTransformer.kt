@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.backend
 
 import com.github.kitakkun.backintime.BackInTimeConsts
+import com.github.kitakkun.backintime.MessageCollectorHolder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.IrStatement
@@ -75,58 +76,58 @@ class GenerateManipulatorMethodBodyTransformer(
 
     private fun IrBlockBodyBuilder.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression {
         val backingField = property.backingField ?: return irBlock { }
-        val backingFieldClass = backingField.type.classOrNull ?: return irBlock { }
 
-        // varのsetterならそのまま突っ込む
-        if (property.isVar) {
-            return if (backingField.type.isNullable()) {
+        val valueType = property.getValueType()
+        if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
+            MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
+            return irBlock { }
+        }
+
+        val isGeneric = property.backingField?.type?.classOrNull?.owner?.isGeneric() == true
+
+        val irThrowErrorIfNullNotAllowed = irIfNull(
+            type = value.type,
+            subject = irGet(value),
+            thenPart = irBlock {
+                irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
+                    putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
+                    putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
+                })
+            },
+            elsePart = irBlock { },
+        )
+
+        return irBlock {
+            if (valueType.isNullable()) +irThrowErrorIfNullNotAllowed
+
+            if (!isGeneric && property.isVar) {
                 irSetField(
                     receiver = irGet(declaration.dispatchReceiverParameter!!),
                     field = backingField,
                     value = irGet(value),
                 )
             } else {
-                irIfNull(type = value.type, subject = irGet(value), thenPart = irBlock {
-                    irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
-                        putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
-                        putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
-                    })
-                }, elsePart = irBlock {
-                    irSetField(
-                        receiver = irGet(declaration.dispatchReceiverParameter!!),
-                        field = backingField,
-                        value = irGet(value),
-                    )
-                })
-            }
-        }
+                val setterCallableId = valueSetterCallableIds.find { it.className == valueType.classOrNull?.owner?.fqNameWhenAvailable } ?: return irBlock {}
+                val propertySetterPattern = Regex("<set-(.*?)>")
+                val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
+                val valueSetter = if (matchResult != null) {
+                    property.backingField?.type?.classOrNull?.getPropertySetter(matchResult.groupValues[1])
+                } else {
+                    pluginContext.referenceFunctions(setterCallableId).firstOrNull()
+                } ?: return irBlock {}
 
-        val parentClassAsReceiver = if (backingField.isStatic) null else irGet(declaration.dispatchReceiverParameter!!)
-
-        val setterCallableId = valueSetterCallableIds.find { it.className == backingFieldClass.owner.fqNameWhenAvailable } ?: return irBlock {}
-        val propertySetterPattern = Regex("<set-(.*?)>")
-        val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
-        val valueSetter = if (matchResult != null) {
-            property.backingField?.type?.classOrNull?.getPropertySetter(matchResult.groupValues[1])
-        } else {
-            pluginContext.referenceFunctions(setterCallableId).firstOrNull()
-        } ?: return irBlock {}
-
-        return if (backingField.type.isNullable()) {
-            irCall(valueSetter).apply {
-                dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
-                putValueArgument(0, irGet(value))
-            }
-        } else {
-            irIfNull(type = pluginContext.irBuiltIns.anyNType, subject = irGet(value), thenPart = irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
-                putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
-                putValueArgument(1, irString(property.getGenericTypes().firstOrNull()?.classFqName?.asString() ?: "unknown"))
-            }), elsePart = irBlock {
                 irCall(valueSetter).apply {
-                    dispatchReceiver = irGetField(receiver = parentClassAsReceiver, field = backingField)
+                    dispatchReceiver = irGetField(
+                        receiver = if (backingField.isStatic) {
+                            null
+                        } else {
+                            irGet(declaration.dispatchReceiverParameter!!)
+                        },
+                        field = backingField,
+                    )
                     putValueArgument(0, irGet(value))
                 }
-            })
+            }
         }
     }
 
@@ -144,15 +145,17 @@ class GenerateManipulatorMethodBodyTransformer(
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
-                branches = parentClass.properties.map { property ->
-                    irBranch(
-                        condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateSerializeCall(
-                            valueClass = property.backingField!!.type.classOrNull!!.owner,
-                            value = value,
+                branches = parentClass.properties
+                    .filter { it.backingField?.type?.classOrNull?.owner?.serializerAvailable() == true }
+                    .map { property ->
+                        irBranch(
+                            condition = irEquals(irGet(propertyName), irString(property.name.asString())),
+                            result = generateSerializeCall(
+                                valueClass = property.backingField!!.type.classOrNull!!.owner,
+                                value = value,
+                            )
                         )
-                    )
-                }.toList() + irElseBranch(irReturn(irString("NONE"))), // FIXME: should throw an exception
+                    }.toList() + irElseBranch(irReturn(irString("NONE"))), // FIXME: should throw an exception
             )
         }
     }
@@ -181,5 +184,15 @@ class GenerateManipulatorMethodBodyTransformer(
                 putValueArgument(1, irGet(value))
             }
         )
+    }
+
+    private fun IrClass.serializerAvailable(): Boolean {
+        if (this.companionObject()?.getSimpleFunction("serializer") != null) return true
+        return pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
+            .any { it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == this.symbol }
+    }
+
+    private fun IrClass.isGeneric(): Boolean {
+        return this.typeParameters.isNotEmpty()
     }
 }

@@ -44,6 +44,10 @@ fun IrType.getGenericTypes(): List<IrType> {
         .orEmpty()
 }
 
+fun IrProperty.getValueType(): IrType {
+    return this.getGenericTypes().firstOrNull() ?: backingField?.type ?: error("Cannot get value type")
+}
+
 context(IrPluginContext)
 @Suppress("UNUSED")
 fun IrBuilderWithScope.generateDebugPrintCall(argument: IrExpression): IrCall {
