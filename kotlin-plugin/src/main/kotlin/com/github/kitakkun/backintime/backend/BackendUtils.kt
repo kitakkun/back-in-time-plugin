@@ -37,6 +37,13 @@ fun IrProperty.getGenericTypes(): List<IrType> {
         .orEmpty()
 }
 
+fun IrType.getGenericTypes(): List<IrType> {
+    return (this as? IrSimpleType)
+        ?.arguments
+        ?.mapNotNull { it.typeOrNull }
+        .orEmpty()
+}
+
 context(IrPluginContext)
 @Suppress("UNUSED")
 fun IrBuilderWithScope.generateDebugPrintCall(argument: IrExpression): IrCall {

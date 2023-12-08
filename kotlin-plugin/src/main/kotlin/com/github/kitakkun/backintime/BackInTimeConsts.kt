@@ -8,6 +8,7 @@ import org.jetbrains.kotlin.name.Name
 object BackInTimeConsts {
     val debuggableStateHolderManipulatorFqName = FqName("com.github.kitakkun.backintime.runtime.DebuggableStateHolderManipulator")
 
+    val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
     val forceSetPropertyValueForBackInDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
     val firstParameterNameForGeneratedMethod = Name.identifier("propertyName")
     val secondParameterNameForGeneratedMethod = Name.identifier("value")
@@ -28,4 +29,7 @@ object BackInTimeConsts {
     // Exception classes
     val backInTimeRuntimeExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException")
     val nullValueNotAssignableExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException.NullValueNotAssignableException")
+
+    val kotlinxSerializationJsonClassId = classId("kotlinx.serialization.json", "Json")
+    val kotlinxSerializationEncodeToStringFunctionId = CallableId(kotlinxSerializationJsonClassId, Name.identifier("encodeToString"))
 }

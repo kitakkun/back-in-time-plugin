@@ -21,7 +21,7 @@ class BackInTimeIrGenerationExtension(
             )
         )
         moduleFragment.transformChildrenVoid(
-            BackInTimeForceSetPropertyValueGenerateTransformer(
+            GenerateManipulatorMethodBodyTransformer(
                 pluginContext = pluginContext,
                 valueSetterCallableIds = valueSetterCallableIds,
             )
