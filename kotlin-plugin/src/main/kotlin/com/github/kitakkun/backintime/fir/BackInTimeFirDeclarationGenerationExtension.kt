@@ -28,9 +28,9 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
     }
 
     private fun createForceSetPropertyValueForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
-        when (callableId.callableName) {
+        return when (callableId.callableName) {
             serializePropertyMethodName -> {
-                return createMemberFunction(
+                createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
                     name = callableId.callableName,
@@ -44,7 +44,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
             }
 
             forceSetPropertyValueForBackInTimeDebugMethodName -> {
-                return createMemberFunction(
+                createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
                     name = callableId.callableName,
