@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.fir
 
 import com.github.kitakkun.backintime.BackInTimeAnnotations
-import com.github.kitakkun.backintime.BackInTimeConsts
 import com.github.kitakkun.backintime.BackInTimePluginKey
 import com.github.kitakkun.backintime.BackInTimePredicate
 import org.jetbrains.kotlin.fir.FirSession
@@ -19,6 +18,8 @@ import org.jetbrains.kotlin.name.Name
 
 class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     companion object {
+        private val forceSetPropertyValueForBackInTimeDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
+        private val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
     }
 
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
@@ -28,28 +29,28 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
     private fun createForceSetPropertyValueForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
         when (callableId.callableName) {
-            BackInTimeConsts.serializePropertyMethodName -> {
+            serializePropertyMethodName -> {
                 return createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
                     name = callableId.callableName,
                     returnType = session.builtinTypes.stringType.coneType,
                     config = {
-                        valueParameter(BackInTimeConsts.firstParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
-                        valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.nullableAnyType.coneType)
+                        valueParameter(Name.identifier("propertyName"), type = session.builtinTypes.stringType.coneType)
+                        valueParameter(Name.identifier("value"), type = session.builtinTypes.nullableAnyType.coneType)
                     },
                 )
             }
 
-            BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName -> {
+            forceSetPropertyValueForBackInTimeDebugMethodName -> {
                 return createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
                     name = callableId.callableName,
                     returnType = session.builtinTypes.unitType.coneType,
                     config = {
-                        valueParameter(BackInTimeConsts.firstParameterNameForGeneratedMethod, type = session.builtinTypes.stringType.coneType)
-                        valueParameter(BackInTimeConsts.secondParameterNameForGeneratedMethod, type = session.builtinTypes.nullableAnyType.coneType)
+                        valueParameter(Name.identifier("propertyName"), type = session.builtinTypes.stringType.coneType)
+                        valueParameter(Name.identifier("value"), type = session.builtinTypes.nullableAnyType.coneType)
                         status { isOverride = true }
                     },
                 )
@@ -63,7 +64,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         if (!classSymbol.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptySet()
-        return setOf(BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName, BackInTimeConsts.serializePropertyMethodName)
+        return setOf(forceSetPropertyValueForBackInTimeDebugMethodName, serializePropertyMethodName)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
