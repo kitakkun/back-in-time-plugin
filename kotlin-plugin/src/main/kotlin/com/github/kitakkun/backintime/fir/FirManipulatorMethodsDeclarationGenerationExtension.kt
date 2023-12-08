@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
-class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     companion object {
         private val forceSetPropertyValueForBackInTimeDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
         private val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
