@@ -38,6 +38,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
                     config = {
                         valueParameter(Name.identifier("propertyName"), type = session.builtinTypes.stringType.coneType)
                         valueParameter(Name.identifier("value"), type = session.builtinTypes.nullableAnyType.coneType)
+                        status { isOverride = true }
                     },
                 )
             }
