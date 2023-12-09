@@ -27,6 +27,7 @@ class GenerateManipulatorMethodBodyTransformer(
 ) : IrElementTransformerVoid() {
     private val jsonClass = pluginContext.referenceClass(BackInTimeConsts.kotlinxSerializationJsonClassId)!!.owner.declarations.filterIsInstance<IrClass>().first { it.isCompanion && it.name.asString() == "Default" }.symbol
     private val encodeToStringFunction = jsonClass.functions.first { it.owner.name.asString() == "encodeToString" && it.owner.valueParameters.size == 2 }
+    private val builtInSerializers = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
 
     private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
@@ -161,26 +162,30 @@ class GenerateManipulatorMethodBodyTransformer(
     }
 
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression {
-        val companionClass = valueClass.companionObject()
-
-        // String型などはCompanionObjectがないので，builtinのserializer拡張関数を探す
-        val serializer = valueClass.companionObject()?.getSimpleFunction("serializer")
-            ?: pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
-                .find { it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol }
-            ?: error("serializer not found for ${valueClass.fqNameWhenAvailable}")
-
-        val serializerCall = irCall(serializer).apply {
-            if (companionClass == null) {
-                extensionReceiver = irGetObject(serializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
-            } else {
-                dispatchReceiver = irGetObject(companionClass.symbol)
-            }
+        val builtInSerializer = builtInSerializers.find {
+            it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol
         }
 
+        val companionClass = valueClass.companionObject()
+        val companionSerializer = companionClass?.getSimpleFunction("serializer")
+
+        val getSerializerCall = if (builtInSerializer != null) {
+            irCall(builtInSerializer).apply {
+                extensionReceiver = irGetObject(builtInSerializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
+            }
+        } else if (companionSerializer != null) {
+            irCall(companionSerializer).apply {
+                dispatchReceiver = irGetObject(companionClass.symbol)
+            }
+        } else {
+            return irReturn(irString("NONE")) // FIXME: should throw an exception
+        }
+
+        // FIXME: add value type check
         return irReturn(
             irCall(encodeToStringFunction).apply {
                 dispatchReceiver = irGetObject(jsonClass)
-                putValueArgument(0, serializerCall)
+                putValueArgument(0, getSerializerCall)
                 putValueArgument(1, irGet(value))
             }
         )
