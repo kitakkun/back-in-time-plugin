@@ -94,17 +94,15 @@ class GenerateManipulatorMethodBodyTransformer(
         val irThrowErrorIfNullNotAllowed = irIfNull(
             type = value.type,
             subject = irGet(value),
-            thenPart = irBlock {
-                irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
-                    putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
-                    putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
-                })
-            },
+            thenPart = irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
+                putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
+                putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
+            }),
             elsePart = irBlock { },
         )
 
         return irBlock {
-            if (valueType.isNullable()) +irThrowErrorIfNullNotAllowed
+            if (!valueType.isNullable()) +irThrowErrorIfNullNotAllowed
 
             if (!isGeneric && property.isVar) {
                 irSetField(
