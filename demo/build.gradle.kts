@@ -12,7 +12,6 @@ buildscript {
 plugins {
     kotlin("jvm")
     id("application")
-    kotlin("plugin.serialization")
 }
 
 // because back-in-time-plugin is published to mavenLocal

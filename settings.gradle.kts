@@ -9,7 +9,6 @@ pluginManagement {
         kotlin("kapt") version "1.9.0" apply false
         id("com.android.library") version "8.1.0" apply false
         kotlin("multiplatform") version "1.9.0" apply false
-        kotlin("plugin.serialization") version "1.9.0" apply false // for demo
     }
 }
 
@@ -23,4 +22,3 @@ rootProject.name = "back-in-time"
 include(":plugin-common")
 include(":gradle-plugin")
 include(":kotlin-plugin")
-include(":demo")
