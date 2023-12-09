@@ -105,7 +105,7 @@ class GenerateManipulatorMethodBodyTransformer(
             if (!valueType.isNullable()) +irThrowErrorIfNullNotAllowed
 
             if (!isGeneric && property.isVar) {
-                irSetField(
+                +irSetField(
                     receiver = irGet(declaration.dispatchReceiverParameter!!),
                     field = backingField,
                     value = irGet(value),
@@ -120,7 +120,7 @@ class GenerateManipulatorMethodBodyTransformer(
                     pluginContext.referenceFunctions(setterCallableId).firstOrNull()
                 } ?: return irBlock {}
 
-                irCall(valueSetter).apply {
+                +irCall(valueSetter).apply {
                     dispatchReceiver = irGetField(
                         receiver = if (backingField.isStatic) {
                             null
