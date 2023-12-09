@@ -152,8 +152,12 @@ class GenerateManipulatorMethodBodyTransformer(
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties
-                    .filter { it.backingField?.type?.classOrNull?.owner?.serializerAvailable() == true }
                     .mapNotNull { property ->
+                        val valueType = property.getValueType()
+                        if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
+                            MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
+                            return@mapNotNull null
+                        }
                         irBranch(
                             condition = irEquals(irGet(propertyName), irString(property.name.asString())),
                             result = generateSerializeCall(

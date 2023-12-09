@@ -67,7 +67,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                 val event = FlipperOutgoingEvent.NotifyValueChange(
                     instanceUUID = valueChangeInfo.instanceUUID,
                     propertyName = valueChangeInfo.propertyName,
-                    value = serializeValue(valueChangeInfo.value, valueChangeInfo.valueType),
+                    value = valueChangeInfo.value,
                     methodCallUUID = valueChangeInfo.methodCallUUID,
                 )
                 connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(gson.toJson(event)))
@@ -79,7 +79,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
         receive(FlipperIncomingEvent.ForceSetPropertyValue.EVENT_NAME) { params, responder ->
             val event = gson.fromJson(params.toJsonString(), FlipperIncomingEvent.ForceSetPropertyValue::class.java)
             with(event) {
-                service.manipulate(instanceUUID, propertyName, deserializeValue(value, valueType))
+                service.manipulate(instanceUUID, propertyName, value)
             }
             // FIXME: this should be called after the value is actually changed
             //  error handling is also necessary

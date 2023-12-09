@@ -58,12 +58,15 @@ object BackInTimeDebugService : CoroutineScope {
     fun manipulate(
         instanceUUID: UUIDString,
         propertyName: String,
-        value: Any?,
+        value: String,
     ) {
         instances
             .filterValues { uuidString -> uuidString == instanceUUID }
             .keys
-            .firstOrNull()?.forceSetPropertyValueForBackInTimeDebug(propertyName, value)
+            .firstOrNull()?.apply {
+                val deserializedValue = this.deserializePropertyValueForBackInTimeDebug(propertyName, value)
+                this.forceSetPropertyValueForBackInTimeDebug(propertyName, deserializedValue)
+            }
     }
 
     @Suppress("unused")
@@ -74,12 +77,13 @@ object BackInTimeDebugService : CoroutineScope {
         valueTypeQualifiedName: String,
         methodCallUUID: String,
     ) {
+        val serializedValue = instance.serializePropertyValueForBackInTimeDebug(propertyName, value)
         launch {
             mutableNotifyValueChangeFlow.emit(
                 ValueChangeInfo(
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
-                    value = value,
+                    value = serializedValue,
                     valueType = valueTypeQualifiedName,
                     methodCallUUID = methodCallUUID,
                 )
