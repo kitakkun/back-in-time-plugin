@@ -24,15 +24,15 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         val enabled = configuration[BackInTimeCompilerConfigurationKey.ENABLED] ?: false
         val capturedCallableIds = configuration[BackInTimeCompilerConfigurationKey.CAPTURED_CALLS].orEmpty().map {
             val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.identifier(functionName))
+            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
         }
         val valueGetterCallableIds = configuration[BackInTimeCompilerConfigurationKey.VALUE_GETTERS].orEmpty().map {
             val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.identifier(functionName))
+            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
         }
         val valueSetterCallableIds = configuration[BackInTimeCompilerConfigurationKey.VALUE_SETTERS].orEmpty().map {
             val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.identifier(functionName))
+            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
         }
 
         if (!enabled) return
