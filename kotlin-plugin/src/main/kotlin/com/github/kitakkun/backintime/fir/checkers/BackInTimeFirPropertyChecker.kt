@@ -10,10 +10,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.resolve.providers.dependenciesSymbolProvider
-import org.jetbrains.kotlin.fir.types.FirTypeRef
-import org.jetbrains.kotlin.fir.types.coneType
-import org.jetbrains.kotlin.fir.types.toFirResolvedTypeRef
-import org.jetbrains.kotlin.fir.types.type
+import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -38,7 +35,7 @@ object BackInTimeFirPropertyChecker : FirPropertyChecker() {
     context(CheckerContext)
     private fun FirTypeRef.isSerializable(): Boolean {
         val builtinSerializers = session.dependenciesSymbolProvider.getTopLevelFunctionSymbols(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer"))
-        if (builtinSerializers.any { it.resolvedReturnTypeRef.coneType.typeArguments.firstOrNull()?.type == this.coneType }) return true
+        if (builtinSerializers.any { it.resolvedReturnTypeRef.coneType.typeArguments.firstOrNull()?.type?.classId == this.coneType.classId }) return true
         val classSymbol = this.toRegularClassSymbol(session) ?: return false
         return classSymbol.hasAnnotation(serializableAnnotationClassId, session)
     }
