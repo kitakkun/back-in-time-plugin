@@ -111,7 +111,7 @@ class GenerateManipulatorMethodBodyTransformer(
                     value = irGet(value),
                 )
             } else {
-                val setterCallableId = valueSetterCallableIds.find { it.className == valueType.classOrNull?.owner?.fqNameWhenAvailable } ?: return irBlock {}
+                val setterCallableId = valueSetterCallableIds.find { it.className == backingField.type.classOrNull?.owner?.fqNameWhenAvailable } ?: return irBlock {}
                 val propertySetterPattern = Regex("<set-(.*?)>")
                 val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
                 val valueSetter = if (matchResult != null) {
