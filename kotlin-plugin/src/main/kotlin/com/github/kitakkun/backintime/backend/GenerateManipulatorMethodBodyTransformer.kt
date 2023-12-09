@@ -148,11 +148,11 @@ class GenerateManipulatorMethodBodyTransformer(
                 type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties
                     .filter { it.backingField?.type?.classOrNull?.owner?.serializerAvailable() == true }
-                    .map { property ->
+                    .mapNotNull { property ->
                         irBranch(
                             condition = irEquals(irGet(propertyName), irString(property.name.asString())),
                             result = generateSerializeCall(
-                                valueClass = property.backingField!!.type.classOrNull!!.owner,
+                                valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null,
                                 value = value,
                             )
                         )
