@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime
+package com.github.kitakkun.backintime.compiler
 
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.CallableId

@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.backend
+package com.github.kitakkun.backintime.compiler.backend
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime
+package com.github.kitakkun.backintime.compiler
 
 import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import org.jetbrains.kotlin.config.CompilerConfigurationKey

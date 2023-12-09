@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.fir.checkers
+package com.github.kitakkun.backintime.compiler.fir.checkers
 
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.DeclarationCheckers

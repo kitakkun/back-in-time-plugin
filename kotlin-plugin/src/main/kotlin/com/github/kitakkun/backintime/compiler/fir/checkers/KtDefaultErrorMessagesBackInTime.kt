@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.fir.checkers
+package com.github.kitakkun.backintime.compiler.fir.checkers
 
 import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactoryToRendererMap
 import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory

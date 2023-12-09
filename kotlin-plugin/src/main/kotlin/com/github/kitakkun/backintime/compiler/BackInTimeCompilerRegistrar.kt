@@ -1,7 +1,7 @@
-package com.github.kitakkun.backintime
+package com.github.kitakkun.backintime.compiler
 
-import com.github.kitakkun.backintime.backend.BackInTimeIrGenerationExtension
-import com.github.kitakkun.backintime.fir.BackInTimeFirExtensionRegistrar
+import com.github.kitakkun.backintime.compiler.backend.BackInTimeIrGenerationExtension
+import com.github.kitakkun.backintime.compiler.fir.BackInTimeFirExtensionRegistrar
 import com.google.auto.service.AutoService
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
