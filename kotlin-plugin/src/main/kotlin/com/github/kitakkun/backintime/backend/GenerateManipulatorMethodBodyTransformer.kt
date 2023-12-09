@@ -80,7 +80,7 @@ class GenerateManipulatorMethodBodyTransformer(
         }
     }
 
-    private fun IrBlockBodyBuilder.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression {
+    private fun IrBuilderWithScope.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression {
         val backingField = property.backingField ?: return irBlock { }
 
         val valueType = property.getValueType()
@@ -115,7 +115,7 @@ class GenerateManipulatorMethodBodyTransformer(
                 val propertySetterPattern = Regex("<set-(.*?)>")
                 val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
                 val valueSetter = if (matchResult != null) {
-                    property.backingField?.type?.classOrNull?.getPropertySetter(matchResult.groupValues[1])
+                    backingField.type.classOrNull?.getPropertySetter(matchResult.groupValues[1])
                 } else {
                     pluginContext.referenceFunctions(setterCallableId).firstOrNull()
                 } ?: return irBlock {}
