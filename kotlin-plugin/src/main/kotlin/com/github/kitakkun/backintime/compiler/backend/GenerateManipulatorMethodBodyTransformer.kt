@@ -43,15 +43,15 @@ class GenerateManipulatorMethodBodyTransformer(
         if (!shouldGenerateFunctionBody(parentClass)) return super.visitSimpleFunction(declaration)
 
         when (declaration.name) {
-            BackInTimeConsts.forceSetPropertyValueForBackInDebugMethodName -> {
+            BackInTimeConsts.forceSetValueMethodName -> {
                 declaration.body = generateForceSetPropertyMethodBody(declaration, parentClass)
             }
 
-            BackInTimeConsts.serializePropertyMethodName -> {
+            BackInTimeConsts.serializeMethodName -> {
                 declaration.body = generateSerializePropertyMethodBody(declaration, parentClass)
             }
 
-            BackInTimeConsts.deserializePropertyMethodName -> {
+            BackInTimeConsts.deserializeMethodName -> {
                 declaration.body = generateDeserializePropertyMethodBody(declaration, parentClass)
             }
         }

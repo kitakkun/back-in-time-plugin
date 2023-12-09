@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.compiler.fir
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
 import com.github.kitakkun.backintime.compiler.BackInTimePredicate
 import org.jetbrains.kotlin.fir.FirSession
@@ -17,12 +18,6 @@ import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
 class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
-    companion object {
-        private val forceSetPropertyValueForBackInTimeDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
-        private val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
-        private val deserializePropertyMethodName = Name.identifier("deserializePropertyValueForBackInTimeDebug")
-    }
-
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
         return listOf(createForceSetPropertyValueForBackInTimeDebug(ownerClass, callableId).symbol)
@@ -30,7 +25,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
 
     private fun createForceSetPropertyValueForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
         return when (callableId.callableName) {
-            serializePropertyMethodName -> {
+            BackInTimeConsts.serializeMethodName -> {
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -44,7 +39,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                 )
             }
 
-            forceSetPropertyValueForBackInTimeDebugMethodName -> {
+            BackInTimeConsts.forceSetValueMethodName -> {
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -58,7 +53,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                 )
             }
 
-            deserializePropertyMethodName -> {
+            BackInTimeConsts.deserializeMethodName -> {
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -81,7 +76,11 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         if (!classSymbol.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptySet()
-        return setOf(forceSetPropertyValueForBackInTimeDebugMethodName, serializePropertyMethodName, deserializePropertyMethodName)
+        return setOf(
+            BackInTimeConsts.serializeMethodName,
+            BackInTimeConsts.deserializeMethodName,
+            BackInTimeConsts.forceSetValueMethodName,
+        )
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {

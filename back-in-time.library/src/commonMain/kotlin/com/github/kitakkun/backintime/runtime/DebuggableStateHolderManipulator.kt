@@ -4,9 +4,9 @@ import com.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeExcepti
 
 interface DebuggableStateHolderManipulator {
     @Throws(BackInTimeRuntimeException.NullValueNotAssignableException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
-    fun forceSetPropertyValueForBackInTimeDebug(propertyName: String, value: Any?)
+    fun forceSetValue(propertyName: String, value: Any?)
 
-    fun serializePropertyValueForBackInTimeDebug(propertyName: String, value: Any?): String
+    fun serializeValue(propertyName: String, value: Any?): String
 
-    fun deserializePropertyValueForBackInTimeDebug(propertyName: String, value: String): Any?
+    fun deserializeValue(propertyName: String, value: String): Any?
 }

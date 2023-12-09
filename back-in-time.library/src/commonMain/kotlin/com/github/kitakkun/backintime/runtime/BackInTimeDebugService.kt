@@ -64,8 +64,8 @@ object BackInTimeDebugService : CoroutineScope {
             .filterValues { uuidString -> uuidString == instanceUUID }
             .keys
             .firstOrNull()?.apply {
-                val deserializedValue = this.deserializePropertyValueForBackInTimeDebug(propertyName, value)
-                this.forceSetPropertyValueForBackInTimeDebug(propertyName, deserializedValue)
+                val deserializedValue = this.deserializeValue(propertyName, value)
+                this.forceSetValue(propertyName, deserializedValue)
             }
     }
 
@@ -77,7 +77,7 @@ object BackInTimeDebugService : CoroutineScope {
         valueTypeQualifiedName: String,
         methodCallUUID: String,
     ) {
-        val serializedValue = instance.serializePropertyValueForBackInTimeDebug(propertyName, value)
+        val serializedValue = instance.serializeValue(propertyName, value)
         launch {
             mutableNotifyValueChangeFlow.emit(
                 ValueChangeInfo(

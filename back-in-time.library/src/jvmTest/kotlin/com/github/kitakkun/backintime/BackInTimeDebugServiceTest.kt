@@ -9,15 +9,15 @@ import kotlin.test.assertEquals
 
 class BackInTimeDebugServiceTest {
     class TestClass : DebuggableStateHolderManipulator {
-        override fun deserializePropertyValueForBackInTimeDebug(propertyName: String, value: String): Any? {
+        override fun deserializeValue(propertyName: String, value: String): Any? {
             TODO("Not yet implemented")
         }
 
-        override fun forceSetPropertyValueForBackInTimeDebug(propertyName: String, value: Any?) {
+        override fun forceSetValue(propertyName: String, value: Any?) {
             TODO("Not yet implemented")
         }
 
-        override fun serializePropertyValueForBackInTimeDebug(propertyName: String, value: Any?): String {
+        override fun serializeValue(propertyName: String, value: Any?): String {
             TODO("Not yet implemented")
         }
     }
