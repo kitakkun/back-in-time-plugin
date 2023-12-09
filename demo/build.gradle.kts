@@ -12,6 +12,7 @@ buildscript {
 plugins {
     kotlin("jvm")
     id("application")
+    kotlin("plugin.serialization")
 }
 
 // because back-in-time-plugin is published to mavenLocal
@@ -51,4 +52,5 @@ dependencies {
     implementation("com.github.kitakkun.backintime:back-in-time.library:1.0.0")
     // coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
