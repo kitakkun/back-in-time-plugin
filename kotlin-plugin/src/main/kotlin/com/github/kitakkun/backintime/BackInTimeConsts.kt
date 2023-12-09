@@ -9,6 +9,7 @@ object BackInTimeConsts {
     val debuggableStateHolderManipulatorFqName = FqName("com.github.kitakkun.backintime.runtime.DebuggableStateHolderManipulator")
 
     val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
+    val deserializePropertyMethodName = Name.identifier("deserializePropertyValueForBackInTimeDebug")
     val forceSetPropertyValueForBackInDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
     val firstParameterNameForGeneratedMethod = Name.identifier("propertyName")
     val secondParameterNameForGeneratedMethod = Name.identifier("value")

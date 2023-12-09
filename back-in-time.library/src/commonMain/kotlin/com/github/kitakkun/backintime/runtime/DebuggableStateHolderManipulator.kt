@@ -8,5 +8,5 @@ interface DebuggableStateHolderManipulator {
 
     fun serializePropertyValueForBackInTimeDebug(propertyName: String, value: Any?): String
 
-//    fun deserializePropertyValueForBackInTimeDebug(propertyName: String, value: String): Any?
+    fun deserializePropertyValueForBackInTimeDebug(propertyName: String, value: String): Any?
 }

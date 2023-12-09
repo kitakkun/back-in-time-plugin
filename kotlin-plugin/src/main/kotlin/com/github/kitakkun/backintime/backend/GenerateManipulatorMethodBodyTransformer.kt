@@ -27,6 +27,7 @@ class GenerateManipulatorMethodBodyTransformer(
 ) : IrElementTransformerVoid() {
     private val jsonClass = pluginContext.referenceClass(BackInTimeConsts.kotlinxSerializationJsonClassId)!!.owner.declarations.filterIsInstance<IrClass>().first { it.isCompanion && it.name.asString() == "Default" }.symbol
     private val encodeToStringFunction = jsonClass.functions.first { it.owner.name.asString() == "encodeToString" && it.owner.valueParameters.size == 2 }
+    private val decodeFromStringFunction = jsonClass.functions.first { it.owner.name.asString() == "decodeFromString" && it.owner.valueParameters.size == 2 }
     private val builtInSerializers = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
 
     private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
@@ -48,6 +49,10 @@ class GenerateManipulatorMethodBodyTransformer(
 
             BackInTimeConsts.serializePropertyMethodName -> {
                 declaration.body = generateSerializePropertyMethodBody(declaration, parentClass)
+            }
+
+            BackInTimeConsts.deserializePropertyMethodName -> {
+                declaration.body = generateDeserializePropertyMethodBody(declaration, parentClass)
             }
         }
 
@@ -162,26 +167,8 @@ class GenerateManipulatorMethodBodyTransformer(
     }
 
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression {
-        val builtInSerializer = builtInSerializers.find {
-            it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol
-        }
+        val getSerializerCall = irGetSerializerCall(valueClass) ?: return irBlock { }
 
-        val companionClass = valueClass.companionObject()
-        val companionSerializer = companionClass?.getSimpleFunction("serializer")
-
-        val getSerializerCall = if (builtInSerializer != null) {
-            irCall(builtInSerializer).apply {
-                extensionReceiver = irGetObject(builtInSerializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
-            }
-        } else if (companionSerializer != null) {
-            irCall(companionSerializer).apply {
-                dispatchReceiver = irGetObject(companionClass.symbol)
-            }
-        } else {
-            return irReturn(irString("NONE")) // FIXME: should throw an exception
-        }
-
-        // FIXME: add value type check
         return irReturn(
             irCall(encodeToStringFunction).apply {
                 dispatchReceiver = irGetObject(jsonClass)
@@ -199,5 +186,64 @@ class GenerateManipulatorMethodBodyTransformer(
 
     private fun IrClass.isGeneric(): Boolean {
         return this.typeParameters.isNotEmpty()
+    }
+
+    /**
+     * generate body for [DebuggableStateHolderManipulator.deserializePropertyForBackInDebug]
+     */
+    private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
+        return IrBlockBodyBuilder(
+            context = pluginContext,
+            startOffset = declaration.startOffset,
+            endOffset = declaration.endOffset,
+            scope = Scope(declaration.symbol),
+        ).blockBody {
+            val propertyName = declaration.valueParameters[0]
+            val value = declaration.valueParameters[1]
+            +irWhen(
+                type = pluginContext.irBuiltIns.unitType,
+                branches = parentClass.properties.mapNotNull { property ->
+                    irBranch(
+                        condition = irEquals(irGet(propertyName), irString(property.name.asString())),
+                        result = generateDeserializeCall(value = value, valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null),
+                    )
+                }.toList() + irElseBranch(irReturn(irNull())),
+            )
+        }
+    }
+
+    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression {
+        val getSerializerCall = irGetSerializerCall(valueClass) ?: return irBlock {}
+
+        return irReturn(
+            irCall(decodeFromStringFunction).apply {
+                dispatchReceiver = irGetObject(jsonClass)
+                putValueArgument(0, getSerializerCall)
+                putValueArgument(1, irGet(value))
+            }
+        )
+    }
+
+    private fun IrBuilderWithScope.irGetSerializerCall(valueClass: IrClass): IrExpression? {
+        val builtInSerializer = builtInSerializers.find {
+            it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol
+        }
+
+        val companionClass = valueClass.companionObject()
+        val companionSerializer = companionClass?.getSimpleFunction("serializer")
+
+        return when {
+            builtInSerializer != null ->
+                irCall(builtInSerializer).apply {
+                    extensionReceiver = irGetObject(builtInSerializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
+                }
+
+            companionSerializer != null ->
+                irCall(companionSerializer).apply {
+                    dispatchReceiver = irGetObject(companionClass.symbol)
+                }
+
+            else -> null
+        }
     }
 }

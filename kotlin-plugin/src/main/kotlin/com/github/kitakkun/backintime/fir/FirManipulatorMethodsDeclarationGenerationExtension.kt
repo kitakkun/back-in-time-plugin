@@ -20,6 +20,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
     companion object {
         private val forceSetPropertyValueForBackInTimeDebugMethodName = Name.identifier("forceSetPropertyValueForBackInTimeDebug")
         private val serializePropertyMethodName = Name.identifier("serializePropertyValueForBackInTimeDebug")
+        private val deserializePropertyMethodName = Name.identifier("deserializePropertyValueForBackInTimeDebug")
     }
 
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
@@ -57,6 +58,21 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                 )
             }
 
+            deserializePropertyMethodName -> {
+                createMemberFunction(
+                    owner = ownerClass,
+                    key = BackInTimePluginKey,
+                    name = callableId.callableName,
+                    returnType = session.builtinTypes.nullableAnyType.coneType,
+                    config = {
+                        valueParameter(Name.identifier("propertyName"), type = session.builtinTypes.stringType.coneType)
+                        valueParameter(Name.identifier("value"), type = session.builtinTypes.stringType.coneType)
+                        status { isOverride = true }
+                    },
+                )
+            }
+
+
             else -> {
                 error("Unknown callable name: ${callableId.callableName}")
             }
@@ -65,7 +81,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         if (!classSymbol.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return emptySet()
-        return setOf(forceSetPropertyValueForBackInTimeDebugMethodName, serializePropertyMethodName)
+        return setOf(forceSetPropertyValueForBackInTimeDebugMethodName, serializePropertyMethodName, deserializePropertyMethodName)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
