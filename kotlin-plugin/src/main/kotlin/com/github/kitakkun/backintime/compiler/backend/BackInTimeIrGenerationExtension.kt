@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
-import com.github.kitakkun.backintime.compiler.MessageCollectorHolder
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
@@ -25,10 +24,6 @@ class BackInTimeIrGenerationExtension(
             mutableCapturedCallableIds.addAll(collectedCapturedCallableIds)
             mutableValueGetterCallableIds.addAll(collectedGetterCallableIds)
             mutableValueSetterCallableIds.addAll(collectedSetterCallableIds)
-
-            MessageCollectorHolder.reportWarning("capturedCallableIds: $collectedCapturedCallableIds")
-            MessageCollectorHolder.reportWarning("valueGetterCallableIds: $collectedGetterCallableIds")
-            MessageCollectorHolder.reportWarning("valueSetterCallableIds: $collectedSetterCallableIds")
         }
 
         moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer(pluginContext))
