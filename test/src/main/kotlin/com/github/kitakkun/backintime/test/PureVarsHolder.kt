@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.demo
+package com.github.kitakkun.backintime.test
 
 import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
 
