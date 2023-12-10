@@ -11,7 +11,6 @@ buildscript {
 
 plugins {
     kotlin("jvm")
-    id("application")
 }
 
 // because back-in-time-plugin is published to mavenLocal
@@ -60,8 +59,4 @@ configure<BackInTimeExtension> {
     valueSetters += listOf(
         "com.github.kitakkun.back_in_time.ValueContainer:<set-value>",
     )
-}
-
-application {
-    mainClass = "com.github.kitakkun.back_in_time.MainKt"
 }
