@@ -37,10 +37,10 @@ kotlin {
     }
 
     sourceSets.test {
+        dependsOn(sourceSets.main.get())
         kotlin {
             setSrcDirs(listOf("src/test/kotlin", "build/classes/kotlin/main"))
         }
-        dependsOn(sourceSets.main.get())
         dependencies {
             implementation(kotlin("test"))
         }
@@ -50,13 +50,13 @@ kotlin {
 configure<BackInTimeExtension> {
     enabled = true
     capturedCalls += listOf(
-        "com.github.kitakkun.back_in_time.ValueContainer:<set-value>",
-        "com.github.kitakkun.back_in_time.ValueContainer:postValue",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:update",
     )
     valueGetters += listOf(
-        "com.github.kitakkun.back_in_time.ValueContainer:<get-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<get-value>",
     )
     valueSetters += listOf(
-        "com.github.kitakkun.back_in_time.ValueContainer:<set-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
     )
 }
