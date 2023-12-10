@@ -103,12 +103,9 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                     val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return super.visitCall(expression)
                     val valueGetterCallableId = valueGetterCallableIds.firstOrNull { it.className == callingFunction.parentClassOrNull?.fqNameWhenAvailable } ?: return super.visitCall(expression)
 
-                    val propertyGetterPattern = Regex("<get-(.*?)>")
-                    val matchResult = propertyGetterPattern.find(valueGetterCallableId.callableName.asString())
-
-                    val valueGetter = if (matchResult != null) {
-                        val fieldName = matchResult.groupValues[1]
-                        propertyClass.getPropertyGetterRecursively(fieldName)
+                    val valueGetter = if (valueGetterCallableId.callableName.asString().startsWith("<get-")) {
+                        val propertyName = valueGetterCallableId.callableName.asString().removePrefix("<get-").removeSuffix(">")
+                        propertyClass.getPropertyGetterRecursively(propertyName)
                     } else {
                         val functionName = valueGetterCallableId.callableName.asString()
                         propertyClass.getSimpleFunctionRecursively(functionName)

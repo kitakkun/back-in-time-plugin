@@ -114,10 +114,9 @@ class GenerateManipulatorMethodBodyTransformer(
                 )
             } else {
                 val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return irBlock {}
-                val propertySetterPattern = Regex("<set-(.*?)>")
-                val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
-                val valueSetter = if (matchResult != null) {
-                    backingField.type.classOrNull?.getPropertySetter(matchResult.groupValues[1])
+                val valueSetter = if (setterCallableId.callableName.asString().startsWith("<set-")) {
+                    val propertyName = setterCallableId.callableName.asString().removePrefix("<set-").removeSuffix(">")
+                    backingField.type.classOrNull?.getPropertySetter(propertyName)
                 } else {
                     pluginContext.referenceFunctions(setterCallableId).firstOrNull()
                 } ?: return irBlock {}
