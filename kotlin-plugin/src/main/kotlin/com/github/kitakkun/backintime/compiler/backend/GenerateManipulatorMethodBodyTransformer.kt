@@ -2,6 +2,8 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.MessageCollectorHolder
+import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.IrStatement
@@ -114,9 +116,8 @@ class GenerateManipulatorMethodBodyTransformer(
                 )
             } else {
                 val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return irBlock {}
-                val valueSetter = if (setterCallableId.callableName.asString().startsWith("<set-")) {
-                    val propertyName = setterCallableId.callableName.asString().removePrefix("<set-").removeSuffix(">")
-                    backingField.type.classOrNull?.getPropertySetter(propertyName)
+                val valueSetter = if (setterCallableId.callableName.isSetterName()) {
+                    backingField.type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
                 } else {
                     pluginContext.referenceFunctions(setterCallableId).firstOrNull()
                 } ?: return irBlock {}

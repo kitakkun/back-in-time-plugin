@@ -2,6 +2,8 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
@@ -103,9 +105,8 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                     val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return super.visitCall(expression)
                     val valueGetterCallableId = valueGetterCallableIds.firstOrNull { it.className == callingFunction.parentClassOrNull?.fqNameWhenAvailable } ?: return super.visitCall(expression)
 
-                    val valueGetter = if (valueGetterCallableId.callableName.asString().startsWith("<get-")) {
-                        val propertyName = valueGetterCallableId.callableName.asString().removePrefix("<get-").removeSuffix(">")
-                        propertyClass.getPropertyGetterRecursively(propertyName)
+                    val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
+                        propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
                     } else {
                         val functionName = valueGetterCallableId.callableName.asString()
                         propertyClass.getSimpleFunctionRecursively(functionName)
