@@ -2,7 +2,12 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
+import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
+import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyGetterRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
+import com.github.kitakkun.backintime.compiler.backend.utils.irNotifyValueChangeCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement

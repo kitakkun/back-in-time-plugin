@@ -2,7 +2,9 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.MessageCollectorHolder
+import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.getValueType
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.irThrow

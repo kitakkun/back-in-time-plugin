@@ -1,52 +1,22 @@
-package com.github.kitakkun.backintime.compiler.backend
+package com.github.kitakkun.backintime.compiler.backend.utils
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
+import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetObject
+import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.builders.irTemporary
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.types.*
-import org.jetbrains.kotlin.ir.util.getPropertyGetter
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
-
-@Suppress("UNUSED")
-fun IrType.isKotlinPrimitiveType(): Boolean {
-    return when (this.classFqName?.asString()) {
-        "kotlin.Boolean" -> true
-        "kotlin.Byte" -> true
-        "kotlin.Char" -> true
-        "kotlin.Short" -> true
-        "kotlin.Int" -> true
-        "kotlin.Long" -> true
-        "kotlin.Float" -> true
-        "kotlin.Double" -> true
-        "kotlin.String" -> true
-        else -> false
-    }
-}
-
-/**
- * LiveData<T> のようなジェネリック型のTの部分を取得する
- */
-fun IrProperty.getGenericTypes(): List<IrType> {
-    return (this.backingField?.type as? IrSimpleType)
-        ?.arguments
-        ?.mapNotNull { it.typeOrNull }
-        .orEmpty()
-}
-
-fun IrType.getGenericTypes(): List<IrType> {
-    return (this as? IrSimpleType)
-        ?.arguments
-        ?.mapNotNull { it.typeOrNull }
-        .orEmpty()
-}
-
-fun IrProperty.getValueType(): IrType {
-    return this.getGenericTypes().firstOrNull() ?: backingField?.type ?: error("Cannot get value type")
-}
 
 context(IrPluginContext)
 @Suppress("UNUSED")
@@ -82,20 +52,6 @@ fun irNotifyValueChangeCall(
         putValueArgument(3, irString(propertyTypeClassFqName))
         putValueArgument(4, irGet(methodCallUUID))
     }
-}
-
-fun IrClass.getSimpleFunctionRecursively(name: String): IrSimpleFunctionSymbol? {
-    return getSimpleFunction(name)
-        ?: superTypes
-            .mapNotNull { it.classOrNull }
-            .firstNotNullOfOrNull { it.getSimpleFunction(name) }
-}
-
-fun IrClass.getPropertyGetterRecursively(name: String): IrSimpleFunctionSymbol? {
-    return getPropertyGetter(name)
-        ?: superTypes
-            .mapNotNull { it.classOrNull }
-            .firstNotNullOfOrNull { it.getPropertyGetter(name) }
 }
 
 context(IrPluginContext)
