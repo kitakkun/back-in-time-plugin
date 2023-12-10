@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.runtime
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
 /**
@@ -9,6 +10,7 @@ import java.util.UUID
  * @param properties: Map of property name and its type fqname
  * @param registeredAt: Time when the instance is registered(millis)
  */
+@Serializable
 data class InstanceInfo(
     val type: String,
     val properties: List<PropertyInfo>,
@@ -16,6 +18,7 @@ data class InstanceInfo(
     val registeredAt: Long = System.currentTimeMillis(),
 )
 
+@Serializable
 data class PropertyInfo(
     val name: String,
     val debuggable: Boolean,

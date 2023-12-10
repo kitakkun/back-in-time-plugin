@@ -2,6 +2,7 @@ plugins {
     kotlin("multiplatform")
     id("com.android.library")
     `maven-publish`
+    kotlin("plugin.serialization")
 }
 
 repositories {
@@ -22,7 +23,6 @@ kotlin {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
                 compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-                compileOnly("com.google.code.gson:gson:2.10")
             }
         }
         val commonTest by getting {

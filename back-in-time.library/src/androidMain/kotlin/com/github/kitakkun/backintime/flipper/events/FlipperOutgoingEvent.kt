@@ -1,11 +1,13 @@
 package com.github.kitakkun.backintime.flipper.events
 
 import com.github.kitakkun.backintime.runtime.PropertyInfo
+import kotlinx.serialization.Serializable
 
 /**
  * Mobile app -> Desktop app
  */
 sealed interface FlipperOutgoingEvent {
+    @Serializable
     data class RegisterInstance(
         val instanceUUID: String,
         val instanceType: String,
@@ -17,6 +19,7 @@ sealed interface FlipperOutgoingEvent {
         }
     }
 
+    @Serializable
     data class NotifyValueChange(
         val instanceUUID: String,
         val propertyName: String,
@@ -28,6 +31,7 @@ sealed interface FlipperOutgoingEvent {
         }
     }
 
+    @Serializable
     data class NotifyMethodCall(
         val instanceUUID: String,
         val methodName: String,

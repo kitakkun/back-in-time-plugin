@@ -6,16 +6,18 @@ import com.facebook.flipper.core.FlipperPlugin
 import com.github.kitakkun.backintime.flipper.events.FlipperIncomingEvent
 import com.github.kitakkun.backintime.flipper.events.FlipperOutgoingEvent
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
-    private val gson = Gson()
+    private val json: Json = Json { encodeDefaults = true }
     private var observeOutgoingEventsJob: Job? = null
 
     final override fun getId() = "back-in-time"
@@ -46,7 +48,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                     properties = instanceInfo.properties,
                     registeredAt = instanceInfo.registeredAt,
                 )
-                connection?.send(FlipperOutgoingEvent.RegisterInstance.EVENT_NAME, FlipperObject(gson.toJson(event)))
+                connection?.send(FlipperOutgoingEvent.RegisterInstance.EVENT_NAME, FlipperObject(json.encodeToString(event)))
             }
         }
 
@@ -58,7 +60,7 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                     methodCallUUID = methodCallInfo.methodCallUUID,
                     calledAt = methodCallInfo.calledAt,
                 )
-                connection?.send(FlipperOutgoingEvent.NotifyMethodCall.EVENT_NAME, FlipperObject(gson.toJson(event)))
+                connection?.send(FlipperOutgoingEvent.NotifyMethodCall.EVENT_NAME, FlipperObject(json.encodeToString(event)))
             }
         }
 
@@ -70,14 +72,14 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
                     value = valueChangeInfo.value,
                     methodCallUUID = valueChangeInfo.methodCallUUID,
                 )
-                connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(gson.toJson(event)))
+                connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(json.encodeToString(event)))
             }
         }
     }
 
     private fun FlipperConnection.observeIncomingEvents() {
         receive(FlipperIncomingEvent.ForceSetPropertyValue.EVENT_NAME) { params, responder ->
-            val event = gson.fromJson(params.toJsonString(), FlipperIncomingEvent.ForceSetPropertyValue::class.java)
+            val event = json.decodeFromString<FlipperIncomingEvent.ForceSetPropertyValue>(params.toJsonString())
             with(event) {
                 service.manipulate(instanceUUID, propertyName, value)
             }
@@ -87,9 +89,9 @@ abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainSc
         }
 
         receive(FlipperIncomingEvent.CheckInstanceAlive.EVENT_NAME) { params, responder ->
-            val event = gson.fromJson(params.toJsonString(), FlipperIncomingEvent.CheckInstanceAlive::class.java)
+            val event = json.decodeFromString<FlipperIncomingEvent.CheckInstanceAlive>(params.toJsonString())
             val response = FlipperIncomingEvent.CheckInstanceAlive.Response(event.instanceUUIDs.associateWith { service.checkIfInstanceIsAlive(it) })
-            responder.success(FlipperObject(gson.toJson(response)))
+            responder.success(FlipperObject(json.encodeToString(response)))
         }
     }
 }
