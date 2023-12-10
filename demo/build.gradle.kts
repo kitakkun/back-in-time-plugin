@@ -41,6 +41,7 @@ kotlin {
         kotlin {
             setSrcDirs(listOf("src/test/kotlin", "build/classes/kotlin/main"))
         }
+        dependsOn(sourceSets.main.get())
         dependencies {
             implementation(kotlin("test"))
         }

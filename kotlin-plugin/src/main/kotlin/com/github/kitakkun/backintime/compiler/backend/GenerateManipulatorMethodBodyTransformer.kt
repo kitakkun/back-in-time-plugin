@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.name.Name
  */
 class GenerateManipulatorMethodBodyTransformer(
     private val pluginContext: IrPluginContext,
-    private val valueSetterCallableIds: List<CallableId>,
+    private val valueSetterCallableIds: Set<CallableId>,
 ) : IrElementTransformerVoid() {
     // reference val backInTimeJson = Json { ... }
     private val json = pluginContext.referenceProperties(BackInTimeConsts.myJsonPropertyId).single().owner
@@ -113,7 +113,7 @@ class GenerateManipulatorMethodBodyTransformer(
                     value = irGet(value),
                 )
             } else {
-                val setterCallableId = valueSetterCallableIds.find { it.className == backingField.type.classOrNull?.owner?.fqNameWhenAvailable } ?: return irBlock {}
+                val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return irBlock {}
                 val propertySetterPattern = Regex("<set-(.*?)>")
                 val matchResult = propertySetterPattern.find(setterCallableId.callableName.asString())
                 val valueSetter = if (matchResult != null) {

@@ -9,14 +9,14 @@ class PureVarsHolderTest {
     @Test
     fun serialize() {
         assertEquals("\"hogehoge\"", pureVarsHolder.serializeValue("string", "hogehoge"))
-        assertEquals("0", pureVarsHolder.serializeValue("int", 0))
-        assertEquals("0", pureVarsHolder.serializeValue("long", 0L))
-        assertEquals("0.0", pureVarsHolder.serializeValue("float", 0f))
-        assertEquals("0.0", pureVarsHolder.serializeValue("double", 0.0))
-        assertEquals("false", pureVarsHolder.serializeValue("boolean", false))
-        assertEquals("\"a\"", pureVarsHolder.serializeValue("char", 'a'))
-        assertEquals("0", pureVarsHolder.serializeValue("short", 0.toShort()))
-        assertEquals("0", pureVarsHolder.serializeValue("byte", 0.toByte()))
+        assertEquals("1000", pureVarsHolder.serializeValue("int", 1000))
+        assertEquals("10000000000", pureVarsHolder.serializeValue("long", 10000000000L))
+        assertEquals("0.1", pureVarsHolder.serializeValue("float", 0.1f))
+        assertEquals("0.001", pureVarsHolder.serializeValue("double", 0.001))
+        assertEquals("true", pureVarsHolder.serializeValue("boolean", true))
+        assertEquals("\"b\"", pureVarsHolder.serializeValue("char", 'b'))
+        assertEquals("100", pureVarsHolder.serializeValue("short", 100.toShort()))
+        assertEquals("100", pureVarsHolder.serializeValue("byte", 100.toByte()))
     }
 
     @Test

@@ -10,9 +10,6 @@ import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.Name
 
 @Suppress("unused")
 @OptIn(ExperimentalCompilerApi::class)
@@ -21,29 +18,12 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
     override val supportsK2: Boolean get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        val enabled = configuration[BackInTimeCompilerConfigurationKey.ENABLED] ?: false
-        val capturedCallableIds = configuration[BackInTimeCompilerConfigurationKey.CAPTURED_CALLS].orEmpty().map {
-            val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
-        }
-        val valueGetterCallableIds = configuration[BackInTimeCompilerConfigurationKey.VALUE_GETTERS].orEmpty().map {
-            val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
-        }
-        val valueSetterCallableIds = configuration[BackInTimeCompilerConfigurationKey.VALUE_SETTERS].orEmpty().map {
-            val (className, functionName) = it.split(":")
-            CallableId(ClassId.fromString(className), Name.guessByFirstCharacter(functionName))
-        }
-
-        if (!enabled) return
+        val config = BackInTimeCompilerConfigurationProcessor().process(configuration)
+        if (!config.enabled) return
 
         MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar())
-        IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(
-            capturedCallableIds = capturedCallableIds,
-            valueGetterCallableIds = valueGetterCallableIds,
-            valueSetterCallableIds = valueSetterCallableIds,
-        ))
+        IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(config))
     }
 }
 
