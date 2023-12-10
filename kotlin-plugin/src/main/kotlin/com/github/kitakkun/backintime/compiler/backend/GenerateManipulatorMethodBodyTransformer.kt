@@ -48,51 +48,54 @@ class GenerateManipulatorMethodBodyTransformer(
         val parentClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!shouldGenerateFunctionBody(parentClass)) return super.visitSimpleFunction(declaration)
 
-        when (declaration.name) {
-            BackInTimeConsts.forceSetValueMethodName -> {
-                declaration.body = generateForceSetPropertyMethodBody(declaration, parentClass)
-            }
+        with(IrBlockBodyBuilder(
+            context = pluginContext,
+            startOffset = declaration.startOffset,
+            endOffset = declaration.endOffset,
+            scope = Scope(declaration.symbol),
+        )) {
+            when (declaration.name) {
+                BackInTimeConsts.forceSetValueMethodName -> {
+                    declaration.body = generateForceSetPropertyMethodBody(declaration, parentClass)
+                }
 
-            BackInTimeConsts.serializeMethodName -> {
-                declaration.body = generateSerializePropertyMethodBody(declaration, parentClass)
-            }
+                BackInTimeConsts.serializeMethodName -> {
+                    declaration.body = generateSerializePropertyMethodBody(declaration, parentClass)
+                }
 
-            BackInTimeConsts.deserializeMethodName -> {
-                declaration.body = generateDeserializePropertyMethodBody(declaration, parentClass)
+                BackInTimeConsts.deserializeMethodName -> {
+                    declaration.body = generateDeserializePropertyMethodBody(declaration, parentClass)
+                }
             }
         }
 
         return super.visitFunction(declaration)
     }
 
+    context(IrBlockBodyBuilder)
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
-        return IrBlockBodyBuilder(
-            context = pluginContext,
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-            scope = Scope(declaration.symbol),
-        ).blockBody {
+        return blockBody {
             val propertyName = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
-                branches = parentClass.properties.map { property ->
+                branches = parentClass.properties.mapNotNull { property ->
                     irBranch(
                         condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateSetForProperty(declaration, property, value)
+                        result = generateSetForProperty(declaration, property, value) ?: return@mapNotNull null,
                     )
                 }.toList() + irElseBranch(irBlock {}),
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression {
-        val backingField = property.backingField ?: return irBlock { }
+    private fun IrBuilderWithScope.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression? {
+        val backingField = property.backingField ?: return null
 
         val valueType = property.getValueType()
         if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
             MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
-            return irBlock { }
+            return null
         }
 
         val isGeneric = property.backingField?.type?.classOrNull?.owner?.isGeneric() == true
@@ -117,12 +120,12 @@ class GenerateManipulatorMethodBodyTransformer(
                     value = irGet(value),
                 )
             } else {
-                val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return irBlock {}
+                val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return null
                 val valueSetter = if (setterCallableId.callableName.isSetterName()) {
                     backingField.type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
                 } else {
                     pluginContext.referenceFunctions(setterCallableId).firstOrNull()
-                } ?: return irBlock {}
+                } ?: return null
 
                 +irCall(valueSetter).apply {
                     dispatchReceiver = irGetField(
@@ -142,13 +145,9 @@ class GenerateManipulatorMethodBodyTransformer(
     /**
      * generate body for [DebuggableStateHolderManipulator.serializePropertyForBackInDebug]
      */
+    context(IrBlockBodyBuilder)
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
-        return IrBlockBodyBuilder(
-            context = pluginContext,
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-            scope = Scope(declaration.symbol),
-        ).blockBody {
+        return blockBody {
             val propertyName = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
@@ -159,21 +158,23 @@ class GenerateManipulatorMethodBodyTransformer(
                         if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
                             MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
                             return@mapNotNull null
+
                         }
+                        val valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null
                         irBranch(
                             condition = irEquals(irGet(propertyName), irString(property.name.asString())),
                             result = generateSerializeCall(
-                                valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null,
+                                valueClass = valueClass,
                                 value = value,
-                            )
+                            ) ?: return@mapNotNull null,
                         )
                     }.toList() + irElseBranch(irReturn(irString("NONE"))), // FIXME: should throw an exception
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression {
-        val getSerializerCall = irGetSerializerCall(valueClass) ?: return irBlock { }
+    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression? {
+        val getSerializerCall = irGetSerializerCall(valueClass) ?: return null
 
         return irReturn(
             irCall(encodeToStringFunction).apply {
@@ -197,29 +198,26 @@ class GenerateManipulatorMethodBodyTransformer(
     /**
      * generate body for [DebuggableStateHolderManipulator.deserializePropertyForBackInDebug]
      */
+    context(IrBlockBodyBuilder)
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
-        return IrBlockBodyBuilder(
-            context = pluginContext,
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-            scope = Scope(declaration.symbol),
-        ).blockBody {
+        return blockBody {
             val propertyName = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties.mapNotNull { property ->
+                    val valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null
                     irBranch(
                         condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateDeserializeCall(value = value, valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null),
+                        result = generateDeserializeCall(value = value, valueClass = valueClass) ?: return@mapNotNull null,
                     )
                 }.toList() + irElseBranch(irReturn(irNull())),
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression {
-        val getSerializerCall = irGetSerializerCall(valueClass) ?: return irBlock {}
+    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression? {
+        val getSerializerCall = irGetSerializerCall(valueClass) ?: return null
 
         return irReturn(
             irCall(decodeFromStringFunction).apply {
