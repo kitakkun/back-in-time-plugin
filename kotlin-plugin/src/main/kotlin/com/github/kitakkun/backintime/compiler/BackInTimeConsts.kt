@@ -31,4 +31,6 @@ object BackInTimeConsts {
 
     val kotlinxSerializationJsonClassId = classId("kotlinx.serialization.json", "Json")
     val kotlinxSerializationEncodeToStringFunctionId = CallableId(kotlinxSerializationJsonClassId, Name.identifier("encodeToString"))
+
+    val myJsonPropertyId = CallableId(FqName("com.github.kitakkun.backintime.runtime"), Name.identifier("backInTimeJson"))
 }

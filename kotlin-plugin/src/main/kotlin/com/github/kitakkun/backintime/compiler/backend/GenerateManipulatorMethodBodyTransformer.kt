@@ -25,6 +25,8 @@ class GenerateManipulatorMethodBodyTransformer(
     private val pluginContext: IrPluginContext,
     private val valueSetterCallableIds: List<CallableId>,
 ) : IrElementTransformerVoid() {
+    // reference val backInTimeJson = Json { ... }
+    private val json = pluginContext.referenceProperties(BackInTimeConsts.myJsonPropertyId).single().owner
     private val jsonClass = pluginContext.referenceClass(BackInTimeConsts.kotlinxSerializationJsonClassId)!!.owner.declarations.filterIsInstance<IrClass>().first { it.isCompanion && it.name.asString() == "Default" }.symbol
     private val encodeToStringFunction = jsonClass.functions.first { it.owner.name.asString() == "encodeToString" && it.owner.valueParameters.size == 2 }
     private val decodeFromStringFunction = jsonClass.functions.first { it.owner.name.asString() == "decodeFromString" && it.owner.valueParameters.size == 2 }
@@ -173,7 +175,7 @@ class GenerateManipulatorMethodBodyTransformer(
 
         return irReturn(
             irCall(encodeToStringFunction).apply {
-                dispatchReceiver = irGetObject(jsonClass)
+                dispatchReceiver = irCall(json.getter!!)
                 putValueArgument(0, getSerializerCall)
                 putValueArgument(1, irGet(value))
             }
@@ -219,7 +221,7 @@ class GenerateManipulatorMethodBodyTransformer(
 
         return irReturn(
             irCall(decodeFromStringFunction).apply {
-                dispatchReceiver = irGetObject(jsonClass)
+                dispatchReceiver = irCall(json.getter!!)
                 putValueArgument(0, getSerializerCall)
                 putValueArgument(1, irGet(value))
             }
