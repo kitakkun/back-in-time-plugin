@@ -9,12 +9,12 @@ import org.jetbrains.kotlin.ir.types.typeOrNull
  * LiveData<T> のようなジェネリック型のTの部分を取得する
  */
 fun IrProperty.getGenericTypes(): List<IrType> {
-    return (this.backingField?.type as? IrSimpleType)
+    return (this.getter?.returnType as? IrSimpleType)
         ?.arguments
         ?.mapNotNull { it.typeOrNull }
         .orEmpty()
 }
 
 fun IrProperty.getValueType(): IrType {
-    return this.getGenericTypes().firstOrNull() ?: backingField?.type ?: error("Cannot get value type")
+    return this.getGenericTypes().firstOrNull() ?: this.getter?.returnType ?: error("Cannot get value type")
 }
