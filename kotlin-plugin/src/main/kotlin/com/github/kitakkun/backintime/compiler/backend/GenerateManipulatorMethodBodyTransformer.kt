@@ -36,6 +36,8 @@ class GenerateManipulatorMethodBodyTransformer(
     private val decodeFromStringFunction = jsonClass.functions.first { it.owner.name.asString() == "decodeFromString" && it.owner.valueParameters.size == 2 }
     private val builtInSerializers = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
 
+    private val kSerializerNullable = pluginContext.referenceProperties(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("nullable"))).single().owner.getter!!
+
     private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
@@ -166,6 +168,7 @@ class GenerateManipulatorMethodBodyTransformer(
                             result = generateSerializeCall(
                                 valueClass = valueClass,
                                 value = value,
+                                isNullable = valueType.isNullable(),
                             ) ?: return@mapNotNull null,
                         )
                     }.toList() + irElseBranch(irReturn(irString("NONE"))), // FIXME: should throw an exception
@@ -173,8 +176,8 @@ class GenerateManipulatorMethodBodyTransformer(
         }
     }
 
-    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression? {
-        val getSerializerCall = irGetSerializerCall(valueClass) ?: return null
+    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
+        val getSerializerCall = irGetSerializerCall(valueClass, isNullable) ?: return null
 
         return irReturn(
             irCall(encodeToStringFunction).apply {
@@ -206,18 +209,19 @@ class GenerateManipulatorMethodBodyTransformer(
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties.mapNotNull { property ->
-                    val valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null
+                    val valueType = property.getValueType()
+                    val valueClass = valueType.classOrNull?.owner ?: return@mapNotNull null
                     irBranch(
                         condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateDeserializeCall(value = value, valueClass = valueClass) ?: return@mapNotNull null,
+                        result = generateDeserializeCall(value = value, valueClass = valueClass, isNullable = valueType.isNullable()) ?: return@mapNotNull null,
                     )
                 }.toList() + irElseBranch(irReturn(irNull())),
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass): IrExpression? {
-        val getSerializerCall = irGetSerializerCall(valueClass) ?: return null
+    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
+        val getSerializerCall = irGetSerializerCall(valueClass, isNullable) ?: return null
 
         return irReturn(
             irCall(decodeFromStringFunction).apply {
@@ -228,7 +232,7 @@ class GenerateManipulatorMethodBodyTransformer(
         )
     }
 
-    private fun IrBuilderWithScope.irGetSerializerCall(valueClass: IrClass): IrExpression? {
+    private fun IrBuilderWithScope.irGetSerializerCall(valueClass: IrClass, isNullable: Boolean): IrExpression? {
         val builtInSerializer = builtInSerializers.find {
             it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol
         }
@@ -236,7 +240,7 @@ class GenerateManipulatorMethodBodyTransformer(
         val companionClass = valueClass.companionObject()
         val companionSerializer = companionClass?.getSimpleFunction("serializer")
 
-        return when {
+        val getSerializerCall = when {
             builtInSerializer != null ->
                 irCall(builtInSerializer).apply {
                     extensionReceiver = irGetObject(builtInSerializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
@@ -247,7 +251,15 @@ class GenerateManipulatorMethodBodyTransformer(
                     dispatchReceiver = irGetObject(companionClass.symbol)
                 }
 
-            else -> null
+            else -> return null
+        }
+
+        return if (isNullable) {
+            irCall(kSerializerNullable).apply {
+                extensionReceiver = getSerializerCall
+            }
+        } else {
+            getSerializerCall
         }
     }
 }

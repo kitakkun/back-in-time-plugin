@@ -1,5 +1,7 @@
 package com.github.kitakkun.backintime.test
 
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.serializer
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -17,6 +19,15 @@ class PureVarsHolderTest {
         assertEquals("\"b\"", pureVarsHolder.serializeValue("char", 'b'))
         assertEquals("100", pureVarsHolder.serializeValue("short", 100.toShort()))
         assertEquals("100", pureVarsHolder.serializeValue("byte", 100.toByte()))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableString", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableInt", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableLong", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableFloat", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableDouble", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableBoolean", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableChar", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableShort", null))
+        assertEquals("null", pureVarsHolder.serializeValue("nullableByte", null))
     }
 
     @Test
@@ -30,6 +41,15 @@ class PureVarsHolderTest {
         assertEquals('a', pureVarsHolder.deserializeValue("char", "\"a\""))
         assertEquals(0.toShort(), pureVarsHolder.deserializeValue("short", "0"))
         assertEquals(0.toByte(), pureVarsHolder.deserializeValue("byte", "0"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableString", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableInt", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableLong", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableFloat", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableDouble", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableBoolean", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableChar", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableShort", "null"))
+        assertEquals(null, pureVarsHolder.deserializeValue("nullableByte", "null"))
     }
 
     @Test
@@ -52,5 +72,23 @@ class PureVarsHolderTest {
         assertEquals(0.toShort(), pureVarsHolder.short)
         pureVarsHolder.forceSetValue("byte", 0.toByte())
         assertEquals(0.toByte(), pureVarsHolder.byte)
+        pureVarsHolder.forceSetValue("nullableString", null)
+        assertEquals(null, pureVarsHolder.nullableString)
+        pureVarsHolder.forceSetValue("nullableInt", null)
+        assertEquals(null, pureVarsHolder.nullableInt)
+        pureVarsHolder.forceSetValue("nullableLong", null)
+        assertEquals(null, pureVarsHolder.nullableLong)
+        pureVarsHolder.forceSetValue("nullableFloat", null)
+        assertEquals(null, pureVarsHolder.nullableFloat)
+        pureVarsHolder.forceSetValue("nullableDouble", null)
+        assertEquals(null, pureVarsHolder.nullableDouble)
+        pureVarsHolder.forceSetValue("nullableBoolean", null)
+        assertEquals(null, pureVarsHolder.nullableBoolean)
+        pureVarsHolder.forceSetValue("nullableChar", null)
+        assertEquals(null, pureVarsHolder.nullableChar)
+        pureVarsHolder.forceSetValue("nullableShort", null)
+        assertEquals(null, pureVarsHolder.nullableShort)
+        pureVarsHolder.forceSetValue("nullableByte", null)
+        assertEquals(null, pureVarsHolder.nullableByte)
     }
 }
