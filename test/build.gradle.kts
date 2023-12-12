@@ -18,19 +18,14 @@ plugins {
 // we must apply back-in-time-plugin here instead of plugins block
 apply(plugin = "back-in-time-plugin")
 
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
-
 kotlin {
     jvmToolchain(8)
+    jvm()
+    androidTarget()
+
     sourceSets.all {
         languageSettings.languageVersion = "2.0"
     }
-
-    jvm()
-    androidTarget()
 
     sourceSets {
         commonMain {
@@ -50,13 +45,18 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
             }
         }
-        val androidMain by getting() {
+        val androidMain by getting {
             dependsOn(commonMain.get())
             dependencies {
+                implementation("androidx.core:core-ktx:1.12.0")
+                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+                implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+                implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
             }
         }
-        val androidUnitTest by getting() {
+        val androidUnitTest by getting {
             dependsOn(androidMain)
+            dependsOn(commonTest.get())
             dependencies {
                 implementation("org.robolectric:robolectric:4.11.1")
             }
@@ -77,13 +77,13 @@ android {
 configure<BackInTimeExtension> {
     enabled = true
     capturedCalls += listOf(
-        "com.github.kitakkun.backintime.commonTest.GradleConfiguredValueContainer:<set-value>",
-        "com.github.kitakkun.backintime.commonTest.GradleConfiguredValueContainer:update",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:update",
     )
     valueGetters += listOf(
-        "com.github.kitakkun.backintime.commonTest.GradleConfiguredValueContainer:<get-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<get-value>",
     )
     valueSetters += listOf(
-        "com.github.kitakkun.backintime.commonTest.GradleConfiguredValueContainer:<set-value>",
+        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
     )
 }
