@@ -1,13 +1,10 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
-import com.github.kitakkun.backintime.compiler.MessageCollectorHolder
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
-import com.github.kitakkun.backintime.compiler.backend.utils.getValueType
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
@@ -17,7 +14,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.CallableId
@@ -79,71 +75,60 @@ class GenerateManipulatorMethodBodyTransformer(
     context(IrBlockBodyBuilder)
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
         return blockBody {
-            val propertyName = declaration.valueParameters[0]
+            val propertyNameValueParameter = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
-                branches = parentClass.properties.mapNotNull { property ->
-                    irBranch(
-                        condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateSetForProperty(declaration, property, value) ?: return@mapNotNull null,
-                    )
-                }.toList() + irElseBranch(irBlock {}),
+                branches = parentClass.properties
+                    .filter { it.backingField != null }
+                    .mapNotNull { property ->
+                        irBranch(
+                            condition = irEquals(irGet(propertyNameValueParameter), irString(property.name.asString())),
+                            result = generateSetForProperty(
+                                parentClassReceiver = declaration.dispatchReceiverParameter!!,
+                                property = property,
+                                type = property.backingField!!.type,
+                                value = value) ?: return@mapNotNull null,
+                        )
+                    }.toList() + irElseBranch(irBlock {}),
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateSetForProperty(declaration: IrFunction, property: IrProperty, value: IrValueParameter): IrExpression? {
-        val backingField = property.backingField ?: return null
-
-        val valueType = property.getValueType()
-        if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
-            MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
-            return null
-        }
-
-        val isGeneric = property.backingField?.type?.classOrNull?.owner?.isGeneric() == true
-
-        val irThrowErrorIfNullNotAllowed = irIfNull(
-            type = value.type,
-            subject = irGet(value),
-            thenPart = irThrow(irCallConstructor(nullValueNotAssignableExceptionConstructor, emptyList()).apply {
-                putValueArgument(0, irString(property.fqNameWhenAvailable?.asString() ?: "unknown"))
-                putValueArgument(1, irString(backingField.type.classFqName?.asString() ?: "unknown"))
-            }),
-            elsePart = irBlock { },
-        )
-
-        return irBlock {
-            if (!valueType.isNullable()) +irThrowErrorIfNullNotAllowed
-
-            if (!isGeneric && property.isVar) {
-                +irSetField(
-                    receiver = irGet(declaration.dispatchReceiverParameter!!),
-                    field = backingField,
-                    value = irGet(value),
-                )
-            } else {
-                val setterCallableId = valueSetterCallableIds.find { it.classId == backingField.type.classOrNull?.owner?.classId } ?: return null
-                val valueSetter = if (setterCallableId.callableName.isSetterName()) {
-                    backingField.type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
-                } else {
-                    pluginContext.referenceFunctions(setterCallableId).firstOrNull()
-                } ?: return null
-
-                +irCall(valueSetter).apply {
-                    dispatchReceiver = irGetField(
-                        receiver = if (backingField.isStatic) {
-                            null
-                        } else {
-                            irGet(declaration.dispatchReceiverParameter!!)
-                        },
-                        field = backingField,
-                    )
-                    putValueArgument(0, irGet(value))
-                }
+    private fun IrBuilderWithScope.generateSetForProperty(
+        parentClassReceiver: IrValueParameter,
+        property: IrProperty,
+        type: IrType,
+        value: IrValueParameter,
+    ): IrExpression? {
+        if (!type.isValueContainer() && property.isVar) {
+            val setter = property.setter ?: return null
+            return irCall(setter).apply {
+                dispatchReceiver = irGet(parentClassReceiver)
+                putValueArgument(0, irGet(value))
             }
         }
+
+        val setterCallableId = valueSetterCallableIds.find { it.classId == type.classOrNull?.owner?.classId } ?: return null
+        val valueSetter = if (setterCallableId.callableName.isSetterName()) {
+            type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
+        } else {
+            pluginContext.referenceFunctions(setterCallableId).firstOrNull()
+        } ?: return null
+
+        val propertyGetter = property.getter ?: return null
+
+        return irCall(valueSetter).apply {
+            dispatchReceiver = irCall(propertyGetter).apply {
+                dispatchReceiver = irGet(parentClassReceiver)
+            }
+            putValueArgument(0, irGet(value))
+        }
+    }
+
+    private fun IrType.isValueContainer(): Boolean {
+        //FIXME: should check if the type is value container
+        return false
     }
 
     /**
