@@ -14,10 +14,10 @@ import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isNullable
-import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.CallableId
@@ -152,42 +152,29 @@ class GenerateManipulatorMethodBodyTransformer(
     context(IrBlockBodyBuilder)
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
         return blockBody {
-            val propertyName = declaration.valueParameters[0]
+            val propertyNameValueParameter = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
                 branches = parentClass.properties
-                    .mapNotNull { property ->
-                        val valueType = property.getValueType()
-                        if (valueType.classOrNull?.owner?.serializerAvailable() != true) {
-                            MessageCollectorHolder.reportWarning("property ${property.name} is not serializable")
-                            return@mapNotNull null
-
-                        }
-                        val valueClass = property.getValueType().classOrNull?.owner ?: return@mapNotNull null
+                    .filter { it.backingField != null }
+                    .map { it.name.asString() to it.backingField!!.type }
+                    .mapNotNull { (propertyName, type) ->
                         irBranch(
-                            condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                            result = generateSerializeCall(
-                                valueClass = valueClass,
-                                value = value,
-                                isNullable = valueType.isNullable(),
-                            ) ?: return@mapNotNull null,
+                            condition = irEquals(irGet(propertyNameValueParameter), irString(propertyName)),
+                            result = generateSerializeCall(type = type, value = value) ?: return@mapNotNull null,
                         )
                     }.toList() + irElseBranch(irReturn(irString("NONE"))), // FIXME: should throw an exception
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
+    private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, type: IrType): IrExpression? {
         return irReturn(
             irCall(encodeToStringFunction).apply {
                 extensionReceiver = irCall(json.getter!!)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, if (isNullable) {
-                    valueClass.defaultType.makeNullable()
-                } else {
-                    valueClass.defaultType
-                })
+                putTypeArgument(0, type)
             }
         )
     }
@@ -208,32 +195,29 @@ class GenerateManipulatorMethodBodyTransformer(
     context(IrBlockBodyBuilder)
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBlockBody {
         return blockBody {
-            val propertyName = declaration.valueParameters[0]
+            val propertyNameValueParameter = declaration.valueParameters[0]
             val value = declaration.valueParameters[1]
             +irWhen(
                 type = pluginContext.irBuiltIns.unitType,
-                branches = parentClass.properties.mapNotNull { property ->
-                    val valueType = property.getValueType()
-                    val valueClass = valueType.classOrNull?.owner ?: return@mapNotNull null
-                    irBranch(
-                        condition = irEquals(irGet(propertyName), irString(property.name.asString())),
-                        result = generateDeserializeCall(value = value, valueClass = valueClass, isNullable = valueType.isNullable()) ?: return@mapNotNull null,
-                    )
-                }.toList() + irElseBranch(irReturn(irNull())),
+                branches = parentClass.properties
+                    .filter { it.backingField != null }
+                    .map { it.name.asString() to it.backingField!!.type }
+                    .mapNotNull { (propertyName, type) ->
+                        irBranch(
+                            condition = irEquals(irGet(propertyNameValueParameter), irString(propertyName)),
+                            result = generateDeserializeCall(value = value, type = type) ?: return@mapNotNull null,
+                        )
+                    }.toList() + irElseBranch(irReturn(irNull())),
             )
         }
     }
 
-    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
+    private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, type: IrType): IrExpression? {
         return irReturn(
             irCall(decodeFromStringFunction).apply {
                 extensionReceiver = irCall(json.getter!!)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, if (isNullable) {
-                    valueClass.defaultType.makeNullable()
-                } else {
-                    valueClass.defaultType
-                })
+                putTypeArgument(0, type)
             }
         )
     }

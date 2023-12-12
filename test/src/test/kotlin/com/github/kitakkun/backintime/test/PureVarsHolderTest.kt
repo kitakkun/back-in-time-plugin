@@ -25,7 +25,6 @@ class PureVarsHolderTest {
 
     @Test
     fun serializeNonNullCollectionFields() {
-        // FIXME: This test should be passed.
         assertEquals("[\"string value\"]", pureVarsHolder.serializeValue("stringList", listOf("string value")))
         assertEquals("[0]", pureVarsHolder.serializeValue("intList", listOf(0)))
         assertEquals("[0]", pureVarsHolder.serializeValue("longList", listOf(0L)))
@@ -48,7 +47,7 @@ class PureVarsHolderTest {
     }
 
     @Test
-    fun deserialize() {
+    fun deserializeNonNullFields() {
         assertEquals("hogehoge", pureVarsHolder.deserializeValue("string", "\"hogehoge\""))
         assertEquals(0, pureVarsHolder.deserializeValue("int", "0"))
         assertEquals(0L, pureVarsHolder.deserializeValue("long", "0"))
@@ -58,6 +57,20 @@ class PureVarsHolderTest {
         assertEquals('a', pureVarsHolder.deserializeValue("char", "\"a\""))
         assertEquals(0.toShort(), pureVarsHolder.deserializeValue("short", "0"))
         assertEquals(0.toByte(), pureVarsHolder.deserializeValue("byte", "0"))
+    }
+
+    @Test
+    fun deserializeNonNullCollectionFields() {
+        assertEquals(listOf("string value"), pureVarsHolder.deserializeValue("stringList", "[\"string value\"]"))
+        assertEquals(listOf(0), pureVarsHolder.deserializeValue("intList", "[0]"))
+        assertEquals(listOf(0L), pureVarsHolder.deserializeValue("longList", "[0]"))
+        assertEquals(listOf(0f), pureVarsHolder.deserializeValue("floatList", "[0.0]"))
+        assertEquals(listOf(0.0), pureVarsHolder.deserializeValue("doubleList", "[0.0]"))
+        assertEquals(listOf(false), pureVarsHolder.deserializeValue("booleanList", "[false]"))
+    }
+
+    @Test
+    fun deserializeNullableFields() {
         assertEquals(null, pureVarsHolder.deserializeValue("nullableString", "null"))
         assertEquals(null, pureVarsHolder.deserializeValue("nullableInt", "null"))
         assertEquals(null, pureVarsHolder.deserializeValue("nullableLong", "null"))
