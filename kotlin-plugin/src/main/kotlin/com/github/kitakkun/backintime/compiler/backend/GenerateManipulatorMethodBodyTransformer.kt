@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
-import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -168,16 +167,6 @@ class GenerateManipulatorMethodBodyTransformer(
                 })
             }
         )
-    }
-
-    private fun IrClass.serializerAvailable(): Boolean {
-        if (this.companionObject()?.getSimpleFunction("serializer") != null) return true
-        return pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
-            .any { it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == this.symbol }
-    }
-
-    private fun IrClass.isGeneric(): Boolean {
-        return this.typeParameters.isNotEmpty()
     }
 
     /**
