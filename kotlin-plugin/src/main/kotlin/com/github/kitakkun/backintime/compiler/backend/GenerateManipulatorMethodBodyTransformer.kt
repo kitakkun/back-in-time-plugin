@@ -8,6 +8,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.getValueType
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.irThrow
+import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isNullable
+import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.CallableId
@@ -31,9 +33,12 @@ class GenerateManipulatorMethodBodyTransformer(
 ) : IrElementTransformerVoid() {
     // reference val backInTimeJson = Json { ... }
     private val json = pluginContext.referenceProperties(BackInTimeConsts.myJsonPropertyId).single().owner
-    private val jsonClass = pluginContext.referenceClass(BackInTimeConsts.kotlinxSerializationJsonClassId)!!.owner.declarations.filterIsInstance<IrClass>().first { it.isCompanion && it.name.asString() == "Default" }.symbol
-    private val encodeToStringFunction = jsonClass.functions.first { it.owner.name.asString() == "encodeToString" && it.owner.valueParameters.size == 2 }
-    private val decodeFromStringFunction = jsonClass.functions.first { it.owner.name.asString() == "decodeFromString" && it.owner.valueParameters.size == 2 }
+    private val encodeToStringFunction = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization"), Name.identifier("encodeToString"))).first {
+        it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+    }
+    private val decodeFromStringFunction = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization"), Name.identifier("decodeFromString"))).first {
+        it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+    }
     private val builtInSerializers = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
 
     private val kSerializerNullable = pluginContext.referenceProperties(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("nullable"))).single().owner.getter!!
@@ -177,13 +182,15 @@ class GenerateManipulatorMethodBodyTransformer(
     }
 
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
-        val getSerializerCall = irGetSerializerCall(valueClass, isNullable) ?: return null
-
         return irReturn(
             irCall(encodeToStringFunction).apply {
-                dispatchReceiver = irCall(json.getter!!)
-                putValueArgument(0, getSerializerCall)
-                putValueArgument(1, irGet(value))
+                extensionReceiver = irCall(json.getter!!)
+                putValueArgument(0, irGet(value))
+                putTypeArgument(0, if (isNullable) {
+                    valueClass.defaultType.makeNullable()
+                } else {
+                    valueClass.defaultType
+                })
             }
         )
     }
@@ -221,13 +228,15 @@ class GenerateManipulatorMethodBodyTransformer(
     }
 
     private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, valueClass: IrClass, isNullable: Boolean): IrExpression? {
-        val getSerializerCall = irGetSerializerCall(valueClass, isNullable) ?: return null
-
         return irReturn(
             irCall(decodeFromStringFunction).apply {
-                dispatchReceiver = irCall(json.getter!!)
-                putValueArgument(0, getSerializerCall)
-                putValueArgument(1, irGet(value))
+                extensionReceiver = irCall(json.getter!!)
+                putValueArgument(0, irGet(value))
+                putTypeArgument(0, if (isNullable) {
+                    valueClass.defaultType.makeNullable()
+                } else {
+                    valueClass.defaultType
+                })
             }
         )
     }

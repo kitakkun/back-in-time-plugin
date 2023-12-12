@@ -2,6 +2,8 @@ package com.github.kitakkun.backintime.test
 
 import kotlinx.serialization.builtins.nullable
 import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -9,7 +11,7 @@ class PureVarsHolderTest {
     private val pureVarsHolder = PureVarsHolder()
 
     @Test
-    fun serialize() {
+    fun serializeNonNullFields() {
         assertEquals("\"hogehoge\"", pureVarsHolder.serializeValue("string", "hogehoge"))
         assertEquals("1000", pureVarsHolder.serializeValue("int", 1000))
         assertEquals("10000000000", pureVarsHolder.serializeValue("long", 10000000000L))
@@ -19,6 +21,21 @@ class PureVarsHolderTest {
         assertEquals("\"b\"", pureVarsHolder.serializeValue("char", 'b'))
         assertEquals("100", pureVarsHolder.serializeValue("short", 100.toShort()))
         assertEquals("100", pureVarsHolder.serializeValue("byte", 100.toByte()))
+    }
+
+    @Test
+    fun serializeNonNullCollectionFields() {
+        // FIXME: This test should be passed.
+        assertEquals("[\"string value\"]", pureVarsHolder.serializeValue("stringList", listOf("string value")))
+        assertEquals("[0]", pureVarsHolder.serializeValue("intList", listOf(0)))
+        assertEquals("[0]", pureVarsHolder.serializeValue("longList", listOf(0L)))
+        assertEquals("[0.0]", pureVarsHolder.serializeValue("floatList", listOf(0f)))
+        assertEquals("[0.0]", pureVarsHolder.serializeValue("doubleList", listOf(0.0)))
+        assertEquals("[false]", pureVarsHolder.serializeValue("booleanList", listOf(false)))
+    }
+
+    @Test
+    fun serializeNullableFields() {
         assertEquals("null", pureVarsHolder.serializeValue("nullableString", null))
         assertEquals("null", pureVarsHolder.serializeValue("nullableInt", null))
         assertEquals("null", pureVarsHolder.serializeValue("nullableLong", null))
