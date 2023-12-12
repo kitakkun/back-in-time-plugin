@@ -11,6 +11,7 @@ buildscript {
 
 plugins {
     kotlin("multiplatform")
+    id("com.android.library")
 }
 
 // because back-in-time-plugin is published to mavenLocal
@@ -23,11 +24,13 @@ repositories {
 }
 
 kotlin {
+    jvmToolchain(8)
     sourceSets.all {
         languageSettings.languageVersion = "2.0"
     }
 
     jvm()
+    androidTarget()
 
     sourceSets {
         commonMain {
@@ -39,7 +42,6 @@ kotlin {
             }
         }
         commonTest {
-            dependsOn(commonMain.get())
             kotlin {
                 setSrcDirs(listOf("src/commonTest/kotlin", "build/classes/kotlin/commonMain"))
             }
@@ -48,7 +50,28 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
             }
         }
+        val androidMain by getting() {
+            dependsOn(commonMain.get())
+            dependencies {
+            }
+        }
+        val androidUnitTest by getting() {
+            dependsOn(androidMain)
+            dependencies {
+                implementation("org.robolectric:robolectric:4.11.1")
+            }
+        }
     }
+}
+
+android {
+    compileSdk = 34
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    defaultConfig {
+        targetSdk = 34
+        minSdk = 21
+    }
+    namespace = "com.github.kitakkun.backintime.test"
 }
 
 configure<BackInTimeExtension> {
@@ -64,4 +87,3 @@ configure<BackInTimeExtension> {
         "com.github.kitakkun.backintime.commonTest.GradleConfiguredValueContainer:<set-value>",
     )
 }
-
