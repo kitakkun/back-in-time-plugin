@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.name.Name
  */
 class GenerateManipulatorMethodBodyTransformer(
     private val pluginContext: IrPluginContext,
-    private val valueSetterCallableIds: Set<CallableId>,
+    private val valueContainerClassInfoList: List<ValueContainerClassInfo>,
 ) : IrElementTransformerVoid() {
     // reference val backInTimeJson = Json { ... }
     private val json = pluginContext.referenceProperties(BackInTimeConsts.myJsonPropertyId).single().owner
@@ -109,7 +109,8 @@ class GenerateManipulatorMethodBodyTransformer(
             }
         }
 
-        val setterCallableId = valueSetterCallableIds.find { it.classId == type.classOrNull?.owner?.classId } ?: return null
+        val valueContainerClassInfo = valueContainerClassInfoList.first { it.classId == type.classOrNull?.owner?.classId }
+        val setterCallableId = valueContainerClassInfo.valueSetter
         val valueSetter = if (setterCallableId.callableName.isSetterName()) {
             type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
         } else {
@@ -127,8 +128,7 @@ class GenerateManipulatorMethodBodyTransformer(
     }
 
     private fun IrType.isValueContainer(): Boolean {
-        //FIXME: should check if the type is value container
-        return false
+        return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId }
     }
 
     /**

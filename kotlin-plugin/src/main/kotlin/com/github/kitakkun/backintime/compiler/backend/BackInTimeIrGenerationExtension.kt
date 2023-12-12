@@ -9,36 +9,47 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.CallableId
 
 class BackInTimeIrGenerationExtension(
-    config: BackInTimeCompilerConfiguration,
+    private val config: BackInTimeCompilerConfiguration,
 ) : IrGenerationExtension {
-    private val mutableCapturedCallableIds = config.capturedCallableIds.toMutableSet()
-    private val mutableValueGetterCallableIds = config.valueGetterCallableIds.toMutableSet()
-    private val mutableValueSetterCallableIds = config.valueSetterCallableIds.toMutableSet()
-    private val capturedCallableIds: Set<CallableId> = mutableCapturedCallableIds
-    private val valueGetterCallableIds: Set<CallableId> = mutableValueGetterCallableIds
-    private val valueSetterCallableIds: Set<CallableId> = mutableValueSetterCallableIds
-
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        with(UserDefinedValueContainerAnalyzer()) {
+        val valueContainerInfo = with(UserDefinedValueContainerAnalyzer()) {
             moduleFragment.acceptChildrenVoid(this)
-            mutableCapturedCallableIds.addAll(collectedCapturedCallableIds)
-            mutableValueGetterCallableIds.addAll(collectedGetterCallableIds)
-            mutableValueSetterCallableIds.addAll(collectedSetterCallableIds)
+            resolveIdsToValueContainerInfoList(
+                capturedCallableIds = config.capturedCallableIds + collectedCapturedCallableIds,
+                valueGetterCallableIds = config.valueGetterCallableIds + collectedGetterCallableIds,
+                valueSetterCallableIds = config.valueSetterCallableIds + collectedSetterCallableIds,
+            )
         }
 
         moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer(pluginContext))
         moduleFragment.transformChildrenVoid(
             BackInTimeIrValueChangeNotifyCodeGenerationExtension(
                 pluginContext = pluginContext,
-                capturedCallableIds = capturedCallableIds,
-                valueGetterCallableIds = valueGetterCallableIds,
+                valueContainerClassInfo = valueContainerInfo,
             )
         )
         moduleFragment.transformChildrenVoid(
             GenerateManipulatorMethodBodyTransformer(
                 pluginContext = pluginContext,
-                valueSetterCallableIds = valueSetterCallableIds,
+                valueContainerClassInfoList = valueContainerInfo,
             )
         )
+    }
+
+    private fun resolveIdsToValueContainerInfoList(
+        capturedCallableIds: Set<CallableId>,
+        valueGetterCallableIds: Set<CallableId>,
+        valueSetterCallableIds: Set<CallableId>,
+    ): List<ValueContainerClassInfo> {
+        return capturedCallableIds
+            .mapNotNull { it.classId }
+            .mapNotNull { classId ->
+                ValueContainerClassInfo(
+                    classId = classId,
+                    capturedCallableIds = capturedCallableIds.filter { it.classId == classId },
+                    valueGetter = valueGetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
+                    valueSetter = valueSetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
+                )
+            }
     }
 }

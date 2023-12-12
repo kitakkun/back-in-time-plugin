@@ -38,8 +38,10 @@ import org.jetbrains.kotlin.name.CallableId
 
 class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
     private val pluginContext: IrPluginContext,
-    private val capturedCallableIds: Set<CallableId>,
-    private val valueGetterCallableIds: Set<CallableId>,
+    private val valueContainerClassInfo: List<ValueContainerClassInfo>,
+    // FIXME: temporary solution
+    private val capturedCallableIds: Set<CallableId> = valueContainerClassInfo.flatMap { it.capturedCallableIds }.toSet(),
+    private val valueGetterCallableIds: Set<CallableId> = valueContainerClassInfo.map { it.valueGetter }.toSet(),
 ) : IrElementTransformerVoid() {
     private val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: error("backInTimeDebugServiceClassId is not found")
     private val backInTimeNotifyMethodCallFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
