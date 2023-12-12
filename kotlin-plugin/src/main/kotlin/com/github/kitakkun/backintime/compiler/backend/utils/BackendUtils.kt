@@ -5,13 +5,9 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetObject
-import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTemporary
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -32,26 +28,6 @@ fun IrBuilderWithScope.generateDebugPrintCall(argument: IrExpression): IrCall {
 @Suppress("UNUSED")
 fun IrFunction.generateSignature(): String {
     return "${this.name}(${this.valueParameters.joinToString { "${it.name}: ${it.type.classFqName}" }}): ${this.returnType.classFqName}"
-}
-
-context(IrBuilderWithScope, IrPluginContext)
-fun irNotifyValueChangeCall(
-    parentInstance: IrValueParameter,
-    propertyName: String,
-    propertyTypeClassFqName: String,
-    value: IrExpression,
-    methodCallUUID: IrVariable,
-): IrExpression? {
-    val debugServiceClass = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: return null
-    val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged) ?: return null
-    return irCall(notifyValueChangeFunction).apply {
-        dispatchReceiver = irGetObject(debugServiceClass)
-        putValueArgument(0, irGet(parentInstance))
-        putValueArgument(1, irString(propertyName))
-        putValueArgument(2, value)
-        putValueArgument(3, irString(propertyTypeClassFqName))
-        putValueArgument(4, irGet(methodCallUUID))
-    }
 }
 
 context(IrPluginContext)

@@ -19,14 +19,10 @@ import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
-import org.jetbrains.kotlin.name.CallableId
 
 class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
     private val pluginContext: IrPluginContext,
     private val valueContainerClassInfo: List<ValueContainerClassInfo>,
-    // FIXME: temporary solution
-    private val capturedCallableIds: Set<CallableId> = valueContainerClassInfo.flatMap { it.capturedCallableIds }.toSet(),
-    private val valueGetterCallableIds: Set<CallableId> = valueContainerClassInfo.map { it.valueGetter }.toSet(),
 ) : IrElementTransformerVoid() {
     private val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: error("backInTimeDebugServiceClassId is not found")
     private val backInTimeNotifyMethodCallFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
@@ -56,7 +52,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
-        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(pluginContext, declaration, uuidVariable, capturedCallableIds, valueGetterCallableIds))
+        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(pluginContext, declaration, uuidVariable, valueContainerClassInfoList = valueContainerClassInfo))
         return super.visitSimpleFunction(declaration)
     }
 }

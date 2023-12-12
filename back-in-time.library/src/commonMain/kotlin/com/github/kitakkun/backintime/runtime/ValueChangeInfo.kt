@@ -7,6 +7,5 @@ data class ValueChangeInfo(
     val instanceUUID: String,
     val propertyName: String,
     val value: String,
-    val valueType: String,
     val methodCallUUID: String,
 )

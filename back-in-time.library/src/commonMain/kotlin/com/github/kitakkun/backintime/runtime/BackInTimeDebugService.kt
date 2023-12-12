@@ -74,7 +74,6 @@ object BackInTimeDebugService : CoroutineScope {
         instance: DebuggableStateHolderManipulator,
         propertyName: String,
         value: Any?,
-        valueTypeQualifiedName: String,
         methodCallUUID: String,
     ) {
         val serializedValue = instance.serializeValue(propertyName, value)
@@ -84,7 +83,6 @@ object BackInTimeDebugService : CoroutineScope {
                     instanceUUID = instances[instance] ?: return@launch,
                     propertyName = propertyName,
                     value = serializedValue,
-                    valueType = valueTypeQualifiedName,
                     methodCallUUID = methodCallUUID,
                 )
             )
