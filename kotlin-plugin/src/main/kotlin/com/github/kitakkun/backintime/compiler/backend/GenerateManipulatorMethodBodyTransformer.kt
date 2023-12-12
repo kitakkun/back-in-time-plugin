@@ -39,9 +39,6 @@ class GenerateManipulatorMethodBodyTransformer(
     private val decodeFromStringFunction = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization"), Name.identifier("decodeFromString"))).first {
         it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
     }
-    private val builtInSerializers = pluginContext.referenceFunctions(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("serializer")))
-
-    private val kSerializerNullable = pluginContext.referenceProperties(CallableId(FqName("kotlinx.serialization.builtins"), Name.identifier("nullable"))).single().owner.getter!!
 
     private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
@@ -239,36 +236,5 @@ class GenerateManipulatorMethodBodyTransformer(
                 })
             }
         )
-    }
-
-    private fun IrBuilderWithScope.irGetSerializerCall(valueClass: IrClass, isNullable: Boolean): IrExpression? {
-        val builtInSerializer = builtInSerializers.find {
-            it.owner.returnType.getGenericTypes().firstOrNull()?.classOrNull == valueClass.symbol
-        }
-
-        val companionClass = valueClass.companionObject()
-        val companionSerializer = companionClass?.getSimpleFunction("serializer")
-
-        val getSerializerCall = when {
-            builtInSerializer != null ->
-                irCall(builtInSerializer).apply {
-                    extensionReceiver = irGetObject(builtInSerializer.owner.extensionReceiverParameter!!.type.classOrNull!!)
-                }
-
-            companionSerializer != null ->
-                irCall(companionSerializer).apply {
-                    dispatchReceiver = irGetObject(companionClass.symbol)
-                }
-
-            else -> return null
-        }
-
-        return if (isNullable) {
-            irCall(kSerializerNullable).apply {
-                extensionReceiver = getSerializerCall
-            }
-        } else {
-            getSerializerCall
-        }
     }
 }
