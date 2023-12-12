@@ -11,9 +11,11 @@ import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.CallableId
@@ -109,7 +111,7 @@ class GenerateManipulatorMethodBodyTransformer(
             }
         }
 
-        val valueContainerClassInfo = valueContainerClassInfoList.first { it.classId == type.classOrNull?.owner?.classId }
+        val valueContainerClassInfo = valueContainerClassInfoList.firstOrNull { it.classId == type.classOrNull?.owner?.classId } ?: return null
         val setterCallableId = valueContainerClassInfo.valueSetter
         val valueSetter = if (setterCallableId.callableName.isSetterName()) {
             type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
@@ -159,7 +161,11 @@ class GenerateManipulatorMethodBodyTransformer(
             irCall(encodeToStringFunction).apply {
                 extensionReceiver = irCall(json.getter!!)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, type)
+                putTypeArgument(0, if (type.isValueContainer()) {
+                    (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
+                } else {
+                    type
+                })
             }
         )
     }
@@ -202,7 +208,11 @@ class GenerateManipulatorMethodBodyTransformer(
             irCall(decodeFromStringFunction).apply {
                 extensionReceiver = irCall(json.getter!!)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, type)
+                putTypeArgument(0, if (type.isValueContainer()) {
+                    (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
+                } else {
+                    type
+                })
             }
         )
     }
