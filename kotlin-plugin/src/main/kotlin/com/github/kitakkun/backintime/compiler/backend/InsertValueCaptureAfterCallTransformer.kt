@@ -131,6 +131,8 @@ class InsertValueCaptureAfterCallTransformer(
      */
     private fun IrCall.transformComplexReceiverCallInline(): IrExpression {
         val irCalls = this.valueArguments.filterIsInstance<IrCall>()
+            .plus(this.extensionReceiver as? IrCall)
+            .filterNotNull()
         val lambdas = this.valueArguments.filterIsInstance<IrFunctionExpression>()
 
         lambdas.forEach { expression ->
