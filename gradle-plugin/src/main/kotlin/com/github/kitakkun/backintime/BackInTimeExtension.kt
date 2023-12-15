@@ -2,6 +2,8 @@ package com.github.kitakkun.backintime
 
 val defaultCapturedCalls = mutableListOf(
     "kotlinx.coroutines.flow.MutableStateFlow:update",
+    "kotlinx.coroutines.flow.MutableStateFlow:updateAndGet",
+    "kotlinx.coroutines.flow.MutableStateFlow:getAndUpdate",
     "kotlinx.coroutines.flow.MutableStateFlow:<set-value>",
     "androidx.lifecycle.MutableLiveData:postValue",
     "androidx.lifecycle.MutableLiveData:setValue",
