@@ -12,7 +12,6 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
-import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -56,38 +55,15 @@ class InsertValueCaptureAfterCallTransformer(
     private val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
 
     override fun visitCall(expression: IrCall): IrExpression {
-        val irBlockBuilder = IrBlockBuilder(
-            context = pluginContext,
-            scope = Scope(expression.symbol),
-            startOffset = expression.startOffset,
-            endOffset = expression.endOffset,
-        )
-
-        // 次の条件を満たすときはインラインのブロック内で値変更が呼ばれる可能性がある
-        // (T) -> ? または T.() -> ? を引数にもつ 拡張関数 T.hoge()
-        // withのように，receiver: T と block: T.() -> ? がある場合は，receiverの値が変更される可能性がある
-        // with のようなパターンの可能性
-        // 関数にメンバが渡っている場合その内部で値が変更される可能性がある
-
         // parentのReceiverがなかったらreturn
         parentMethodDeclaration.dispatchReceiverParameter ?: return super.visitCall(expression)
-        // ピュアなvalueセッター
-        // ex) this.variable = 1
-        if (expression.isPureSetterCall()) {
-            return expression.transformPureSetterCall() ?: expression
-        }
 
-        // 他のクラスの内側に値を持っている場合
-        // ex) liveData.value = 1
-        if (expression.isValueContainerSetterCall()) {
-            return expression.transformValueContainerSetterCall() ?: expression
-        }
-
-        return if (!expression.symbol.owner.isInline) {
-            expression.transformComplexReceiverCall()
-        } else {
-            expression.transformComplexReceiverCallInline()
-        }
+        return when {
+            expression.isPureSetterCall() -> expression.transformPureSetterCall()
+            expression.isValueContainerSetterCall() -> expression.transformValueContainerSetterCall()
+            expression.symbol.owner.isInline -> expression.transformComplexReceiverCallInline()
+            else -> expression.transformComplexReceiverCall()
+        } ?: super.visitCall(expression)
     }
 
     private fun IrCall.irBlockBodyBuilder(): IrBlockBodyBuilder {
