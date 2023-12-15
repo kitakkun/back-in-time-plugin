@@ -74,19 +74,7 @@ class InsertValueCaptureAfterCallTransformer(
         // ピュアなvalueセッター
         // ex) this.variable = 1
         if (expression.isPureSetterCall()) {
-            val property = expression.symbol.owner.correspondingPropertySymbol?.owner ?: return super.visitCall(expression)
-            val propertyGetter = property.getter ?: return super.visitCall(expression)
-            with(irBlockBuilder) {
-                return irComposite {
-                    +super.visitCall(expression)
-                    +generateNotifyValueChangeCall(
-                        propertyName = property.name.asString(),
-                        getValueCall = irCall(propertyGetter).apply {
-                            this.dispatchReceiver = expression.dispatchReceiver!!.deepCopyWithVariables()
-                        }
-                    )
-                }
-            }
+            return expression.transformPureSetterCall() ?: expression
         }
 
         // 他のクラスの内側に値を持っている場合
@@ -119,6 +107,35 @@ class InsertValueCaptureAfterCallTransformer(
             expression.transformComplexReceiverCall()
         } else {
             expression.transformComplexReceiverCallInline()
+        }
+    }
+
+    private fun IrCall.irBlockBodyBuilder(): IrBlockBodyBuilder {
+        return IrBlockBodyBuilder(
+            pluginContext,
+            Scope(this.symbol),
+            this.startOffset,
+            this.endOffset,
+        )
+    }
+
+    /**
+     * ex)
+     * var hoge: Int = 0
+     * hoge = 1
+     */
+    private fun IrCall.transformPureSetterCall(): IrExpression? {
+        val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
+        val propertyGetter = property.getter ?: return null
+        val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
+        with(irBlockBodyBuilder()) {
+            return irComposite {
+                +this@transformPureSetterCall
+                +generateNotifyValueChangeCall(
+                    propertyName = property.name.asString(),
+                    getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
+                )
+            }
         }
     }
 
