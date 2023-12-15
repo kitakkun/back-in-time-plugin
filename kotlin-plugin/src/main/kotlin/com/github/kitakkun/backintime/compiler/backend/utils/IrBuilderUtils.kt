@@ -15,6 +15,20 @@ fun IrSymbolOwner.irBlockBuilder(pluginContext: IrPluginContext) = IrBlockBuilde
     endOffset = endOffset,
 )
 
+fun IrSymbolOwner.irBlockBodyBuilder(pluginContext: IrPluginContext) = IrBlockBodyBuilder(
+    context = pluginContext,
+    scope = Scope(symbol),
+    startOffset = startOffset,
+    endOffset = endOffset,
+)
+
+fun IrExpression.irBlockBuilder(pluginContext: IrPluginContext) = IrBlockBuilder(
+    context = pluginContext,
+    scope = Scope(symbol),
+    startOffset = startOffset,
+    endOffset = endOffset,
+)
+
 fun IrExpression.irBlockBodyBuilder(pluginContext: IrPluginContext) = IrBlockBodyBuilder(
     context = pluginContext,
     scope = Scope(symbol),

@@ -2,11 +2,10 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
-import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
@@ -46,12 +45,7 @@ class BackInTimeCallRegisterOnInitTransformer(
         val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
         if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitConstructor(declaration)
 
-        declaration.body = IrBlockBodyBuilder(
-            context = pluginContext,
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-            scope = Scope(declaration.symbol),
-        ).blockBody {
+        declaration.body = declaration.irBlockBodyBuilder(pluginContext).blockBody {
             +declaration.body?.statements.orEmpty()
             +generateRegisterCall(parentClass)
         }

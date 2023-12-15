@@ -2,6 +2,7 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
@@ -49,12 +50,7 @@ class GenerateManipulatorMethodBodyTransformer(
         val parentClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!shouldGenerateFunctionBody(parentClass)) return super.visitSimpleFunction(declaration)
 
-        with(IrBlockBodyBuilder(
-            context = pluginContext,
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-            scope = Scope(declaration.symbol),
-        )) {
+        with(declaration.irBlockBodyBuilder(pluginContext)) {
             when (declaration.name) {
                 BackInTimeConsts.forceSetValueMethodName -> {
                     declaration.body = generateForceSetPropertyMethodBody(declaration, parentClass)
