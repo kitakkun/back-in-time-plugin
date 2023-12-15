@@ -52,7 +52,13 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
-        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(pluginContext, declaration, uuidVariable, valueContainerClassInfoList = valueContainerClassInfo))
+        val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return super.visitSimpleFunction(declaration)
+        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(
+            pluginContext = pluginContext,
+            classDispatchReceiverParameter = parentClassDispatchReceiver,
+            uuidVariable = uuidVariable,
+            valueContainerClassInfoList = valueContainerClassInfo)
+        )
         return super.visitSimpleFunction(declaration)
     }
 }
