@@ -19,9 +19,9 @@ plugins {
 apply(plugin = "back-in-time-plugin")
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(17)
     jvm()
-    androidTarget()
+    androidTarget { this.publishAllLibraryVariants() }
 
     sourceSets.all {
         languageSettings.languageVersion = "2.0"
@@ -37,28 +37,25 @@ kotlin {
             }
         }
         commonTest {
-            kotlin {
-                setSrcDirs(listOf("src/commonTest/kotlin", "build/classes/kotlin/commonMain"))
-            }
             dependencies {
                 implementation(kotlin("test"))
+                implementation(kotlin("test-junit"))
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
             }
         }
         val androidMain by getting {
-            dependsOn(commonMain.get())
             dependencies {
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
                 implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
                 implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
+                implementation("androidx.compose.runtime:runtime-android:1.5.4")
             }
         }
         val androidUnitTest by getting {
-            dependsOn(androidMain)
-            dependsOn(commonTest.get())
             dependencies {
                 implementation("org.robolectric:robolectric:4.11.1")
+                implementation("io.mockk:mockk:1.13.8")
             }
         }
     }
