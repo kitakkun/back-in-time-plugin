@@ -80,27 +80,7 @@ class InsertValueCaptureAfterCallTransformer(
         // 他のクラスの内側に値を持っている場合
         // ex) liveData.value = 1
         if (expression.isValueContainerSetterCall()) {
-            val property = (expression.dispatchReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
-                ?: (expression.extensionReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return super.visitCall(expression)
-            val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return super.visitCall(expression)
-            val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return super.visitCall(expression)
-            val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
-                propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
-            } else {
-                val functionName = valueGetterCallableId.callableName.asString()
-                propertyClass.getSimpleFunctionRecursively(functionName)
-            } ?: return super.visitCall(expression)
-            with(irBlockBuilder) {
-                return irComposite {
-                    +super.visitCall(expression)
-                    +generateNotifyValueChangeCall(
-                        propertyName = property.name.asString(),
-                        getValueCall = irCall(valueGetter).apply {
-                            this.dispatchReceiver = expression.dispatchReceiver!!.deepCopyWithVariables()
-                        }
-                    )
-                }
-            }
+            return expression.transformValueContainerSetterCall() ?: expression
         }
 
         return if (!expression.symbol.owner.isInline) {
@@ -134,6 +114,36 @@ class InsertValueCaptureAfterCallTransformer(
                 +generateNotifyValueChangeCall(
                     propertyName = property.name.asString(),
                     getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
+                )
+            }
+        }
+    }
+
+    /**
+     * ex)
+     * var hoge: MutableLiveData<Int> = MutableLiveData(0)
+     * hoge.value = 1
+     */
+    private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
+        val property = (dispatchReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
+            ?: (extensionReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
+            ?: return null
+        val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return null
+        val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return null
+        val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
+            propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
+        } else {
+            val functionName = valueGetterCallableId.callableName.asString()
+            propertyClass.getSimpleFunctionRecursively(functionName)
+        } ?: return null
+
+        val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
+        with(irBlockBodyBuilder()) {
+            return irComposite {
+                +this@transformValueContainerSetterCall
+                +generateNotifyValueChangeCall(
+                    propertyName = property.name.asString(),
+                    getValueCall = irCall(valueGetter).apply { this.dispatchReceiver = dispatchReceiver }
                 )
             }
         }
