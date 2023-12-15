@@ -400,7 +400,7 @@ class InsertValueCaptureAfterCallTransformer(
     }
 
     private fun IrCall.isPureSetterCall(): Boolean {
-        return this.symbol.owner.isSetter && this.dispatchReceiver is IrGetValue
+        return this.symbol.owner.isSetter && (this.dispatchReceiver as? IrGetValue)?.symbol == classDispatchReceiverParameter.symbol
     }
 
     private fun IrCall.isValueContainerSetterCall(): Boolean {
