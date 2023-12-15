@@ -3,10 +3,9 @@ package com.github.kitakkun.backintime.compiler.backend
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
-import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetObject
@@ -32,12 +31,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)
         if (!ownerClass.functions.contains(declaration)) return super.visitSimpleFunction(declaration)
 
-        val irBuilder = IrBlockBuilder(
-            context = pluginContext,
-            scope = Scope(declaration.symbol),
-            startOffset = declaration.startOffset,
-            endOffset = declaration.endOffset,
-        )
+        val irBuilder = declaration.irBlockBuilder(pluginContext)
 
         val uuidVariable = with(pluginContext) { irBuilder.generateUUIDVariable() } ?: return super.visitSimpleFunction(declaration)
 

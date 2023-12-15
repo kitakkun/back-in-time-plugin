@@ -5,14 +5,15 @@ import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyGetterRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import com.github.kitakkun.backintime.compiler.ext.filterKeysNotNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
-import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
-import org.jetbrains.kotlin.ir.builders.Scope
+import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irEquals
@@ -61,15 +62,6 @@ class InsertValueCaptureAfterCallTransformer(
         } ?: super.visitCall(expression)
     }
 
-    private fun IrCall.irBlockBodyBuilder(): IrBlockBodyBuilder {
-        return IrBlockBodyBuilder(
-            pluginContext,
-            Scope(this.symbol),
-            this.startOffset,
-            this.endOffset,
-        )
-    }
-
     /**
      * ex)
      * var hoge: Int = 0
@@ -79,14 +71,12 @@ class InsertValueCaptureAfterCallTransformer(
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
         val propertyGetter = property.getter ?: return null
         val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
-        with(irBlockBodyBuilder()) {
-            return irComposite {
-                +this@transformPureSetterCall
-                +generateNotifyValueChangeCall(
-                    propertyName = property.name.asString(),
-                    getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
-                )
-            }
+        return irBlockBodyBuilder(pluginContext).irComposite {
+            +this@transformPureSetterCall
+            +generateNotifyValueChangeCall(
+                propertyName = property.name.asString(),
+                getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
+            )
         }
     }
 
@@ -109,14 +99,12 @@ class InsertValueCaptureAfterCallTransformer(
         } ?: return null
 
         val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
-        with(irBlockBodyBuilder()) {
-            return irComposite {
-                +this@transformValueContainerSetterCall
-                +generateNotifyValueChangeCall(
-                    propertyName = property.name.asString(),
-                    getValueCall = irCall(valueGetter).apply { this.dispatchReceiver = dispatchReceiver }
-                )
-            }
+        return irBlockBodyBuilder(pluginContext).irComposite {
+            +this@transformValueContainerSetterCall
+            +generateNotifyValueChangeCall(
+                propertyName = property.name.asString(),
+                getValueCall = irCall(valueGetter).apply { this.dispatchReceiver = dispatchReceiver }
+            )
         }
     }
 
@@ -132,12 +120,7 @@ class InsertValueCaptureAfterCallTransformer(
         lambdas.forEach { expression ->
             val callsInsideLambda = expression.function.body?.statements.orEmpty()
 
-            expression.function.body = IrBlockBodyBuilder(
-                pluginContext,
-                Scope(expression.function.symbol),
-                expression.function.startOffset,
-                expression.function.endOffset,
-            ).blockBody {
+            expression.function.body = expression.function.irBlockBuilder(pluginContext).irBlockBody {
                 callsInsideLambda.forEach callsInsideLambdaForEach@{ call ->
                     +call
 
@@ -198,12 +181,7 @@ class InsertValueCaptureAfterCallTransformer(
             lambdaExpressions.forEach { lambdaExpression ->
                 val callsInsideLambda = lambdaExpression.function.body?.statements.orEmpty().filterIsInstance<IrCall>()
 
-                lambdaExpression.function.body = IrBlockBodyBuilder(
-                    pluginContext,
-                    Scope(lambdaExpression.function.symbol),
-                    lambdaExpression.function.startOffset,
-                    lambdaExpression.function.endOffset,
-                ).blockBody {
+                lambdaExpression.function.body = lambdaExpression.function.irBlockBuilder(pluginContext).irBlockBody {
                     callsInsideLambda.forEach callsInsideLambda@{ call ->
                         +call
 
@@ -248,7 +226,7 @@ class InsertValueCaptureAfterCallTransformer(
             .filterNotNull()
             .filter { it.parentClassOrNull?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) == true }
 
-        return irBlockBodyBuilder().irComposite {
+        return irBlockBodyBuilder(pluginContext).irComposite {
             +this@transformComplexReceiverCall
             // FIXME: 重複コード
             +propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
