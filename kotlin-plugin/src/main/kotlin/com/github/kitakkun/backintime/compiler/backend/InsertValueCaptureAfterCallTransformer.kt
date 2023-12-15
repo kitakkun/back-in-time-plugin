@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
-import org.jetbrains.kotlin.ir.deepCopyWithVariables
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
@@ -43,6 +42,7 @@ import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 class InsertValueCaptureAfterCallTransformer(
     private val pluginContext: IrPluginContext,
@@ -57,25 +57,8 @@ class InsertValueCaptureAfterCallTransformer(
     private val debugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
     private val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
 
-    override fun visitExpression(expression: IrExpression): IrExpression {
-        when (expression) {
-            is IrTypeOperatorCall -> {
-                expression.argument = visitExpression(expression.argument)
-            }
-
-            is IrReturn -> {
-                expression.value = visitExpression(expression.value)
-            }
-        }
-        return super.visitExpression(expression)
-    }
-
     override fun visitCall(expression: IrCall): IrExpression {
-        expression.dispatchReceiver = expression.dispatchReceiver?.let { visitExpression(it) }
-        expression.extensionReceiver = expression.extensionReceiver?.let { visitExpression(it) }
-        expression.valueArguments.filterNotNull().map { visitExpression(it) }.forEachIndexed { index, transformedExpression ->
-            expression.putValueArgument(index, transformedExpression)
-        }
+        expression.transformChildrenVoid(this)
 
         return when {
             expression.isPureSetterCall() -> expression.transformPureSetterCall()
@@ -93,12 +76,11 @@ class InsertValueCaptureAfterCallTransformer(
     private fun IrCall.transformPureSetterCall(): IrExpression? {
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
         val propertyGetter = property.getter ?: return null
-        val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
         return irBlockBodyBuilder(pluginContext).irComposite {
             +this@transformPureSetterCall
             +generateNotifyValueChangeCall(
                 propertyName = property.name.asString(),
-                getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
+                getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = irGet(classDispatchReceiverParameter) }
             )
         }
     }
