@@ -379,7 +379,8 @@ class InsertValueCaptureAfterCallTransformer(
     }
 
     private fun IrCall.isValueContainerSetterCall(): Boolean {
-        val property = (this.dispatchReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return false
+        val receiver = (this.extensionReceiver as? IrCall) ?: (this.dispatchReceiver as? IrCall) ?: return false
+        val property = receiver.symbol.owner.correspondingPropertySymbol?.owner ?: return false
         val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return false
         val callingFunction = this.symbol.owner
         return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
