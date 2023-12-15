@@ -2,7 +2,6 @@ package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
-import com.github.kitakkun.backintime.compiler.MessageCollectorHolder
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyGetterRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
@@ -197,8 +196,6 @@ class InsertValueCaptureAfterCallTransformer(
                 valueExpression to lambdaExpression
             }.toMap()
 
-        MessageCollectorHolder.reportWarning("name: ${this.symbol.owner.name} mapping: ${mapping.map { (key, value) -> key.symbol.owner.name to value.joinToString { it.function.name.asString() } }}}")
-
         mapping.forEach { (callExpression, lambdaExpressions) ->
             val property = callExpression.symbol.owner.correspondingPropertySymbol?.owner ?: return@forEach
 
@@ -299,10 +296,6 @@ class InsertValueCaptureAfterCallTransformer(
 
         val valueParameters = allParameters.filter { !it.type.isFunction() }
         val lambdaParameters = allParameters.filter { it.type.isFunction() }
-
-        if (this@getValueParameterToLambdaParametersMapping.name.asString() == "with") {
-            MessageCollectorHolder.reportWarning("WITH: ${this.isInline}")
-        }
 
         val lambdaCallsInBody = this.body?.statements.orEmpty()
             .filterIsInstance<IrCall>()
