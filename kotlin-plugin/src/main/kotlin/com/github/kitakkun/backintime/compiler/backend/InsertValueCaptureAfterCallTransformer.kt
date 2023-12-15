@@ -30,6 +30,8 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrReturn
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
@@ -52,6 +54,24 @@ class InsertValueCaptureAfterCallTransformer(
 
     private val debugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
     private val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
+
+    override fun visitExpression(expression: IrExpression): IrExpression {
+        when (expression) {
+            is IrCall -> {
+                expression.dispatchReceiver?.let { visitExpression(it) }
+                expression.extensionReceiver?.let { visitExpression(it) }
+            }
+
+            is IrTypeOperatorCall -> {
+                visitExpression(expression.argument)
+            }
+
+            is IrReturn -> {
+                visitExpression(expression.value)
+            }
+        }
+        return super.visitExpression(expression)
+    }
 
     override fun visitCall(expression: IrCall): IrExpression {
         return when {
