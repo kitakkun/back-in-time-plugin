@@ -118,12 +118,17 @@ class InsertValueCaptureAfterCallTransformer(
             propertyClass.getSimpleFunctionRecursively(functionName)
         } ?: return null
 
-        val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
+        val propertyGetter = property.getter ?: return null
+
         return irBlockBodyBuilder(pluginContext).irComposite {
             +this@transformValueContainerSetterCall
             +generateNotifyValueChangeCall(
                 propertyName = property.name.asString(),
-                getValueCall = irCall(valueGetter).apply { this.dispatchReceiver = dispatchReceiver }
+                getValueCall = irCall(valueGetter).apply {
+                    this.dispatchReceiver = irCall(propertyGetter).apply {
+                        this.dispatchReceiver = irGet(classDispatchReceiverParameter)
+                    }
+                }
             )
         }
     }
