@@ -73,7 +73,7 @@ class InsertValueCaptureAfterCallTransformer(
     override fun visitCall(expression: IrCall): IrExpression {
         expression.dispatchReceiver = expression.dispatchReceiver?.let { visitExpression(it) }
         expression.extensionReceiver = expression.extensionReceiver?.let { visitExpression(it) }
-        expression.valueArguments.filterNotNull().map { visitExpression(it) }.forEachIndexed { index, transformedExpression ->
+        expression.valueArguments.map { if (it == null) null else visitExpression(it) }.forEachIndexed { index, transformedExpression ->
             expression.putValueArgument(index, transformedExpression)
         }
 
