@@ -57,29 +57,30 @@ class InsertValueCaptureAfterCallTransformer(
 
     override fun visitExpression(expression: IrExpression): IrExpression {
         when (expression) {
-            is IrCall -> {
-                expression.dispatchReceiver?.let { visitExpression(it) }
-                expression.extensionReceiver?.let { visitExpression(it) }
-            }
-
             is IrTypeOperatorCall -> {
-                visitExpression(expression.argument)
+                expression.argument = visitExpression(expression.argument)
             }
 
             is IrReturn -> {
-                visitExpression(expression.value)
+                expression.value = visitExpression(expression.value)
             }
         }
         return super.visitExpression(expression)
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
+        expression.dispatchReceiver = expression.dispatchReceiver?.let { visitExpression(it) }
+        expression.extensionReceiver = expression.extensionReceiver?.let { visitExpression(it) }
+        expression.valueArguments.filterNotNull().map { visitExpression(it) }.forEachIndexed { index, transformedExpression ->
+            expression.putValueArgument(index, transformedExpression)
+        }
+
         return when {
             expression.isPureSetterCall() -> expression.transformPureSetterCall()
             expression.isValueContainerSetterCall() -> expression.transformValueContainerSetterCall()
             expression.symbol.owner.isInline -> expression.transformComplexReceiverCallInline()
             else -> expression.transformComplexReceiverCall()
-        } ?: super.visitCall(expression)
+        } ?: expression
     }
 
     /**

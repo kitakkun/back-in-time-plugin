@@ -3,7 +3,7 @@ package com.github.kitakkun.backintime.compiler.backend
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
+import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -31,7 +31,8 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)
         if (!ownerClass.functions.contains(declaration)) return super.visitSimpleFunction(declaration)
 
-        val irBuilder = declaration.irBlockBuilder(pluginContext)
+        val irBuilder = declaration.irBlockBodyBuilder(pluginContext)
+        val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return super.visitSimpleFunction(declaration)
 
         val uuidVariable = with(pluginContext) { irBuilder.generateUUIDVariable() } ?: return super.visitSimpleFunction(declaration)
 
@@ -46,12 +47,13 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
-        val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return super.visitSimpleFunction(declaration)
-        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(
-            pluginContext = pluginContext,
-            classDispatchReceiverParameter = parentClassDispatchReceiver,
-            uuidVariable = uuidVariable,
-            valueContainerClassInfoList = valueContainerClassInfo)
+        declaration.transformChildrenVoid(
+            InsertValueCaptureAfterCallTransformer(
+                pluginContext = pluginContext,
+                classDispatchReceiverParameter = parentClassDispatchReceiver,
+                uuidVariable = uuidVariable,
+                valueContainerClassInfoList = valueContainerClassInfo
+            )
         )
         return super.visitSimpleFunction(declaration)
     }

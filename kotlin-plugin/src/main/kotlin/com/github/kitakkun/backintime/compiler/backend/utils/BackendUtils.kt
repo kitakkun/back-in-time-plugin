@@ -2,7 +2,7 @@ package com.github.kitakkun.backintime.compiler.backend.utils
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
+import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irTemporary
@@ -31,7 +31,7 @@ fun IrFunction.generateSignature(): String {
 }
 
 context(IrPluginContext)
-fun IrBlockBuilder.generateUUIDVariable(): IrVariable? {
+fun IrBlockBodyBuilder.generateUUIDVariable(): IrVariable? {
     val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId) ?: return null
     val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName) ?: return null
     val toStringFunction = uuidClass.getSimpleFunction("toString") ?: return null
