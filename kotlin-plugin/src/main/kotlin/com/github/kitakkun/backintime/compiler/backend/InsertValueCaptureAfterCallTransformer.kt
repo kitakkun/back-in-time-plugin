@@ -247,13 +247,6 @@ class InsertValueCaptureAfterCallTransformer(
             }
         }
 
-        val irBuilder = IrBlockBodyBuilder(
-            pluginContext,
-            Scope(this.symbol),
-            this.startOffset,
-            this.endOffset,
-        )
-
         val extensionReceiverAsProperty = (this.extensionReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
         val changedPropertiesOnValueArguments = valueArgumentValueHasChangedInternally().filterValues { it }.keys
             .mapNotNull { irCall -> irCall.symbol.owner.correspondingPropertySymbol?.owner }
@@ -262,7 +255,7 @@ class InsertValueCaptureAfterCallTransformer(
             .filterNotNull()
             .filter { it.parentClassOrNull?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) == true }
 
-        return irBuilder.irComposite {
+        return irBlockBodyBuilder().irComposite {
             +this@transformComplexReceiverCall
             // FIXME: 重複コード
             +propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
