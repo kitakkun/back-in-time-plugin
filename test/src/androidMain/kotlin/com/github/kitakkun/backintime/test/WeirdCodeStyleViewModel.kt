@@ -18,10 +18,18 @@ class WeirdCodeStyleViewModel {
 
     fun mutateLiveData() {
         println((mutableLiveData.setValue("Updated from setValue")).toString())
+        val lambda = {
+            ((mutableLiveData.setValue("Updated from setValue inside block")).equals(null)).toString()
+        }
+        lambda.invoke()
     }
 
     fun mutateStateFlow() {
         println((mutableStateFlow.update { "Updated from update" }).toString())
+        val lambda = {
+            ((mutableStateFlow.update { "Updated from update inside block" }).equals(null)).toString()
+        }
+        lambda.invoke()
     }
 
     fun mutateState() {

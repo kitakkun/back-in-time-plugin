@@ -28,7 +28,7 @@ class WeirdCodeStyleViewModelTest {
     fun mutateLiveData() {
         viewModel.mutateLiveData()
 
-        verify(exactly = 1) {
+        verify(exactly = 2) {
             BackInTimeDebugService.notifyPropertyChanged(any(), "mutableLiveData", any(), any())
         }
     }
@@ -37,7 +37,7 @@ class WeirdCodeStyleViewModelTest {
     fun mutateStateFlow() {
         viewModel.mutateStateFlow()
 
-        verify(exactly = 1) {
+        verify(exactly = 2) {
             BackInTimeDebugService.notifyPropertyChanged(any(), "mutableStateFlow", any(), any())
         }
     }
