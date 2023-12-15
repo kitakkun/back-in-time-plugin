@@ -58,6 +58,11 @@ kotlin {
                 implementation("io.mockk:mockk:1.13.8")
             }
         }
+        jvmTest {
+            dependencies {
+                implementation("io.mockk:mockk:1.13.8")
+            }
+        }
     }
 }
 
