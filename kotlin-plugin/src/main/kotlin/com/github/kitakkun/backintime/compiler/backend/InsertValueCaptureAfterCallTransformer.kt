@@ -226,10 +226,9 @@ class InsertValueCaptureAfterCallTransformer(
             .filterNotNull()
             .filter { it.parentClassOrNull?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) == true }
 
-        return irBlockBodyBuilder(pluginContext).irComposite {
-            +this@transformComplexReceiverCall
-            // FIXME: 重複コード
-            +propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
+        val irBuilder = irBlockBuilder(pluginContext)
+        val propertiesCaptureCode = with(irBuilder) {
+            propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
                 val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return@mapNotNull null
                 val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return@mapNotNull null
                 val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
@@ -245,6 +244,13 @@ class InsertValueCaptureAfterCallTransformer(
                     }
                 )
             }
+        }
+
+        if (propertiesCaptureCode.isEmpty()) return this
+
+        return irBuilder.irComposite {
+            +this@transformComplexReceiverCall
+            +propertiesCaptureCode
         }
     }
 
