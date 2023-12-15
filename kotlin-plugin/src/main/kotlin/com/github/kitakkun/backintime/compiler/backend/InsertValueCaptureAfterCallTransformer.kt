@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.backend.jvm.ir.parentClassId
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
@@ -68,24 +69,22 @@ class InsertValueCaptureAfterCallTransformer(
         // with のようなパターンの可能性
         // 関数にメンバが渡っている場合その内部で値が変更される可能性がある
 
+        // parentのReceiverがなかったらreturn
+        parentMethodDeclaration.dispatchReceiverParameter ?: return super.visitCall(expression)
         // ピュアなvalueセッター
         // ex) this.variable = 1
         if (expression.isPureSetterCall()) {
-            val parentReceiver = parentMethodDeclaration.dispatchReceiverParameter ?: return super.visitCall(expression)
             val property = expression.symbol.owner.correspondingPropertySymbol?.owner ?: return super.visitCall(expression)
             val propertyGetter = property.getter ?: return super.visitCall(expression)
             with(irBlockBuilder) {
                 return irComposite {
                     +super.visitCall(expression)
-                    +irCall(notifyValueChangeFunction).apply {
-                        dispatchReceiver = irGetObject(debugServiceClass)
-                        putValueArgument(0, irGet(parentReceiver))
-                        putValueArgument(1, irString(property.name.asString()))
-                        putValueArgument(2, irCall(propertyGetter).apply {
+                    +generateNotifyValueChangeCall(
+                        propertyName = property.name.asString(),
+                        getValueCall = irCall(propertyGetter).apply {
                             this.dispatchReceiver = expression.dispatchReceiver!!.deepCopyWithVariables()
-                        })
-                        putValueArgument(3, irGet(uuidVariable))
-                    }
+                        }
+                    )
                 }
             }
         }
@@ -106,15 +105,12 @@ class InsertValueCaptureAfterCallTransformer(
             with(irBlockBuilder) {
                 return irComposite {
                     +super.visitCall(expression)
-                    +irCall(notifyValueChangeFunction).apply {
-                        dispatchReceiver = irGetObject(debugServiceClass)
-                        putValueArgument(0, irGet(parentMethodDeclaration.dispatchReceiverParameter!!))
-                        putValueArgument(1, irString(property.name.asString()))
-                        putValueArgument(2, irCall(valueGetter).apply {
+                    +generateNotifyValueChangeCall(
+                        propertyName = property.name.asString(),
+                        getValueCall = irCall(valueGetter).apply {
                             this.dispatchReceiver = expression.dispatchReceiver!!.deepCopyWithVariables()
-                        })
-                        putValueArgument(3, irGet(uuidVariable))
-                    }
+                        }
+                    )
                 }
             }
         }
@@ -168,18 +164,15 @@ class InsertValueCaptureAfterCallTransformer(
 
                     +irIfThen(
                         condition = irEquals(callDispatchReceiver, getPropertyCall.deepCopyWithVariables()),
-                        thenPart = irCall(notifyValueChangeFunction).apply {
-                            dispatchReceiver = irGetObject(debugServiceClass)
-                            putValueArgument(0, irGet(parentMethodDeclaration.dispatchReceiverParameter!!))
-                            putValueArgument(1, irString(property.name.asString()))
-                            putValueArgument(2, irCall(valueGetter).apply {
+                        thenPart = generateNotifyValueChangeCall(
+                            propertyName = property.name.asString(),
+                            getValueCall = irCall(valueGetter).apply {
                                 this.dispatchReceiver = irGetField(
                                     receiver = irGet(parentMethodDeclaration.dispatchReceiverParameter!!),
                                     field = property.backingField!!,
                                 )
-                            })
-                            putValueArgument(3, irGet(uuidVariable))
-                        },
+                            }
+                        ),
                         type = pluginContext.irBuiltIns.unitType,
                     )
                 }
@@ -237,18 +230,15 @@ class InsertValueCaptureAfterCallTransformer(
                             property.getter?.parentClassOrNull?.getSimpleFunctionRecursively(functionName)
                         } ?: return@callsInsideLambda
 
-                        +irCall(notifyValueChangeFunction).apply {
-                            this.dispatchReceiver = irGetObject(debugServiceClass)
-                            putValueArgument(0, irGet(parentMethodDeclaration.dispatchReceiverParameter!!))
-                            putValueArgument(1, irString(property.name.asString()))
-                            putValueArgument(2, irCall(valueGetter).apply {
+                        +generateNotifyValueChangeCall(
+                            propertyName = property.name.asString(),
+                            getValueCall = irCall(valueGetter).apply {
                                 this.dispatchReceiver = irGetField(
                                     receiver = irGet(parentMethodDeclaration.dispatchReceiverParameter!!),
                                     field = property.backingField!!,
                                 )
-                            })
-                            putValueArgument(3, irGet(uuidVariable))
-                        }
+                            },
+                        )
                     }
                 }
             }
@@ -281,15 +271,12 @@ class InsertValueCaptureAfterCallTransformer(
                     val functionName = valueGetterCallableId.callableName.asString()
                     propertyClass.getSimpleFunctionRecursively(functionName)
                 } ?: return@mapNotNull null
-                irCall(notifyValueChangeFunction).apply {
-                    dispatchReceiver = irGetObject(debugServiceClass)
-                    putValueArgument(0, irGet(parentMethodDeclaration.dispatchReceiverParameter!!))
-                    putValueArgument(1, irString(property.name.asString()))
-                    putValueArgument(2, irCall(valueGetter).apply {
+                generateNotifyValueChangeCall(
+                    propertyName = property.name.asString(),
+                    getValueCall = irCall(valueGetter).apply {
                         this.dispatchReceiver = irGetField(irGet(parentMethodDeclaration.dispatchReceiverParameter!!), property.backingField!!)
-                    })
-                    putValueArgument(3, irGet(uuidVariable))
-                }
+                    }
+                )
             }
         }
     }
@@ -491,5 +478,18 @@ class InsertValueCaptureAfterCallTransformer(
         val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return false
         val callingFunction = this.symbol.owner
         return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
+    }
+
+    private fun IrBuilderWithScope.generateNotifyValueChangeCall(
+        propertyName: String,
+        getValueCall: IrExpression,
+    ): IrCall {
+        return irCall(notifyValueChangeFunction).apply {
+            dispatchReceiver = irGetObject(debugServiceClass)
+            putValueArgument(0, irGet(parentMethodDeclaration.dispatchReceiverParameter!!))
+            putValueArgument(1, irString(propertyName))
+            putValueArgument(2, getValueCall)
+            putValueArgument(3, irGet(uuidVariable))
+        }
     }
 }
