@@ -17,7 +17,7 @@ val defaultValueGetters = mutableListOf(
 )
 
 val defaultValueSetters = mutableListOf(
-    "androidx.lifecycle.MutableLiveData:setValue",
+    "androidx.lifecycle.MutableLiveData:postValue",
     "kotlinx.coroutines.flow.MutableStateFlow:<set-value>",
     "androidx.compose.runtime.MutableState:<set-value>",
 )
