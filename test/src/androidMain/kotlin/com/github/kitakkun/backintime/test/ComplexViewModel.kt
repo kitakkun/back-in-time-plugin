@@ -91,4 +91,30 @@ class ComplexViewModel {
             it.value = "Updated from <set-value>"
         }
     }
+
+    fun mutateLiveDataViaLetWithName() {
+        // mutate via let with name
+        mutableLiveData.let { liveData ->
+            liveData.value = "Updated from <set-value>"
+            liveData.setValue("Updated from setValue")
+            liveData.postValue("Updated from postValue")
+        }
+    }
+
+    fun mutateStateFlowViaLetWithName() {
+        // mutate via let with name
+        mutableStateFlow.let { stateFlow ->
+            stateFlow.value = "Updated from <set-value>"
+            stateFlow.update { "Updated from update" }
+            stateFlow.updateAndGet { "Updated from updateAndGet" }
+            stateFlow.getAndUpdate { "Updated from getAndUpdate" }
+        }
+    }
+
+    fun mutateStateViaLetWithName() {
+        // mutate via let with name
+        mutableState.let { state ->
+            state.value = "Updated from <set-value>"
+        }
+    }
 }

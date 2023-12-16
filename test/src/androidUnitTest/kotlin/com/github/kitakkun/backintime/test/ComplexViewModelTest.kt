@@ -106,4 +106,31 @@ class ComplexViewModelTest {
             BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
         }
     }
+
+    @Test
+    fun mutateLiveDataViaLetWithName() {
+        viewModel.mutateLiveDataViaLetWithName()
+
+        verify(exactly = 3) {
+            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableLiveData", any(), any())
+        }
+    }
+
+    @Test
+    fun mutateStateFlowViaLetWithName() {
+        viewModel.mutateStateFlowViaLetWithName()
+
+        verify(exactly = 4) {
+            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableStateFlow", any(), any())
+        }
+    }
+
+    @Test
+    fun mutateStateViaLetWithName() {
+        viewModel.mutateStateViaLetWithName()
+
+        verify(exactly = 1) {
+            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
+        }
+    }
 }
