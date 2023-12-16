@@ -12,16 +12,22 @@ import kotlinx.coroutines.flow.update
  */
 @DebuggableStateHolder
 class WeirdCodeStyleViewModel {
-    private val mutableLiveData = MutableLiveData("")
+    private val mutableLiveData1 = MutableLiveData("")
+    private val mutableLiveData2 = MutableLiveData("")
     private val mutableStateFlow = MutableStateFlow("")
     private val mutableState = mutableStateOf("")
 
     fun mutateLiveData() {
-        println((mutableLiveData.setValue("Updated from setValue")).toString())
+        println((mutableLiveData1.setValue("Updated from setValue")).toString())
         val lambda = {
-            ((mutableLiveData.setValue("Updated from setValue inside block")).equals(null)).toString()
+            ((mutableLiveData1.setValue("Updated from setValue inside block")).equals(null)).toString()
         }
         lambda.invoke()
+        doubleMutateByBlock(mutableLiveData1, mutableLiveData2) {
+            value = "Updated from <set-value>"
+        }
+        // mutableLiveData.setValueAndGet("Updated from setValueAndGet1") + mutableLiveData.setValueAndGet("Updated from setValueAndGet2")
+//        mutableLiveData.setValueAndGetInline("Updated from setValueAndGetInline1") + mutableLiveData.setValueAndGetInline("Updated from setValueAndGetInline2")
     }
 
     fun mutateStateFlow() {
@@ -39,4 +45,20 @@ class WeirdCodeStyleViewModel {
 
 private fun <T> MutableState<T>.setValue(value: T) {
     this.value = value
+}
+
+private fun <T> MutableLiveData<T>.setValueAndGet(value: T): T {
+    this.value = value
+    return value
+}
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun <T> MutableLiveData<T>.setValueAndGetInline(value: T): T {
+    this.value = value
+    return value
+}
+
+private fun <T> doubleMutateByBlock(receiver1: MutableLiveData<T>, receiver2: MutableLiveData<T>, block: MutableLiveData<T>.() -> Unit) {
+    receiver1.block()
+    receiver2.block()
 }
