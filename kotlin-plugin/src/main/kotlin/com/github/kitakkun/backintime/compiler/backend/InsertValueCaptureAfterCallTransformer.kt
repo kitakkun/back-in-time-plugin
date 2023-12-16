@@ -139,9 +139,15 @@ class InsertValueCaptureAfterCallTransformer(
         lambdas
             .map { it.function.symbol.owner }
             .forEach { function ->
-                val statementsAsExpressions = function.body?.statements.orEmpty().filterIsInstance<IrExpression>()
+                val statementsAsExpressions = function.body?.statements.orEmpty()
                 function.body = function.irBlockBodyBuilder(pluginContext).blockBody {
-                    statementsAsExpressions.forEach { +it.transformCallInsideLambda(passedProperties) }
+                    statementsAsExpressions.forEach {
+                        if (it is IrExpression) {
+                            +it.transformCallInsideLambda(passedProperties)
+                        } else {
+                            +it
+                        }
+                    }
                 }
             }
 
