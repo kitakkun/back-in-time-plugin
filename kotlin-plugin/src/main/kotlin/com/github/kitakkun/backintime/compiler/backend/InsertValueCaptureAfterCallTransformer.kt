@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
-import org.jetbrains.kotlin.ir.deepCopyWithVariables
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
@@ -83,12 +82,11 @@ class InsertValueCaptureAfterCallTransformer(
     private fun IrCall.transformPureSetterCall(): IrExpression? {
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
         val propertyGetter = property.getter ?: return null
-        val dispatchReceiver = this.dispatchReceiver?.deepCopyWithVariables() ?: return null
         return irBlockBodyBuilder(pluginContext).irComposite {
             +this@transformPureSetterCall
             +generateNotifyValueChangeCall(
                 propertyName = property.name.asString(),
-                getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = dispatchReceiver }
+                getValueCall = irCall(propertyGetter).apply { this.dispatchReceiver = irGet(classDispatchReceiverParameter) }
             )
         }
     }
@@ -99,9 +97,8 @@ class InsertValueCaptureAfterCallTransformer(
      * hoge.value = 1
      */
     private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
-        val property = (dispatchReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
-            ?: (extensionReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
-            ?: return null
+        val receiver = dispatchReceiver ?: extensionReceiver ?: return null
+        val property = (receiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return null
         val valueGetter = property.getValueHolderValueGetterCall() ?: return null
         val propertyGetter = property.getter ?: return null
 
