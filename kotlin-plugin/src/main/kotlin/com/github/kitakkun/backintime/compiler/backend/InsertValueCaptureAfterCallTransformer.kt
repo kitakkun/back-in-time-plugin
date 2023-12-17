@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
@@ -101,15 +102,7 @@ class InsertValueCaptureAfterCallTransformer(
         val property = (dispatchReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
             ?: (extensionReceiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner
             ?: return null
-        val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return null
-        val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return null
-        val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
-            propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
-        } else {
-            val functionName = valueGetterCallableId.callableName.asString()
-            propertyClass.getSimpleFunctionRecursively(functionName)
-        } ?: return null
-
+        val valueGetter = property.getValueHolderValueGetterCall() ?: return null
         val propertyGetter = property.getter ?: return null
 
         return irBlockBodyBuilder(pluginContext).irComposite {
@@ -154,14 +147,7 @@ class InsertValueCaptureAfterCallTransformer(
         val propertiesShouldBeCapturedAfterCall = internallyChangedPassedParams().mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
         val irBuilder = irBlockBuilder(pluginContext)
         val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
-            val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return@mapNotNull null
-            val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return@mapNotNull null
-            val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
-                propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
-            } else {
-                val functionName = valueGetterCallableId.callableName.asString()
-                propertyClass.getSimpleFunctionRecursively(functionName)
-            } ?: return@mapNotNull null
+            val valueGetter = property.getValueHolderValueGetterCall() ?: return@mapNotNull null
 
             with(irBuilder) {
                 generateNotifyValueChangeCall(
@@ -259,14 +245,7 @@ class InsertValueCaptureAfterCallTransformer(
                     .filter { it.getter?.returnType?.classOrNull?.owner?.classId == receiverClassId }
                     .mapNotNull { property ->
                         val propertyGetter = property.getter ?: return@mapNotNull null
-                        val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return@mapNotNull null
-                        val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return@mapNotNull null
-                        val valueGetter = if (valueGetterCallableId.callableName.isGetterName()) {
-                            propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
-                        } else {
-                            val functionName = valueGetterCallableId.callableName.asString()
-                            propertyClass.getSimpleFunctionRecursively(functionName)
-                        } ?: return@mapNotNull null
+                        val valueGetter = property.getValueHolderValueGetterCall() ?: return@mapNotNull null
 
                         with(irBuilder) {
                             irIfThen(
@@ -326,6 +305,17 @@ class InsertValueCaptureAfterCallTransformer(
             putValueArgument(1, irString(propertyName))
             putValueArgument(2, getValueCall)
             putValueArgument(3, irGet(uuidVariable))
+        }
+    }
+
+    private fun IrProperty.getValueHolderValueGetterCall(): IrSimpleFunctionSymbol? {
+        val propertyClass = getter?.returnType?.classOrNull?.owner ?: return null
+        val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return null
+        return if (valueGetterCallableId.callableName.isGetterName()) {
+            propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
+        } else {
+            val functionName = valueGetterCallableId.callableName.asString()
+            propertyClass.getSimpleFunctionRecursively(functionName)
         }
     }
 }
