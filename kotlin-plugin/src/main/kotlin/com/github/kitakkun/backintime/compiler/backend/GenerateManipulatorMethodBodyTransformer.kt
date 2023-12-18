@@ -12,8 +12,8 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -37,9 +37,9 @@ class GenerateManipulatorMethodBodyTransformer(
     private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
 
-    private fun shouldGenerateFunctionBody(parentClass: IrClass): Boolean {
-        return parentClass.superTypes.any { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }
-    }
+    private val manipulatorClassType = pluginContext.referenceClass(BackInTimeConsts.debuggableStateHolderManipulatorClassId)!!.defaultType
+
+    private fun shouldGenerateFunctionBody(parentClass: IrClass) = parentClass.superTypes.contains(manipulatorClassType)
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)

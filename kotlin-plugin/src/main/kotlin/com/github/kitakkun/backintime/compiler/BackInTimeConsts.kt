@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 object BackInTimeConsts {
+    val debuggableStateHolderManipulatorClassId = classId("com.github.kitakkun.backintime.runtime", "DebuggableStateHolderManipulator")
     val debuggableStateHolderManipulatorFqName = FqName("com.github.kitakkun.backintime.runtime.DebuggableStateHolderManipulator")
 
     val serializeMethodName = Name.identifier("serializeValue")
