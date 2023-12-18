@@ -5,6 +5,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
@@ -36,6 +37,8 @@ class GenerateManipulatorMethodBodyTransformer(
     private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
+    private val noSuchPropertyExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
+        .first { it.owner.classId == BackInTimeConsts.noSuchPropertyExceptionClassId }.constructors.first()
 
     private val manipulatorClassType = pluginContext.referenceClass(BackInTimeConsts.debuggableStateHolderManipulatorClassId)!!.defaultType
 
@@ -85,8 +88,10 @@ class GenerateManipulatorMethodBodyTransformer(
                 )
             },
             elseBranchExpression = {
-                // TODO: throw an exception
-                irBlock { }
+                generateThrowNoSuchPropertyException(
+                    parentClassFqName = parentClass.kotlinFqName.asString(),
+                    propertyNameParameter = it,
+                )
             }
         )
     }
@@ -104,7 +109,12 @@ class GenerateManipulatorMethodBodyTransformer(
                 val propertyType = property.getter?.returnType ?: return@irWhenByProperties null
                 generateSerializeCall(type = propertyType, value = value)
             },
-            elseBranchExpression = { irReturn(irString("NONE")) } // FIXME: should throw an exception
+            elseBranchExpression = {
+                generateThrowNoSuchPropertyException(
+                    parentClassFqName = parentClass.kotlinFqName.asString(),
+                    propertyNameParameter = it,
+                )
+            }
         )
     }
 
@@ -121,7 +131,12 @@ class GenerateManipulatorMethodBodyTransformer(
                 val propertyType = property.getter?.returnType ?: return@irWhenByProperties null
                 generateDeserializeCall(value = value, type = propertyType)
             },
-            elseBranchExpression = { irReturn(irNull()) }
+            elseBranchExpression = {
+                generateThrowNoSuchPropertyException(
+                    parentClassFqName = parentClass.kotlinFqName.asString(),
+                    propertyNameParameter = it,
+                )
+            }
         )
     }
 
@@ -137,7 +152,7 @@ class GenerateManipulatorMethodBodyTransformer(
     private fun IrClass.irWhenByProperties(
         propertyNameParameter: IrValueParameter,
         buildBranchResultExpression: IrBuilderWithScope.(IrProperty) -> IrExpression?,
-        elseBranchExpression: IrBuilderWithScope.() -> IrExpression,
+        elseBranchExpression: IrBuilderWithScope.(propertyNameParameter: IrValueParameter) -> IrExpression,
     ) = irWhen(
         type = pluginContext.irBuiltIns.unitType,
         branches = properties
@@ -149,7 +164,7 @@ class GenerateManipulatorMethodBodyTransformer(
                         +innerExpression
                     },
                 )
-            }.toList() + irElseBranch(irBlock { +elseBranchExpression() })
+            }.toList() + irElseBranch(irBlock { +elseBranchExpression(propertyNameParameter) })
     )
 
 
@@ -216,4 +231,14 @@ class GenerateManipulatorMethodBodyTransformer(
             }
         )
     }
+
+    private fun IrBuilderWithScope.generateThrowNoSuchPropertyException(
+        parentClassFqName: String,
+        propertyNameParameter: IrValueParameter,
+    ) = irThrow(
+        irCallConstructor(noSuchPropertyExceptionConstructor, emptyList()).apply {
+            putValueArgument(0, irString(parentClassFqName))
+            putValueArgument(1, irGet(propertyNameParameter))
+        }
+    )
 }
