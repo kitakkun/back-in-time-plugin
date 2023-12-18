@@ -14,30 +14,28 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-abstract class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
+@Suppress("unused")
+class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     private var connection: FlipperConnection? = null
     private val service: BackInTimeDebugService = BackInTimeDebugService
     private val json: Json = Json { encodeDefaults = true }
     private var observeOutgoingEventsJob: Job? = null
 
-    final override fun getId() = "back-in-time"
-    final override fun runInBackground() = true
+    override fun getId() = "back-in-time"
+    override fun runInBackground() = true
 
-    final override fun onConnect(connection: FlipperConnection?) {
+    override fun onConnect(connection: FlipperConnection?) {
         this.connection = connection
         this.connection?.observeIncomingEvents()
         observeOutgoingEventsJob?.cancel()
         observeOutgoingEventsJob = observeOutgoingEvents()
     }
 
-    final override fun onDisconnect() {
+    override fun onDisconnect() {
         connection = null
         observeOutgoingEventsJob?.cancel()
         observeOutgoingEventsJob = null
     }
-
-    abstract fun serializeValue(value: Any?, valueType: String): String
-    abstract fun deserializeValue(value: String, valueType: String): Any?
 
     private fun observeOutgoingEvents() = launch {
         launch {
