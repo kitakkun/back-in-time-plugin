@@ -29,8 +29,8 @@ object BackInTimeConsts {
     val backInTimeRuntimeExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException")
     val nullValueNotAssignableExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException.NullValueNotAssignableException")
 
-    val kotlinxSerializationJsonClassId = classId("kotlinx.serialization.json", "Json")
-    val kotlinxSerializationEncodeToStringFunctionId = CallableId(kotlinxSerializationJsonClassId, Name.identifier("encodeToString"))
-
-    val myJsonPropertyId = CallableId(FqName("com.github.kitakkun.backintime.runtime"), Name.identifier("backInTimeJson"))
+    // kotlinx.serialization
+    val backInTimeJsonCallableId = CallableId(FqName("com.github.kitakkun.backintime.runtime"), Name.identifier("backInTimeJson"))
+    val kotlinxSerializationEncodeToStringCallableId = CallableId(FqName("kotlinx.serialization"), Name.identifier("encodeToString"))
+    val kotlinxSerializationDecodeFromStringCallableId = CallableId(FqName("kotlinx.serialization"), Name.identifier("decodeFromString"))
 }
