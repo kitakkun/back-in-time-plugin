@@ -2,16 +2,14 @@ package com.github.kitakkun.backintime.compiler.fir
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
-import com.github.kitakkun.backintime.compiler.BackInTimePredicate
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
-import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
-import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
@@ -74,7 +72,7 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        return if (session.predicateBasedProvider.matches(BackInTimePredicate.debuggableStateHolder, classSymbol)) {
+        return if (classSymbol is FirRegularClassSymbol && session.backInTimePredicateMatcher.isAnnotated(classSymbol)) {
             setOf(
                 BackInTimeConsts.serializeMethodName,
                 BackInTimeConsts.deserializeMethodName,
@@ -83,10 +81,6 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
         } else {
             emptySet()
         }
-    }
-
-    override fun FirDeclarationPredicateRegistrar.registerPredicates() {
-        register(BackInTimePredicate.debuggableStateHolder)
     }
 }
 

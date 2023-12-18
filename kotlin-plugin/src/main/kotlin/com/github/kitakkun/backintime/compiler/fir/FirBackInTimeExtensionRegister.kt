@@ -6,5 +6,6 @@ class BackInTimeFirExtensionRegistrar : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
         +::BackInTimeFirStateHolderManipulatorSuperTypeGenerationExtension
         +::FirManipulatorMethodsDeclarationGenerationExtension
+        +::FirBackInTimePredicateMatcher
     }
 }
