@@ -8,7 +8,7 @@ plugins {
 gradlePlugin {
     plugins {
         create("backInTime") {
-            id = "back-in-time-plugin"
+            id = "com.github.kitakkun.backintime"
             implementationClass = "com.github.kitakkun.backintime.BackInTimePlugin"
         }
     }
@@ -27,8 +27,8 @@ publishing {
     publications {
         register("mavenJava", MavenPublication::class) {
             from(components["kotlin"])
-            groupId = "com.github.kitakkun"
-            artifactId = "back-in-time-plugin"
+            groupId = "com.github.kitakkun.backintime"
+            artifactId = "com.github.kitakkun.backintime.gradle.plugin"
             version = "1.0.0"
         }
     }

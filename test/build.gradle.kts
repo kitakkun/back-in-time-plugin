@@ -1,27 +1,15 @@
 import com.github.kitakkun.backintime.BackInTimeExtension
 
-buildscript {
-    repositories {
-        mavenLocal()
-    }
-    dependencies {
-        classpath("com.github.kitakkun:back-in-time-plugin:1.0.0")
-    }
-}
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("com.github.kitakkun.backintime")
 }
-
-// because back-in-time-plugin is published to mavenLocal
-// we must apply back-in-time-plugin here instead of plugins block
-apply(plugin = "back-in-time-plugin")
 
 kotlin {
     jvmToolchain(17)
     jvm()
-    androidTarget { this.publishAllLibraryVariants() }
+    androidTarget()
 
     sourceSets.all {
         languageSettings.languageVersion = "2.0"
@@ -43,7 +31,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
             }
         }
-        val androidMain by getting {
+        androidMain {
             dependencies {
                 implementation("androidx.core:core-ktx:1.12.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
