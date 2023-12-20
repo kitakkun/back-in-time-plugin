@@ -6,6 +6,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import org.jetbrains.annotations.VisibleForTesting
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
@@ -15,6 +16,7 @@ typealias UUIDString = String
 /**
  * Singleton service for back-in-time debugger
  */
+@Suppress("unused")
 object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
@@ -32,6 +34,9 @@ object BackInTimeDebugService : CoroutineScope {
 
     private val mutableNotifyMethodCallFlow = MutableSharedFlow<MethodCallInfo>()
     val notifyMethodCallFlow = mutableNotifyMethodCallFlow.asSharedFlow()
+
+    private val mutableInternalErrorFlow = MutableSharedFlow<Throwable>()
+    val internalErrorFlow = mutableInternalErrorFlow.asSharedFlow()
 
     /**
      * register instance for debugging
@@ -55,37 +60,41 @@ object BackInTimeDebugService : CoroutineScope {
         return instances.containsValue(instanceUUID)
     }
 
-    fun manipulate(
-        instanceUUID: UUIDString,
-        propertyName: String,
-        value: String,
-    ) {
-        instances
-            .filterValues { uuidString -> uuidString == instanceUUID }
-            .keys
-            .firstOrNull()?.apply {
-                val deserializedValue = this.deserializeValue(propertyName, value)
-                this.forceSetValue(propertyName, deserializedValue)
+    fun manipulate(instanceUUID: String, propertyName: String, value: String) {
+        val targetInstance = instances.filterValues { it == instanceUUID }.keys.firstOrNull() ?: return
+        try {
+            val deserializedValue = targetInstance.deserializeValue(propertyName, value)
+            targetInstance.forceSetValue(propertyName, deserializedValue)
+        } catch (e: SerializationException) {
+            launch {
+                mutableInternalErrorFlow.emit(e)
             }
+        }
     }
 
-    @Suppress("unused")
     fun notifyPropertyChanged(
         instance: DebuggableStateHolderManipulator,
         propertyName: String,
         value: Any?,
         methodCallUUID: String,
     ) {
-        val serializedValue = instance.serializeValue(propertyName, value)
-        launch {
-            mutableNotifyValueChangeFlow.emit(
-                ValueChangeInfo(
-                    instanceUUID = instances[instance] ?: return@launch,
-                    propertyName = propertyName,
-                    value = serializedValue,
-                    methodCallUUID = methodCallUUID,
+        val instanceUUID = instances[instance] ?: return
+        try {
+            val serializedValue = instance.serializeValue(propertyName, value)
+            launch {
+                mutableNotifyValueChangeFlow.emit(
+                    ValueChangeInfo(
+                        instanceUUID = instanceUUID,
+                        propertyName = propertyName,
+                        value = serializedValue,
+                        methodCallUUID = methodCallUUID,
+                    )
                 )
-            )
+            }
+        } catch (e: SerializationException) {
+            launch {
+                mutableInternalErrorFlow.emit(e)
+            }
         }
     }
 
@@ -94,10 +103,11 @@ object BackInTimeDebugService : CoroutineScope {
         methodName: String,
         methodCallUUID: String,
     ) {
+        val instanceUUID = instances[instance] ?: return
         launch {
             mutableNotifyMethodCallFlow.emit(
                 MethodCallInfo(
-                    instanceUUID = instances[instance] ?: return@launch,
+                    instanceUUID = instanceUUID,
                     methodName = methodName,
                     methodCallUUID = methodCallUUID,
                     calledAt = System.currentTimeMillis(),

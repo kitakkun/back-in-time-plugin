@@ -73,6 +73,12 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                 connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(json.encodeToString(event)))
             }
         }
+
+        launch {
+            service.internalErrorFlow.collect { throwable ->
+                connection?.reportError(throwable)
+            }
+        }
     }
 
     private fun FlipperConnection.observeIncomingEvents() {
@@ -81,8 +87,9 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
             with(event) {
                 service.manipulate(instanceUUID, propertyName, value)
             }
-            // FIXME: this should be called after the value is actually changed
-            //  error handling is also necessary
+            /**
+             *  error is handled by [BackInTimeDebugService.internalErrorFlow]
+             */
             responder.success()
         }
 
