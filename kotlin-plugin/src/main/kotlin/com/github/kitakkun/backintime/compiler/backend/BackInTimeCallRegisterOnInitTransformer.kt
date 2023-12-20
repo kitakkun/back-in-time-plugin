@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -16,6 +17,7 @@ import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.constructors
@@ -72,18 +74,15 @@ class BackInTimeCallRegisterOnInitTransformer(
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(listOfFunction).apply {
-        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties.map { irProperty ->
+        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties.mapNotNull { irProperty ->
+            val propertyType = irProperty.getter?.returnType as? IrSimpleType
+            val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
+            val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
             irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                 putValueArgument(0, irString(irProperty.name.asString()))
                 putValueArgument(1, irBoolean(true)) // FIXME: 適当に入れてる
-                val genericTypes = irProperty.getGenericTypes()
-                if (genericTypes.isEmpty()) {
-                    putValueArgument(2, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
-                    putValueArgument(3, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
-                } else {
-                    putValueArgument(2, irString(irProperty.backingField?.type?.classFqName?.asString() ?: "unknown"))
-                    putValueArgument(3, irString(genericTypes.first().classFqName?.asString() ?: "unknown"))
-                }
+                putValueArgument(2, irString(propertyTypeName))
+                putValueArgument(3, irString(genericTypeCompletedName))
             }
         }.toList()))
         putTypeArgument(0, propertyInfoClass.defaultType)
