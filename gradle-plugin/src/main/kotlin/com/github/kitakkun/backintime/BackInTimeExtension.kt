@@ -5,6 +5,8 @@ val defaultCapturedCalls = mutableListOf(
     "kotlinx.coroutines.flow.MutableStateFlow:updateAndGet",
     "kotlinx.coroutines.flow.MutableStateFlow:getAndUpdate",
     "kotlinx.coroutines.flow.MutableStateFlow:<set-value>",
+    "kotlinx.coroutines.flow.MutableStateFlow:emit",
+    "kotlinx.coroutines.flow.MutableStateFlow:tryEmit",
     "androidx.lifecycle.MutableLiveData:postValue",
     "androidx.lifecycle.MutableLiveData:setValue",
     "androidx.compose.runtime.MutableState:<set-value>",
