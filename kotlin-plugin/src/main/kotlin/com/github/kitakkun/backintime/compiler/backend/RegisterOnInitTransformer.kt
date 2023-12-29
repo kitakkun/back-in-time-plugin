@@ -26,8 +26,7 @@ import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 context(BackInTimePluginContext)
-class BackInTimeCallRegisterOnInitTransformer(
-) : IrElementTransformerVoid() {
+class RegisterOnInitTransformer : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
         if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitConstructor(declaration)

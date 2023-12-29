@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(BackInTimePluginContext)
-class BackInTimeIrValueChangeNotifyCodeGenerationExtension : IrElementTransformerVoid() {
+class ValueCaptureCallGenerationTransformer : IrElementTransformerVoid() {
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val ownerClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)

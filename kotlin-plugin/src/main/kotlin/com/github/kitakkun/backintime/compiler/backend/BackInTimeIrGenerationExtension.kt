@@ -12,9 +12,9 @@ class BackInTimeIrGenerationExtension(
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val context = BackInTimePluginContext(baseContext = pluginContext, config = config, moduleFragment = moduleFragment)
         with(context) {
-            moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeIrValueChangeNotifyCodeGenerationExtension())
-            moduleFragment.transformChildrenVoid(GenerateManipulatorMethodBodyTransformer())
+            moduleFragment.transformChildrenVoid(RegisterOnInitTransformer())
+            moduleFragment.transformChildrenVoid(ValueCaptureCallGenerationTransformer())
+            moduleFragment.transformChildrenVoid(ManipulatorMethodBodyGenerationTransformer())
         }
     }
 }

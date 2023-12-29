@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
  * generate DebuggableStateHolderManipulator methods bodies
  */
 context(BackInTimePluginContext)
-class GenerateManipulatorMethodBodyTransformer : IrElementTransformerVoid() {
+class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     private fun shouldGenerateFunctionBody(parentClass: IrClass) = parentClass.superTypes.contains(manipulatorClassType)
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
