@@ -29,16 +29,19 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(BackInTimePluginContext)
 class InsertValueCaptureAfterCallTransformer(
+    private val parentClassSymbol: IrClassSymbol,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
 ) : IrElementTransformerVoid() {
@@ -55,6 +58,19 @@ class InsertValueCaptureAfterCallTransformer(
             expression.isValueContainerSetterCall() -> expression.transformValueContainerSetterCall()
             else -> expression.transformComplexCall()
         } ?: expression
+    }
+
+    private fun IrCall.isPureSetterCall(): Boolean {
+        val propertySymbol = this.symbol.owner.correspondingPropertySymbol?.owner ?: return false
+        return this.symbol.owner.isSetter && propertySymbol.parentClassOrNull?.symbol == parentClassSymbol
+    }
+
+    private fun IrCall.isValueContainerSetterCall(): Boolean {
+        val receiverAsIrCall = (this.extensionReceiver ?: this.dispatchReceiver) as? IrCall ?: return false
+        val property = receiverAsIrCall.symbol.owner.correspondingPropertySymbol?.owner ?: return false
+        val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return false
+        val callingFunction = this.symbol.owner
+        return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
     }
 
     /**
@@ -242,18 +258,6 @@ class InsertValueCaptureAfterCallTransformer(
             }
         }
         return this
-    }
-
-    private fun IrCall.isPureSetterCall(): Boolean {
-        return this.symbol.owner.isSetter && (this.dispatchReceiver as? IrGetValue)?.symbol == classDispatchReceiverParameter.symbol
-    }
-
-    private fun IrCall.isValueContainerSetterCall(): Boolean {
-        val receiver = (this.extensionReceiver as? IrCall) ?: (this.dispatchReceiver as? IrCall) ?: return false
-        val property = receiver.symbol.owner.correspondingPropertySymbol?.owner ?: return false
-        val propertyClass = property.backingField?.type?.classOrNull?.owner ?: return false
-        val callingFunction = this.symbol.owner
-        return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
     }
 
     context(IrBuilderWithScope)

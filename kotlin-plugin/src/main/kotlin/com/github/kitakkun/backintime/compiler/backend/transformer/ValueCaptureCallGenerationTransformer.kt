@@ -40,7 +40,13 @@ class ValueCaptureCallGenerationTransformer : IrElementTransformerVoid() {
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
-        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(classDispatchReceiverParameter = parentClassDispatchReceiver, uuidVariable = uuidVariable))
+        declaration.transformChildrenVoid(
+            InsertValueCaptureAfterCallTransformer(
+                parentClassSymbol = ownerClass.symbol,
+                classDispatchReceiverParameter = parentClassDispatchReceiver,
+                uuidVariable = uuidVariable,
+            )
+        )
         return super.visitSimpleFunction(declaration)
     }
 }
