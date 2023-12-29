@@ -69,12 +69,15 @@ class InsertValueCaptureAfterCallTransformer(
     private fun IrCall.transformPureSetterCall(): IrExpression? {
         val irBuilder = irBlockBuilder(pluginContext)
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
-        val captureCall = with(irBuilder) {
-            property.generateCaptureValueCall()
-        } ?: return null
+        val propertyGetter = property.getter ?: return null
         return irBuilder.irComposite {
             +this@transformPureSetterCall
-            +captureCall
+            +generateCaptureValueCall(
+                propertyName = property.name.asString(),
+                getValueCall = irCall(propertyGetter.symbol).apply {
+                    this.dispatchReceiver = irGet(classDispatchReceiverParameter)
+                },
+            )
         }
     }
 
@@ -86,7 +89,7 @@ class InsertValueCaptureAfterCallTransformer(
         val property = (receiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return null
         val irBuilder = irBlockBodyBuilder(pluginContext)
         val getValueCall = with(irBuilder) {
-            property.generateCaptureValueCall() ?: return null
+            property.generateValueHolderCaptureCall() ?: return null
         }
         return irBuilder.irComposite {
             +this@transformValueContainerSetterCall
@@ -128,7 +131,7 @@ class InsertValueCaptureAfterCallTransformer(
         val irBuilder = irBlockBuilder(pluginContext)
         val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
             with(irBuilder) {
-                property.generateCaptureValueCall()
+                property.generateValueHolderCaptureCall()
             }
         }
 
@@ -216,9 +219,12 @@ class InsertValueCaptureAfterCallTransformer(
                     .mapNotNull { property ->
                         with(irBuilder) {
                             val propertyGetter = property.getter ?: return@mapNotNull null
-                            val captureCall = property.generateCaptureValueCall() ?: return@mapNotNull null
+                            val captureCall = property.generateValueHolderCaptureCall() ?: return@mapNotNull null
+                            val getPropertyInstanceCall = irCall(propertyGetter).apply {
+                                dispatchReceiver = irGet(classDispatchReceiverParameter)
+                            }
                             irIfThen(
-                                condition = irEquals(receiver, irCall(propertyGetter).apply { dispatchReceiver = irGet(classDispatchReceiverParameter) }),
+                                condition = irEquals(receiver, getPropertyInstanceCall),
                                 thenPart = captureCall,
                                 type = pluginContext.irBuiltIns.unitType,
                             )
@@ -257,9 +263,7 @@ class InsertValueCaptureAfterCallTransformer(
     }
 
     context(IrBuilderWithScope)
-    private fun IrProperty.generateCaptureValueCall(): IrCall? {
-        val propertyName = this.name.asString()
-        val getValueCall = this.generateGetValueCall() ?: return null
+    private fun generateCaptureValueCall(propertyName: String, getValueCall: IrCall): IrCall {
         return irCall(notifyValueChangeFunction).apply {
             dispatchReceiver = irGetObject(debugServiceClass)
             putValueArgument(0, irGet(classDispatchReceiverParameter))
@@ -270,21 +274,20 @@ class InsertValueCaptureAfterCallTransformer(
     }
 
     context(IrBuilderWithScope)
-    private fun IrProperty.generateGetValueCall(): IrCall? {
+    private fun IrProperty.generateValueHolderCaptureCall(): IrCall? {
         val propertyGetter = this.getter ?: return null
-        if (this.isVar) {
-            return irCall(propertyGetter.symbol).apply { this.dispatchReceiver = irGet(classDispatchReceiverParameter) }
-        } else {
-            val valueGetter = this.getValueHolderValueGetterCall() ?: return null
-            return irCall(valueGetter).apply {
+        val valueGetter = this.getValueHolderValueGetterSymbol() ?: return null
+        return generateCaptureValueCall(
+            propertyName = name.asString(),
+            getValueCall = irCall(valueGetter).apply {
                 this.dispatchReceiver = irCall(propertyGetter).apply {
                     this.dispatchReceiver = irGet(classDispatchReceiverParameter)
                 }
             }
-        }
+        )
     }
 
-    private fun IrProperty.getValueHolderValueGetterCall(): IrSimpleFunctionSymbol? {
+    private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol? {
         val propertyClass = getter?.returnType?.classOrNull?.owner ?: return null
         val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return null
         return if (valueGetterCallableId.callableName.isGetterName()) {
