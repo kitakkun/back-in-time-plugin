@@ -1,6 +1,9 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
+import com.github.kitakkun.backintime.compiler.backend.transformer.ManipulatorMethodBodyGenerationTransformer
+import com.github.kitakkun.backintime.compiler.backend.transformer.RegisterOnInitTransformer
+import com.github.kitakkun.backintime.compiler.backend.transformer.ValueCaptureCallGenerationTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment

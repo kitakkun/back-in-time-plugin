@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.compiler.backend
+package com.github.kitakkun.backintime.compiler.backend.analyzer
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import org.jetbrains.kotlin.ir.IrElement
