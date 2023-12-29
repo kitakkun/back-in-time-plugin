@@ -10,6 +10,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import com.github.kitakkun.backintime.compiler.ext.filterKeysNotNull
 import com.github.kitakkun.backintime.compiler.ext.filterValuesNotNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -36,6 +37,7 @@ import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 class InsertValueCaptureAfterCallTransformer(
     private val pluginContext: IrPluginContext,
@@ -46,25 +48,13 @@ class InsertValueCaptureAfterCallTransformer(
     private val debugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
     private val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
 
-    override fun visitExpression(expression: IrExpression): IrExpression {
-        when (expression) {
-            is IrTypeOperatorCall -> {
-                expression.argument = visitExpression(expression.argument)
-            }
-
-            is IrReturn -> {
-                expression.value = visitExpression(expression.value)
-            }
-        }
-        return super.visitExpression(expression)
+    override fun visitElement(element: IrElement): IrElement {
+        element.transformChildrenVoid(this)
+        return element
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        expression.dispatchReceiver = expression.dispatchReceiver?.let { visitExpression(it) }
-        expression.extensionReceiver = expression.extensionReceiver?.let { visitExpression(it) }
-        expression.valueArguments.map { if (it == null) null else visitExpression(it) }.forEachIndexed { index, transformedExpression ->
-            expression.putValueArgument(index, transformedExpression)
-        }
+        expression.transformChildrenVoid(this)
 
         return when {
             expression.isPureSetterCall() -> expression.transformPureSetterCall()
