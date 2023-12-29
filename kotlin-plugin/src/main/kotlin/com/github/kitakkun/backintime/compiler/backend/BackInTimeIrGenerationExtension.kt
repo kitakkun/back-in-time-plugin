@@ -21,19 +21,16 @@ class BackInTimeIrGenerationExtension(
             )
         }
 
-        moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer(pluginContext))
-        moduleFragment.transformChildrenVoid(
-            BackInTimeIrValueChangeNotifyCodeGenerationExtension(
-                pluginContext = pluginContext,
-                valueContainerClassInfo = valueContainerInfo,
-            )
+        val context = BackInTimePluginContext(
+            baseContext = pluginContext,
+            valueContainerClassInfoList = valueContainerInfo,
         )
-        moduleFragment.transformChildrenVoid(
-            GenerateManipulatorMethodBodyTransformer(
-                pluginContext = pluginContext,
-                valueContainerClassInfoList = valueContainerInfo,
-            )
-        )
+
+        with(context) {
+            moduleFragment.transformChildrenVoid(BackInTimeCallRegisterOnInitTransformer())
+            moduleFragment.transformChildrenVoid(BackInTimeIrValueChangeNotifyCodeGenerationExtension())
+            moduleFragment.transformChildrenVoid(GenerateManipulatorMethodBodyTransformer())
+        }
     }
 
     private fun resolveIdsToValueContainerInfoList(

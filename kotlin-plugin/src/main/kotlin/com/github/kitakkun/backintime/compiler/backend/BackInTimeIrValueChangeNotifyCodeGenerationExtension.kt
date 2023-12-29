@@ -1,10 +1,8 @@
 package com.github.kitakkun.backintime.compiler.backend
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -13,19 +11,13 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
-class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
-    private val pluginContext: IrPluginContext,
-    private val valueContainerClassInfo: List<ValueContainerClassInfo>,
-) : IrElementTransformerVoid() {
-    private val backInTimeDebugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId) ?: error("backInTimeDebugServiceClassId is not found")
-    private val backInTimeNotifyMethodCallFunction = backInTimeDebugServiceClass.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
-
+context(BackInTimePluginContext)
+class BackInTimeIrValueChangeNotifyCodeGenerationExtension : IrElementTransformerVoid() {
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val ownerClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)
@@ -38,7 +30,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
         val notifyMethodCallFunctionCall = with(irBuilder) {
             irCall(backInTimeNotifyMethodCallFunction).apply {
-                dispatchReceiver = irGetObject(backInTimeDebugServiceClass)
+                dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
                 putValueArgument(0, irGet(declaration.dispatchReceiverParameter!!))
                 putValueArgument(1, irString(declaration.name.asString()))
                 putValueArgument(2, irGet(uuidVariable))
@@ -47,14 +39,7 @@ class BackInTimeIrValueChangeNotifyCodeGenerationExtension(
 
         (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
 
-        declaration.transformChildrenVoid(
-            InsertValueCaptureAfterCallTransformer(
-                pluginContext = pluginContext,
-                classDispatchReceiverParameter = parentClassDispatchReceiver,
-                uuidVariable = uuidVariable,
-                valueContainerClassInfoList = valueContainerClassInfo
-            )
-        )
+        declaration.transformChildrenVoid(InsertValueCaptureAfterCallTransformer(classDispatchReceiverParameter = parentClassDispatchReceiver, uuidVariable = uuidVariable))
         return super.visitSimpleFunction(declaration)
     }
 }

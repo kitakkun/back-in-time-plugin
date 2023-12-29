@@ -4,9 +4,7 @@ import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.irThrow
-import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -14,7 +12,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -22,26 +19,8 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 /**
  * generate DebuggableStateHolderManipulator methods bodies
  */
-class GenerateManipulatorMethodBodyTransformer(
-    private val pluginContext: IrPluginContext,
-    private val valueContainerClassInfoList: List<ValueContainerClassInfo>,
-) : IrElementTransformerVoid() {
-    private val json = pluginContext.referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner
-    private val encodeToStringFunction = pluginContext.referenceFunctions(BackInTimeConsts.kotlinxSerializationEncodeToStringCallableId).first {
-        it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
-    }
-    private val decodeFromStringFunction = pluginContext.referenceFunctions(BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId).first {
-        it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
-    }
-
-    private val backInTimeRuntimeException = pluginContext.referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
-    private val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
-        .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
-    private val noSuchPropertyExceptionConstructor = backInTimeRuntimeException.owner.sealedSubclasses
-        .first { it.owner.classId == BackInTimeConsts.noSuchPropertyExceptionClassId }.constructors.first()
-
-    private val manipulatorClassType = pluginContext.referenceClass(BackInTimeConsts.debuggableStateHolderManipulatorClassId)!!.defaultType
-
+context(BackInTimePluginContext)
+class GenerateManipulatorMethodBodyTransformer : IrElementTransformerVoid() {
     private fun shouldGenerateFunctionBody(parentClass: IrClass) = parentClass.superTypes.contains(manipulatorClassType)
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {

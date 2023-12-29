@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.compiler.backend
 
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyGetterRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
@@ -9,7 +8,6 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import com.github.kitakkun.backintime.compiler.ext.filterKeysNotNull
 import com.github.kitakkun.backintime.compiler.ext.filterValuesNotNull
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
@@ -33,21 +31,16 @@ import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
+context(BackInTimePluginContext)
 class InsertValueCaptureAfterCallTransformer(
-    private val pluginContext: IrPluginContext,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
-    private val valueContainerClassInfoList: List<ValueContainerClassInfo>,
 ) : IrElementTransformerVoid() {
-    private val debugServiceClass = pluginContext.referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
-    private val notifyValueChangeFunction = debugServiceClass.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
-
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid(this)
         return element
@@ -264,8 +257,8 @@ class InsertValueCaptureAfterCallTransformer(
 
     context(IrBuilderWithScope)
     private fun generateCaptureValueCall(propertyName: String, getValueCall: IrCall): IrCall {
-        return irCall(notifyValueChangeFunction).apply {
-            dispatchReceiver = irGetObject(debugServiceClass)
+        return irCall(notifyValueChangeFunctionSymbol).apply {
+            dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
             putValueArgument(0, irGet(classDispatchReceiverParameter))
             putValueArgument(1, irString(propertyName))
             putValueArgument(2, getValueCall)
