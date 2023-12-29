@@ -256,19 +256,6 @@ class InsertValueCaptureAfterCallTransformer(
         return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
     }
 
-    private fun IrBuilderWithScope.generateNotifyValueChangeCall(
-        propertyName: String,
-        getValueCall: IrExpression,
-    ): IrCall {
-        return irCall(notifyValueChangeFunction).apply {
-            dispatchReceiver = irGetObject(debugServiceClass)
-            putValueArgument(0, irGet(classDispatchReceiverParameter))
-            putValueArgument(1, irString(propertyName))
-            putValueArgument(2, getValueCall)
-            putValueArgument(3, irGet(uuidVariable))
-        }
-    }
-
     context(IrBuilderWithScope)
     private fun IrProperty.generateCaptureValueCall(): IrCall? {
         val propertyName = this.name.asString()
