@@ -54,7 +54,7 @@ class BackInTimePluginContext(
         .first { it.owner.classId == BackInTimeConsts.noSuchPropertyExceptionClassId }.constructors.first()
 
     // kotlinx-serialization
-    val json = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner
+    val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
     val encodeToStringFunction = referenceFunctions(BackInTimeConsts.kotlinxSerializationEncodeToStringCallableId).firstOrNull {
         it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
     } ?: error("${BackInTimeConsts.kotlinxSerializationEncodeToStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")

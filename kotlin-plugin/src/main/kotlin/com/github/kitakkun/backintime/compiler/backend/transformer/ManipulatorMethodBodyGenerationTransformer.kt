@@ -189,7 +189,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, type: IrType): IrExpression? {
         return irReturn(
             irCall(encodeToStringFunction).apply {
-                extensionReceiver = irCall(json.getter!!)
+                extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(value))
                 putTypeArgument(0, if (type.isValueContainer()) {
                     (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
@@ -203,7 +203,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     private fun IrBuilderWithScope.generateDeserializeCall(value: IrValueParameter, type: IrType): IrExpression? {
         return irReturn(
             irCall(decodeFromStringFunction).apply {
-                extensionReceiver = irCall(json.getter!!)
+                extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(value))
                 putTypeArgument(0, if (type.isValueContainer()) {
                     (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
