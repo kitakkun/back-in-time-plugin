@@ -55,7 +55,7 @@ class InsertValueCaptureAfterCallTransformer(
      * insert capturing call for pure variable property
      */
     private fun IrCall.transformPureSetterCall(): IrExpression? {
-        val irBuilder = irBlockBuilder(pluginContext)
+        val irBuilder = irBlockBuilder()
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
         val captureCall = with(irBuilder) {
             property.generateCaptureValueCallForPureVariable(
@@ -75,7 +75,7 @@ class InsertValueCaptureAfterCallTransformer(
     private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
         val receiver = dispatchReceiver ?: extensionReceiver ?: return null
         val property = (receiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return null
-        val irBuilder = irBlockBodyBuilder(pluginContext)
+        val irBuilder = irBlockBodyBuilder()
         val getValueCall = with(irBuilder) {
             property.generateCaptureValueCallForValueContainer(
                 instanceParameter = classDispatchReceiverParameter,
@@ -93,7 +93,7 @@ class InsertValueCaptureAfterCallTransformer(
      */
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
         val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
-        val irBuilder = irBlockBuilder(pluginContext)
+        val irBuilder = irBlockBuilder()
         val propertyCaptureCalls =
             propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
                 with(irBuilder) {

@@ -30,7 +30,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
         val parentClass = declaration.parentClassOrNull ?: return super.visitSimpleFunction(declaration)
         if (!shouldGenerateFunctionBody(parentClass)) return super.visitSimpleFunction(declaration)
 
-        with(declaration.irBlockBodyBuilder(pluginContext)) {
+        with(declaration.irBlockBodyBuilder()) {
             when (declaration.name) {
                 BackInTimeConsts.forceSetValueMethodName -> {
                     declaration.body = generateForceSetPropertyMethodBody(declaration, parentClass)

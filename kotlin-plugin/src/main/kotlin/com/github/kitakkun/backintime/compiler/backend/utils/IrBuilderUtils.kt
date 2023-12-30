@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend.utils
 
+import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
@@ -35,3 +36,15 @@ fun IrExpression.irBlockBodyBuilder(pluginContext: IrPluginContext) = IrBlockBod
     startOffset = startOffset,
     endOffset = endOffset,
 )
+
+context(BackInTimePluginContext)
+fun IrSymbolOwner.irBlockBuilder() = irBlockBuilder(pluginContext)
+
+context(BackInTimePluginContext)
+fun IrSymbolOwner.irBlockBodyBuilder() = irBlockBodyBuilder(pluginContext)
+
+context(BackInTimePluginContext)
+fun IrExpression.irBlockBuilder() = irBlockBuilder(pluginContext)
+
+context(BackInTimePluginContext)
+fun IrExpression.irBlockBodyBuilder() = irBlockBodyBuilder(pluginContext)

@@ -41,7 +41,7 @@ class LambdaArgumentBodyTransformer(
         if (callingFunctionName !in captureTargetFunctionNames) return expression
 
         val possibleReceiverProperties = passedProperties.filter { it.getter?.returnType?.classOrNull?.owner?.classId == receiverClassId }
-        val irBuilder = expression.irBlockBodyBuilder(pluginContext)
+        val irBuilder = expression.irBlockBodyBuilder()
         val captureCalls = possibleReceiverProperties.mapNotNull { property ->
             with(irBuilder) {
                 val propertyGetter = property.getter ?: return@mapNotNull null

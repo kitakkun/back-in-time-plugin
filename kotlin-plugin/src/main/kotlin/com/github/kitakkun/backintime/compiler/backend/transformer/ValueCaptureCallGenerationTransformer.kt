@@ -24,7 +24,7 @@ class ValueCaptureCallGenerationTransformer : IrElementTransformerVoid() {
         if (!ownerClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) return super.visitSimpleFunction(declaration)
         if (!ownerClass.functions.contains(declaration)) return super.visitSimpleFunction(declaration)
 
-        val irBuilder = declaration.irBlockBodyBuilder(pluginContext)
+        val irBuilder = declaration.irBlockBodyBuilder()
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return super.visitSimpleFunction(declaration)
 
         val uuidVariable = with(pluginContext) { irBuilder.generateUUIDVariable() } ?: return super.visitSimpleFunction(declaration)

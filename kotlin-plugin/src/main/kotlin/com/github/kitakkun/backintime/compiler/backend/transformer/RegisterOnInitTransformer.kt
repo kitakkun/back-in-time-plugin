@@ -32,7 +32,7 @@ class RegisterOnInitTransformer : IrElementTransformerVoid() {
         val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
         if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitConstructor(declaration)
 
-        declaration.body = declaration.irBlockBodyBuilder(pluginContext).blockBody {
+        declaration.body = declaration.irBlockBodyBuilder().blockBody {
             +declaration.body?.statements.orEmpty()
             +generateRegisterCall(parentClass)
         }
