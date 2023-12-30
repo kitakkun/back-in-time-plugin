@@ -1,16 +1,15 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueHolderStateChangeInsideBodyAnalyzer
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyGetterRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
 import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
-import com.github.kitakkun.backintime.compiler.ext.filterKeysNotNull
-import com.github.kitakkun.backintime.compiler.ext.filterValuesNotNull
+import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -26,7 +25,6 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrReturn
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -63,14 +61,6 @@ class InsertValueCaptureAfterCallTransformer(
     private fun IrCall.isPureSetterCall(): Boolean {
         val propertySymbol = this.symbol.owner.correspondingPropertySymbol?.owner ?: return false
         return this.symbol.owner.isSetter && propertySymbol.parentClassOrNull?.symbol == parentClassSymbol
-    }
-
-    private fun IrCall.isValueContainerSetterCall(): Boolean {
-        val receiverAsIrCall = (this.extensionReceiver ?: this.dispatchReceiver) as? IrCall ?: return false
-        val property = receiverAsIrCall.symbol.owner.correspondingPropertySymbol?.owner ?: return false
-        val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return false
-        val callingFunction = this.symbol.owner
-        return valueContainerClassInfoList.any { it.classId == propertyClass.classId && it.capturedCallableIds.any { it.callableName == callingFunction.name } }
     }
 
     /**
@@ -137,7 +127,7 @@ class InsertValueCaptureAfterCallTransformer(
                 }
             }
 
-        val propertiesShouldBeCapturedAfterCall = internallyChangedPassedParams().mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+        val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
         val irBuilder = irBlockBuilder(pluginContext)
         val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
             with(irBuilder) {
@@ -150,53 +140,6 @@ class InsertValueCaptureAfterCallTransformer(
         return irBuilder.irComposite {
             +this@transformComplexCall
             +propertyCaptureCalls
-        }
-    }
-
-    private fun IrCall.internallyChangedPassedParams(): List<IrCall> {
-        val function = this.symbol.owner
-        val callsInsideFunction = function.body?.statements ?: return emptyList()
-
-        val valueParameterToExpressionMapping = function.valueParameters.associateWith { this.valueArguments.getOrNull(it.index) }
-            .plus(function.extensionReceiverParameter to this.extensionReceiver)
-            .filterKeysNotNull()
-            .filterValuesNotNull()
-
-        return valueParameterToExpressionMapping.values.filterIsInstance<IrCall>()
-            .filter { call ->
-                val correspondingParameter = valueParameterToExpressionMapping.entries.find { it.value == call }?.key ?: return@filter false
-                callsInsideFunction.any { statement -> statement.containsParameterValueChange(correspondingParameter) }
-            }
-    }
-
-    private fun IrStatement.containsParameterValueChange(parameter: IrValueParameter): Boolean {
-        when (this) {
-            is IrCall -> {
-                val dispatchReceiverContains = this.dispatchReceiver?.containsParameterValueChange(parameter) ?: false
-                val extensionReceiverContains = this.extensionReceiver?.containsParameterValueChange(parameter) ?: false
-                val valueArgumentsContains = this.valueArguments.any { it?.containsParameterValueChange(parameter) ?: false }
-
-                val receiver = this.extensionReceiver ?: this.dispatchReceiver ?: return false
-                val receiverClassId = receiver.type.classOrNull?.owner?.classId ?: return false
-                val receiverParameter = (receiver as? IrGetValue)?.symbol?.owner
-
-                if (receiverParameter != parameter) return false
-
-                val valueContainerInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return false
-                val captureTargetNames = valueContainerInfo.capturedCallableIds.map { it.callableName }
-
-                return this.symbol.owner.name in captureTargetNames || dispatchReceiverContains || extensionReceiverContains || valueArgumentsContains
-            }
-
-            is IrTypeOperatorCall -> {
-                return this.argument.containsParameterValueChange(parameter)
-            }
-
-            is IrReturn -> {
-                return this.value.containsParameterValueChange(parameter)
-            }
-
-            else -> return false
         }
     }
 
