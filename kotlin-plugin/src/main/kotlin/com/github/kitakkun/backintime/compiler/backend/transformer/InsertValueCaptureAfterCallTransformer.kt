@@ -9,15 +9,14 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
+import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
-import org.jetbrains.kotlin.ir.builders.irEquals
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetObject
-import org.jetbrains.kotlin.ir.builders.irIfThen
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -25,15 +24,12 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
-import org.jetbrains.kotlin.ir.expressions.IrReturn
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
@@ -102,30 +98,21 @@ class InsertValueCaptureAfterCallTransformer(
      * with, apply, let, ...
      */
     private fun IrCall.transformComplexCall(): IrExpression {
-        val passedProperties = this.valueArguments.filterIsInstance<IrCall>()
-            .plus(this.extensionReceiver as? IrCall)
-            .filterNotNull()
-            .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
-
-        if (passedProperties.isEmpty()) return this
-
         // ラムダ式の中でプロパティの値変更処理が発生する場合，その後ろに比較→キャプチャを挿入する
+        val passedProperties = receiverAndArgs()
+            .filterIsInstance<IrCall>()
+            .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+            .toSet()
         val lambdas = this.valueArguments.filterIsInstance<IrFunctionExpression>()
-
-        lambdas
-            .map { it.function.symbol.owner }
-            .forEach { function ->
-                val statementsAsExpressions = function.body?.statements.orEmpty()
-                function.body = function.irBlockBodyBuilder(pluginContext).blockBody {
-                    statementsAsExpressions.forEach {
-                        if (it is IrExpression) {
-                            +it.transformCallInsideLambda(passedProperties)
-                        } else {
-                            +it
-                        }
-                    }
-                }
-            }
+        lambdas.forEach { lambda ->
+            lambda.transformChildrenVoid(
+                LambdaArgumentBodyTransformer(
+                    passedProperties = passedProperties,
+                    classDispatchReceiverParameter = classDispatchReceiverParameter,
+                    uuidVariable = uuidVariable,
+                )
+            )
+        }
 
         val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
         val irBuilder = irBlockBuilder(pluginContext)
@@ -141,66 +128,6 @@ class InsertValueCaptureAfterCallTransformer(
             +this@transformComplexCall
             +propertyCaptureCalls
         }
-    }
-
-    /**
-     * insert capture calls inside lambda argument
-     */
-    private fun IrExpression.transformCallInsideLambda(
-        passedProperties: List<IrProperty>,
-    ): IrExpression {
-        when (this) {
-            is IrCall -> {
-                this.dispatchReceiver = this.dispatchReceiver?.transformCallInsideLambda(passedProperties)
-                this.extensionReceiver = this.extensionReceiver?.transformCallInsideLambda(passedProperties)
-                this.valueArguments.map { it?.transformCallInsideLambda(passedProperties) }.forEachIndexed { index, transformedExpression ->
-                    this.putValueArgument(index, transformedExpression)
-                }
-
-                val receiver = this.extensionReceiver ?: this.dispatchReceiver ?: return this
-                val receiverClassId = receiver.type.classOrNull?.owner?.classId ?: return this
-
-                val valueContainerInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return this
-                val captureTargetNames = valueContainerInfo.capturedCallableIds.map { it.callableName }
-
-                if (this.symbol.owner.name !in captureTargetNames) return this
-
-                val irBuilder = irBlockBuilder(pluginContext)
-
-                val captureCalls = passedProperties
-                    .filter { it.getter?.returnType?.classOrNull?.owner?.classId == receiverClassId }
-                    .mapNotNull { property ->
-                        with(irBuilder) {
-                            val propertyGetter = property.getter ?: return@mapNotNull null
-                            val captureCall = property.generateValueHolderCaptureCall() ?: return@mapNotNull null
-                            val getPropertyInstanceCall = irCall(propertyGetter).apply {
-                                dispatchReceiver = irGet(classDispatchReceiverParameter)
-                            }
-                            irIfThen(
-                                condition = irEquals(receiver, getPropertyInstanceCall),
-                                thenPart = captureCall,
-                                type = pluginContext.irBuiltIns.unitType,
-                            )
-                        }
-                    }
-
-                if (captureCalls.isEmpty()) return this
-
-                return irBlockBodyBuilder(pluginContext).irComposite {
-                    +this@transformCallInsideLambda
-                    +captureCalls
-                }
-            }
-
-            is IrTypeOperatorCall -> {
-                argument = argument.transformCallInsideLambda(passedProperties)
-            }
-
-            is IrReturn -> {
-                value = value.transformCallInsideLambda(passedProperties)
-            }
-        }
-        return this
     }
 
     context(IrBuilderWithScope)
