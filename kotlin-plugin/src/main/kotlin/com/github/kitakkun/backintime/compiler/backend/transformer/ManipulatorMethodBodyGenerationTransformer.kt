@@ -3,6 +3,8 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
+import com.github.kitakkun.backintime.compiler.backend.utils.getPropertySetterRecursively
+import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.lower.irThrow
@@ -162,12 +164,12 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
             }
         }
 
-        val valueContainerClassInfo = valueContainerClassInfoList.firstOrNull { it.classId == type.classOrNull?.owner?.classId } ?: return null
-        val setterCallableId = valueContainerClassInfo.valueSetter
-        val valueSetter = if (setterCallableId.callableName.isSetterName()) {
-            type.classOrNull?.getPropertySetter(setterCallableId.callableName.getPropertyName())
+        val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return null
+        val setterCallableName = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueSetter?.callableName ?: return null
+        val valueSetter = if (setterCallableName.isSetterName()) {
+            propertyClass.getPropertySetterRecursively(setterCallableName.getPropertyName())
         } else {
-            pluginContext.referenceFunctions(setterCallableId).firstOrNull()
+            propertyClass.getSimpleFunctionRecursively(setterCallableName.asString())
         } ?: return null
 
         val propertyGetter = property.getter ?: return null

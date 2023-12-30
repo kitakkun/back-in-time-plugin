@@ -287,12 +287,14 @@ class InsertValueCaptureAfterCallTransformer(
 
     private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol? {
         val propertyClass = getter?.returnType?.classOrNull?.owner ?: return null
-        val valueGetterCallableId = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueGetter ?: return null
-        return if (valueGetterCallableId.callableName.isGetterName()) {
-            propertyClass.getPropertyGetterRecursively(valueGetterCallableId.callableName.getPropertyName())
+        val valueGetterCallableName = valueContainerClassInfoList
+            .find { it.classId == propertyClass.classId }
+            ?.valueGetter
+            ?.callableName ?: return null
+        return if (valueGetterCallableName.isGetterName()) {
+            propertyClass.getPropertyGetterRecursively(valueGetterCallableName.getPropertyName())
         } else {
-            val functionName = valueGetterCallableId.callableName.asString()
-            propertyClass.getSimpleFunctionRecursively(functionName)
+            propertyClass.getSimpleFunctionRecursively(valueGetterCallableName.asString())
         }
     }
 }
