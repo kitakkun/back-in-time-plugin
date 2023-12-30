@@ -11,8 +11,6 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isVararg
-import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.name.CallableId
 
 class BackInTimePluginContext(
     baseContext: IrPluginContext,
@@ -20,14 +18,7 @@ class BackInTimePluginContext(
     moduleFragment: IrModuleFragment,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
-    val valueContainerClassInfoList: List<ValueContainerClassInfo> = with(UserDefinedValueContainerAnalyzer()) {
-        moduleFragment.acceptChildrenVoid(this)
-        resolveIdsToValueContainerInfoList(
-            capturedCallableIds = config.capturedCallableIds + collectedCapturedCallableIds,
-            valueGetterCallableIds = config.valueGetterCallableIds + collectedGetterCallableIds,
-            valueSetterCallableIds = config.valueSetterCallableIds + collectedSetterCallableIds,
-        )
-    }
+    val valueContainerClassInfoList: List<ValueContainerClassInfo> = UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(config, moduleFragment)
 
     // BackInTimeService
     val backInTimeServiceClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
@@ -61,21 +52,4 @@ class BackInTimePluginContext(
     val decodeFromStringFunction = referenceFunctions(BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId).firstOrNull {
         it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
     } ?: error("${BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")
-
-    private fun resolveIdsToValueContainerInfoList(
-        capturedCallableIds: Set<CallableId>,
-        valueGetterCallableIds: Set<CallableId>,
-        valueSetterCallableIds: Set<CallableId>,
-    ): List<ValueContainerClassInfo> {
-        return capturedCallableIds
-            .mapNotNull { it.classId }
-            .mapNotNull { classId ->
-                ValueContainerClassInfo(
-                    classId = classId,
-                    capturedCallableIds = capturedCallableIds.filter { it.classId == classId },
-                    valueGetter = valueGetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
-                    valueSetter = valueSetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
-                )
-            }
-    }
 }
