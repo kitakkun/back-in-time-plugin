@@ -8,6 +8,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRe
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isGetterName
+import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.IrElement
@@ -47,10 +48,12 @@ class InsertValueCaptureAfterCallTransformer(
     override fun visitCall(expression: IrCall): IrExpression {
         expression.transformChildrenVoid(this)
 
+        expression.transformValueContainerSetterCallInsideLambdaArguments()
         return when {
             expression.isPureSetterCall() -> expression.transformPureSetterCall()
             expression.isValueContainerSetterCall() -> expression.transformValueContainerSetterCall()
-            else -> expression.transformComplexCall()
+            expression.isIndirectValueContainerSetterCall() -> expression.transformIndirectValueContainerSetterCall()
+            else -> expression
         } ?: expression
     }
 
@@ -94,10 +97,30 @@ class InsertValueCaptureAfterCallTransformer(
     }
 
     /**
+     * insert capturing call for indirect value container property
+     */
+    private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
+        val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
+        val irBuilder = irBlockBuilder(pluginContext)
+        val propertyCaptureCalls = with(irBuilder) {
+            propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
+                property.generateValueHolderCaptureCall()
+            }
+        }
+
+        if (propertyCaptureCalls.isEmpty()) return this
+
+        return irBuilder.irComposite {
+            +this@transformIndirectValueContainerSetterCall
+            +propertyCaptureCalls
+        }
+    }
+
+    /**
      * insert capturing call for complex call
      * with, apply, let, ...
      */
-    private fun IrCall.transformComplexCall(): IrExpression {
+    private fun IrCall.transformValueContainerSetterCallInsideLambdaArguments() {
         // ラムダ式の中でプロパティの値変更処理が発生する場合，その後ろに比較→キャプチャを挿入する
         val passedProperties = receiverAndArgs()
             .filterIsInstance<IrCall>()
@@ -112,21 +135,6 @@ class InsertValueCaptureAfterCallTransformer(
                     uuidVariable = uuidVariable,
                 )
             )
-        }
-
-        val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
-        val irBuilder = irBlockBuilder(pluginContext)
-        val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
-            with(irBuilder) {
-                property.generateValueHolderCaptureCall()
-            }
-        }
-
-        if (propertyCaptureCalls.isEmpty()) return this
-
-        return irBuilder.irComposite {
-            +this@transformComplexCall
-            +propertyCaptureCalls
         }
     }
 
