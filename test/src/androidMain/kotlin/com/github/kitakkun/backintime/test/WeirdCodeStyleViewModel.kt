@@ -26,8 +26,8 @@ class WeirdCodeStyleViewModel {
         doubleMutateByBlock(mutableLiveData1, mutableLiveData2) {
             value = "Updated from <set-value>"
         }
-        // mutableLiveData.setValueAndGet("Updated from setValueAndGet1") + mutableLiveData.setValueAndGet("Updated from setValueAndGet2")
-//        mutableLiveData.setValueAndGetInline("Updated from setValueAndGetInline1") + mutableLiveData.setValueAndGetInline("Updated from setValueAndGetInline2")
+        mutableLiveData1.setValueAndGet("Updated from setValueAndGet1") + mutableLiveData1.setValueAndGet("Updated from setValueAndGet2")
+        mutableLiveData1.setValueAndGetInline("Updated from setValueAndGetInline1") + mutableLiveData1.setValueAndGetInline("Updated from setValueAndGetInline2")
     }
 
     fun mutateStateFlow() {
