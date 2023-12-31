@@ -1,5 +1,3 @@
-import com.github.kitakkun.backintime.BackInTimeExtension
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
@@ -64,7 +62,7 @@ android {
     namespace = "com.github.kitakkun.backintime.test"
 }
 
-configure<BackInTimeExtension> {
+backInTime {
     enabled = true
     capturedCalls += listOf(
         "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
