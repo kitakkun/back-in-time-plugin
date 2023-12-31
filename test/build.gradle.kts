@@ -66,6 +66,7 @@ backInTime {
     enabled = true
     valueContainers {
         androidValueContainers()
+        composeMutableStates()
         collections()
 
         container {

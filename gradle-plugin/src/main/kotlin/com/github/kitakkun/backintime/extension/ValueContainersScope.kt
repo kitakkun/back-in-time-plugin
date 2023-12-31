@@ -55,5 +55,57 @@ class ValueContainersScope {
             serializeItself = true
         }
     }
+
+    fun composeMutableStates() {
+        container {
+            className = "androidx.compose.runtime.MutableState"
+            captures = listOf("<set-value>")
+            getter = "<get-value>"
+            setter = "<set-value>"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.MutableIntState"
+            captures = listOf("<set-value>", "<set-intValue>")
+            getter = "<get-value>"
+            setter = "<set-value>"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.MutableLongState"
+            captures = listOf("<set-value>", "<set-longValue>")
+            getter = "<get-value>"
+            setter = "<set-value>"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.MutableFloatState"
+            captures = listOf("<set-value>", "<set-floatValue>")
+            getter = "<get-value>"
+            setter = "<set-value>"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.MutableDoubleState"
+            captures = listOf("<set-value>", "<set-doubleValue>")
+            getter = "<get-value>"
+            setter = "<set-value>"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.snapshots.SnapshotStateList"
+            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
+            getter = "<this>"
+            setter = "clear,addAll"
+            serializeItself = true
+        }
+        container {
+            className = "androidx.compose.runtime.snapshots.SnapshotStateMap"
+            captures = listOf("clear", "put", "putAll", "remove", "set")
+            getter = "<this>"
+            setter = "clear,putAll"
+            serializeItself = true
+        }
+    }
 }
 
