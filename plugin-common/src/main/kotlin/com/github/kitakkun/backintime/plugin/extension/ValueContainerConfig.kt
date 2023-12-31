@@ -8,5 +8,6 @@ data class ValueContainerConfig(
     var captures: List<String> = emptyList(),
     var getter: String = "",
     var setter: String = "",
+    var serializeItself: Boolean = false,
 )
 

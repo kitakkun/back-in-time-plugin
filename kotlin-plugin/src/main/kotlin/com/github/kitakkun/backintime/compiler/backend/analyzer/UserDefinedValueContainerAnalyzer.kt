@@ -57,6 +57,7 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
             capturedCallableIds = captures.map { CallableId(classId, it.name) },
             valueGetter = CallableId(classId, getter.name),
             valueSetter = CallableId(classId, setter.name),
+            serializeItSelf = false, // FIXME: doesn't support yet
         )
 
         mutableCollectedInfoList.add(containerInfo)

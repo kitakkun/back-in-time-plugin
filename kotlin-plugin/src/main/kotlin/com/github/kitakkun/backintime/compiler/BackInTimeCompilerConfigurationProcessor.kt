@@ -18,6 +18,7 @@ class BackInTimeCompilerConfigurationProcessor {
                     capturedCallableIds = config.captures.map { CallableId(classId, Name.guessByFirstCharacter(it)) },
                     valueGetter = CallableId(classId, Name.guessByFirstCharacter(config.getter)),
                     valueSetter = CallableId(classId, Name.guessByFirstCharacter(config.setter)),
+                    serializeItSelf = config.serializeItself,
                 )
             },
     )

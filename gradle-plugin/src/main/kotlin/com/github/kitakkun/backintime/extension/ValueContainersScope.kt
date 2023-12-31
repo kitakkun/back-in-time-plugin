@@ -31,5 +31,29 @@ class ValueContainersScope {
             setter = "<set-value>"
         }
     }
+
+    fun collections() {
+        container {
+            className = "kotlin.collections.MutableList"
+            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
+            getter = "<this>"
+            setter = "clear,addAll"
+            serializeItself = true
+        }
+        container {
+            className = "kotlin.collections.MutableSet"
+            captures = listOf("add", "addAll", "clear", "remove", "removeAll")
+            getter = "<this>"
+            setter = "clear,addAll"
+            serializeItself = true
+        }
+        container {
+            className = "kotlin.collections.MutableMap"
+            captures = listOf("clear", "put", "putAll", "remove", "set")
+            getter = "<this>"
+            setter = "clear,putAll"
+            serializeItself = true
+        }
+    }
 }
 

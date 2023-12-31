@@ -8,4 +8,5 @@ data class ValueContainerClassInfo(
     val capturedCallableIds: List<CallableId>,
     val valueGetter: CallableId,
     val valueSetter: CallableId,
+    val serializeItSelf: Boolean,
 )

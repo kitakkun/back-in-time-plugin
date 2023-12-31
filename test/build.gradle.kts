@@ -66,6 +66,7 @@ backInTime {
     enabled = true
     valueContainers {
         androidValueContainers()
+        collections()
 
         container {
             className = "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer"

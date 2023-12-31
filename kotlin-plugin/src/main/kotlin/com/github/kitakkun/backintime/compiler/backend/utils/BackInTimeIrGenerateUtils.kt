@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
 fun generateCaptureValueCall(
@@ -50,12 +51,18 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     uuidVariable: IrVariable,
 ): IrCall? {
     val getter = getter ?: return null
-    val valueGetter = getValueHolderValueGetterSymbol() ?: return null
+    val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
     return generateCaptureValueCall(
         propertyName = name.asString(),
-        getValueCall = irCall(valueGetter).apply {
-            dispatchReceiver = irCall(getter).apply {
+        getValueCall = if (valueGetterSymbol == getter.symbol) {
+            irCall(getter.symbol).apply {
                 dispatchReceiver = irGet(instanceParameter)
+            }
+        } else {
+            irCall(valueGetterSymbol).apply {
+                dispatchReceiver = irCall(getter).apply {
+                    dispatchReceiver = irGet(instanceParameter)
+                }
             }
         },
         instanceParameter = instanceParameter,
@@ -70,9 +77,9 @@ private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol
         .find { it.classId == propertyClass.classId }
         ?.valueGetter
         ?.callableName ?: return null
-    return if (valueGetterCallableName.isGetterName()) {
-        propertyClass.getPropertyGetterRecursively(valueGetterCallableName.getPropertyName())
-    } else {
-        propertyClass.getSimpleFunctionRecursively(valueGetterCallableName.asString())
+    return when {
+        valueGetterCallableName == SpecialNames.THIS -> getter?.symbol
+        valueGetterCallableName.isGetterName() -> propertyClass.getPropertyGetterRecursively(valueGetterCallableName.getPropertyName())
+        else -> propertyClass.getSimpleFunctionRecursively(valueGetterCallableName.asString())
     }
 }

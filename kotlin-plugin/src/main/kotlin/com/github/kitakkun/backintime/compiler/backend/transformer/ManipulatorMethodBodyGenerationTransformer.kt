@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.name.Name
 
 /**
  * generate DebuggableStateHolderManipulator methods bodies
@@ -61,11 +62,9 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
         +parentClass.irWhenByProperties(
             propertyNameParameter = propertyNameParameter,
             buildBranchResultExpression = { property ->
-                val propertyType = property.getter?.returnType ?: return@irWhenByProperties null
                 generateSetForProperty(
                     parentClassReceiver = parentClassReceiver,
                     property = property,
-                    type = propertyType,
                     value = value,
                 )
             },
@@ -149,14 +148,14 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
             }.toList() + irElseBranch(irBlock { +elseBranchExpression(propertyNameParameter) })
     )
 
-
-    private fun IrBuilderWithScope.generateSetForProperty(
+    context(IrBuilderWithScope)
+    private fun generateSetForProperty(
         parentClassReceiver: IrValueParameter,
         property: IrProperty,
-        type: IrType,
         value: IrValueParameter,
     ): IrExpression? {
-        if (!type.isValueContainer() && property.isVar) {
+        val propertyType = property.getter?.returnType ?: return null
+        if (!propertyType.isValueContainer() && property.isVar) {
             val setter = property.setter ?: return null
             return irCall(setter).apply {
                 dispatchReceiver = irGet(parentClassReceiver)
@@ -166,24 +165,62 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
 
         val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return null
         val setterCallableName = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueSetter?.callableName ?: return null
-        val valueSetter = if (setterCallableName.isSetterName()) {
-            propertyClass.getPropertySetterRecursively(setterCallableName.getPropertyName())
-        } else {
-            propertyClass.getSimpleFunctionRecursively(setterCallableName.asString())
-        } ?: return null
+        val valueSetter = when {
+            setterCallableName.isSetterName() -> propertyClass.getPropertySetterRecursively(setterCallableName.getPropertyName())
+            else -> propertyClass.getSimpleFunctionRecursively(setterCallableName.asString())
+        }
 
         val propertyGetter = property.getter ?: return null
-
-        return irCall(valueSetter).apply {
-            dispatchReceiver = irCall(propertyGetter).apply {
-                dispatchReceiver = irGet(parentClassReceiver)
+        if (valueSetter != null) {
+            return irCall(valueSetter).apply {
+                dispatchReceiver = irCall(propertyGetter).apply {
+                    dispatchReceiver = irGet(parentClassReceiver)
+                }
+                putValueArgument(0, irGet(value))
             }
-            putValueArgument(0, irGet(value))
+        } else if (setterCallableName.isCombinedCallsName()) {
+            // FIXME: もうちょっとうまく書きたい
+            val sequence = setterCallableName.asString().split(",").map { Name.guessByFirstCharacter(it) }
+            return irComposite {
+                +sequence.dropLast(1).mapNotNull { name ->
+                    val function = when {
+                        name.isSetterName() -> propertyClass.getPropertySetterRecursively(name.getPropertyName())
+                        else -> propertyClass.getSimpleFunctionRecursively(name.asString())
+                    } ?: return@mapNotNull null
+
+                    irCall(function).apply {
+                        dispatchReceiver = irCall(propertyGetter).apply {
+                            dispatchReceiver = irGet(parentClassReceiver)
+                        }
+                    }
+                }
+                val lastFunctionName = sequence.last()
+                val lastFunction = when {
+                    lastFunctionName.isSetterName() -> propertyClass.getPropertySetterRecursively(lastFunctionName.getPropertyName())
+                    else -> propertyClass.getSimpleFunctionRecursively(lastFunctionName.asString())
+                } ?: return@irComposite
+
+                irCall(lastFunction).apply {
+                    dispatchReceiver = irCall(propertyGetter).apply {
+                        dispatchReceiver = irGet(parentClassReceiver)
+                    }
+                    putValueArgument(0, irGet(value))
+                }
+            }
         }
+        return null
+    }
+
+    private fun Name.isCombinedCallsName(): Boolean {
+        return this.asString().split(",").size > 1
     }
 
     private fun IrType.isValueContainer(): Boolean {
         return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId }
+    }
+
+    private fun IrType.isSerializableItSelf(): Boolean {
+        return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId && it.serializeItSelf }
     }
 
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, type: IrType): IrExpression? {
@@ -191,11 +228,17 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
             irCall(encodeToStringFunction).apply {
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, if (type.isValueContainer()) {
-                    (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
-                } else {
-                    type
-                })
+                putTypeArgument(
+                    index = 0,
+                    type = when {
+                        type.isSerializableItSelf() -> type
+                        type.isValueContainer() -> {
+                            (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
+                        }
+
+                        else -> type
+                    }
+                )
             }
         )
     }
@@ -205,11 +248,17 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
             irCall(decodeFromStringFunction).apply {
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(value))
-                putTypeArgument(0, if (type.isValueContainer()) {
-                    (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
-                } else {
-                    type
-                })
+                putTypeArgument(
+                    index = 0,
+                    type = when {
+                        type.isValueContainer() -> {
+                            if (type.isSerializableItSelf()) type
+                            else (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
+                        }
+
+                        else -> type
+                    }
+                )
             }
         )
     }
