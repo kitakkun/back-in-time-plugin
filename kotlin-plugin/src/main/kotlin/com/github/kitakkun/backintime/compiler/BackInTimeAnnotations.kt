@@ -9,6 +9,7 @@ object BackInTimeAnnotations {
     val debuggableStateHolderAnnotationClassId = ClassId.topLevel(debuggableStateHolderAnnotationFqName)
     val debuggableStateHolderManipulatorAnnotationClassId = ClassId.topLevel(debuggableStateHolderManipulatorFqName)
 
+    val valueContainerAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.ValueContainer")
     val captureAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Capture")
     val getterAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Getter")
     val setterAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Setter")

@@ -64,14 +64,14 @@ android {
 
 backInTime {
     enabled = true
-    capturedCalls += listOf(
-        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
-        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:update",
-    )
-    valueGetters += listOf(
-        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<get-value>",
-    )
-    valueSetters += listOf(
-        "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer:<set-value>",
-    )
+    valueContainers {
+        androidValueContainers()
+
+        container {
+            className = "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer"
+            captures = listOf("<set-value>", "update")
+            getter = "<get-value>"
+            setter = "<set-value>"
+        }
+    }
 }

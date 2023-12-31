@@ -1,11 +1,16 @@
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     `maven-publish`
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
+}
+
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }
 
 publishing {

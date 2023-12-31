@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     kotlin("kapt")
+    kotlin("plugin.serialization")
     `maven-publish`
 }
 
@@ -18,6 +19,7 @@ dependencies {
     kapt("com.google.auto.service:auto-service:1.1.1")
 
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }
 
 publishing {

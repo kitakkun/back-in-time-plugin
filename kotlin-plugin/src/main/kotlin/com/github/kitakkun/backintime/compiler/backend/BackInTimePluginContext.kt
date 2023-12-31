@@ -18,7 +18,7 @@ class BackInTimePluginContext(
     moduleFragment: IrModuleFragment,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
-    val valueContainerClassInfoList: List<ValueContainerClassInfo> = UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(config, moduleFragment)
+    val valueContainerClassInfoList: List<ValueContainerClassInfo> = config.valueContainers + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
     // BackInTimeService
     val backInTimeServiceClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!

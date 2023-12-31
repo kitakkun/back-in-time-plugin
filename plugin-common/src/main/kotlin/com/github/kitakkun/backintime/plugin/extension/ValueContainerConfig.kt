@@ -1,0 +1,12 @@
+package com.github.kitakkun.backintime.plugin.extension
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ValueContainerConfig(
+    var className: String = "",
+    var captures: List<String> = emptyList(),
+    var getter: String = "",
+    var setter: String = "",
+)
+

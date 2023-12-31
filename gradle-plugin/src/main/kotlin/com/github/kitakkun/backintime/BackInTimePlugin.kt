@@ -1,14 +1,18 @@
 package com.github.kitakkun.backintime
 
+import com.github.kitakkun.backintime.extension.BackInTimeExtension
 import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import com.github.kitakkun.backintime.plugin.BackInTimePluginConsts
 import com.google.auto.service.AutoService
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
+import java.util.Base64
 
 @Suppress("unused")
 @AutoService(KotlinCompilerPluginSupportPlugin::class)
@@ -29,13 +33,14 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
         return kotlinCompilation.target.project.provider {
             listOf(
                 SubpluginOption(key = BackInTimeCompilerOptionKey.ENABLED, value = extension.enabled.toString()),
-            ) + extension.capturedCalls.map {
-                SubpluginOption(key = BackInTimeCompilerOptionKey.CAPTURED_CALLS, value = it)
-            } + extension.valueGetters.map {
-                SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_GETTERS, value = it)
-            } + extension.valueSetters.map {
-                SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_SETTERS, value = it)
-            }
+            ).plus(
+                extension.valueContainers
+                    .map { Json.encodeToString(it) }
+                    .map { Base64.getEncoder().encodeToString(it.toByteArray(Charsets.UTF_8)) }
+                    .map {
+                        SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_CONTAINER, value = it)
+                    }
+            )
         }
     }
 

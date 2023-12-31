@@ -1,10 +1,8 @@
 package com.github.kitakkun.backintime.compiler
 
-import org.jetbrains.kotlin.name.CallableId
+import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 
 data class BackInTimeCompilerConfiguration(
     val enabled: Boolean,
-    val capturedCallableIds: Set<CallableId>,
-    val valueGetterCallableIds: Set<CallableId>,
-    val valueSetterCallableIds: Set<CallableId>,
+    val valueContainers: List<ValueContainerClassInfo>,
 )

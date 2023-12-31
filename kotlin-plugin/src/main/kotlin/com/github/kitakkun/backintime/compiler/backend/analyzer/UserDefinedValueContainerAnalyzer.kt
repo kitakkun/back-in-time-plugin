@@ -1,92 +1,68 @@
 package com.github.kitakkun.backintime.compiler.backend.analyzer
 
 import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
-import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
 import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.parentClassOrNull
+import org.jetbrains.kotlin.ir.util.isGetter
+import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.FqName
 
 class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
     companion object {
-        fun analyzeAdditionalValueContainerClassInfo(config: BackInTimeCompilerConfiguration, moduleFragment: IrModuleFragment): List<ValueContainerClassInfo> {
+        fun analyzeAdditionalValueContainerClassInfo(moduleFragment: IrModuleFragment): List<ValueContainerClassInfo> {
             with(UserDefinedValueContainerAnalyzer()) {
                 moduleFragment.acceptChildrenVoid(this)
-                return resolveIdsToValueContainerInfoList(
-                    capturedCallableIds = config.capturedCallableIds + collectedCapturedCallableIds,
-                    valueGetterCallableIds = config.valueGetterCallableIds + collectedGetterCallableIds,
-                    valueSetterCallableIds = config.valueSetterCallableIds + collectedSetterCallableIds,
-                )
+                return collectedInfoList
             }
-        }
-
-        private fun resolveIdsToValueContainerInfoList(
-            capturedCallableIds: Set<CallableId>,
-            valueGetterCallableIds: Set<CallableId>,
-            valueSetterCallableIds: Set<CallableId>,
-        ): List<ValueContainerClassInfo> {
-            return capturedCallableIds
-                .mapNotNull { it.classId }
-                .mapNotNull { classId ->
-                    ValueContainerClassInfo(
-                        classId = classId,
-                        capturedCallableIds = capturedCallableIds.filter { it.classId == classId },
-                        valueGetter = valueGetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
-                        valueSetter = valueSetterCallableIds.firstOrNull { it.classId == classId } ?: return@mapNotNull null,
-                    )
-                }
         }
     }
 
-    private val mutableCapturedCallableIds = mutableSetOf<CallableId>()
-    private val mutableGetterCallableIds = mutableSetOf<CallableId>()
-    private val mutableSetterCallableIds = mutableSetOf<CallableId>()
-    val collectedCapturedCallableIds: Set<CallableId> = mutableCapturedCallableIds
-    val collectedGetterCallableIds: Set<CallableId> = mutableGetterCallableIds
-    val collectedSetterCallableIds: Set<CallableId> = mutableSetterCallableIds
+    private val mutableCollectedInfoList = mutableListOf<ValueContainerClassInfo>()
+    val collectedInfoList: List<ValueContainerClassInfo> get() = mutableCollectedInfoList
 
-    // need this to execute visitSimpleFunction
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
     }
 
-    override fun visitSimpleFunction(declaration: IrSimpleFunction) {
-        val name = declaration.name
-        val classId = declaration.parentClassOrNull?.classId ?: return
+    override fun visitClass(declaration: IrClass) {
+        if (!declaration.hasAnnotation(BackInTimeAnnotations.valueContainerAnnotationFqName)) return
 
-        if (declaration.hasAnnotation(BackInTimeAnnotations.captureAnnotationFqName)) {
-            mutableCapturedCallableIds.add(CallableId(classId, name))
-        }
+        val classId = declaration.classId ?: return
 
-        if (declaration.hasAnnotation(BackInTimeAnnotations.getterAnnotationFqName)) {
-            mutableGetterCallableIds.add(CallableId(classId, name))
-        }
+        val captures = declaration.simpleFunctions().filter { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName) }.toList()
+        val getter = declaration.simpleFunctions()
+            .filter { function -> !function.isSetter }
+            .firstOrNull { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.getterAnnotationFqName) }
+            ?: return
+        val setter = declaration
+            .simpleFunctions()
+            .filter { function -> !function.isGetter }
+            .firstOrNull { function ->
+                function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.setterAnnotationFqName)
+            } ?: return
 
-        if (declaration.hasAnnotation(BackInTimeAnnotations.setterAnnotationFqName)) {
-            mutableSetterCallableIds.add(CallableId(classId, name))
-        }
+        if (captures.isEmpty()) return
+
+        val containerInfo = ValueContainerClassInfo(
+            classId = classId,
+            capturedCallableIds = captures.map { CallableId(classId, it.name) },
+            valueGetter = CallableId(classId, getter.name),
+            valueSetter = CallableId(classId, setter.name),
+        )
+
+        mutableCollectedInfoList.add(containerInfo)
     }
 
-    override fun visitProperty(declaration: IrProperty) {
-        val classId = declaration.parentClassOrNull?.classId ?: return
-
-        if (declaration.hasAnnotation(BackInTimeAnnotations.captureAnnotationFqName)) {
-            mutableCapturedCallableIds.add(CallableId(classId, declaration.setter!!.name))
-        }
-
-        if (declaration.hasAnnotation(BackInTimeAnnotations.getterAnnotationFqName)) {
-            mutableGetterCallableIds.add(CallableId(classId, declaration.getter!!.name))
-        }
-
-        if (declaration.hasAnnotation(BackInTimeAnnotations.setterAnnotationFqName)) {
-            mutableSetterCallableIds.add(CallableId(classId, declaration.setter!!.name))
-        }
+    private fun IrSimpleFunction.hasAnnotationOnSelfOrCorrespondingProperty(fqName: FqName): Boolean {
+        return hasAnnotation(fqName) || correspondingPropertySymbol?.owner?.hasAnnotation(fqName) == true
     }
 }

@@ -1,5 +1,8 @@
 package com.github.kitakkun.backintime.annotations
 
+@Target(AnnotationTarget.CLASS)
+annotation class ValueContainer
+
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 annotation class Capture
 
