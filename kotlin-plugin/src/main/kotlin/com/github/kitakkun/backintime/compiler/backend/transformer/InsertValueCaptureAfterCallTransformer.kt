@@ -1,12 +1,13 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueHolderStateChangeInsideBodyAnalyzer
+import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
+import com.github.kitakkun.backintime.compiler.backend.utils.isInvokeFunction
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.IrElement
@@ -18,6 +19,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -42,8 +44,35 @@ class InsertValueCaptureAfterCallTransformer(
             expression.isPureSetterCall() -> expression.transformPureSetterCall()
             expression.isValueContainerSetterCall() -> expression.transformValueContainerSetterCall()
             expression.isIndirectValueContainerSetterCall() -> expression.transformIndirectValueContainerSetterCall()
+            expression.isInvokeFunctionCall() -> expression.transformLambdaInvokeFunctionCall()
             else -> expression
         } ?: expression
+    }
+
+    private fun IrCall.transformLambdaInvokeFunctionCall(): IrExpression {
+        val parametersChanged = ValueContainerStateChangeInsideFunctionAnalyzer.analyzeInvokeLambdaCall(this)
+        val valueArgumentsShouldBeCapturedAfterCall = this.getArgumentsWithIr()
+            .filter { (parameter, _) -> parametersChanged.any { it.symbol == parameter.symbol } }
+            .map { (_, argument) -> argument }
+        val irBuilder = irBlockBuilder()
+        val propertyCaptureCalls = valueArgumentsShouldBeCapturedAfterCall
+            .filterIsInstance<IrCall>()
+            .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+            .mapNotNull { property ->
+                with(irBuilder) {
+                    property.generateCaptureValueCallForValueContainer(
+                        instanceParameter = classDispatchReceiverParameter,
+                        uuidVariable = uuidVariable,
+                    )
+                }
+            }
+
+        if (propertyCaptureCalls.isEmpty()) return this
+
+        return irBuilder.irComposite {
+            +this@transformLambdaInvokeFunctionCall
+            +propertyCaptureCalls
+        }
     }
 
     private fun IrCall.isPureSetterCall(): Boolean {
@@ -69,6 +98,10 @@ class InsertValueCaptureAfterCallTransformer(
         }
     }
 
+    private fun IrCall.isInvokeFunctionCall(): Boolean {
+        return this.symbol.owner.isInvokeFunction
+    }
+
     /**
      * insert capturing call for value container property
      */
@@ -92,7 +125,7 @@ class InsertValueCaptureAfterCallTransformer(
      * insert capturing call for indirect value container property
      */
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
-        val propertiesShouldBeCapturedAfterCall = ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this)
+        val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
         val irBuilder = irBlockBuilder()
         val propertyCaptureCalls =
             propertiesShouldBeCapturedAfterCall.mapNotNull { property ->

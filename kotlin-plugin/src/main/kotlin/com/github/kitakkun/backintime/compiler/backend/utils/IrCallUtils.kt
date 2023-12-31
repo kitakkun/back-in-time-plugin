@@ -1,8 +1,12 @@
 package com.github.kitakkun.backintime.compiler.backend.utils
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueHolderStateChangeInsideBodyAnalyzer
+import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 
@@ -18,5 +22,23 @@ fun IrCall.isValueContainerSetterCall(): Boolean {
 
 context(BackInTimePluginContext)
 fun IrCall.isIndirectValueContainerSetterCall(): Boolean {
-    return ValueHolderStateChangeInsideBodyAnalyzer.analyzePropertiesShouldBeCaptured(this).isNotEmpty()
+    return ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this).isNotEmpty()
+}
+
+
+fun IrCall.getInvokedLambdaFunction(): IrSimpleFunction? {
+    return when (receiver) {
+        is IrGetValue -> {
+            val invokableVariable = ((receiver as IrGetValue).symbol.owner) as? IrVariable ?: return null
+            (invokableVariable.initializer as? IrFunctionExpression)?.function
+        }
+
+        is IrFunctionExpression -> {
+            (receiver as IrFunctionExpression).function
+        }
+
+        else -> {
+            null
+        }
+    }
 }
