@@ -14,17 +14,16 @@ object BackInTimeConsts {
     val forceSetValueMethodName = Name.identifier("forceSetValue")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
-    val registerFunctionName = "register"
-    val notifyMethodCallFunctionName = "notifyMethodCall"
-    val notifyPropertyChanged = "notifyPropertyChanged"
+    const val registerFunctionName = "register"
+    const val notifyMethodCallFunctionName = "notifyMethodCall"
+    const val notifyPropertyChanged = "notifyPropertyChanged"
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
-    val methodCallInfoClassId = classId("com.github.kitakkun.backintime.runtime", "MethodCallInfo")
     val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
     val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime", "PropertyInfo")
     val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
     val UUIDClassId = classId("java.util", "UUID")
-    val randomUUIDFunctionName = "randomUUID"
+    const val randomUUIDFunctionName = "randomUUID"
 
     // Exception classes
     val backInTimeRuntimeExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException")
