@@ -2,11 +2,8 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.getPropertyName
-import com.github.kitakkun.backintime.compiler.backend.utils.getPropertySetterRecursively
-import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionRecursively
+import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionsRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import com.github.kitakkun.backintime.compiler.backend.utils.isSetterName
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
@@ -18,7 +15,6 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.name.Name
 
 /**
  * generate DebuggableStateHolderManipulator methods bodies
@@ -155,7 +151,9 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
         value: IrValueParameter,
     ): IrExpression? {
         val propertyType = property.getter?.returnType ?: return null
-        if (!propertyType.isValueContainer() && property.isVar) {
+
+        if (!propertyType.isValueContainer()) {
+            if (!property.isVar) return null
             val setter = property.setter ?: return null
             return irCall(setter).apply {
                 dispatchReceiver = irGet(parentClassReceiver)
@@ -163,56 +161,36 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
             }
         }
 
-        val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return null
-        val setterCallableName = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.valueSetter?.callableName ?: return null
-        val valueSetter = when {
-            setterCallableName.isSetterName() -> propertyClass.getPropertySetterRecursively(setterCallableName.getPropertyName())
-            else -> propertyClass.getSimpleFunctionRecursively(setterCallableName.asString())
-        }
-
         val propertyGetter = property.getter ?: return null
-        if (valueSetter != null) {
-            return irCall(valueSetter).apply {
-                dispatchReceiver = irCall(propertyGetter).apply {
-                    dispatchReceiver = irGet(parentClassReceiver)
-                }
-                putValueArgument(0, irGet(value))
-            }
-        } else if (setterCallableName.isCombinedCallsName()) {
-            // FIXME: もうちょっとうまく書きたい
-            val sequence = setterCallableName.asString().split(",").map { Name.guessByFirstCharacter(it) }
-            return irComposite {
-                +sequence.dropLast(1).mapNotNull { name ->
-                    val function = when {
-                        name.isSetterName() -> propertyClass.getPropertySetterRecursively(name.getPropertyName())
-                        else -> propertyClass.getSimpleFunctionRecursively(name.asString())
-                    } ?: return@mapNotNull null
+        val propertyClass = propertyType.classOrNull?.owner ?: return null
+        val preSetterFunctionNames = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.preSetterFunctionNames ?: return null
+        val setterName = valueContainerClassInfoList.find { it.classId == propertyClass.classId }?.setterFunctionName ?: return null
 
-                    irCall(function).apply {
-                        dispatchReceiver = irCall(propertyGetter).apply {
-                            dispatchReceiver = irGet(parentClassReceiver)
-                        }
+        val preSetterCalls = preSetterFunctionNames
+            .map { propertyClass.getSimpleFunctionsRecursively(it).firstOrNull { it.owner.valueParameters.isEmpty() } }
+            .map {
+                if (it == null) return null
+                irCall(it).apply {
+                    dispatchReceiver = irCall(propertyGetter).apply {
+                        dispatchReceiver = irGet(parentClassReceiver)
                     }
                 }
-                val lastFunctionName = sequence.last()
-                val lastFunction = when {
-                    lastFunctionName.isSetterName() -> propertyClass.getPropertySetterRecursively(lastFunctionName.getPropertyName())
-                    else -> propertyClass.getSimpleFunctionRecursively(lastFunctionName.asString())
-                } ?: return@irComposite
+            }
 
-                irCall(lastFunction).apply {
+        val setterCall = propertyClass.getSimpleFunctionsRecursively(setterName)
+            .firstOrNull { it.owner.valueParameters.size == 1 }?.let {
+                irCall(it).apply {
                     dispatchReceiver = irCall(propertyGetter).apply {
                         dispatchReceiver = irGet(parentClassReceiver)
                     }
                     putValueArgument(0, irGet(value))
                 }
-            }
-        }
-        return null
-    }
+            } ?: return null
 
-    private fun Name.isCombinedCallsName(): Boolean {
-        return this.asString().split(",").size > 1
+        return irComposite {
+            +preSetterCalls
+            +setterCall
+        }
     }
 
     private fun IrType.isValueContainer(): Boolean {
@@ -231,9 +209,9 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
                 putTypeArgument(
                     index = 0,
                     type = when {
-                        type.isSerializableItSelf() -> type
                         type.isValueContainer() -> {
-                            (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
+                            if (type.isSerializableItSelf()) type
+                            else (type as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull ?: return null
                         }
 
                         else -> type

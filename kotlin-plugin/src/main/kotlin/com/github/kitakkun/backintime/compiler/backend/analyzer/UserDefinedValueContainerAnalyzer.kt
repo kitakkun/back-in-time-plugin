@@ -13,7 +13,6 @@ import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 
 class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
@@ -54,9 +53,10 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
 
         val containerInfo = ValueContainerClassInfo(
             classId = classId,
-            capturedCallableIds = captures.map { CallableId(classId, it.name) },
-            valueGetter = CallableId(classId, getter.name),
-            valueSetter = CallableId(classId, setter.name),
+            capturedFunctionNames = captures.map { it.name },
+            getterFunctionName = getter.name,
+            preSetterFunctionNames = emptyList(),
+            setterFunctionName = setter.name,
             serializeItSelf = false, // FIXME: doesn't support yet
         )
 

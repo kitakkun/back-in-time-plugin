@@ -2,7 +2,6 @@ package com.github.kitakkun.backintime.compiler
 
 import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
@@ -15,9 +14,10 @@ class BackInTimeCompilerConfigurationProcessor {
 
                 ValueContainerClassInfo(
                     classId = classId,
-                    capturedCallableIds = config.captures.map { CallableId(classId, Name.guessByFirstCharacter(it)) },
-                    valueGetter = CallableId(classId, Name.guessByFirstCharacter(config.getter)),
-                    valueSetter = CallableId(classId, Name.guessByFirstCharacter(config.setter)),
+                    capturedFunctionNames = config.captures.map { Name.guessByFirstCharacter(it) },
+                    getterFunctionName = Name.guessByFirstCharacter(config.getter),
+                    preSetterFunctionNames = config.preSetters.map { Name.guessByFirstCharacter(it) },
+                    setterFunctionName = Name.guessByFirstCharacter(config.setter),
                     serializeItSelf = config.serializeItself,
                 )
             },

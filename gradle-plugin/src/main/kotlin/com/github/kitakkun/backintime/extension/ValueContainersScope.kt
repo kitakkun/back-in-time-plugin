@@ -37,21 +37,24 @@ class ValueContainersScope {
             className = "kotlin.collections.MutableList"
             captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
             getter = "<this>"
-            setter = "clear,addAll"
+            preSetters = listOf("clear")
+            setter = "addAll"
             serializeItself = true
         }
         container {
             className = "kotlin.collections.MutableSet"
             captures = listOf("add", "addAll", "clear", "remove", "removeAll")
             getter = "<this>"
-            setter = "clear,addAll"
+            preSetters = listOf("clear")
+            setter = "addAll"
             serializeItself = true
         }
         container {
             className = "kotlin.collections.MutableMap"
             captures = listOf("clear", "put", "putAll", "remove", "set")
             getter = "<this>"
-            setter = "clear,putAll"
+            preSetters = listOf("clear")
+            setter = "putAll"
             serializeItself = true
         }
     }
@@ -96,14 +99,16 @@ class ValueContainersScope {
             className = "androidx.compose.runtime.snapshots.SnapshotStateList"
             captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
             getter = "<this>"
-            setter = "clear,addAll"
+            preSetters = listOf("clear")
+            setter = "addAll"
             serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.snapshots.SnapshotStateMap"
             captures = listOf("clear", "put", "putAll", "remove", "set")
             getter = "<this>"
-            setter = "clear,putAll"
+            preSetters = listOf("clear")
+            setter = "putAll"
             serializeItself = true
         }
     }

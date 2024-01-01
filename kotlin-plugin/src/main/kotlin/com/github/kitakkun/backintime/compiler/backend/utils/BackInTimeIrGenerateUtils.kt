@@ -75,11 +75,9 @@ private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol
     val propertyClass = getter?.returnType?.classOrNull?.owner ?: return null
     val valueGetterCallableName = valueContainerClassInfoList
         .find { it.classId == propertyClass.classId }
-        ?.valueGetter
-        ?.callableName ?: return null
+        ?.getterFunctionName ?: return null
     return when {
         valueGetterCallableName == SpecialNames.THIS -> getter?.symbol
-        valueGetterCallableName.isGetterName() -> propertyClass.getPropertyGetterRecursively(valueGetterCallableName.getPropertyName())
-        else -> propertyClass.getSimpleFunctionRecursively(valueGetterCallableName.asString())
+        else -> propertyClass.getSimpleFunctionsRecursively(valueGetterCallableName).firstOrNull { it.owner.valueParameters.isEmpty() }
     }
 }

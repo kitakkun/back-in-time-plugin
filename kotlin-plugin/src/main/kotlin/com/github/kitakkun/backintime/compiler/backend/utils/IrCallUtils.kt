@@ -17,7 +17,7 @@ fun IrCall.isValueContainerSetterCall(): Boolean {
     val receiverClassId = this.receiver?.type?.classOrNull?.owner?.classId ?: return false
     val callingFunctionName = this.symbol.owner.name
     val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return false
-    return valueContainerClassInfo.capturedCallableIds.any { it.callableName == callingFunctionName }
+    return valueContainerClassInfo.capturedFunctionNames.any { it == callingFunctionName }
 }
 
 context(BackInTimePluginContext)

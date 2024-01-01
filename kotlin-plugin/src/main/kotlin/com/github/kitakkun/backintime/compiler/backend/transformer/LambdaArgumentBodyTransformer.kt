@@ -37,7 +37,7 @@ class LambdaArgumentBodyTransformer(
         val callingFunctionName = expression.symbol.owner.name
 
         val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId }
-        val captureTargetFunctionNames = valueContainerClassInfo?.capturedCallableIds?.map { it.callableName }.orEmpty()
+        val captureTargetFunctionNames = valueContainerClassInfo?.capturedFunctionNames?.map { it }.orEmpty()
         if (callingFunctionName !in captureTargetFunctionNames) return expression
 
         val possibleReceiverProperties = passedProperties.filter { it.getter?.returnType?.classOrNull?.owner?.classId == receiverClassId }
