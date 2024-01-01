@@ -1,13 +1,23 @@
 package com.github.kitakkun.backintime.extension
 
 import com.github.kitakkun.backintime.plugin.extension.ValueContainerConfig
+import groovy.lang.Closure
 
 class ValueContainersScope {
     var containers: MutableList<ValueContainerConfig> = mutableListOf()
         private set
 
+    // KTS用
     fun container(configuration: ValueContainerConfig.() -> Unit) {
         val config = ValueContainerConfig().apply(configuration)
+        this.containers.add(config)
+    }
+
+    // Groovy用
+    fun container(closure: Closure<ValueContainerConfig>) {
+        val config = ValueContainerConfig()
+        closure.delegate = config
+        closure.call()
         this.containers.add(config)
     }
 
