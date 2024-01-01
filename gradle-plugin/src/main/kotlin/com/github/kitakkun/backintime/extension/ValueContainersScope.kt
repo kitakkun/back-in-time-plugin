@@ -65,7 +65,6 @@ class ValueContainersScope {
             captures = listOf("<set-value>")
             getter = "<get-value>"
             setter = "<set-value>"
-            serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.MutableIntState"
