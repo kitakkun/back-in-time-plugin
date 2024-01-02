@@ -3,7 +3,6 @@ package com.github.kitakkun.backintime.compiler.fir
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
@@ -17,12 +16,8 @@ import org.jetbrains.kotlin.name.Name
 class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        return listOf(createForceSetPropertyValueForBackInTimeDebug(ownerClass, callableId).symbol)
-    }
-
-    private fun createForceSetPropertyValueForBackInTimeDebug(ownerClass: FirClassSymbol<*>, callableId: CallableId): FirSimpleFunction {
         return when (callableId.callableName) {
-            BackInTimeConsts.serializeMethodName -> {
+            BackInTimeConsts.serializeMethodName -> listOf(
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -33,10 +28,10 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                         valueParameter(Name.identifier("value"), type = session.builtinTypes.nullableAnyType.coneType)
                         status { isOverride = true }
                     },
-                )
-            }
+                ).symbol
+            )
 
-            BackInTimeConsts.forceSetValueMethodName -> {
+            BackInTimeConsts.forceSetValueMethodName -> listOf(
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -47,10 +42,10 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                         valueParameter(Name.identifier("value"), type = session.builtinTypes.nullableAnyType.coneType)
                         status { isOverride = true }
                     },
-                )
-            }
+                ).symbol
+            )
 
-            BackInTimeConsts.deserializeMethodName -> {
+            BackInTimeConsts.deserializeMethodName -> listOf(
                 createMemberFunction(
                     owner = ownerClass,
                     key = BackInTimePluginKey,
@@ -61,26 +56,18 @@ class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) :
                         valueParameter(Name.identifier("value"), type = session.builtinTypes.stringType.coneType)
                         status { isOverride = true }
                     },
-                )
-            }
+                ).symbol
+            )
 
-
-            else -> {
-                error("Unknown callable name: ${callableId.callableName}")
-            }
+            else -> emptyList()
         }
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         return if (classSymbol is FirRegularClassSymbol && session.backInTimePredicateMatcher.isAnnotated(classSymbol)) {
-            setOf(
-                BackInTimeConsts.serializeMethodName,
-                BackInTimeConsts.deserializeMethodName,
-                BackInTimeConsts.forceSetValueMethodName,
-            )
+            setOf(BackInTimeConsts.serializeMethodName, BackInTimeConsts.deserializeMethodName, BackInTimeConsts.forceSetValueMethodName)
         } else {
             emptySet()
         }
     }
 }
-
