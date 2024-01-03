@@ -25,7 +25,7 @@ fun IrCall.isIndirectValueContainerSetterCall(): Boolean {
     return ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this).isNotEmpty()
 }
 
-fun IrCall.isLambdaFunctionInvolving(): Boolean {
+fun IrCall.isLambdaFunctionRelevantCall(): Boolean {
     return receiverAndArgs().any { expression ->
         when (expression) {
             is IrFunctionExpression -> true
@@ -40,7 +40,7 @@ fun IrCall.isLambdaFunctionInvolving(): Boolean {
     }
 }
 
-fun IrCall.getInvolvingLambdaExpressions(): Set<IrFunctionExpression> {
+fun IrCall.getRelevantLambdaExpressions(): Set<IrFunctionExpression> {
     return receiverAndArgs().mapNotNull { expression ->
         when (expression) {
             is IrFunctionExpression -> expression

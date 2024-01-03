@@ -4,11 +4,11 @@ import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
-import com.github.kitakkun.backintime.compiler.backend.utils.getInvolvingLambdaExpressions
+import com.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
-import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionInvolving
+import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
@@ -82,8 +82,8 @@ class CaptureValueChangeTransformer(
     }
 
     private fun IrCall.transformValueContainerRelevantCall(): IrExpression {
-        if (isLambdaFunctionInvolving()) {
-            transformInsideInvolvingLambdaFunctions()
+        if (isLambdaFunctionRelevantCall()) {
+            transformInsideRelevantLambdaFunctions()
         }
 
         if (isValueContainerSetterCall()) {
@@ -97,8 +97,8 @@ class CaptureValueChangeTransformer(
         return this
     }
 
-    private fun IrCall.transformInsideInvolvingLambdaFunctions() {
-        val involvingLambdas = getInvolvingLambdaExpressions()
+    private fun IrCall.transformInsideRelevantLambdaFunctions() {
+        val involvingLambdas = getRelevantLambdaExpressions()
 
         val passedProperties = receiverAndArgs()
             .filterIsInstance<IrCall>()
