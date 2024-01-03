@@ -5,7 +5,6 @@ import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerSt
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
@@ -67,17 +66,16 @@ class CaptureValueChangeTransformer(
     }
 
     private fun IrCall.transformPureSetterCall(): IrExpression? {
-        val irBuilder = irBlockBuilder()
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
-        val captureCall = with(irBuilder) {
-            property.generateCaptureValueCallForPureVariable(
+        with(irBlockBuilder()) {
+            val captureCall = property.generateCaptureValueCallForPureVariable(
                 instanceParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
-            )
-        } ?: return null
-        return irBuilder.irComposite {
-            +this@transformPureSetterCall
-            +captureCall
+            ) ?: return null
+            return irComposite {
+                +this@transformPureSetterCall
+                +captureCall
+            }
         }
     }
 
@@ -119,36 +117,34 @@ class CaptureValueChangeTransformer(
 
     private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
         val property = (receiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return null
-        val irBuilder = irBlockBodyBuilder()
-        val getValueCall = with(irBuilder) {
-            property.generateCaptureValueCallForValueContainer(
+        with(irBlockBuilder()) {
+            val getValueCall = property.generateCaptureValueCallForValueContainer(
                 instanceParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
-            )
-        } ?: return null
-        return irBuilder.irComposite {
-            +this@transformValueContainerSetterCall
-            +getValueCall
+            ) ?: return null
+            return irComposite {
+                +this@transformValueContainerSetterCall
+                +getValueCall
+            }
         }
     }
 
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
         val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
-        val irBuilder = irBlockBuilder()
-        val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
-            with(irBuilder) {
+        with(irBlockBuilder()) {
+            val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
                 property.generateCaptureValueCallForValueContainer(
                     instanceParameter = classDispatchReceiverParameter,
                     uuidVariable = uuidVariable,
                 )
             }
-        }
 
-        if (propertyCaptureCalls.isEmpty()) return this
+            if (propertyCaptureCalls.isEmpty()) return this@transformIndirectValueContainerSetterCall
 
-        return irBuilder.irComposite {
-            +this@transformIndirectValueContainerSetterCall
-            +propertyCaptureCalls
+            return irComposite {
+                +this@transformIndirectValueContainerSetterCall
+                +propertyCaptureCalls
+            }
         }
     }
 }
