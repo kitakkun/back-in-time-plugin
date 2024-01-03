@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.util.getAllArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -56,8 +55,7 @@ class CaptureValueChangeTransformer(
     }
 
     private fun IrCall.isValueContainerRelevantCall(): Boolean {
-        return getAllArgumentsWithIr()
-            .map { it.second }
+        return receiverAndArgs()
             .filterIsInstance<IrCall>()
             .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
             .any { property ->
