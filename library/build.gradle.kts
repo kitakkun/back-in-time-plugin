@@ -23,19 +23,20 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        jvmMain {}
-        jvmTest {}
         androidMain
+        jvmMain
+        jvmTest
     }
 }
 
 android {
-    compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        targetSdk = 34
-        minSdk = 21
-    }
+
+    compileSdk = 34
+    defaultConfig.minSdk = 21
+    testOptions.targetSdk = 34
+    lint.targetSdk = 34
+
     namespace = "com.github.kitakkun.backintime"
 
     dependencies {
