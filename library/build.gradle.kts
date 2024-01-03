@@ -14,8 +14,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-                compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                implementation(libs.kotlinx.coroutines)
+                compileOnly(libs.kotlinx.serialization.json)
             }
         }
         commonTest {
@@ -25,7 +25,7 @@ kotlin {
         }
         androidMain {
             dependencies {
-                compileOnly("com.facebook.flipper:flipper:0.233.0")
+                compileOnly(libs.flipper)
             }
         }
         jvmMain {}
