@@ -5,21 +5,23 @@ pluginManagement {
         google()
     }
     plugins {
-        kotlin("jvm") version "1.9.21" apply false
-        kotlin("kapt") version "1.9.21" apply false
+        kotlin("jvm") version "1.9.20" apply false
+        kotlin("kapt") version "1.9.20" apply false
+        kotlin("plugin.serialization") version "1.9.20" apply false
         id("com.android.library") version "8.2.0" apply false
-        kotlin("multiplatform") version "1.9.21" apply false
-        kotlin("plugin.serialization") version "1.9.21" apply false
     }
 }
 
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
+        google()
     }
 }
 
-rootProject.name = "back-in-time"
+rootProject.name = "backintime"
 include(":plugin-common")
 include(":gradle-plugin")
 include(":kotlin-plugin")
+includeFlat("library")

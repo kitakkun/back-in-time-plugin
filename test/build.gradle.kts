@@ -16,7 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("com.github.kitakkun.backintime:back-in-time.library:1.0.0")
+                implementation("com.github.kitakkun.backintime:library:1.0.0")
                 // coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")

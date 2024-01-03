@@ -19,7 +19,7 @@ jobs:
         run: ./gradlew publishToMavenLocal
 
       - name: Build and publish to Maven local (back-in-time.library)
-        run: ./gradlew -p back-in-time.library publishToMavenLocal
+        run: ./gradlew -p library publishToMavenLocal
 
       - name: Run JVM tests and Debug Unit Tests (test directory)
         run: ./gradlew -p test jvmTest testDebugUnitTest
