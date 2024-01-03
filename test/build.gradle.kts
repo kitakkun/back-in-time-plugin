@@ -16,37 +16,37 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation("com.github.kitakkun.backintime:library:1.0.0")
+                implementation(libs.backintime)
                 // coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(kotlin("test-junit"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
         androidMain {
             dependencies {
-                implementation("androidx.core:core-ktx:1.12.0")
-                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
-                implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-                implementation("androidx.lifecycle:lifecycle-livedata-core-ktx:2.6.2")
-                implementation("androidx.compose.runtime:runtime-android:1.5.4")
+                implementation(libs.androidx.core.ktx)
+                implementation(libs.androidx.lifecycle.viewmodel.ktx)
+                implementation(libs.androidx.lifecycle.runtime.ktx)
+                implementation(libs.androidx.lifecycle.livedata.core.ktx)
+                implementation(libs.androidx.compose.runtime)
             }
         }
         val androidUnitTest by getting {
             dependencies {
-                implementation("org.robolectric:robolectric:4.11.1")
-                implementation("io.mockk:mockk:1.13.8")
+                implementation(libs.robolectric)
+                implementation(libs.mockk)
             }
         }
         jvmTest {
             dependencies {
-                implementation("io.mockk:mockk:1.13.8")
+                implementation(libs.mockk)
             }
         }
     }
