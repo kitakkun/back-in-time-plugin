@@ -23,13 +23,9 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        androidMain {
-            dependencies {
-                compileOnly(libs.flipper)
-            }
-        }
         jvmMain {}
         jvmTest {}
+        androidMain
     }
 }
 
@@ -41,6 +37,10 @@ android {
         minSdk = 21
     }
     namespace = "com.github.kitakkun.backintime"
+
+    dependencies {
+        debugImplementation(libs.flipper)
+    }
 }
 
 publishing {
