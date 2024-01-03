@@ -17,8 +17,8 @@ publishing {
     publications {
         register("mavenJava", MavenPublication::class) {
             from(components["kotlin"])
-            groupId = "com.github.kitakkun"
-            artifactId = "back-in-time-plugin-common"
+            groupId = "com.github.kitakkun.backintime"
+            artifactId = "plugin.common"
             version = "1.0.0"
         }
     }
