@@ -2,7 +2,7 @@ package com.github.kitakkun.backintime.compiler.backend.utils
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
@@ -25,20 +25,27 @@ fun IrCall.isIndirectValueContainerSetterCall(): Boolean {
     return ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this).isNotEmpty()
 }
 
+fun IrCall.isLambdaFunctionInvolving(): Boolean {
+    return receiverAndArgs().any { expression ->
+        when (expression) {
+            is IrFunctionExpression -> true
 
-fun IrCall.getInvokedLambdaFunction(): IrSimpleFunction? {
-    return when (receiver) {
-        is IrGetValue -> {
-            val invokableVariable = ((receiver as IrGetValue).symbol.owner) as? IrVariable ?: return null
-            (invokableVariable.initializer as? IrFunctionExpression)?.function
-        }
+            is IrGetValue -> {
+                val referencingVariable = (expression.symbol.owner) as? IrVariable ?: return@any false
+                (referencingVariable.initializer as? IrFunctionExpression) != null
+            }
 
-        is IrFunctionExpression -> {
-            (receiver as IrFunctionExpression).function
-        }
-
-        else -> {
-            null
+            else -> false
         }
     }
+}
+
+fun IrCall.getInvolvingLambdaExpressions(): Set<IrFunctionExpression> {
+    return receiverAndArgs().mapNotNull { expression ->
+        when (expression) {
+            is IrFunctionExpression -> expression
+            is IrGetValue -> (expression.symbol.owner as? IrVariable)?.initializer as? IrFunctionExpression
+            else -> null
+        }
+    }.toSet()
 }

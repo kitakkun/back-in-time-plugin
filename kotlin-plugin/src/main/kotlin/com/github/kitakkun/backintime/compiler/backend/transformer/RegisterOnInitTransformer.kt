@@ -17,27 +17,28 @@ import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
-import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 context(BackInTimePluginContext)
 class RegisterOnInitTransformer : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
-        val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
-        if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return super.visitConstructor(declaration)
+        val parentClass = declaration.parentClassOrNull ?: return declaration
+        if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return declaration
 
-        declaration.body = declaration.irBlockBodyBuilder().blockBody {
-            +declaration.body?.statements.orEmpty()
-            +generateRegisterCall(parentClass)
+        val registerCall = with(declaration.irBlockBodyBuilder()) {
+            generateRegisterCall(parentClass)
         }
 
-        return super.visitConstructor(declaration)
+        (declaration.body as IrBlockBody).statements.add(registerCall)
+
+        return declaration
     }
 
     // BackInTimeDebugService.register(this, InstanceInfo(...))

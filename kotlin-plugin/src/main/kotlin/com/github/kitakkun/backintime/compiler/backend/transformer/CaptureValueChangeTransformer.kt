@@ -4,9 +4,11 @@ import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
+import com.github.kitakkun.backintime.compiler.backend.utils.getInvolvingLambdaExpressions
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
+import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionInvolving
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
@@ -16,8 +18,6 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
@@ -27,8 +27,11 @@ import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
+/**
+ * capture state changes of properties defined in [parentClassSymbol]
+ */
 context(BackInTimePluginContext)
-class InsertValueCaptureAfterCallTransformer(
+class CaptureValueChangeTransformer(
     private val parentClassSymbol: IrClassSymbol,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
@@ -94,36 +97,13 @@ class InsertValueCaptureAfterCallTransformer(
         return this
     }
 
-    private fun IrCall.isLambdaFunctionInvolving(): Boolean {
-        return receiverAndArgs()
-            .any {
-                when (it) {
-                    is IrFunctionExpression -> true
-
-                    is IrGetValue -> {
-                        val invokableVariable = (it.symbol.owner) as? IrVariable ?: return@any false
-                        (invokableVariable.initializer as? IrFunctionExpression) != null
-                    }
-
-                    else -> false
-                }
-            }
-    }
-
     private fun IrCall.transformInsideInvolvingLambdaFunctions() {
-        val involvingLambdas = receiverAndArgs()
-            .mapNotNull { expression ->
-                when (expression) {
-                    is IrFunctionExpression -> expression
-                    is IrGetValue -> (expression.symbol.owner as? IrVariable)?.initializer as? IrFunctionExpression
-                    else -> null
-                }
-            }
-            .toSet()
+        val involvingLambdas = getInvolvingLambdaExpressions()
 
         val passedProperties = receiverAndArgs()
             .filterIsInstance<IrCall>()
             .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+            .filter { it.parentClassOrNull?.symbol == parentClassSymbol }
             .toSet()
 
         involvingLambdas.forEach { lambda ->

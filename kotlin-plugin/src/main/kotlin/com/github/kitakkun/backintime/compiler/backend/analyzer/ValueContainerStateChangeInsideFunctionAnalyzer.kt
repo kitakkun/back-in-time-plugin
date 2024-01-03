@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend.analyzer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.getInvokedLambdaFunction
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.ir.IrElement
@@ -46,18 +45,6 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
                 .mapNotNull {
                     it.symbol.owner.correspondingPropertySymbol?.owner
                 }.toSet()
-        }
-
-        /**
-         * returns the parameters which may be changed by the lambda function.
-         */
-        context(BackInTimePluginContext)
-        fun analyzeInvokeLambdaCall(invokeLambdaCall: IrCall): List<IrValueParameter> {
-            val targetLambdaFunction = invokeLambdaCall.getInvokedLambdaFunction() ?: return emptyList()
-            val parametersAffected = analyze(targetLambdaFunction)
-            return parametersAffected.mapNotNull { parameter ->
-                invokeLambdaCall.symbol.owner.allParameters.find { parameter.index == it.index }
-            }
         }
     }
 

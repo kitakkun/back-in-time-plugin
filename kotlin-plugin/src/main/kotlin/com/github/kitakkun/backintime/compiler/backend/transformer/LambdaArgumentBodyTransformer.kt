@@ -36,14 +36,16 @@ class LambdaArgumentBodyTransformer(
         val receiverClassId = receiver.type.classOrNull?.owner?.classId
         val callingFunctionName = expression.symbol.owner.name
 
-        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId }
-        val captureTargetFunctionNames = valueContainerClassInfo?.capturedFunctionNames?.map { it }.orEmpty()
-        if (callingFunctionName !in captureTargetFunctionNames) return expression
+        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return expression
+        if (callingFunctionName !in valueContainerClassInfo.capturedFunctionNames) return expression
 
-        val possibleReceiverProperties = passedProperties.filter { it.getter?.returnType?.classOrNull?.owner?.classId == receiverClassId }
-        val irBuilder = expression.irBlockBodyBuilder()
-        val captureCalls = possibleReceiverProperties.mapNotNull { property ->
-            with(irBuilder) {
+        val possibleReceiverProperties = passedProperties.filter {
+            val propertyClassId = it.getter?.returnType?.classOrNull?.owner?.classId
+            propertyClassId == receiverClassId
+        }
+
+        with(expression.irBlockBodyBuilder()) {
+            val captureCalls = possibleReceiverProperties.mapNotNull { property ->
                 val propertyGetter = property.getter ?: return@mapNotNull null
                 val captureCall = property.generateCaptureValueCallForValueContainer(
                     instanceParameter = classDispatchReceiverParameter,
@@ -58,13 +60,13 @@ class LambdaArgumentBodyTransformer(
                     type = pluginContext.irBuiltIns.unitType,
                 )
             }
-        }
 
-        if (captureCalls.isEmpty()) return expression
+            if (captureCalls.isEmpty()) return expression
 
-        return irBuilder.irComposite {
-            +expression
-            +captureCalls
+            return irComposite {
+                +expression
+                +captureCalls
+            }
         }
     }
 }
