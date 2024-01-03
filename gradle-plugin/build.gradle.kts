@@ -18,20 +18,21 @@ gradlePlugin {
 dependencies {
     implementation(project(":plugin-common"))
     implementation(kotlin("stdlib"))
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin-api")
+    implementation(kotlin("gradle-plugin-api"))
 
-    compileOnly("com.google.auto.service:auto-service:1.1.1")
-    kapt("com.google.auto.service:auto-service:1.1.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    compileOnly(libs.auto.service)
+    kapt(libs.auto.service)
+    implementation(libs.kotlinx.serialization.json)
 }
 
 publishing {
     publications {
-        register("mavenJava", MavenPublication::class) {
-            from(components["kotlin"])
+        create<MavenPublication>("mavenJava") {
             groupId = "com.github.kitakkun.backintime"
             artifactId = "com.github.kitakkun.backintime.gradle.plugin"
             version = "1.0.0"
+
+            from(components["kotlin"])
         }
     }
     repositories {

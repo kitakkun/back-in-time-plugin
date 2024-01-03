@@ -5,30 +5,26 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":plugin-common"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.0")
+    implementation(kotlin("stdlib"))
+    implementation(kotlin("compiler-embeddable"))
 
-    compileOnly("com.google.auto.service:auto-service:1.1.1")
-    kapt("com.google.auto.service:auto-service:1.1.1")
+    compileOnly(libs.auto.service)
+    kapt(libs.auto.service)
 
+    implementation(libs.kotlinx.serialization.json)
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
 }
 
 publishing {
     publications {
-        register("mavenJava", MavenPublication::class) {
-            from(components["kotlin"])
+        create<MavenPublication>("mavenJava") {
             groupId = "com.github.kitakkun.backintime"
             artifactId = "kotlin.plugin"
             version = "1.0.0"
+
+            from(components["kotlin"])
         }
     }
     repositories {

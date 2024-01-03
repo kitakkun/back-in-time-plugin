@@ -21,7 +21,9 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "backintime"
-include(":plugin-common")
-include(":gradle-plugin")
-include(":kotlin-plugin")
-includeFlat("library")
+
+include(
+    ":plugin-common",
+    ":gradle-plugin",
+    ":kotlin-plugin",
+)

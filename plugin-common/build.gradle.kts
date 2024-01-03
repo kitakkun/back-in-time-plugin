@@ -4,22 +4,18 @@ plugins {
     `maven-publish`
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation(libs.kotlinx.serialization.json)
 }
 
 publishing {
     publications {
-        register("mavenJava", MavenPublication::class) {
-            from(components["kotlin"])
+        create<MavenPublication>("mavenJava") {
             groupId = "com.github.kitakkun.backintime"
             artifactId = "plugin.common"
             version = "1.0.0"
+
+            from(components["kotlin"])
         }
     }
     repositories {

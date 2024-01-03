@@ -1,0 +1,7 @@
+[versions]
+kotlinx-serialization-json = "1.6.2"
+auto-service = "1.1.1"
+
+[libraries]
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
