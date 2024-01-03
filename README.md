@@ -29,7 +29,7 @@ You need to publish the runtime library as well:
 ```kotlin
 pluginManagement {
     repositories {
-        mavenLocal() // plugin is published to Maven Central
+        mavenLocal() // plugin is published to Maven Local
         // ...
     }
     plugins {
@@ -40,7 +40,7 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal() // library is also published to Maven Central
+        mavenLocal() // library is also published to Maven Local
         // ...
     }
 }
