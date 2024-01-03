@@ -4,7 +4,7 @@ plugins {
     id("com.android.library")
     `maven-publish`
 }
-//
+
 kotlin {
     jvmToolchain(8)
 
@@ -47,7 +47,6 @@ publishing {
     publications {
         withType<MavenPublication> {
             groupId = "com.github.kitakkun.backintime"
-            artifactId = "library"
             version = "1.0.0"
         }
     }

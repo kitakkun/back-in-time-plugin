@@ -17,3 +17,5 @@ dependencyResolutionManagement {
         google()
     }
 }
+
+rootProject.name = "library"
