@@ -20,7 +20,9 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
@@ -60,13 +62,15 @@ class RegisterOnInitTransformer : IrElementTransformerVoid() {
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(listOfFunction).apply {
-        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties.mapNotNull { irProperty ->
+        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties.map { irProperty ->
             val propertyType = irProperty.getter?.returnType as? IrSimpleType
             val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
             val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
+            // FIXME: 必ずしも正確な判定ではない
+            val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
             irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                 putValueArgument(0, irString(irProperty.name.asString()))
-                putValueArgument(1, irBoolean(true)) // FIXME: 適当に入れてる
+                putValueArgument(1, irBoolean(isDebuggable))
                 putValueArgument(2, irString(propertyTypeName))
                 putValueArgument(3, irString(genericTypeCompletedName))
             }
