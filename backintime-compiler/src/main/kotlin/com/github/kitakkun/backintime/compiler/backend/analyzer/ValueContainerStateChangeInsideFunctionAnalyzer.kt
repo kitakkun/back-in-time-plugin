@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend.analyzer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.github.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.ir.IrElement
@@ -41,10 +42,8 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
                 .filter { (parameter, _) -> affectedParameters.any { it.symbol == parameter.symbol } }
                 .map { (_, argument) -> argument }
             return affectedArguments
-                .filterIsInstance<IrCall>()
-                .mapNotNull {
-                    it.symbol.owner.correspondingPropertySymbol?.owner
-                }.toSet()
+                .mapNotNull { it.getCorrespondingProperty() }
+                .toSet()
         }
     }
 

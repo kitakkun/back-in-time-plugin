@@ -4,6 +4,7 @@ import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
+import com.github.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
@@ -56,8 +57,7 @@ class CaptureValueChangeTransformer(
 
     private fun IrCall.isValueContainerRelevantCall(): Boolean {
         return receiverAndArgs()
-            .filterIsInstance<IrCall>()
-            .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+            .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.symbol == parentClassSymbol && valueContainerClassInfoList.any { it.classId == property.getter?.returnType?.classOrNull?.owner?.classId }
             }
@@ -97,8 +97,7 @@ class CaptureValueChangeTransformer(
         val involvingLambdas = getRelevantLambdaExpressions()
 
         val passedProperties = receiverAndArgs()
-            .filterIsInstance<IrCall>()
-            .mapNotNull { it.symbol.owner.correspondingPropertySymbol?.owner }
+            .mapNotNull { it.getCorrespondingProperty() }
             .filter { it.parentClassOrNull?.symbol == parentClassSymbol }
             .toSet()
 
@@ -114,7 +113,7 @@ class CaptureValueChangeTransformer(
     }
 
     private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
-        val property = (receiver as? IrCall)?.symbol?.owner?.correspondingPropertySymbol?.owner ?: return null
+        val property = receiver?.getCorrespondingProperty() ?: return null
         with(irBlockBuilder()) {
             val getValueCall = property.generateCaptureValueCallForValueContainer(
                 instanceParameter = classDispatchReceiverParameter,
