@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm")
-    kotlin("kapt")
-    kotlin("plugin.serialization")
+    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinKapt)
+    alias(libs.plugins.kotlinSerialization)
     `java-gradle-plugin`
     `maven-publish`
 }
@@ -17,12 +17,11 @@ gradlePlugin {
 
 dependencies {
     implementation(project(":plugin-common"))
-    implementation(kotlin("stdlib"))
-    implementation(kotlin("gradle-plugin-api"))
+    implementation(libs.kotlin.gradle.plugin.api)
+    implementation(libs.kotlinx.serialization.json)
 
     compileOnly(libs.auto.service)
     kapt(libs.auto.service)
-    implementation(libs.kotlinx.serialization.json)
 }
 
 publishing {

@@ -1,7 +1,7 @@
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
-    id("com.github.kitakkun.backintime")
+    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.backintime)
 }
 
 kotlin {
@@ -17,15 +17,13 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.backintime)
-                // coroutines
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }
         }
         commonTest {
             dependencies {
-                implementation(kotlin("test"))
-                implementation(kotlin("test-junit"))
+                implementation(libs.kotlin.test)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }
