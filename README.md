@@ -16,12 +16,6 @@ You can manually publish them to your local Maven repository by running the foll
 ./gradlew publishToMavenLocal
 ```
 
-You need to publish the runtime library as well:
-
-```shell
-./gradlew -p library publishToMavenLocal
-```
-
 ### Configure Gradle
 
 > settings.gradle.kts

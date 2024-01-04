@@ -20,4 +20,5 @@ include(
     ":plugin-common",
     ":gradle-plugin",
     ":kotlin-plugin",
+    ":library",
 )
