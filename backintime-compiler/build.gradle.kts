@@ -2,22 +2,13 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.kotlinKapt)
     alias(libs.plugins.kotlinSerialization)
-    `java-gradle-plugin`
     `maven-publish`
 }
 
-gradlePlugin {
-    plugins {
-        create("backInTime") {
-            id = "com.github.kitakkun.backintime"
-            implementationClass = "com.github.kitakkun.backintime.BackInTimePlugin"
-        }
-    }
-}
-
 dependencies {
-    implementation(project(":plugin-common"))
-    implementation(libs.kotlin.gradle.plugin.api)
+    implementation(project(":backintime-plugin-common"))
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.compiler.embeddable)
     implementation(libs.kotlinx.serialization.json)
 
     compileOnly(libs.auto.service)
@@ -28,7 +19,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             groupId = "com.github.kitakkun.backintime"
-            artifactId = "com.github.kitakkun.backintime.gradle.plugin"
+            artifactId = "backintime-compiler"
             version = "1.0.0"
 
             from(components["kotlin"])
@@ -36,5 +27,11 @@ publishing {
     }
     repositories {
         mavenLocal()
+    }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xcontext-receivers")
     }
 }

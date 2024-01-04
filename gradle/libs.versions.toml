@@ -30,7 +30,7 @@ androidx-lifecycle-livedata-core-ktx = { group = "androidx.lifecycle", name = "l
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "androidx-compose" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-backintime = { group = "com.github.kitakkun.backintime", name = "library", version.ref = "backintime" }
+backintime = { group = "com.github.kitakkun.backintime", name = "backintime-core", version.ref = "backintime" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

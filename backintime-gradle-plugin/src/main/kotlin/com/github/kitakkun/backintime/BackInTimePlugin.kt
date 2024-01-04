@@ -51,7 +51,7 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     override fun getPluginArtifact(): SubpluginArtifact {
         return SubpluginArtifact(
             groupId = "com.github.kitakkun.backintime",
-            artifactId = "kotlin.plugin",
+            artifactId = "backintime-compiler",
             version = "1.0.0",
         )
     }
