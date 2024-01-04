@@ -9,7 +9,9 @@ kotlin {
     jvmToolchain(8)
 
     jvm()
-    androidTarget()
+    androidTarget {
+        publishLibraryVariants("debug")
+    }
 
     sourceSets {
         commonMain {
