@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -16,7 +18,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.backintime)
+                implementation(project(":backintime-core"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }
@@ -76,9 +78,14 @@ backInTime {
     }
 }
 
-// publish required artifacts to local maven repository before evaluating test module
+// publish required artifacts when performing sync on IDEA
 tasks.prepareKotlinIdeaImport {
-    dependsOn(":backintime-core:publishToMavenLocal")
+    dependsOn(":backintime-plugin-common:publishToMavenLocal")
+    dependsOn(":backintime-compiler:publishToMavenLocal")
+}
+
+// publish required artifacts when compiling via ./gradlew
+tasks.withType(KotlinCompile::class).all {
     dependsOn(":backintime-plugin-common:publishToMavenLocal")
     dependsOn(":backintime-compiler:publishToMavenLocal")
 }

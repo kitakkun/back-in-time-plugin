@@ -15,8 +15,5 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Publish required artifacts
-        run: ./gradlew :backintime-plugin-common:publishToMavenLocal :backintime-compiler:publishToMavenLocal :backintime-core:publishToMavenLocal
-
       - name: Run JVM tests and Debug Unit Tests
         run: ./gradlew jvmTest testDebugUnitTest

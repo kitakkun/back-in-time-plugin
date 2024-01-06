@@ -5,3 +5,6 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
 }
+
+group = "com.github.kitakkun.backintime"
+version = "1.0.0"
