@@ -15,8 +15,5 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: Build and publish to Maven local
-        run: ./gradlew publishToMavenLocal
-
-      - name: Run JVM tests and Debug Unit Tests (test directory)
-        run: ./gradlew -p test jvmTest testDebugUnitTest
+      - name: Run JVM tests and Debug Unit Tests
+        run: ./gradlew jvmTest testDebugUnitTest

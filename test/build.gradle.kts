@@ -75,3 +75,10 @@ backInTime {
         }
     }
 }
+
+// publish required artifacts to local maven repository before evaluating test module
+tasks.prepareKotlinIdeaImport {
+    dependsOn(":backintime-core:publishToMavenLocal")
+    dependsOn(":backintime-plugin-common:publishToMavenLocal")
+    dependsOn(":backintime-compiler:publishToMavenLocal")
+}

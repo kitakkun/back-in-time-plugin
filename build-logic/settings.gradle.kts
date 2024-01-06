@@ -3,20 +3,24 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         google()
-        mavenLocal()
     }
 }
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        mavenLocal()
         google()
     }
-
     versionCatalogs {
         create("libs") {
             from(files("../gradle/libs.versions.toml"))
         }
     }
 }
+
+rootProject.name = "build-logic"
+
+include(":backintime-plugin-common")
+include(":backintime-gradle-plugin")
+project(":backintime-plugin-common").projectDir = file("../backintime-plugin-common")
+project(":backintime-gradle-plugin").projectDir = file("../backintime-gradle-plugin")

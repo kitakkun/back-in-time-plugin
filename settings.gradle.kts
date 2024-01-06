@@ -1,5 +1,7 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
         google()
@@ -21,4 +23,5 @@ include(
     ":backintime-gradle-plugin",
     ":backintime-compiler",
     ":backintime-core",
+    ":test"
 )
