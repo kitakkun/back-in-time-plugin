@@ -11,14 +11,8 @@ dependencies {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            groupId = "com.github.kitakkun.backintime"
             artifactId = "backintime-plugin-common"
-            version = "1.0.0"
-
             from(components["kotlin"])
         }
-    }
-    repositories {
-        mavenLocal()
     }
 }

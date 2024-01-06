@@ -8,7 +8,6 @@ androidx-lifecycle = "2.6.2"
 androidx-compose = "1.5.4"
 robolectric = "4.11.1"
 mockk = "1.13.8"
-backintime = "1.0.0"
 kotlin = "1.9.20"
 android-library = "8.2.0"
 
@@ -17,6 +16,7 @@ kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", versio
 kotlin-gradle-plugin-api = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
 kotlin-compiler-embeddable = { group = "org.jetbrains.kotlin", name = "kotlin-compiler-embeddable", version.ref = "kotlin" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlin" }
+kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version.ref = "kotlin" }
 
 flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
@@ -30,12 +30,10 @@ androidx-lifecycle-livedata-core-ktx = { group = "androidx.lifecycle", name = "l
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "androidx-compose" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-backintime = { group = "com.github.kitakkun.backintime", name = "backintime-core", version.ref = "backintime" }
 
 [plugins]
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
-backintime = { id = "com.github.kitakkun.backintime", version.ref = "backintime" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }

@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.backintime)
+    id("com.github.kitakkun.backintime") version "1.0.0"
 }
 
 kotlin {
@@ -26,6 +26,7 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
                 implementation(libs.kotlinx.coroutines.test)
             }
         }

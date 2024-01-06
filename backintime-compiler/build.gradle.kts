@@ -15,23 +15,17 @@ dependencies {
     kapt(libs.auto.service)
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            groupId = "com.github.kitakkun.backintime"
-            artifactId = "backintime-compiler"
-            version = "1.0.0"
-
-            from(components["kotlin"])
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}
-
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xcontext-receivers")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = "backintime-compiler"
+            from(components["kotlin"])
+        }
     }
 }

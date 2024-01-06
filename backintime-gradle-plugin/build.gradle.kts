@@ -23,18 +23,3 @@ dependencies {
     compileOnly(libs.auto.service)
     kapt(libs.auto.service)
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            groupId = "com.github.kitakkun.backintime"
-            artifactId = "com.github.kitakkun.backintime.gradle.plugin"
-            version = "1.0.0"
-
-            from(components["kotlin"])
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}

@@ -45,15 +45,3 @@ android {
         debugImplementation(libs.flipper)
     }
 }
-
-publishing {
-    publications {
-        withType<MavenPublication> {
-            groupId = "com.github.kitakkun.backintime"
-            version = "1.0.0"
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}
