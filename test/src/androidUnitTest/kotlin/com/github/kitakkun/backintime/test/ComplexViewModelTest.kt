@@ -1,9 +1,7 @@
 package com.github.kitakkun.backintime.test
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import io.mockk.coVerifyOrder
 import io.mockk.mockkObject
-import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.junit.After
