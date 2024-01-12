@@ -111,7 +111,7 @@ The plugin modify the class as follows(not exact the same, just for explanation)
 
 ```kotlin
 @DebuggableStateHolder
-class CounterViewModel : DebuggableStateHolderManipulator {
+class CounterViewModel : BackInTimeDebuggable {
     var count = 0
 
     init {

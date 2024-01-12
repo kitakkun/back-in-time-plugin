@@ -26,7 +26,7 @@ class BackInTimePluginContext(
     val backInTimeNotifyMethodCallFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
     val registerFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.registerFunctionName)!!
 
-    val manipulatorClassType = referenceClass(BackInTimeConsts.debuggableStateHolderManipulatorClassId)!!.defaultType
+    val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
     /**
      * Used in BackInTimeCallRegisterOnInitTransformer

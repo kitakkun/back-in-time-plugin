@@ -21,7 +21,7 @@ object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
     @VisibleForTesting
-    val instances = WeakHashMap<DebuggableStateHolderManipulator, UUIDString>()
+    val instances = WeakHashMap<BackInTimeDebuggable, UUIDString>()
 
     // because FlipperPlugin instance is created after the app is launched.
     // sometimes it fails to observe the first event.
@@ -44,7 +44,7 @@ object BackInTimeDebugService : CoroutineScope {
      * @param instance instance to be registered. must be annotated with [DebuggableStateHolder]
      * @Param info information about the instance
      */
-    fun register(instance: DebuggableStateHolderManipulator, info: InstanceInfo) {
+    fun register(instance: BackInTimeDebuggable, info: InstanceInfo) {
         instances[instance] = info.uuid
         launch {
             mutableRegisteredInstanceFlow.emit(info)
@@ -73,7 +73,7 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     fun notifyPropertyChanged(
-        instance: DebuggableStateHolderManipulator,
+        instance: BackInTimeDebuggable,
         propertyName: String,
         value: Any?,
         methodCallUUID: String,
@@ -99,7 +99,7 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     fun notifyMethodCall(
-        instance: DebuggableStateHolderManipulator,
+        instance: BackInTimeDebuggable,
         methodName: String,
         methodCallUUID: String,
     ) {

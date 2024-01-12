@@ -17,11 +17,11 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 /**
- * generate DebuggableStateHolderManipulator methods bodies
+ * generate BackInTimeDebuggable methods bodies
  */
 context(BackInTimePluginContext)
-class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
-    private fun shouldGenerateFunctionBody(parentClass: IrClass) = parentClass.superTypes.contains(manipulatorClassType)
+class BackInTimeDebuggableMethodBodyGenerationTransformer : IrElementTransformerVoid() {
+    private fun shouldGenerateFunctionBody(parentClass: IrClass) = parentClass.superTypes.contains(backInTimeDebuggableInterfaceType)
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return declaration
@@ -47,7 +47,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [DebuggableStateHolderManipulator.forceSetValue]
+     * generate body for [BackInTimeDebuggable.forceSetValue]
      */
     context(IrBuilderWithScope)
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass) = irBlockBody {
@@ -74,7 +74,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [DebuggableStateHolderManipulator.serialize]
+     * generate body for [BackInTimeDebuggable.serialize]
      */
     context(IrBuilderWithScope)
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass) = irBlockBody {
@@ -96,7 +96,7 @@ class ManipulatorMethodBodyGenerationTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [DebuggableStateHolderManipulator.deserialize]
+     * generate body for [BackInTimeDebuggable.deserialize]
      */
     context(IrBuilderWithScope)
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass) = irBlockBody {

@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.compiler.fir
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
 import org.jetbrains.kotlin.fir.FirSession
@@ -15,14 +14,16 @@ import org.jetbrains.kotlin.fir.types.classId
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
-class FirManipulatorMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        val manipulatorClassSymbol = ownerClass.resolvedSuperTypeRefs
-            .find { it.type.classId == BackInTimeAnnotations.debuggableStateHolderManipulatorAnnotationClassId }
+        val interfaceSymbol = ownerClass.resolvedSuperTypeRefs
+            .find { it.type.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId }
             ?.toRegularClassSymbol(session) ?: return emptyList()
-        val manipulatorFunctionSymbols = manipulatorClassSymbol.declarationSymbols.filterIsInstance<FirNamedFunctionSymbol>()
-        val correspondingFunctionSymbol = manipulatorFunctionSymbols.find { it.callableId.callableName == callableId.callableName } ?: return emptyList()
+        val correspondingFunctionSymbol = interfaceSymbol.declarationSymbols
+            .filterIsInstance<FirNamedFunctionSymbol>()
+            .find { it.callableId.callableName == callableId.callableName }
+            ?: return emptyList()
         return listOf(
             createMemberFunction(
                 owner = ownerClass,

@@ -21,7 +21,7 @@ class DebuggableStateHolderTransformer : IrElementTransformerVoid() {
             declaration.apply {
                 transformChildrenVoid(RegisterOnInitTransformer())
                 transformChildrenVoid(CaptureValueChangeInsideMethodTransformer())
-                transformChildrenVoid(ManipulatorMethodBodyGenerationTransformer())
+                transformChildrenVoid(BackInTimeDebuggableMethodBodyGenerationTransformer())
             }
         }
         return declaration

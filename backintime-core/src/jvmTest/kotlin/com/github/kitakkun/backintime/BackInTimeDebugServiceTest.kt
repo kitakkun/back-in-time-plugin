@@ -1,14 +1,14 @@
 package com.github.kitakkun.backintime
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.github.kitakkun.backintime.runtime.DebuggableStateHolderManipulator
+import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.runtime.InstanceInfo
 import org.junit.Test
 import java.lang.Thread.sleep
 import kotlin.test.assertEquals
 
 class BackInTimeDebugServiceTest {
-    class TestClass : DebuggableStateHolderManipulator {
+    class TestClass : BackInTimeDebuggable {
         override fun deserializeValue(propertyName: String, value: String): Any? {
             TODO("Not yet implemented")
         }

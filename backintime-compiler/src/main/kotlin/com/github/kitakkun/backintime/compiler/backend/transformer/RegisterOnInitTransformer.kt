@@ -32,7 +32,7 @@ context(BackInTimePluginContext)
 class RegisterOnInitTransformer : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return declaration
-        if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.debuggableStateHolderManipulatorFqName }) return declaration
+        if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.backInTimeDebuggableInterfaceClassFqName }) return declaration
 
         val registerCall = with(declaration.irBlockBodyBuilder()) {
             generateRegisterCall(parentClass)

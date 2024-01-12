@@ -3,7 +3,7 @@ package com.github.kitakkun.backintime.runtime
 import com.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeException
 import kotlinx.serialization.SerializationException
 
-interface DebuggableStateHolderManipulator {
+interface BackInTimeDebuggable {
     @Throws(BackInTimeRuntimeException.NullValueNotAssignableException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
     fun forceSetValue(propertyName: String, value: Any?)
 
