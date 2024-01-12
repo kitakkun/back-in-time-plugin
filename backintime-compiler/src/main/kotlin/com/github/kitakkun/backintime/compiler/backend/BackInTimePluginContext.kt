@@ -52,4 +52,9 @@ class BackInTimePluginContext(
     val decodeFromStringFunction = referenceFunctions(BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId).firstOrNull {
         it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
     } ?: error("${BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")
+
+    // uuid
+    private val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId)!!
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName)!!
+    val toStringFunction = uuidClass.getSimpleFunction("toString")!!
 }

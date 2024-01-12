@@ -4,6 +4,8 @@ import com.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeExcepti
 import kotlinx.serialization.SerializationException
 
 interface BackInTimeDebuggable {
+    val backInTimeInstanceUUID: String
+
     @Throws(BackInTimeRuntimeException.NullValueNotAssignableException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
     fun forceSetValue(propertyName: String, value: Any?)
 

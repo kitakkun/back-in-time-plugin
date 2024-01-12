@@ -9,6 +9,9 @@ import kotlin.test.assertEquals
 
 class BackInTimeDebugServiceTest {
     class TestClass : BackInTimeDebuggable {
+        override val backInTimeInstanceUUID: String
+            get() = TODO("Not yet implemented")
+
         override fun deserializeValue(propertyName: String, value: String): Any? {
             TODO("Not yet implemented")
         }
