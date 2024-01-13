@@ -45,9 +45,10 @@ object BackInTimeDebugService : CoroutineScope {
      * @Param info information about the instance
      */
     fun register(instance: BackInTimeDebuggable, info: InstanceInfo) {
-        instances[instance] = info.uuid
+        // When the instance of subclass is registered, it overrides the instance of superclass.
+        instances[instance] = instance.backInTimeInstanceUUID
         launch {
-            mutableRegisteredInstanceFlow.emit(info)
+            mutableRegisteredInstanceFlow.emit(info.copy(uuid = instance.backInTimeInstanceUUID))
         }
     }
 
