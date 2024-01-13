@@ -2,6 +2,7 @@ package com.github.kitakkun.backintime.compiler.fir
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
@@ -30,6 +31,7 @@ class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSess
                 returnType = session.builtinTypes.stringType.coneType,
                 config = {
                     status { isOverride = true }
+                    modality = Modality.OPEN
                 }
             ).symbol
         )
@@ -53,6 +55,7 @@ class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSess
                 config = {
                     correspondingFunctionSymbol.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
                     status { isOverride = true }
+                    modality = Modality.OPEN
                 }
             ).symbol
         )
