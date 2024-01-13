@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 context(BackInTimePluginContext)
@@ -55,7 +56,8 @@ class RegisterOnInitTransformer : IrElementTransformerVoid() {
         parentClass: IrClass,
     ) = irCallConstructor(instanceInfoConstructor, emptyList()).apply {
         putValueArgument(0, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
-        putValueArgument(1, generatePropertiesInfo(parentClass.properties))
+        putValueArgument(1, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
+        putValueArgument(2, generatePropertiesInfo(parentClass.properties))
     }
 
     // listOf(PropertyInfo(...), PropertyInfo(...), ...)
