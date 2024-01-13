@@ -10,8 +10,8 @@ sealed interface FlipperOutgoingEvent {
     @Serializable
     data class RegisterInstance(
         val instanceUUID: String,
-        val instanceType: String,
-        val superType: String,
+        val className: String,
+        val superClassName: String,
         val properties: List<PropertyInfo>,
         val registeredAt: Long,
     ) : FlipperOutgoingEvent {

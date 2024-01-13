@@ -41,8 +41,8 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
             service.registeredInstanceFlow.collect { instanceInfo ->
                 val event = FlipperOutgoingEvent.RegisterInstance(
                     instanceUUID = instanceInfo.uuid,
-                    instanceType = instanceInfo.type,
-                    superType = instanceInfo.superType,
+                    className = instanceInfo.type,
+                    superClassName = instanceInfo.superType,
                     properties = instanceInfo.properties,
                     registeredAt = instanceInfo.registeredAt,
                 )
