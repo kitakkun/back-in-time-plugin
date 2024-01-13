@@ -11,6 +11,7 @@ sealed interface FlipperOutgoingEvent {
     data class RegisterInstance(
         val instanceUUID: String,
         val instanceType: String,
+        val superType: String,
         val properties: List<PropertyInfo>,
         val registeredAt: Long,
     ) : FlipperOutgoingEvent {
