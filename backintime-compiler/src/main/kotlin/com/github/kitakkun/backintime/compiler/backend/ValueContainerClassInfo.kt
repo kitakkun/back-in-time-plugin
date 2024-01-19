@@ -10,4 +10,5 @@ data class ValueContainerClassInfo(
     val preSetterFunctionNames: List<Name>,
     val setterFunctionName: Name,
     val serializeItSelf: Boolean,
+    val serializeAs: ClassId?,
 )

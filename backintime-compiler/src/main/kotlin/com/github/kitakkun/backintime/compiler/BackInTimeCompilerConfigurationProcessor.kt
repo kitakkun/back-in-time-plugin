@@ -19,6 +19,7 @@ class BackInTimeCompilerConfigurationProcessor {
                     preSetterFunctionNames = config.preSetters.map { Name.guessByFirstCharacter(it) },
                     setterFunctionName = Name.guessByFirstCharacter(config.setter),
                     serializeItSelf = config.serializeItself,
+                    serializeAs = config.serializeAs?.let { ClassId.fromString(it.replace(".", "/")) },
                 )
             },
     )

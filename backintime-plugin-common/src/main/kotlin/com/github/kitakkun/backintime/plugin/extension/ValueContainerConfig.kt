@@ -10,5 +10,6 @@ data class ValueContainerConfig(
     var preSetters: List<String> = emptyList(),
     var setter: String = "",
     var serializeItself: Boolean = false,
+    var serializeAs: String? = null,
 )
 

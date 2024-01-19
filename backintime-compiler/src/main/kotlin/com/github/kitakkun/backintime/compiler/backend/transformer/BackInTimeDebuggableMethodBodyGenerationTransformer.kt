@@ -12,9 +12,11 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.typeOrNull
+import org.jetbrains.kotlin.ir.types.typeOrFail
+import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.psi.stubs.impl.serialize
 
 /**
  * generate BackInTimeDebuggable methods bodies
@@ -201,10 +203,6 @@ class BackInTimeDebuggableMethodBodyGenerationTransformer : IrElementTransformer
         return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId }
     }
 
-    private fun IrType.isSerializableItSelfValueContainer(): Boolean {
-        return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId && it.serializeItSelf }
-    }
-
     private fun IrBuilderWithScope.generateSerializeCall(value: IrValueParameter, type: IrType): IrExpression? {
         return irReturn(
             irCall(encodeToStringFunction).apply {
@@ -226,17 +224,20 @@ class BackInTimeDebuggableMethodBodyGenerationTransformer : IrElementTransformer
     }
 
     private fun IrType.getSerializerType(): IrType? {
-        return when {
-            isSerializableItSelfValueContainer() -> {
-                this
-            }
+        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == this.classOrNull?.owner?.classId }
+            ?: return this
 
-            isValueContainer() -> {
-                (this as? IrSimpleType)?.arguments?.firstOrNull()?.typeOrNull
-            }
-
-            else -> this
+        val typeArguments = (this as? IrSimpleType)?.arguments?.map { it.typeOrFail } ?: return null
+        val manuallyConfiguredSerializeType = valueContainerClassInfo.serializeAs?.let { referenceClass(it) }?.owner?.typeWith(typeArguments)
+        if (manuallyConfiguredSerializeType != null) {
+            return manuallyConfiguredSerializeType
         }
+
+        if (valueContainerClassInfo.serializeItSelf) {
+            return this
+        }
+
+        return typeArguments.firstOrNull()
     }
 
     private fun IrBuilderWithScope.generateThrowNoSuchPropertyException(

@@ -111,6 +111,7 @@ class ValueContainersScope {
             preSetters = listOf("clear")
             setter = "addAll"
             serializeItself = true
+            serializeAs = "kotlin.collections.List"
         }
         container {
             className = "androidx.compose.runtime.snapshots.SnapshotStateMap"
@@ -119,6 +120,7 @@ class ValueContainersScope {
             preSetters = listOf("clear")
             setter = "putAll"
             serializeItself = true
+            serializeAs = "kotlin.collections.Map"
         }
     }
 }

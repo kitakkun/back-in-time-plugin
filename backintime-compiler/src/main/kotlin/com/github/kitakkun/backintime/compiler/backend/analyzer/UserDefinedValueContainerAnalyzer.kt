@@ -58,6 +58,7 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
             preSetterFunctionNames = emptyList(),
             setterFunctionName = setter.name,
             serializeItSelf = false, // FIXME: doesn't support yet
+            serializeAs = null, // FIXME: doesn't support yet
         )
 
         mutableCollectedInfoList.add(containerInfo)
