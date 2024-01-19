@@ -81,28 +81,24 @@ class ValueContainersScope {
             captures = listOf("<set-value>", "<set-intValue>")
             getter = "<get-value>"
             setter = "<set-value>"
-            serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.MutableLongState"
             captures = listOf("<set-value>", "<set-longValue>")
             getter = "<get-value>"
             setter = "<set-value>"
-            serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.MutableFloatState"
             captures = listOf("<set-value>", "<set-floatValue>")
             getter = "<get-value>"
             setter = "<set-value>"
-            serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.MutableDoubleState"
             captures = listOf("<set-value>", "<set-doubleValue>")
             getter = "<get-value>"
             setter = "<set-value>"
-            serializeItself = true
         }
         container {
             className = "androidx.compose.runtime.snapshots.SnapshotStateList"
