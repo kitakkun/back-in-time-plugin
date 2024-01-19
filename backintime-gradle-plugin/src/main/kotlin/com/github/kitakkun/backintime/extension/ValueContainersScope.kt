@@ -45,7 +45,7 @@ class ValueContainersScope {
     fun collections() {
         container {
             className = "kotlin.collections.MutableList"
-            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
+            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set", "replaceAll")
             getter = "<this>"
             preSetters = listOf("clear")
             setter = "addAll"
@@ -61,7 +61,7 @@ class ValueContainersScope {
         }
         container {
             className = "kotlin.collections.MutableMap"
-            captures = listOf("clear", "put", "putAll", "remove", "set")
+            captures = listOf("clear", "put", "putAll", "remove", "set", "replace", "replaceAll")
             getter = "<this>"
             preSetters = listOf("clear")
             setter = "putAll"
@@ -106,7 +106,7 @@ class ValueContainersScope {
         }
         container {
             className = "androidx.compose.runtime.snapshots.SnapshotStateList"
-            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set")
+            captures = listOf("add", "addAll", "clear", "remove", "removeAll", "removeAt", "set", "replaceAll")
             getter = "<this>"
             preSetters = listOf("clear")
             setter = "addAll"
