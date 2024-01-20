@@ -19,7 +19,8 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 context(BackInTimePluginContext)
 class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
     private fun shouldBeTransformed(declaration: IrSimpleFunction): Boolean {
-        return declaration.parentClassOrNull?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: return false
+        val parentClass = declaration.parentClassOrNull ?: return false
+        return parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) && !declaration.name.isSpecial
     }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
