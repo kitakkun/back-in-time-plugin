@@ -13,22 +13,24 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
-import org.jetbrains.kotlin.fir.types.classId
-import org.jetbrains.kotlin.fir.types.coneType
+import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
 class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateProperties(callableId: CallableId, context: MemberGenerationContext?): List<FirPropertySymbol> {
-        if (callableId.callableName != BackInTimeConsts.backInTimeInstanceUUIDName) return emptyList()
         val ownerClass = context?.owner ?: return emptyList()
+        val superTypeClass = ownerClass.resolvedSuperTypes.mapNotNull { it.toRegularClassSymbol(session) }
+            .find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
+        val superDeclaration = superTypeClass.declarationSymbols.filterIsInstance<FirPropertySymbol>()
+            .find { it.name == callableId.callableName } ?: return emptyList()
 
         return listOf(
             createMemberProperty(
                 owner = ownerClass,
                 key = BackInTimePluginKey,
                 name = callableId.callableName,
-                returnType = session.builtinTypes.stringType.coneType,
+                returnType = superDeclaration.resolvedReturnType,
                 config = {
                     status { isOverride = true }
                     modality = Modality.OPEN
@@ -39,21 +41,18 @@ class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSess
 
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        val interfaceSymbol = ownerClass.resolvedSuperTypeRefs
-            .find { it.type.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId }
-            ?.toRegularClassSymbol(session) ?: return emptyList()
-        val correspondingFunctionSymbol = interfaceSymbol.declarationSymbols
-            .filterIsInstance<FirNamedFunctionSymbol>()
-            .find { it.callableId.callableName == callableId.callableName }
-            ?: return emptyList()
+        val superTypeClass = ownerClass.resolvedSuperTypeRefs.mapNotNull { it.toRegularClassSymbol(session) }
+            .find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
+        val superDeclaration = superTypeClass.declarationSymbols.filterIsInstance<FirNamedFunctionSymbol>()
+            .find { it.callableId.callableName == callableId.callableName } ?: return emptyList()
         return listOf(
             createMemberFunction(
                 owner = ownerClass,
                 key = BackInTimePluginKey,
                 name = callableId.callableName,
-                returnType = correspondingFunctionSymbol.resolvedReturnType,
+                returnType = superDeclaration.resolvedReturnType,
                 config = {
-                    correspondingFunctionSymbol.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
+                    superDeclaration.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
                     status { isOverride = true }
                     modality = Modality.OPEN
                 }
