@@ -13,6 +13,7 @@ object BackInTimeConsts {
     val deserializeMethodName = Name.identifier("deserializeValue")
     val forceSetValueMethodName = Name.identifier("forceSetValue")
     val backInTimeInstanceUUIDName = Name.identifier("backInTimeInstanceUUID")
+    val backInTimeInitializedPropertyMapName = Name.identifier("backInTimeInitializedPropertyMap")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
     const val registerFunctionName = "register"

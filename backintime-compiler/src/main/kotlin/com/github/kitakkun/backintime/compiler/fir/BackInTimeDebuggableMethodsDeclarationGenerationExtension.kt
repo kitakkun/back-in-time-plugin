@@ -62,7 +62,10 @@ class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSess
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         return if (classSymbol is FirRegularClassSymbol && session.backInTimePredicateMatcher.isAnnotated(classSymbol)) {
-            setOf(BackInTimeConsts.serializeMethodName, BackInTimeConsts.deserializeMethodName, BackInTimeConsts.forceSetValueMethodName, BackInTimeConsts.backInTimeInstanceUUIDName)
+            setOf(
+                BackInTimeConsts.serializeMethodName, BackInTimeConsts.deserializeMethodName, BackInTimeConsts.forceSetValueMethodName,
+                BackInTimeConsts.backInTimeInstanceUUIDName, BackInTimeConsts.backInTimeInitializedPropertyMapName,
+            )
         } else {
             emptySet()
         }

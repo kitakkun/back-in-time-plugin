@@ -2,8 +2,10 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringCall
 import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
+import com.github.kitakkun.backintime.compiler.backend.utils.hasBackInTimeDebuggableAsInterface
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -12,6 +14,7 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetObject
+import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -29,17 +32,41 @@ import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
+/**
+ * this transformer will:
+ * - initialize a UUID field in the constructor
+ * - register the instance to [BackInTimeDebugService] in the constructor
+ */
 context(BackInTimePluginContext)
-class RegisterOnInitTransformer : IrElementTransformerVoid() {
+class ConstructorTransformer : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return declaration
-        if (parentClass.superTypes.none { it.classFqName == BackInTimeConsts.backInTimeDebuggableInterfaceClassFqName }) return declaration
+        if (!parentClass.hasBackInTimeDebuggableAsInterface) return declaration
 
-        val registerCall = with(declaration.irBlockBodyBuilder()) {
-            generateRegisterCall(parentClass)
+        with(declaration.irBlockBodyBuilder()) {
+            val initUUIDCall = irSetField(
+                receiver = irGet(parentClass.thisReceiver!!),
+                field = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInstanceUUIDName }.backingField!!,
+                value = generateUUIDStringCall(),
+            )
+
+            val initMap = irSetField(
+                receiver = irGet(parentClass.thisReceiver!!),
+                field = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }.backingField!!,
+                value = irCall(mutableMapOfFunction).apply {
+                    putTypeArgument(0, irBuiltIns.stringType)
+                    putTypeArgument(1, irBuiltIns.booleanType)
+                },
+            )
+
+            val registerCall = generateRegisterCall(parentClass)
+
+            with(declaration.body as IrBlockBody) {
+                statements.add(0, initUUIDCall)
+                statements.add(1, initMap)
+                statements.add(registerCall)
+            }
         }
-
-        (declaration.body as IrBlockBody).statements.add(registerCall)
 
         return declaration
     }

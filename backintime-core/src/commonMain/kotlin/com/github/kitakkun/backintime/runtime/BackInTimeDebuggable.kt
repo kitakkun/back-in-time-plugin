@@ -5,6 +5,7 @@ import kotlinx.serialization.SerializationException
 
 interface BackInTimeDebuggable {
     val backInTimeInstanceUUID: String
+    val backInTimeInitializedPropertyMap: MutableMap<String, Boolean>
 
     @Throws(BackInTimeRuntimeException.NullValueNotAssignableException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
     fun forceSetValue(propertyName: String, value: Any?)

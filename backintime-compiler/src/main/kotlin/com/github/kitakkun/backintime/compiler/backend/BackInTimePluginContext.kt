@@ -11,6 +11,9 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isVararg
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 
 class BackInTimePluginContext(
     baseContext: IrPluginContext,
@@ -25,6 +28,7 @@ class BackInTimePluginContext(
     val notifyValueChangeFunctionSymbol = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
     val backInTimeNotifyMethodCallFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
     val registerFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.registerFunctionName)!!
+    val registerRelationshipFunction = backInTimeServiceClassSymbol.getSimpleFunction("registerRelationship")!!
 
     val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
@@ -57,4 +61,7 @@ class BackInTimePluginContext(
     private val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId)!!
     val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName)!!
     val toStringFunction = uuidClass.getSimpleFunction("toString")!!
+
+    val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
+    val mutableMapGetOrPutFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("getOrPut"))).first { it.owner.isInline && it.owner.valueParameters.size == 2 }
 }

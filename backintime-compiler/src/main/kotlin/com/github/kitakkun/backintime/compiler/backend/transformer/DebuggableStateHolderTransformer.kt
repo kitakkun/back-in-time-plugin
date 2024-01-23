@@ -19,10 +19,10 @@ class DebuggableStateHolderTransformer : IrElementTransformerVoid() {
     override fun visitClass(declaration: IrClass): IrStatement {
         if (declaration.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) {
             declaration.apply {
-                transformChildrenVoid(RegisterOnInitTransformer())
+                transformChildrenVoid(ConstructorTransformer())
+                transformChildrenVoid(RelationshipResolveCallGenerationTransformer(declaration))
                 transformChildrenVoid(CaptureValueChangeInsideMethodTransformer())
                 transformChildrenVoid(BackInTimeDebuggableMethodBodyGenerationTransformer())
-                transformChildrenVoid(BackInTimeDebuggablePropertyGenerationTransformer())
             }
         }
         return declaration

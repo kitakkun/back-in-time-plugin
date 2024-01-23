@@ -116,4 +116,13 @@ object BackInTimeDebugService : CoroutineScope {
             )
         }
     }
+
+    fun registerRelationship(
+        parent: BackInTimeDebuggable,
+        child: BackInTimeDebuggable,
+    ) {
+        // TODO: send event to flipper
+        println("registerRelationship called ${parent}")
+        println("${parent.backInTimeInstanceUUID} to ${child.backInTimeInstanceUUID}")
+    }
 }
