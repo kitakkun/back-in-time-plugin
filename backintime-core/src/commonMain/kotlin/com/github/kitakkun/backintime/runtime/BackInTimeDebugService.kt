@@ -29,6 +29,9 @@ object BackInTimeDebugService : CoroutineScope {
     private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>(replay = 10)
     val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
 
+    private val mutableRegisterRelationshipFlow = MutableSharedFlow<RelationshipInfo>(replay = 10)
+    val registerRelationshipFlow = mutableRegisterRelationshipFlow.asSharedFlow()
+
     private val mutableNotifyValueChangeFlow = MutableSharedFlow<ValueChangeInfo>()
     val notifyValueChangeFlow = mutableNotifyValueChangeFlow.asSharedFlow()
 
@@ -37,6 +40,7 @@ object BackInTimeDebugService : CoroutineScope {
 
     private val mutableInternalErrorFlow = MutableSharedFlow<Throwable>()
     val internalErrorFlow = mutableInternalErrorFlow.asSharedFlow()
+
 
     /**
      * register instance for debugging
@@ -121,8 +125,13 @@ object BackInTimeDebugService : CoroutineScope {
         parent: BackInTimeDebuggable,
         child: BackInTimeDebuggable,
     ) {
-        // TODO: send event to flipper
-        println("registerRelationship called ${parent}")
-        println("${parent.backInTimeInstanceUUID} to ${child.backInTimeInstanceUUID}")
+        launch {
+            mutableRegisterRelationshipFlow.emit(
+                RelationshipInfo(
+                    from = parent.backInTimeInstanceUUID,
+                    to = child.backInTimeInstanceUUID,
+                )
+            )
+        }
     }
 }

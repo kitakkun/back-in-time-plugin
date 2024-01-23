@@ -51,6 +51,16 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
         }
 
         launch {
+            service.registerRelationshipFlow.collect { relationshipInfo ->
+                val event = FlipperOutgoingEvent.RegisterRelationship(
+                    parentUUID = relationshipInfo.from,
+                    childUUID = relationshipInfo.to,
+                )
+                connection?.send(FlipperOutgoingEvent.RegisterRelationship.EVENT_NAME, FlipperObject(json.encodeToString(event)))
+            }
+        }
+
+        launch {
             service.notifyMethodCallFlow.collect { methodCallInfo ->
                 val event = FlipperOutgoingEvent.NotifyMethodCall(
                     instanceUUID = methodCallInfo.instanceUUID,

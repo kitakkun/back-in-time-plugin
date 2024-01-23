@@ -43,4 +43,14 @@ sealed interface FlipperOutgoingEvent {
             const val EVENT_NAME = "notifyMethodCall"
         }
     }
+
+    @Serializable
+    data class RegisterRelationship(
+        val parentUUID: String,
+        val childUUID: String,
+    ) : FlipperOutgoingEvent {
+        companion object {
+            const val EVENT_NAME = "registerRelationship"
+        }
+    }
 }
