@@ -93,21 +93,23 @@ class ConstructorTransformer : IrElementTransformerVoid() {
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(listOfFunction).apply {
-        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties.map { irProperty ->
-            val propertyType = irProperty.getter?.returnType as? IrSimpleType
-            val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
-            val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
-            // FIXME: 必ずしも正確な判定ではない
-            val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
-            val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: false
-            irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
-                putValueArgument(0, irString(irProperty.name.asString()))
-                putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))
-                putValueArgument(2, irBoolean(isDebuggableStateHolder))
-                putValueArgument(3, irString(propertyTypeName))
-                putValueArgument(4, irString(genericTypeCompletedName))
-            }
-        }.toList()))
+        putValueArgument(0, irVararg(propertyInfoClass.defaultType, properties
+            .filter { it.name != BackInTimeConsts.backInTimeInstanceUUIDName && it.name != BackInTimeConsts.backInTimeInitializedPropertyMapName }
+            .map { irProperty ->
+                val propertyType = irProperty.getter?.returnType as? IrSimpleType
+                val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
+                val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
+                // FIXME: 必ずしも正確な判定ではない
+                val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
+                val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: false
+                irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
+                    putValueArgument(0, irString(irProperty.name.asString()))
+                    putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))
+                    putValueArgument(2, irBoolean(isDebuggableStateHolder))
+                    putValueArgument(3, irString(propertyTypeName))
+                    putValueArgument(4, irString(genericTypeCompletedName))
+                }
+            }.toList()))
         putTypeArgument(0, propertyInfoClass.defaultType)
     }
 }
