@@ -22,7 +22,7 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         if (!config.enabled) return
 
         MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
-        FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar())
+        FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar(config))
         IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(config))
     }
 }

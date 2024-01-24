@@ -1,13 +1,20 @@
 package com.github.kitakkun.backintime.compiler.fir
 
+import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
 import com.github.kitakkun.backintime.compiler.fir.checkers.BackInTimeFirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 
-class BackInTimeFirExtensionRegistrar : FirExtensionRegistrar() {
+class BackInTimeFirExtensionRegistrar(
+    private val config: BackInTimeCompilerConfiguration,
+) : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
         +::DebuggableStateHolderSuperTypeGenerationExtension
         +::BackInTimeDebuggableMethodsDeclarationGenerationExtension
-        +::FirBackInTimePredicateMatcher
+
+        +::DebuggableStateHolderPredicateMatcher
+        +::ValueContainerPredicateMatcher
+
         +::BackInTimeFirAdditionalCheckersExtension
+        +BackInTimeCompilerConfigurationProvider.getFactory(config)
     }
 }

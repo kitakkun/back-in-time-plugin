@@ -11,4 +11,9 @@ object BackInTimeAnnotations {
     val captureAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Capture")
     val getterAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Getter")
     val setterAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Setter")
+
+    val valueContainerAnnotationClassId = ClassId.topLevel(valueContainerAnnotationFqName)
+    val captureAnnotationClassId = ClassId.topLevel(captureAnnotationFqName)
+    val getterAnnotationClassId = ClassId.topLevel(getterAnnotationFqName)
+    val setterAnnotationClassId = ClassId.topLevel(setterAnnotationFqName)
 }

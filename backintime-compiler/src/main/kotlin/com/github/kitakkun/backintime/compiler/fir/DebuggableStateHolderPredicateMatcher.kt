@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 import org.jetbrains.kotlin.fir.extensions.utils.AbstractSimpleClassPredicateMatchingService
 
-class FirBackInTimePredicateMatcher(
+class DebuggableStateHolderPredicateMatcher(
     session: FirSession,
 ) : AbstractSimpleClassPredicateMatchingService(session) {
     override val predicate = DeclarationPredicate.create {
@@ -13,4 +13,4 @@ class FirBackInTimePredicateMatcher(
     }
 }
 
-val FirSession.backInTimePredicateMatcher: FirBackInTimePredicateMatcher by FirSession.sessionComponentAccessor()
+val FirSession.debuggableStateHolderPredicateMatcher: DebuggableStateHolderPredicateMatcher by FirSession.sessionComponentAccessor()
