@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
+import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringCall
@@ -27,6 +28,7 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
@@ -97,11 +99,13 @@ class ConstructorTransformer : IrElementTransformerVoid() {
             val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
             // FIXME: 必ずしも正確な判定ではない
             val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
+            val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: false
             irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                 putValueArgument(0, irString(irProperty.name.asString()))
-                putValueArgument(1, irBoolean(isDebuggable))
-                putValueArgument(2, irString(propertyTypeName))
-                putValueArgument(3, irString(genericTypeCompletedName))
+                putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))
+                putValueArgument(2, irBoolean(isDebuggableStateHolder))
+                putValueArgument(3, irString(propertyTypeName))
+                putValueArgument(4, irString(genericTypeCompletedName))
             }
         }.toList()))
         putTypeArgument(0, propertyInfoClass.defaultType)

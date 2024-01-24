@@ -24,6 +24,7 @@ data class InstanceInfo(
 data class PropertyInfo(
     val name: String,
     val debuggable: Boolean,
+    val isDebuggableStateHolder: Boolean,
     val propertyType: String,
     val valueType: String,
 )
