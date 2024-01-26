@@ -23,12 +23,17 @@ class BackInTimePluginContext(
     val pluginContext: IrPluginContext = baseContext
     val valueContainerClassInfoList: List<ValueContainerClassInfo> = config.valueContainers + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
-    // BackInTimeService
+    // BackInTimeDebugService
     val backInTimeServiceClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
-    val notifyValueChangeFunctionSymbol = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.notifyPropertyChanged)!!
-    val backInTimeNotifyMethodCallFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.notifyMethodCallFunctionName) ?: error("notifyMethodCall is not found")
-    val registerFunction = backInTimeServiceClassSymbol.getSimpleFunction(BackInTimeConsts.registerFunctionName)!!
-    val registerRelationshipFunction = backInTimeServiceClassSymbol.getSimpleFunction("registerRelationship")!!
+
+    // BackInTimeDebugServiceEvent
+    private val backInTimeServiceEventClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceEventClassId)!!
+    private val backInTimeServiceEventSealedSubClasses = backInTimeServiceEventClassSymbol.owner.sealedSubclasses
+    val emitEventFunctionSymbol = backInTimeServiceClassSymbol.getSimpleFunction("emitEvent")!!
+    val registerInstanceEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.registerEventClassId }.constructors.first { it.owner.isPrimary }
+    val registerRelationshipEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.registerRelationshipEventClassId }.constructors.first { it.owner.isPrimary }
+    val methodCallEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.methodCallEventClassId }.constructors.first { it.owner.isPrimary }
+    val propertyValueChangeEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.propertyValueChangeEventClassId }.constructors.first { it.owner.isPrimary }
 
     val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 

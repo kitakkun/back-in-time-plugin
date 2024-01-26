@@ -8,13 +8,14 @@ import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.hasBackInTimeDebuggableAsInterface
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
+import com.github.kitakkun.backintime.compiler.backend.utils.irEmitEventCall
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetObject
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
@@ -74,10 +75,11 @@ class ConstructorTransformer : IrElementTransformerVoid() {
     }
 
     // BackInTimeDebugService.register(this, InstanceInfo(...))
-    private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(registerFunction).apply {
-        dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
-        putValueArgument(0, irGet(parentClass.thisReceiver!!))
-        putValueArgument(1, generateInstanceInfo(parentClass))
+    private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irEmitEventCall {
+        irCallConstructor(registerInstanceEventConstructorSymbol, emptyList()).apply {
+            putValueArgument(0, irGet(parentClass.thisReceiver!!))
+            putValueArgument(1, generateInstanceInfo(parentClass))
+        }
     }
 
     // InstanceInfo(parentClass.fqNameWhenAvailable, listOf(PropertyInfo(...)))
@@ -87,6 +89,7 @@ class ConstructorTransformer : IrElementTransformerVoid() {
         putValueArgument(0, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
         putValueArgument(1, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
         putValueArgument(2, generatePropertiesInfo(parentClass.properties))
+        putValueArgument(3, irGetField(irGet(parentClass.thisReceiver!!), parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInstanceUUIDName }.backingField!!))
     }
 
     // listOf(PropertyInfo(...), PropertyInfo(...), ...)

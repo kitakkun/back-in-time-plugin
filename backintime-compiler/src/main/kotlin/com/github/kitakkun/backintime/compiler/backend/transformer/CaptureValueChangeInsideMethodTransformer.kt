@@ -4,10 +4,10 @@ import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
+import com.github.kitakkun.backintime.compiler.backend.utils.irEmitEventCall
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
@@ -32,11 +32,12 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
         with(declaration.irBlockBodyBuilder()) {
             val uuidVariable = generateUUIDVariable() ?: return declaration
 
-            val notifyMethodCallFunctionCall = irCall(backInTimeNotifyMethodCallFunction).apply {
-                dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
-                putValueArgument(0, irGet(parentClassDispatchReceiver))
-                putValueArgument(1, irString(declaration.name.asString()))
-                putValueArgument(2, irGet(uuidVariable))
+            val notifyMethodCallFunctionCall = irEmitEventCall {
+                irCallConstructor(methodCallEventConstructorSymbol, emptyList()).apply {
+                    putValueArgument(0, irGet(parentClassDispatchReceiver))
+                    putValueArgument(1, irGet(uuidVariable))
+                    putValueArgument(2, irString(declaration.name.asString()))
+                }
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))

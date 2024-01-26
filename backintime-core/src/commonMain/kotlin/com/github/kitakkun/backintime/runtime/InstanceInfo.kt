@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.runtime
 
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 /**
  * additional information for the instance registration
@@ -16,7 +15,7 @@ data class InstanceInfo(
     val type: String,
     val superType: String,
     val properties: List<PropertyInfo>,
-    val uuid: String = UUID.randomUUID().toString(),
+    val uuid: String,
     val registeredAt: Long = System.currentTimeMillis(),
 )
 

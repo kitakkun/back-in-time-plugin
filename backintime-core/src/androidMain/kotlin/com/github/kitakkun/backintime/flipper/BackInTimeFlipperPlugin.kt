@@ -28,9 +28,11 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
         this.connection?.observeIncomingEvents()
         observeOutgoingEventsJob?.cancel()
         observeOutgoingEventsJob = observeOutgoingEvents()
+        service.start()
     }
 
     override fun onDisconnect() {
+        service.suspend()
         connection = null
         observeOutgoingEventsJob?.cancel()
         observeOutgoingEventsJob = null
@@ -94,9 +96,8 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     private fun FlipperConnection.observeIncomingEvents() {
         receive(FlipperIncomingEvent.ForceSetPropertyValue.EVENT_NAME) { params, responder ->
             val event = json.decodeFromString<FlipperIncomingEvent.ForceSetPropertyValue>(params.toJsonString())
-            with(event) {
-                service.manipulate(instanceUUID, propertyName, value)
-            }
+            val (instanceUUID, propertyName, value) = event
+            service.forceSetValue(instanceUUID, propertyName, value)
             /**
              *  error is handled by [BackInTimeDebugService.internalErrorFlow]
              */

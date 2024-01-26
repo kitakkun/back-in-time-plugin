@@ -4,6 +4,7 @@ import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
+import com.github.kitakkun.backintime.compiler.backend.utils.irRegisterRelationship
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
@@ -11,7 +12,6 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetField
-import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.builders.irIfThen
 import org.jetbrains.kotlin.ir.builders.irNotEquals
 import org.jetbrains.kotlin.ir.builders.irString
@@ -54,11 +54,10 @@ class RelationshipResolveCallGenerationTransformer(
                 val parentReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
                 with(declaration.irBlockBodyBuilder()) {
-                    irCall(registerRelationshipFunction).apply {
-                        dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
-                        putValueArgument(0, irGet(parentReceiver))
-                        putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
-                    }
+                    irRegisterRelationship(
+                        irGet(parentReceiver),
+                        irGetField(receiver = irGet(parentReceiver), field = backingField),
+                    )
                 }
             }
         (declaration.body as? IrBlockBody)?.statements?.addAll(propertyRelationshipResolveCalls)
@@ -86,11 +85,10 @@ class RelationshipResolveCallGenerationTransformer(
                     },
                 )
                 val thenPart = irComposite {
-                    +irCall(registerRelationshipFunction).apply {
-                        dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
-                        putValueArgument(0, receiver)
-                        putValueArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
-                    }
+                    +irRegisterRelationship(
+                        receiver,
+                        irCall(property.getter!!).apply { dispatchReceiver = receiver },
+                    )
                     +irCall(irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
                         dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
                         putValueArgument(0, irString(property.name.asString()))

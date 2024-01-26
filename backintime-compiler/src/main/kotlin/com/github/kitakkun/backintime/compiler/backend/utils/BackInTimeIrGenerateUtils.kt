@@ -4,6 +4,7 @@ import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetObject
 import org.jetbrains.kotlin.ir.builders.irString
@@ -12,6 +13,7 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -19,17 +21,35 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
-fun generateCaptureValueCall(
+fun irEmitEventCall(configureEvent: () -> IrExpression): IrCall {
+    return irCall(emitEventFunctionSymbol).apply {
+        dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
+        putValueArgument(0, configureEvent())
+    }
+}
+
+context(BackInTimePluginContext, IrBuilderWithScope)
+fun irRegisterRelationship(getParentInstance: IrExpression, getChildInstance: IrExpression) =
+    irEmitEventCall {
+        irCallConstructor(registerRelationshipEventConstructorSymbol, emptyList()).apply {
+            putValueArgument(0, getParentInstance)
+            putValueArgument(1, getChildInstance)
+        }
+    }
+
+context(IrBuilderWithScope, BackInTimePluginContext)
+fun irCapturePropertyValue(
     propertyName: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
-) = irCall(notifyValueChangeFunctionSymbol).apply {
-    dispatchReceiver = irGetObject(backInTimeServiceClassSymbol)
-    putValueArgument(0, irGet(instanceParameter))
-    putValueArgument(1, irString(propertyName))
-    putValueArgument(2, getValueCall)
-    putValueArgument(3, irGet(uuidVariable))
+) = irEmitEventCall {
+    irCallConstructor(propertyValueChangeEventConstructorSymbol, emptyList()).apply {
+        putValueArgument(0, irGet(instanceParameter))
+        putValueArgument(1, irGet(uuidVariable))
+        putValueArgument(2, irString(propertyName))
+        putValueArgument(3, getValueCall)
+    }
 }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
@@ -38,7 +58,7 @@ fun IrProperty.generateCaptureValueCallForPureVariable(
     uuidVariable: IrVariable,
 ): IrCall? {
     val getter = getter ?: return null
-    return generateCaptureValueCall(
+    return irCapturePropertyValue(
         propertyName = name.asString(),
         getValueCall = irCall(getter.symbol).apply {
             this.dispatchReceiver = irGet(instanceParameter)
@@ -55,7 +75,7 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
 ): IrCall? {
     val getter = getter ?: return null
     val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
-    return generateCaptureValueCall(
+    return irCapturePropertyValue(
         propertyName = name.asString(),
         getValueCall = if (valueGetterSymbol == getter.symbol) {
             irCall(getter.symbol).apply {

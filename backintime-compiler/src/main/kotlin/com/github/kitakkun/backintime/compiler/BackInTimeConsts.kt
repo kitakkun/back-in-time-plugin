@@ -16,9 +16,11 @@ object BackInTimeConsts {
     val backInTimeInitializedPropertyMapName = Name.identifier("backInTimeInitializedPropertyMap")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
-    const val registerFunctionName = "register"
-    const val notifyMethodCallFunctionName = "notifyMethodCall"
-    const val notifyPropertyChanged = "notifyPropertyChanged"
+    val backInTimeDebugServiceEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent")
+    val registerEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.RegisterInstance")
+    val registerRelationshipEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.RegisterRelationShip")
+    val methodCallEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.MethodCall")
+    val propertyValueChangeEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.PropertyValueChange")
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
     val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
