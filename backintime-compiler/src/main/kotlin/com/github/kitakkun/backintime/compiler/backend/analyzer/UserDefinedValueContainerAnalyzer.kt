@@ -33,6 +33,8 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
     }
 
     override fun visitClass(declaration: IrClass) {
+        declaration.acceptChildrenVoid(this)
+
         if (!declaration.hasAnnotation(BackInTimeAnnotations.valueContainerAnnotationFqName)) return
 
         val classId = declaration.classId ?: return
