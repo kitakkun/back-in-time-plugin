@@ -10,7 +10,7 @@ class BackInTimeCompilerConfigurationProcessor {
         enabled = configuration[BackInTimeCompilerConfigurationKey.ENABLED] ?: false,
         valueContainers = configuration[BackInTimeCompilerConfigurationKey.VALUE_CONTAINER].orEmpty()
             .map { config ->
-                val classId = ClassId.fromString(config.className.replace(".", "/"))
+                val classId = ClassId.fromString(config.className)
 
                 ValueContainerClassInfo(
                     classId = classId,
@@ -19,7 +19,7 @@ class BackInTimeCompilerConfigurationProcessor {
                     preSetterFunctionNames = config.preSetters.map { Name.guessByFirstCharacter(it) },
                     setterFunctionName = Name.guessByFirstCharacter(config.setter),
                     serializeItSelf = config.serializeItself,
-                    serializeAs = config.serializeAs?.let { ClassId.fromString(it.replace(".", "/")) },
+                    serializeAs = config.serializeAs?.let { ClassId.fromString(it) },
                 )
             },
     )

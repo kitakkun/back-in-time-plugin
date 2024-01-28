@@ -71,7 +71,7 @@ backInTime {
         collections()
 
         container {
-            className = "com.github.kitakkun.backintime.test.GradleConfiguredValueContainer"
+            className = "com/github/kitakkun/backintime/test/specific/GradleConfiguredValueContainerTest.GradleConfiguredValueContainer"
             captures = listOf("<set-value>", "update")
             getter = "<get-value>"
             setter = "<set-value>"
