@@ -5,15 +5,19 @@ import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.utils.addIfNotNull
 
 class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
     companion object {
@@ -37,23 +41,41 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
 
         if (!declaration.hasAnnotation(BackInTimeAnnotations.valueContainerAnnotationFqName)) return
 
-        val classId = declaration.classId ?: return
+        val containerInfo = declaration.getValueContainerClassInfo()
+        mutableCollectedInfoList.addIfNotNull(containerInfo)
+    }
 
-        val captures = declaration.simpleFunctions().filter { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName) }.toList()
-        val getter = declaration.simpleFunctions()
+    /**
+     * To detect value container class defined in external module...
+     */
+    override fun visitProperty(declaration: IrProperty) {
+        declaration.acceptChildrenVoid(this)
+
+        val propertyClass = declaration.getter?.returnType?.classOrNull?.owner ?: return
+        val parentClass = declaration.parentClassOrNull ?: return
+        if (parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) {
+            val containerInfo = propertyClass.getValueContainerClassInfo()
+            mutableCollectedInfoList.addIfNotNull(containerInfo)
+        }
+    }
+
+    private fun IrClass.getValueContainerClassInfo(): ValueContainerClassInfo? {
+        val classId = classId ?: return null
+
+        val captures = simpleFunctions().filter { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName) }.toList()
+        val getter = simpleFunctions()
             .filter { function -> !function.isSetter }
             .firstOrNull { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.getterAnnotationFqName) }
-            ?: return
-        val setter = declaration
-            .simpleFunctions()
+            ?: return null
+        val setter = simpleFunctions()
             .filter { function -> !function.isGetter }
             .firstOrNull { function ->
                 function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.setterAnnotationFqName)
-            } ?: return
+            } ?: return null
 
-        if (captures.isEmpty()) return
+        if (captures.isEmpty()) return null
 
-        val containerInfo = ValueContainerClassInfo(
+        return ValueContainerClassInfo(
             classId = classId,
             capturedFunctionNames = captures.map { it.name },
             getterFunctionName = getter.name,
@@ -62,8 +84,6 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
             serializeItSelf = false, // FIXME: doesn't support yet
             serializeAs = null, // FIXME: doesn't support yet
         )
-
-        mutableCollectedInfoList.add(containerInfo)
     }
 
     private fun IrSimpleFunction.hasAnnotationOnSelfOrCorrespondingProperty(fqName: FqName): Boolean {
