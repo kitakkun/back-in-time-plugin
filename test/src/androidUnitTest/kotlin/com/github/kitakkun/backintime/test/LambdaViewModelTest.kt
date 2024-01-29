@@ -1,59 +1,39 @@
 package com.github.kitakkun.backintime.test
 
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import io.mockk.verify
-import org.junit.After
-import org.junit.Before
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class LambdaViewModelTest {
-    private val viewModel = LambdaViewModel()
-
-    @Before
-    fun setup() {
-        mockkObject(BackInTimeDebugService)
-    }
-
-    @After
-    fun teardown() {
-        unmockkAll()
-    }
+class LambdaViewModelTest : BackInTimeDebugServiceTest() {
 
     @Test
     fun updateViaLocalLambdaTest() {
+        val viewModel = LambdaViewModel()
         viewModel.updateViaLocalLambda()
 
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
-        }
+        assertEquals(1, propertyValueChangeEvents.size)
     }
 
     @Test
     fun updateViaComplicatedLocalLambdaTest() {
+        val viewModel = LambdaViewModel()
         viewModel.updateViaComplicatedLocalLambda()
 
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
-        }
+        assertEquals(1, propertyValueChangeEvents.size)
     }
 
     @Test
     fun updateViaLocalLambdaReceiverTest() {
+        val viewModel = LambdaViewModel()
         viewModel.updateViaLocalLambdaReceiver()
 
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
-        }
+        assertEquals(1, propertyValueChangeEvents.size)
     }
 
     @Test
     fun updateViaComplicatedLocalLambdaReceiverTest() {
+        val viewModel = LambdaViewModel()
         viewModel.updateViaComplicatedLocalLambdaReceiver()
 
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
-        }
+        assertEquals(1, propertyValueChangeEvents.size)
     }
 }

@@ -1,56 +1,30 @@
 package com.github.kitakkun.backintime.test
 
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import io.mockk.verify
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertEquals
 
-@RunWith(RobolectricTestRunner::class)
-class WeirdCodeStyleViewModelTest {
+class WeirdCodeStyleViewModelTest : BackInTimeDebugServiceTest() {
     private val viewModel = WeirdCodeStyleViewModel()
-
-    @Before
-    fun setup() {
-        mockkObject(BackInTimeDebugService)
-    }
-
-    @After
-    fun teardown() {
-        unmockkAll()
-    }
 
     @Test
     fun mutateLiveData() {
         viewModel.mutateLiveData()
 
-        verify(exactly = 7) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableLiveData1", any(), any())
-        }
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableLiveData2", any(), any())
-        }
+        assertEquals(7, propertyValueChangeEvents.filter { it.propertyName == "mutableLiveData1" }.size)
+        assertEquals(1, propertyValueChangeEvents.filter { it.propertyName == "mutableLiveData2" }.size)
     }
 
     @Test
     fun mutateStateFlow() {
         viewModel.mutateStateFlow()
 
-        verify(exactly = 2) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableStateFlow", any(), any())
-        }
+        assertEquals(2, propertyValueChangeEvents.filter { it.propertyName == "mutableStateFlow" }.size)
     }
 
     @Test
     fun mutateState() {
         viewModel.mutateState()
 
-        verify(exactly = 1) {
-            BackInTimeDebugService.notifyPropertyChanged(any(), "mutableState", any(), any())
-        }
+        assertEquals(1, propertyValueChangeEvents.filter { it.propertyName == "mutableState" }.size)
     }
 }
