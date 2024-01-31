@@ -17,10 +17,10 @@ object BackInTimeConsts {
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
     val backInTimeDebugServiceEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent")
-    val registerEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.RegisterInstance")
-    val registerRelationshipEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.RegisterRelationShip")
-    val methodCallEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.MethodCall")
-    val propertyValueChangeEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent.PropertyValueChange")
+    val registerEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("RegisterInstance"))
+    val registerRelationshipEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("RegisterRelationShip"))
+    val methodCallEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("MethodCall"))
+    val propertyValueChangeEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("PropertyValueChange"))
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
     val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
