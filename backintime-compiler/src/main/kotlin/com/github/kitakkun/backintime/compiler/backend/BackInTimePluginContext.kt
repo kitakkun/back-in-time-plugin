@@ -48,8 +48,8 @@ class BackInTimePluginContext(
 
 
     private val backInTimeRuntimeExceptionClassSymbol = referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
-    val nullValueNotAssignableExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
-        .first { it.owner.classId == BackInTimeConsts.nullValueNotAssignableExceptionClassId }.constructors.first()
+    val typeMismatchExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
+        .first { it.owner.classId == BackInTimeConsts.typeMismatchExceptionClassId }.constructors.first()
     val noSuchPropertyExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.noSuchPropertyExceptionClassId }.constructors.first()
 
@@ -68,5 +68,4 @@ class BackInTimePluginContext(
     val toStringFunction = uuidClass.getSimpleFunction("toString")!!
 
     val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
-    val mutableMapGetOrPutFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("getOrPut"))).first { it.owner.isInline && it.owner.valueParameters.size == 2 }
 }

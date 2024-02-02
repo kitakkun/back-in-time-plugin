@@ -31,8 +31,8 @@ object BackInTimeConsts {
 
     // Exception classes
     val backInTimeRuntimeExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException")
-    val nullValueNotAssignableExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException.NullValueNotAssignableException")
-    val noSuchPropertyExceptionClassId = classId("com.github.kitakkun.backintime.runtime.exception", "BackInTimeRuntimeException.NoSuchPropertyException")
+    val noSuchPropertyExceptionClassId = backInTimeRuntimeExceptionClassId.createNestedClassId(Name.identifier("NoSuchPropertyException"))
+    val typeMismatchExceptionClassId = backInTimeRuntimeExceptionClassId.createNestedClassId(Name.identifier("TypeMismatchException"))
 
     // kotlinx.serialization
     val backInTimeJsonCallableId = CallableId(FqName("com.github.kitakkun.backintime.runtime"), Name.identifier("backInTimeJson"))

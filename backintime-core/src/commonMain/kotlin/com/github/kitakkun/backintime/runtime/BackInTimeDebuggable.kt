@@ -7,7 +7,7 @@ interface BackInTimeDebuggable {
     val backInTimeInstanceUUID: String
     val backInTimeInitializedPropertyMap: MutableMap<String, Boolean>
 
-    @Throws(BackInTimeRuntimeException.NullValueNotAssignableException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
+    @Throws(BackInTimeRuntimeException.TypeMismatchException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
     fun forceSetValue(propertyName: String, value: Any?)
 
     @Throws(BackInTimeRuntimeException.NoSuchPropertyException::class, SerializationException::class)

@@ -2,17 +2,20 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.getSimpleFunctionsRecursively
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import org.jetbrains.kotlin.backend.common.lower.irThrow
+import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
+import com.github.kitakkun.backintime.compiler.backend.utils.irThrowNoSuchPropertyException
+import com.github.kitakkun.backintime.compiler.backend.utils.irThrowTypeMismatchException
+import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
+import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.types.typeWith
@@ -61,14 +64,14 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                     properties = parentClass.properties.toList(),
                     propertyNameParameter = propertyNameParameter,
                     buildBranchResultExpression = { property ->
-                        generateSetForProperty(
+                        irSetPropertyValue(
                             parentClassReceiver = parentClassReceiver,
                             property = property,
                             valueParameter = valueParameter,
                         )
                     },
                     elseBranchExpression = {
-                        generateThrowNoSuchPropertyException(
+                        irThrowNoSuchPropertyException(
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
@@ -93,7 +96,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                         generateSerializeCall(type = propertyType, valueParameter = valueParameter)
                     },
                     elseBranchExpression = {
-                        generateThrowNoSuchPropertyException(
+                        irThrowNoSuchPropertyException(
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
@@ -118,7 +121,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                         generateDeserializeCall(valueParameter = valueParameter, type = propertyType)
                     },
                     elseBranchExpression = {
-                        generateThrowNoSuchPropertyException(
+                        irThrowNoSuchPropertyException(
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
@@ -128,94 +131,37 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
         }
     }
 
-    /**
-     * generate IrWhen which has branches for each properties like below:
-     * when (propertyName) {
-     *    "property1" -> { /* do something */ }
-     *    "property2" -> { /* do something */ }
-     *    else -> { /* do something */ }
-     * }
-     */
-    private fun IrBuilderWithScope.irWhenByProperties(
-        properties: List<IrProperty>,
-        propertyNameParameter: IrValueParameter,
-        buildBranchResultExpression: IrBuilderWithScope.(IrProperty) -> IrExpression?,
-        elseBranchExpression: IrBuilderWithScope.(propertyNameParameter: IrValueParameter) -> IrExpression,
-    ): IrWhen {
-        val branches = properties.mapNotNull { property ->
-            val condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString()))
-            val result = buildBranchResultExpression(property) ?: return@mapNotNull null
-            irBranch(condition = condition, result = result)
-        }.plus(irElseBranch(irBlock { +elseBranchExpression(propertyNameParameter) }))
+    private fun IrBuilderWithScope.irSetPropertyValue(
+        parentClassReceiver: IrValueParameter,
+        property: IrProperty,
+        valueParameter: IrValueParameter,
+    ): IrExpression? {
+        val type = property.getter?.returnType ?: return null
+        val serializerType = property.getter?.returnType?.getSerializerType() ?: return null
+        val klass = type.classOrNull?.owner ?: return null
+        val correspondingContainerInfo = valueContainerClassInfoList.find { it.classId == klass.classId }
 
-        return irWhen(
+        return irIfThenElse(
+            condition = irIs(irGet(valueParameter), serializerType),
+            thenPart = irComposite {
+                if (correspondingContainerInfo != null) {
+                    irValueContainerPropertySetterCall(
+                        propertyGetter = property.getter!!,
+                        dispatchReceiverParameter = parentClassReceiver,
+                        valueParameter = valueParameter,
+                        valueContainerClassInfo = correspondingContainerInfo,
+                    )?.let { +it }
+                } else if (property.isVar) {
+                    +irPropertySetterCall(
+                        propertySetter = property.setter!!,
+                        dispatchReceiverParameter = parentClassReceiver,
+                        valueParameter = valueParameter,
+                    )
+                }
+            },
             type = pluginContext.irBuiltIns.unitType,
-            branches = branches,
+            elsePart = irThrowTypeMismatchException(propertyName = property.name.asString(), expectedType = serializerType.classFqName?.asString() ?: "unknown"),
         )
-    }
-
-    context(IrBuilderWithScope)
-    private fun generateSetForProperty(
-        parentClassReceiver: IrValueParameter,
-        property: IrProperty,
-        valueParameter: IrValueParameter,
-    ): IrExpression? {
-        val propertyType = property.getter?.returnType ?: return null
-
-        return when {
-            propertyType.isValueContainer() -> generateValueContainerSetterCall(parentClassReceiver, property, valueParameter)
-
-            property.isVar -> {
-                val setter = property.setter ?: return null
-                irCall(setter).apply {
-                    dispatchReceiver = irGet(parentClassReceiver)
-                    putValueArgument(0, irGet(valueParameter))
-                }
-            }
-
-            else -> null
-        }
-    }
-
-    private fun IrBuilderWithScope.generateValueContainerSetterCall(
-        parentClassReceiver: IrValueParameter,
-        property: IrProperty,
-        valueParameter: IrValueParameter,
-    ): IrExpression? {
-        val propertyGetter = property.getter ?: return null
-        val propertyClass = property.getter?.returnType?.classOrNull?.owner ?: return null
-        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == propertyClass.classId } ?: return null
-
-        val propertyGetterCall = irCall(propertyGetter).apply {
-            dispatchReceiver = irGet(parentClassReceiver)
-        }
-
-        val preSetterCalls = valueContainerClassInfo.preSetterFunctionNames
-            .map { propertyClass.getSimpleFunctionsRecursively(it).firstOrNull { it.owner.valueParameters.isEmpty() } }
-            .map {
-                // 一部関数のシンボルが欠落している場合は処理継続不可
-                if (it == null) return null
-                irCall(it).apply { dispatchReceiver = propertyGetterCall }
-            }
-
-        val valueSetterCall = propertyClass
-            .getSimpleFunctionsRecursively(valueContainerClassInfo.setterFunctionName)
-            .firstOrNull { it.owner.valueParameters.size == 1 }
-            ?.let {
-                irCall(it).apply {
-                    dispatchReceiver = propertyGetterCall
-                    putValueArgument(0, irGet(valueParameter))
-                }
-            } ?: return null
-
-        return irComposite {
-            +preSetterCalls
-            +valueSetterCall
-        }
-    }
-
-    private fun IrType.isValueContainer(): Boolean {
-        return valueContainerClassInfoList.any { it.classId == this.classOrNull?.owner?.classId }
     }
 
     private fun IrBuilderWithScope.generateSerializeCall(valueParameter: IrValueParameter, type: IrType): IrExpression? {
@@ -254,14 +200,4 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
 
         return typeArguments.firstOrNull()
     }
-
-    private fun IrBuilderWithScope.generateThrowNoSuchPropertyException(
-        parentClassFqName: String,
-        propertyNameParameter: IrValueParameter,
-    ) = irThrow(
-        irCallConstructor(noSuchPropertyExceptionConstructor, emptyList()).apply {
-            putValueArgument(0, irString(parentClassFqName))
-            putValueArgument(1, irGet(propertyNameParameter))
-        }
-    )
 }

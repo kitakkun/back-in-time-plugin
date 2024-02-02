@@ -2,6 +2,7 @@ package com.github.kitakkun.backintime.compiler.backend.utils
 
 import com.github.kitakkun.backintime.compiler.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
@@ -108,3 +109,26 @@ private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol
 context(BackInTimePluginContext)
 val IrClass.hasBackInTimeDebuggableAsInterface
     get() = superTypes.any { it.classFqName == BackInTimeConsts.backInTimeDebuggableInterfaceClassFqName }
+
+context(BackInTimePluginContext)
+fun IrBuilderWithScope.irThrowTypeMismatchException(
+    expectedType: String,
+    propertyName: String,
+) = irThrow(
+    irCallConstructor(typeMismatchExceptionConstructor, emptyList()).apply {
+        putValueArgument(0, irString(propertyName))
+        putValueArgument(1, irString(expectedType))
+    }
+)
+
+
+context(BackInTimePluginContext)
+fun IrBuilderWithScope.irThrowNoSuchPropertyException(
+    parentClassFqName: String,
+    propertyNameParameter: IrValueParameter,
+) = irThrow(
+    irCallConstructor(noSuchPropertyExceptionConstructor, emptyList()).apply {
+        putValueArgument(0, irString(parentClassFqName))
+        putValueArgument(1, irGet(propertyNameParameter))
+    }
+)
