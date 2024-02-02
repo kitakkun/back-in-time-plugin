@@ -23,5 +23,6 @@ include(
     ":backintime-gradle-plugin",
     ":backintime-compiler",
     ":backintime-core",
+    ":backintime-annotations",
     ":test"
 )

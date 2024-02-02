@@ -1,5 +1,15 @@
 package com.github.kitakkun.backintime.annotations
 
+/**
+ * compiler plugin will inject code for debugging if the class is marked with this annotation.
+ */
+@Suppress("unused")
+@Target(AnnotationTarget.CLASS)
+annotation class DebuggableStateHolder(val applyAllProperties: Boolean = true)
+
+/**
+ * configure ValueContainer by annotating the class with this annotation.
+ */
 @Target(AnnotationTarget.CLASS)
 annotation class ValueContainer
 
@@ -11,3 +21,4 @@ annotation class Getter
 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 annotation class Setter
+
