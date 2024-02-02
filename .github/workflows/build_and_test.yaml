@@ -16,4 +16,4 @@ jobs:
           distribution: 'adopt'
 
       - name: Run JVM tests and Debug Unit Tests
-        run: ./gradlew jvmTest testDebugUnitTest
+        run: ./gradlew allTests
