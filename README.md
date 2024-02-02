@@ -5,6 +5,8 @@ No more print debugging, No more repetitive manual debugging.
 This plugin helps you to track the changes of application state during its execution.
 Also, you can easily revert the state to the previous one. We call it "back-in-time" debugging.
 
+This plugin currently intended to be used with Android projects.
+
 ## How to use
 
 ### Manual Publishing
@@ -46,11 +48,32 @@ dependencyResolutionManagement {
 plugins {
     id("com.github.kitakkun.backintime")
     kotlin("plugin.serialization")
+    ...
 }
 
+// add dependencies
 dependencies {
-    implementation("com.github.kitakkun.backintime:library:$backInTimeVersion")
+    debugImplementation("com.github.kitakkun.backintime:backintime-runtime:$backInTimeVersion")
+    implementation("com.github.kitakkun.backintime:backintime-annotations:$backInTimeVersion")
+
+    // required other dependencies
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+    debugImplementation("com.facebook.flipper:flipper:$flipperVersion")
+    debugImplementation("com.facebook.soloader:soloader:$soloaderVersion")
+    releaseImplementation("com.facebook.flipper:flipper-noop:$flipperVersion")
+}
+
+// disable the plugin for release build (need this to avoid release build error)
+android {
+    ...
+    buildTypes {
+        debug {
+            backInTime.enabled = true
+        }
+        release {
+            backInTime.enabled = false
+        }
+    }
 }
 
 backInTime {
