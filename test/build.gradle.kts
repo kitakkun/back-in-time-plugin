@@ -18,7 +18,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":backintime-core"))
+                implementation(project(":backintime-runtime"))
                 implementation(project(":backintime-annotations"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)

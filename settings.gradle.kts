@@ -22,7 +22,7 @@ include(
     ":backintime-plugin-common",
     ":backintime-gradle-plugin",
     ":backintime-compiler",
-    ":backintime-core",
+    ":backintime-runtime",
     ":backintime-annotations",
     ":test"
 )

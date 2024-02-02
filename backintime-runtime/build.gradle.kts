@@ -25,7 +25,7 @@ kotlin {
 
 android {
     compileSdk = 34
-    namespace = "com.github.kitakkun.backintime"
+    namespace = "com.github.kitakkun.backintime.runtime"
 
     dependencies {
         debugImplementation(libs.flipper)
