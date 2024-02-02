@@ -9,6 +9,7 @@ import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -28,7 +29,11 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
         this.connection?.observeIncomingEvents()
         observeOutgoingEventsJob?.cancel()
         observeOutgoingEventsJob = observeOutgoingEvents()
-        service.start()
+        launch {
+            // Flipper側でイベントを受信できない場合があるので少し遅らせる
+            delay(1000)
+            service.start()
+        }
     }
 
     override fun onDisconnect() {
