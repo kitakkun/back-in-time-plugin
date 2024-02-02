@@ -55,11 +55,6 @@ kotlin {
 
 android {
     compileSdk = 34
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        targetSdk = 34
-        minSdk = 21
-    }
     namespace = "com.github.kitakkun.backintime.test"
 }
 
