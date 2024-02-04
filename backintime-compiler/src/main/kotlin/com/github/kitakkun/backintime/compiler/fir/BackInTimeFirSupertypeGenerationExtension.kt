@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.fir.resolve.defaultType
 import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
 import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 
-class DebuggableStateHolderSuperTypeGenerationExtension(session: FirSession) : FirSupertypeGenerationExtension(session = session) {
+class BackInTimeFirSupertypeGenerationExtension(session: FirSession) : FirSupertypeGenerationExtension(session = session) {
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {
         return declaration.hasAnnotationSafe(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)
     }

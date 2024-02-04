@@ -8,8 +8,8 @@ class BackInTimeFirExtensionRegistrar(
     private val config: BackInTimeCompilerConfiguration,
 ) : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
-        +::DebuggableStateHolderSuperTypeGenerationExtension
-        +::BackInTimeDebuggableMethodsDeclarationGenerationExtension
+        +::BackInTimeFirSupertypeGenerationExtension
+        +::BackInTimeFirDeclarationGenerationExtension
 
         +::DebuggableStateHolderPredicateMatcher
         +::ValueContainerPredicateMatcher

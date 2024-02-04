@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
-class BackInTimeDebuggableMethodsDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateProperties(callableId: CallableId, context: MemberGenerationContext?): List<FirPropertySymbol> {
         val ownerClass = context?.owner ?: return emptyList()
         val superTypeClass = ownerClass.resolvedSuperTypes.mapNotNull { it.toRegularClassSymbol(session) }
