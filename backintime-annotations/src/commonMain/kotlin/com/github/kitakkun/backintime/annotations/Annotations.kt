@@ -22,3 +22,5 @@ annotation class Getter
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
 annotation class Setter
 
+@Target(AnnotationTarget.CLASS)
+annotation class SerializableItself(val asClass: String = "")

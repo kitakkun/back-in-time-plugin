@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.compiler.consts
 
+import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
@@ -16,4 +17,5 @@ object BackInTimeAnnotations {
     val captureAnnotationClassId = ClassId.topLevel(captureAnnotationFqName)
     val getterAnnotationClassId = ClassId.topLevel(getterAnnotationFqName)
     val setterAnnotationClassId = ClassId.topLevel(setterAnnotationFqName)
+    val serializableItSelfAnnotationClassId = classId("com.github.kitakkun.backintime.annotations", "SerializableItself")
 }

@@ -1,22 +1,27 @@
 package com.github.kitakkun.backintime.compiler.backend.analyzer
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.getValueArgument
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.utils.addIfNotNull
 
 class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
@@ -62,6 +67,15 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
     private fun IrClass.getValueContainerClassInfo(): ValueContainerClassInfo? {
         val classId = classId ?: return null
 
+        val serializableItSelfAnnotation = annotations.find { it.symbol.owner.parentAsClass.classId == BackInTimeAnnotations.serializableItSelfAnnotationClassId }
+        val serializableItSelf = serializableItSelfAnnotation != null
+        val serializeAs = (serializableItSelfAnnotation?.getValueArgument(Name.identifier("asClass")) as? IrConst<*>)?.value as? String
+        val serializeAsClass = if (!serializeAs.isNullOrBlank()) {
+            ClassId.fromString(serializeAs)
+        } else {
+            null
+        }
+
         val captures = simpleFunctions().filter { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName) }.toList()
         val getter = simpleFunctions()
             .filter { function -> !function.isSetter }
@@ -81,8 +95,8 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
             getterFunctionName = getter.name,
             preSetterFunctionNames = emptyList(),
             setterFunctionName = setter.name,
-            serializeItSelf = false, // FIXME: doesn't support yet
-            serializeAs = null, // FIXME: doesn't support yet
+            serializeItSelf = serializableItSelf,
+            serializeAs = serializeAsClass,
         )
     }
 
