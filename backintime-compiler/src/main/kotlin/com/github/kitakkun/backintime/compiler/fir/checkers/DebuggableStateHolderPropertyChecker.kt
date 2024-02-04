@@ -1,9 +1,9 @@
 package com.github.kitakkun.backintime.compiler.fir.checkers
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
-import com.github.kitakkun.backintime.compiler.fir.backInTimeCompilerConfigurationProvider
-import com.github.kitakkun.backintime.compiler.fir.debuggableStateHolderPredicateMatcher
-import com.github.kitakkun.backintime.compiler.fir.valueContainerPredicateMatcher
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.fir.extension.backInTimeCompilerConfigurationProvider
+import com.github.kitakkun.backintime.compiler.fir.matcher.debuggableStateHolderPredicateMatcher
+import com.github.kitakkun.backintime.compiler.fir.matcher.valueContainerPredicateMatcher
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext

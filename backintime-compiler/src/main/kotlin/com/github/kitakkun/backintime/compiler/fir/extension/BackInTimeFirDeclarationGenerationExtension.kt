@@ -1,7 +1,8 @@
-package com.github.kitakkun.backintime.compiler.fir
+package com.github.kitakkun.backintime.compiler.fir.extension
 
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
-import com.github.kitakkun.backintime.compiler.BackInTimePluginKey
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.consts.BackInTimePluginKey
+import com.github.kitakkun.backintime.compiler.fir.matcher.debuggableStateHolderPredicateMatcher
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.toRegularClassSymbol

@@ -1,7 +1,7 @@
-package com.github.kitakkun.backintime.compiler.fir
+package com.github.kitakkun.backintime.compiler.fir.extension
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirClassLikeDeclaration
 import org.jetbrains.kotlin.fir.declarations.hasAnnotationSafe

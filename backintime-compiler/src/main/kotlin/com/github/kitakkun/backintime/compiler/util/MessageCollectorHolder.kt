@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.compiler
+package com.github.kitakkun.backintime.compiler.util
 
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector

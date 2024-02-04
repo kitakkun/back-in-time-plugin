@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.compiler.fir.checkers
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext

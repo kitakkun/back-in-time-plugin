@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend.analyzer
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass

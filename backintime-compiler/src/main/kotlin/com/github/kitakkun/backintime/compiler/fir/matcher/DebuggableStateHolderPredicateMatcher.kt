@@ -1,6 +1,6 @@
-package com.github.kitakkun.backintime.compiler.fir
+package com.github.kitakkun.backintime.compiler.fir.matcher
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.extensions.predicate.DeclarationPredicate
 import org.jetbrains.kotlin.fir.extensions.utils.AbstractSimpleClassPredicateMatchingService

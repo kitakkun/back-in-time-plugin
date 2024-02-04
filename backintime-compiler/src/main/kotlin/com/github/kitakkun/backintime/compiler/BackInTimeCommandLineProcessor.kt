@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.compiler
 
+import com.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfigurationKey
 import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import com.github.kitakkun.backintime.plugin.BackInTimePluginConsts
 import com.github.kitakkun.backintime.plugin.extension.ValueContainerConfig

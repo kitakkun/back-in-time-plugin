@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend
 
-import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable

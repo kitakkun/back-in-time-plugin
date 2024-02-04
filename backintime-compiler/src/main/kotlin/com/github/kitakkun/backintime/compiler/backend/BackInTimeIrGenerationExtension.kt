@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend
 
-import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
+import com.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import com.github.kitakkun.backintime.compiler.backend.transformer.DebuggableStateHolderTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

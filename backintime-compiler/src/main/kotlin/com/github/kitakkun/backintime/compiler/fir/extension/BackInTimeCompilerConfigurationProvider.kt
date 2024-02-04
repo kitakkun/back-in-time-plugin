@@ -1,6 +1,6 @@
-package com.github.kitakkun.backintime.compiler.fir
+package com.github.kitakkun.backintime.compiler.fir.extension
 
-import com.github.kitakkun.backintime.compiler.BackInTimeCompilerConfiguration
+import com.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.extensions.FirExtensionSessionComponent
 

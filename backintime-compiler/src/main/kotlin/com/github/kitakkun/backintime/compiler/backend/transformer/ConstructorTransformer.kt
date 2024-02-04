@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
-import com.github.kitakkun.backintime.compiler.BackInTimeAnnotations
-import com.github.kitakkun.backintime.compiler.BackInTimeConsts
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringCall
 import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName

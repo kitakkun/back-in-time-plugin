@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.compiler
+package com.github.kitakkun.backintime.compiler.configuration
 
 import com.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 

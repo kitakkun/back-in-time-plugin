@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.compiler
+package com.github.kitakkun.backintime.compiler.consts
 
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
