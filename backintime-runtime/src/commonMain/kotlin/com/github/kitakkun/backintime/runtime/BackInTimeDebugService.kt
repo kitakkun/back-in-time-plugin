@@ -13,8 +13,6 @@ import java.util.PriorityQueue
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 
-typealias UUIDString = String
-
 /**
  * Singleton service for back-in-time debugger
  */
@@ -23,7 +21,7 @@ object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
     @VisibleForTesting
-    val instances = WeakHashMap<BackInTimeDebuggable, UUIDString>()
+    val instances = WeakHashMap<BackInTimeDebuggable, String>()
 
     private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>()
     val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
