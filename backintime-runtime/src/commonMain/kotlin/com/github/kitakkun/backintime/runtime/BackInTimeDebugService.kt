@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
-import java.awt.SystemColor.info
 import java.util.PriorityQueue
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
@@ -83,8 +82,6 @@ object BackInTimeDebugService : CoroutineScope {
     /**
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
-     * @param instance instance to be registered. must be annotated with [DebuggableStateHolder]
-     * @Param info information about the instance
      */
     private fun register(event: BackInTimeDebugServiceEvent.RegisterInstance) {
         // When the instance of subclass is registered, it overrides the instance of superclass.
@@ -144,7 +141,7 @@ object BackInTimeDebugService : CoroutineScope {
     /**
      * check if the instance is still alive
      * this function is necessary because WeakHashMap doesn't have callback when the instance is garbage collected
-     * @param instanceUUID UUID of the instance
+     * @param instanceId UUID of the instance
      */
     fun checkIfInstanceIsAlive(instanceId: String): Boolean {
         return instances.containsValue(instanceId)
