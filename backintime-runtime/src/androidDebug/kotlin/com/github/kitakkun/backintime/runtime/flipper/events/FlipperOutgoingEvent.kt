@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.flipper.events
+package com.github.kitakkun.backintime.runtime.flipper.events
 
 import com.github.kitakkun.backintime.runtime.PropertyInfo
 import kotlinx.serialization.Serializable

@@ -1,11 +1,11 @@
-package com.github.kitakkun.backintime.flipper
+package com.github.kitakkun.backintime.runtime.flipper
 
 import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
-import com.github.kitakkun.backintime.flipper.events.FlipperIncomingEvent
-import com.github.kitakkun.backintime.flipper.events.FlipperOutgoingEvent
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
+import com.github.kitakkun.backintime.runtime.flipper.events.FlipperIncomingEvent
+import com.github.kitakkun.backintime.runtime.flipper.events.FlipperOutgoingEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
