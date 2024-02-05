@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
-import org.jetbrains.annotations.VisibleForTesting
 import java.awt.SystemColor.info
 import java.util.PriorityQueue
 import java.util.WeakHashMap
@@ -20,8 +19,7 @@ import kotlin.coroutines.CoroutineContext
 object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
-    @VisibleForTesting
-    val instances = WeakHashMap<BackInTimeDebuggable, String>()
+    private val instances = WeakHashMap<BackInTimeDebuggable, String>()
 
     private val mutableRegisteredInstanceFlow = MutableSharedFlow<InstanceInfo>()
     val registeredInstanceFlow = mutableRegisteredInstanceFlow.asSharedFlow()
