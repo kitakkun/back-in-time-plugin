@@ -87,7 +87,7 @@ object BackInTimeDebugService : CoroutineScope {
         // When the instance of subclass is registered, it overrides the instance of superclass.
         instances[event.instance] = event.instance.backInTimeInstanceUUID
         launch {
-            mutableRegisteredInstanceFlow.emit(event.info);
+            mutableRegisteredInstanceFlow.emit(event.info)
         }
     }
 
