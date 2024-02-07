@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtensi
 
 class BackInTimeFirAdditionalCheckersExtension(session: FirSession) : FirAdditionalCheckersExtension(session) {
     override val declarationCheckers = object : DeclarationCheckers() {
-        override val propertyCheckers = setOf(DebuggableStateHolderPropertyChecker)
-        override val regularClassCheckers: Set<FirRegularClassChecker> = setOf(ValueContainerDefinitionChecker)
+        override val regularClassCheckers: Set<FirRegularClassChecker> = setOf(ValueContainerDefinitionChecker, DebuggableStateHolderPropertyChecker)
     }
 }

@@ -7,9 +7,9 @@ import com.github.kitakkun.backintime.compiler.fir.matcher.valueContainerPredica
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
-import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirPropertyChecker
-import org.jetbrains.kotlin.fir.analysis.checkers.findClosestClassOrObject
+import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirRegularClassChecker
 import org.jetbrains.kotlin.fir.declarations.FirProperty
+import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.classId
@@ -18,32 +18,37 @@ import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.javac.resolve.classId
 
-object DebuggableStateHolderPropertyChecker : FirPropertyChecker() {
+object DebuggableStateHolderPropertyChecker : FirRegularClassChecker() {
     private val serializableAnnotationClassId = classId("kotlinx.serialization", "Serializable")
 
-    override fun check(declaration: FirProperty, context: CheckerContext, reporter: DiagnosticReporter) {
+    override fun check(declaration: FirRegularClass, context: CheckerContext, reporter: DiagnosticReporter) {
         with(context) {
-            val parentClass = context.findClosestClassOrObject() ?: return
-            if (!parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) return
-
-            val propertyType = declaration.returnTypeRef.coneType
-            if (propertyType.isBuiltinSerializable()) return
-            if (propertyType.hasSerializableAnnotation()) return
-            if (propertyType.isDebuggableStateHolder()) return
-
-            if (!propertyType.isValueContainer()) {
-                return reporter.reportOn(declaration.source, FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE)
+            if (declaration.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) {
+                val memberProperties = declaration.declarations.filterIsInstance<FirProperty>()
+                memberProperties.forEach { property -> checkProperty(property, reporter) }
             }
+        }
+    }
 
-            val typeArguments = propertyType.typeArguments
-            if (typeArguments.size > 2) {
-                return reporter.reportOn(declaration.source, FirBackInTimeErrors.VALUE_CONTAINER_MORE_THAN_TWO_TYPE_ARGUMENTS)
-            } else if (typeArguments.size == 1) {
-                val valueType = typeArguments.single().type ?: return
-                if (valueType.isBuiltinSerializable()) return
-                if (valueType.hasSerializableAnnotation()) return
-                return reporter.reportOn(declaration.source, FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE)
-            }
+    context(CheckerContext)
+    private fun checkProperty(declaration: FirProperty, reporter: DiagnosticReporter) {
+        val propertyType = declaration.returnTypeRef.coneType
+        if (propertyType.isBuiltinSerializable()) return
+        if (propertyType.hasSerializableAnnotation()) return
+        if (propertyType.isDebuggableStateHolder()) return
+
+        if (!propertyType.isValueContainer()) {
+            return reporter.reportOn(declaration.source, FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE)
+        }
+
+        val typeArguments = propertyType.typeArguments
+        if (typeArguments.size > 2) {
+            return reporter.reportOn(declaration.source, FirBackInTimeErrors.VALUE_CONTAINER_MORE_THAN_TWO_TYPE_ARGUMENTS)
+        } else if (typeArguments.size == 1) {
+            val valueType = typeArguments.single().type ?: return
+            if (valueType.isBuiltinSerializable()) return
+            if (valueType.hasSerializableAnnotation()) return
+            return reporter.reportOn(declaration.source, FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE)
         }
     }
 
