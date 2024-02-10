@@ -53,8 +53,7 @@ plugins {
 
 // add dependencies
 dependencies {
-    debugImplementation("com.github.kitakkun.backintime:backintime-runtime:$backInTimeVersion")
-    implementation("com.github.kitakkun.backintime:backintime-annotations:$backInTimeVersion")
+    // Note that annotations and runtime library is automatically added by the back-in-time gradle plugin
 
     // required other dependencies
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")

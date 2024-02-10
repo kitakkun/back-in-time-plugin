@@ -8,6 +8,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
+import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
@@ -18,10 +21,33 @@ import java.util.Base64
 @AutoService(KotlinCompilerPluginSupportPlugin::class)
 class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
-        target.extensions.create(
-            "backInTime",
-            BackInTimeExtension::class.java,
-        )
+        with(target) {
+            extensions.create(
+                "backInTime",
+                BackInTimeExtension::class.java,
+            )
+
+            // FIXME: can get a version of back-in-time plugin from some reliable source?
+            val version = "1.0.0"
+            val annotationDependencyNotation = "com.github.kitakkun.backintime:backintime-annotations:$version"
+            val runtimeDependencyNotation = "com.github.kitakkun.backintime:backintime-runtime:$version"
+
+            when (kotlinExtension) {
+                is KotlinSingleTargetExtension<*> -> {
+                    dependencies.add("implementation", annotationDependencyNotation)
+                    dependencies.add("implementation", runtimeDependencyNotation)
+                }
+
+                is KotlinMultiplatformExtension -> {
+                    dependencies.add("commonMainImplementation", annotationDependencyNotation)
+                    dependencies.add("commonMainImplementation", runtimeDependencyNotation)
+                }
+
+                else -> {
+                    // do nothing
+                }
+            }
+        }
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {

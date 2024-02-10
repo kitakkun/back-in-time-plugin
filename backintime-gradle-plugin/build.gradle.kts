@@ -22,4 +22,5 @@ dependencies {
 
     compileOnly(libs.auto.service)
     kapt(libs.auto.service)
+    compileOnly(kotlin("gradle-plugin"))
 }
