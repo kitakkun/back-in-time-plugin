@@ -6,10 +6,14 @@ This plugin helps you to track the changes of application state during its execu
 Also, you can easily revert the state to the previous one. We call it "back-in-time" debugging.
 
 This plugin currently intended to be used with Android projects.
+But we are planning to support other platforms in the future.
+
+Debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
+Want to play with it? See [back-in-time-evaluation](https://github.com/kitakkun/back-in-time-evaluation) for more information.
 
 ## How to use
 
-### Manual Publishing
+### Manual Publishing Artifacts
 
 This plugin is still under development, and its artifacts does not exist on Maven Central yet.
 You can manually publish them to your local Maven repository by running the following command in the project's root directory:
@@ -30,13 +34,13 @@ pluginManagement {
     }
     plugins {
         id("com.github.kitakkun.backintime") version "1.0.0" apply false
-        kotlin("plugin.serialization") version "1.9.21" apply false // required by the plugin
+        kotlin("plugin.serialization") version "1.9.22" apply false // required by the plugin
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        mavenLocal() // library is also published to Maven Local
+        mavenLocal() // annotation library and runtime library are also published to Maven Local
         // ...
     }
 }
@@ -46,36 +50,25 @@ dependencyResolutionManagement {
 
 ```kotlin
 plugins {
-    id("com.github.kitakkun.backintime")
+    id("com.github.kitakkun.backintime") version "1.0.0"
     kotlin("plugin.serialization")
     ...
 }
 
-// add dependencies
+// add required dependencies
 dependencies {
-    // Note that annotations and runtime library is automatically added by the back-in-time gradle plugin
+    // Note that annotations and runtime library are automatically added by the back-in-time gradle plugin
 
-    // required other dependencies
+    // other dependencies required to use the plugin
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
+    // debugger is implemented as a Flipper plugin, so you need this
     debugImplementation("com.facebook.flipper:flipper:$flipperVersion")
     debugImplementation("com.facebook.soloader:soloader:$soloaderVersion")
     releaseImplementation("com.facebook.flipper:flipper-noop:$flipperVersion")
 }
 
-// disable the plugin for release build (need this to avoid release build error)
-android {
-    ...
-    buildTypes {
-        debug {
-            backInTime.enabled = true
-        }
-        release {
-            backInTime.enabled = false
-        }
-    }
-}
-
 backInTime {
+    enabled = true // default is true
     valueContainers {
         androidValueContainers() // support for MutableLiveData, MutableStateFlow, MutableState
         composeMutableStates()   // support for MutableState, MutableIntState, MutableLongState, etc...
@@ -94,8 +87,8 @@ backInTime {
 
 ### Annotate your class
 
-Annotate your class with `@DebuggableStateHolder` to enable the back-in-time debugging.
-Make sure property you want to debug is holding serializable value.
+Annotate your class with `@DebuggableStateHolder` to make it back-in-time debuggable.
+Make sure property you want to debug is holding serializable value by kotlinx.serialization.
 
 ```kotlin
 @DebuggableStateHolder
@@ -108,6 +101,15 @@ class CounterViewModel : ViewModel() {
     }
 }
 ```
+
+### One more step (Setup Flipper)
+
+Currently, this plugin is completely dependent on Flipper.
+You need to setup Flipper to use this plugin.
+See [Flipper](https://fbflipper.com/) for more information.
+
+You can use pre-built FlipperPlugin implementation class `BackInTimeDebugFlipperPlugin` to add the back-in-time debugging feature to your Flipper.
+Also, debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
 
 ## How it works
 
@@ -135,17 +137,26 @@ The plugin modify the class as follows(not exact the same, just for explanation)
 @DebuggableStateHolder
 class CounterViewModel : BackInTimeDebuggable {
     var count = 0
+    // other required properties for debugging...
 
     init {
-        BackInTimeDebugService.register(this, InstanceInfo(...))
+        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.Register(...))
     }
 
     fun increment() {
         val callUUID = UUID.randomUUID().toString()
-        BackInTimeDebugService.notifyMethodCall(this, "increment", callUUID)
+        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.MethodCall(...))
         count++
-        BackInTimeDebugService.notifyPropertyChange(this, "count", count, callUUID)
+        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.PropertyValueChange(...))
     }
+
+    fun forceSetValue(propertyName: String, value: Any?) {
+        when (propertyName) {
+            "count" -> if (value is Int) count = value
+        }
+    }
+
+    // other required methods for debugging...
 }
 ```
 
