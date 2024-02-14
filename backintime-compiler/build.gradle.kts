@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
-    alias(libs.plugins.kotlinKapt)
+    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     `maven-publish`
 }
@@ -12,7 +12,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     compileOnly(libs.auto.service)
-    kapt(libs.auto.service)
+    ksp(libs.auto.service.ksp)
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class).all {
