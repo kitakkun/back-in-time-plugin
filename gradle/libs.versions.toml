@@ -13,7 +13,6 @@ kotlin = "1.9.22"
 android-library = "8.2.2"
 ksp = "1.9.22-1.0.17"
 
-backintime = "1.0.0"
 core-ktx = "1.12.0"
 junit = "4.13.2"
 androidx-test-ext-junit = "1.1.5"
@@ -49,8 +48,6 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 # demo
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-runtime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room-runtime" }
-backintime-runtime = { module = "com.github.kitakkun.backintime:backintime-runtime", version.ref = "backintime" }
-backintime-annotations = { module = "com.github.kitakkun.backintime:backintime-annotations", version.ref = "backintime" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 flipper-noop = { module = "com.facebook.flipper:flipper-noop", version.ref = "flipper" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
