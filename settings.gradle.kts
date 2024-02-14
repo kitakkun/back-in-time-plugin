@@ -24,5 +24,7 @@ include(
     ":backintime-compiler",
     ":backintime-runtime",
     ":backintime-annotations",
-    ":test"
+    ":test",
+    ":backintime-demo",
+    ":backintime-demo:app"
 )
