@@ -3,6 +3,7 @@ flipper = "0.233.0"
 kotlinx-coroutines = "1.7.3"
 kotlinx-serialization-json = "1.6.2"
 auto-service = "1.1.1"
+auto-service-ksp = "1.1.0"
 androidx-core = "1.12.0"
 androidx-lifecycle = "2.7.0"
 androidx-compose = "1.6.0"
@@ -10,6 +11,7 @@ robolectric = "4.11.1"
 mockk = "1.13.8"
 kotlin = "1.9.22"
 android-library = "8.2.2"
+ksp = "1.9.22-1.0.17"
 
 [libraries]
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -21,6 +23,7 @@ kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit"
 flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
+auto-service-ksp = { group = "dev.zacsweers.autoservice", name = "auto-service-ksp", version.ref = "auto-service-ksp" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
@@ -36,4 +39,4 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlinKapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
