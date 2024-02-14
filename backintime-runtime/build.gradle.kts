@@ -20,14 +20,16 @@ kotlin {
                 implementation(libs.kotlinx.serialization.json)
             }
         }
+
+        androidMain {
+            dependencies {
+                compileOnly(libs.flipper)
+            }
+        }
     }
 }
 
 android {
     compileSdk = 34
     namespace = "com.github.kitakkun.backintime.runtime"
-
-    dependencies {
-        debugImplementation(libs.flipper)
-    }
 }

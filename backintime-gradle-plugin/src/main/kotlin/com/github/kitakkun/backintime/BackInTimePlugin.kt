@@ -51,6 +51,9 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
+        if (kotlinCompilation.compileKotlinTaskName.contains("release", ignoreCase = true)) {
+            return false
+        }
         return kotlinCompilation.project.plugins.hasPlugin(BackInTimePlugin::class.java)
     }
 
