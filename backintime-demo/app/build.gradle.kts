@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.github.kitakkun.back_in_time_flux"
+    namespace = "com.github.kitakkun.backintime.evaluation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.github.kitakkun.back_in_time_flux"
+        applicationId = "com.github.kitakkun.backintime.evaluation"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
