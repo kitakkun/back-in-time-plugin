@@ -9,7 +9,7 @@ This plugin currently intended to be used with Android projects.
 But we are planning to support other platforms in the future.
 
 Debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
-Want to play with it? See [back-in-time-evaluation](https://github.com/kitakkun/back-in-time-evaluation) for more information.
+Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
 ## How to use
 
