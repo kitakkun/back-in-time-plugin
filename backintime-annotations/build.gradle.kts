@@ -12,8 +12,13 @@ kotlin {
         publishLibraryVariants("debug")
     }
 
-    sourceSets {
-        commonMain
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    js(IR) {
+        browser()
+        nodejs()
     }
 }
 
