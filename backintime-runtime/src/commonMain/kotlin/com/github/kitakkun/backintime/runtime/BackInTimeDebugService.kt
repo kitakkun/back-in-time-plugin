@@ -8,8 +8,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
-import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
-    private val instances = WeakHashMap<BackInTimeDebuggable, String>()
+    private val instances = mutableMapOf<String, WeakReference<BackInTimeDebuggable>>()
 
     private val mutableServiceEventFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>()
     val serviceEventFlow = mutableServiceEventFlow.asSharedFlow()
@@ -76,13 +76,13 @@ object BackInTimeDebugService : CoroutineScope {
      */
     private fun register(event: DebuggableStateHolderEvent.RegisterInstance): BackInTimeDebugServiceEvent {
         // When the instance of subclass is registered, it overrides the instance of superclass.
-        instances[event.instance] = event.instance.backInTimeInstanceUUID
+        instances[event.instance.backInTimeInstanceUUID] = WeakReference(event.instance)
         return BackInTimeDebugServiceEvent.RegisterInstance(
             instanceUUID = event.instance.backInTimeInstanceUUID,
             className = event.className,
             superClassName = event.superClassName,
             properties = event.properties,
-            registeredAt = System.currentTimeMillis(),
+            registeredAt = Clock.System.now().epochSeconds,
         )
     }
 
@@ -94,21 +94,19 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     private fun notifyMethodCall(event: DebuggableStateHolderEvent.MethodCall): BackInTimeDebugServiceEvent? {
-        val instanceId = instances[event.instance] ?: return null
         return BackInTimeDebugServiceEvent.NotifyMethodCall(
-            instanceUUID = instanceId,
+            instanceUUID = event.instance.backInTimeInstanceUUID,
             methodName = event.methodName,
             methodCallUUID = event.methodCallId,
-            calledAt = System.currentTimeMillis(),
+            calledAt = Clock.System.now().epochSeconds,
         )
     }
 
     private fun notifyPropertyChanged(event: DebuggableStateHolderEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
-        val instanceUUID = instances[event.instance] ?: return null
         return try {
             val serializedValue = event.instance.serializeValue(event.propertyName, event.propertyValue)
             BackInTimeDebugServiceEvent.NotifyValueChange(
-                instanceUUID = instanceUUID,
+                instanceUUID = event.instance.backInTimeInstanceUUID,
                 propertyName = event.propertyName,
                 value = serializedValue,
                 methodCallUUID = event.methodCallId,
@@ -128,11 +126,18 @@ object BackInTimeDebugService : CoroutineScope {
      * @param instanceId UUID of the instance
      */
     fun checkIfInstanceIsAlive(instanceId: String): Boolean {
-        return instances.containsValue(instanceId)
+        instances[instanceId]?.get() ?: run {
+            instances.remove(instanceId)
+            return false
+        }
+        return true
     }
 
     fun forceSetValue(instanceId: String, name: String, value: String) {
-        val targetInstance = instances.filterValues { it == instanceId }.keys.firstOrNull() ?: return
+        val targetInstance = instances[instanceId]?.get() ?: run {
+            instances.remove(instanceId)
+            return
+        }
         try {
             val deserializedValue = targetInstance.deserializeValue(name, value)
             targetInstance.forceSetValue(name, deserializedValue)
