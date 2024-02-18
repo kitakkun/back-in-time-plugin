@@ -11,6 +11,11 @@ But we are planning to support other platforms in the future.
 Debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
 Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
+> [!IMPORTANT]
+> This project is still a work in in progress, and its API is unstable and may change without any notice.
+> Also, we are planning make back-in-time-debugger implementation independent from Flipper to support other platforms (iOS, Desktop, JS...).
+> Using this plugin for a hobby project is fine, but we do not recommend using it for production projects yet.
+
 ## How to use
 
 ### Manual Publishing Artifacts
