@@ -16,15 +16,14 @@ object BackInTimeConsts {
     val backInTimeInitializedPropertyMapName = Name.identifier("backInTimeInitializedPropertyMap")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
-    val debuggableStateHolderEventClassId = classId("com.github.kitakkun.backintime.runtime", "DebuggableStateHolderEvent")
+    val debuggableStateHolderEventClassId = classId("com.github.kitakkun.backintime.runtime.event", "DebuggableStateHolderEvent")
     val registerEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("RegisterInstance"))
     val registerRelationshipEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("RegisterRelationShip"))
     val methodCallEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("MethodCall"))
     val propertyValueChangeEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("PropertyValueChange"))
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
-    val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")
-    val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime", "PropertyInfo")
+    val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime.event", "PropertyInfo")
     val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
     val UUIDClassId = classId("java.util", "UUID")
     const val randomUUIDFunctionName = "randomUUID"

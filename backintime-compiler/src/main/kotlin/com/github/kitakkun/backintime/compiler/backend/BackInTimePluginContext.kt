@@ -38,10 +38,8 @@ class BackInTimePluginContext(
     val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
     /**
-     * Used in BackInTimeCallRegisterOnInitTransformer
+     * Used in [com.github.kitakkun.backintime.compiler.backend.transformer.ConstructorTransformer]
      */
-    // find by isPrimary because kotlinx-serialization generates secondary constructor
-    val instanceInfoConstructor = referenceConstructors(BackInTimeConsts.instanceInfoClassId).first { it.owner.isPrimary }
     val propertyInfoClass = referenceClass(BackInTimeConsts.propertyInfoClassId)!!
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction = referenceFunctions(BackInTimeConsts.listOfFunctionId).first { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg }

@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.runtime
 
 import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -78,9 +79,9 @@ object BackInTimeDebugService : CoroutineScope {
         instances[event.instance] = event.instance.backInTimeInstanceUUID
         return BackInTimeDebugServiceEvent.RegisterInstance(
             instanceUUID = event.instance.backInTimeInstanceUUID,
-            className = event.info.type,
-            superClassName = event.info.superType,
-            properties = event.info.properties,
+            className = event.className,
+            superClassName = event.superClassName,
+            properties = event.properties,
             registeredAt = System.currentTimeMillis(),
         )
     }
