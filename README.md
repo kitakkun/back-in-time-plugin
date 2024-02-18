@@ -140,7 +140,7 @@ class CounterViewModel : BackInTimeDebuggable {
     // other required properties for debugging...
 
     init {
-        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.Register(...))
+        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.RegisterInstance(...))
     }
 
     fun increment() {
