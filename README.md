@@ -140,14 +140,14 @@ class CounterViewModel : BackInTimeDebuggable {
     // other required properties for debugging...
 
     init {
-        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.Register(...))
+        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.Register(...))
     }
 
     fun increment() {
         val callUUID = UUID.randomUUID().toString()
-        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.MethodCall(...))
+        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.MethodCall(...))
         count++
-        BackInTimeDebugService.emitEvent(BackInTimeDebugServiceEvent.PropertyValueChange(...))
+        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.PropertyValueChange(...))
     }
 
     fun forceSetValue(propertyName: String, value: Any?) {

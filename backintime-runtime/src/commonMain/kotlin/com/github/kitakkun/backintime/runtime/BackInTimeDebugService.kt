@@ -35,7 +35,7 @@ object BackInTimeDebugService : CoroutineScope {
     private val mutableInternalErrorFlow = MutableSharedFlow<Throwable>()
     val internalErrorFlow = mutableInternalErrorFlow.asSharedFlow()
 
-    private val internalEventQueue = PriorityQueue<BackInTimeDebugServiceEvent> { event1, event2 -> event1.priority - event2.priority }
+    private val internalEventQueue = PriorityQueue<DebuggableStateHolderEvent> { event1, event2 -> event1.priority - event2.priority }
     private var isConnected: Boolean = false
 
     /**
@@ -61,7 +61,7 @@ object BackInTimeDebugService : CoroutineScope {
      * should be called from BackInTimeDebuggable instance
      * @param event event to be sent
      */
-    fun emitEvent(event: BackInTimeDebugServiceEvent) {
+    fun emitEvent(event: DebuggableStateHolderEvent) {
         if (!isConnected) {
             internalEventQueue.add(event)
             return
@@ -70,12 +70,12 @@ object BackInTimeDebugService : CoroutineScope {
         processEvent(event)
     }
 
-    private fun processEvent(event: BackInTimeDebugServiceEvent) {
+    private fun processEvent(event: DebuggableStateHolderEvent) {
         when (event) {
-            is BackInTimeDebugServiceEvent.RegisterInstance -> register(event)
-            is BackInTimeDebugServiceEvent.RegisterRelationShip -> registerRelationship(event)
-            is BackInTimeDebugServiceEvent.MethodCall -> notifyMethodCall(event)
-            is BackInTimeDebugServiceEvent.PropertyValueChange -> notifyPropertyChanged(event)
+            is DebuggableStateHolderEvent.RegisterInstance -> register(event)
+            is DebuggableStateHolderEvent.RegisterRelationShip -> registerRelationship(event)
+            is DebuggableStateHolderEvent.MethodCall -> notifyMethodCall(event)
+            is DebuggableStateHolderEvent.PropertyValueChange -> notifyPropertyChanged(event)
         }
     }
 
@@ -83,7 +83,7 @@ object BackInTimeDebugService : CoroutineScope {
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
      */
-    private fun register(event: BackInTimeDebugServiceEvent.RegisterInstance) {
+    private fun register(event: DebuggableStateHolderEvent.RegisterInstance) {
         // When the instance of subclass is registered, it overrides the instance of superclass.
         instances[event.instance] = event.instance.backInTimeInstanceUUID
         launch {
@@ -91,7 +91,7 @@ object BackInTimeDebugService : CoroutineScope {
         }
     }
 
-    private fun registerRelationship(event: BackInTimeDebugServiceEvent.RegisterRelationShip) {
+    private fun registerRelationship(event: DebuggableStateHolderEvent.RegisterRelationShip) {
         launch {
             mutableRegisterRelationshipFlow.emit(
                 RelationshipInfo(
@@ -102,7 +102,7 @@ object BackInTimeDebugService : CoroutineScope {
         }
     }
 
-    private fun notifyMethodCall(event: BackInTimeDebugServiceEvent.MethodCall) {
+    private fun notifyMethodCall(event: DebuggableStateHolderEvent.MethodCall) {
         val instanceId = instances[event.instance] ?: return
         launch {
             mutableNotifyMethodCallFlow.emit(
@@ -116,7 +116,7 @@ object BackInTimeDebugService : CoroutineScope {
         }
     }
 
-    private fun notifyPropertyChanged(event: BackInTimeDebugServiceEvent.PropertyValueChange) {
+    private fun notifyPropertyChanged(event: DebuggableStateHolderEvent.PropertyValueChange) {
         val instanceUUID = instances[event.instance] ?: return
         try {
             val serializedValue = event.instance.serializeValue(event.propertyName, event.propertyValue)
