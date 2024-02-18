@@ -4,8 +4,8 @@ import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.github.kitakkun.backintime.runtime.flipper.events.FlipperIncomingEvent
-import com.github.kitakkun.backintime.runtime.flipper.events.FlipperOutgoingEvent
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -45,49 +45,14 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
 
     private fun observeOutgoingEvents() = launch {
         launch {
-            service.registeredInstanceFlow.collect { instanceInfo ->
-                val event = FlipperOutgoingEvent.RegisterInstance(
-                    instanceUUID = instanceInfo.uuid,
-                    className = instanceInfo.type,
-                    superClassName = instanceInfo.superType,
-                    properties = instanceInfo.properties,
-                    registeredAt = instanceInfo.registeredAt,
-                )
-                connection?.send(FlipperOutgoingEvent.RegisterInstance.EVENT_NAME, FlipperObject(json.encodeToString(event)))
-            }
-        }
-
-        launch {
-            service.registerRelationshipFlow.collect { relationshipInfo ->
-                val event = FlipperOutgoingEvent.RegisterRelationship(
-                    parentUUID = relationshipInfo.from,
-                    childUUID = relationshipInfo.to,
-                )
-                connection?.send(FlipperOutgoingEvent.RegisterRelationship.EVENT_NAME, FlipperObject(json.encodeToString(event)))
-            }
-        }
-
-        launch {
-            service.notifyMethodCallFlow.collect { methodCallInfo ->
-                val event = FlipperOutgoingEvent.NotifyMethodCall(
-                    instanceUUID = methodCallInfo.instanceUUID,
-                    methodName = methodCallInfo.methodName,
-                    methodCallUUID = methodCallInfo.methodCallUUID,
-                    calledAt = methodCallInfo.calledAt,
-                )
-                connection?.send(FlipperOutgoingEvent.NotifyMethodCall.EVENT_NAME, FlipperObject(json.encodeToString(event)))
-            }
-        }
-
-        launch {
-            service.notifyValueChangeFlow.collect { valueChangeInfo ->
-                val event = FlipperOutgoingEvent.NotifyValueChange(
-                    instanceUUID = valueChangeInfo.instanceUUID,
-                    propertyName = valueChangeInfo.propertyName,
-                    value = valueChangeInfo.value,
-                    methodCallUUID = valueChangeInfo.methodCallUUID,
-                )
-                connection?.send(FlipperOutgoingEvent.NotifyValueChange.EVENT_NAME, FlipperObject(json.encodeToString(event)))
+            service.serviceEventFlow.collect { event ->
+                val eventKey = when (event) {
+                    is BackInTimeDebugServiceEvent.RegisterInstance -> "register"
+                    is BackInTimeDebugServiceEvent.RegisterRelationship -> "registerRelationship"
+                    is BackInTimeDebugServiceEvent.NotifyMethodCall -> "notifyMethodCall"
+                    is BackInTimeDebugServiceEvent.NotifyValueChange -> "notifyValueChange"
+                }
+                connection?.send(eventKey, FlipperObject(json.encodeToString(event)))
             }
         }
 
@@ -99,8 +64,8 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
     }
 
     private fun FlipperConnection.observeIncomingEvents() {
-        receive(FlipperIncomingEvent.ForceSetPropertyValue.EVENT_NAME) { params, responder ->
-            val event = json.decodeFromString<FlipperIncomingEvent.ForceSetPropertyValue>(params.toJsonString())
+        receive("forceSetPropertyValue") { params, responder ->
+            val event = json.decodeFromString<BackInTimeDebuggerEvent.ForceSetPropertyValue>(params.toJsonString())
             val (instanceUUID, propertyName, value) = event
             service.forceSetValue(instanceUUID, propertyName, value)
             /**
@@ -109,9 +74,9 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
             responder.success()
         }
 
-        receive(FlipperIncomingEvent.CheckInstanceAlive.EVENT_NAME) { params, responder ->
-            val event = json.decodeFromString<FlipperIncomingEvent.CheckInstanceAlive>(params.toJsonString())
-            val response = FlipperIncomingEvent.CheckInstanceAlive.Response(event.instanceUUIDs.associateWith { service.checkIfInstanceIsAlive(it) })
+        receive("refreshInstanceAliveStatus") { params, responder ->
+            val event = json.decodeFromString<BackInTimeDebuggerEvent.CheckInstanceAlive>(params.toJsonString())
+            val response = BackInTimeDebuggerEvent.CheckInstanceAlive.Response(event.instanceUUIDs.associateWith { service.checkIfInstanceIsAlive(it) })
             responder.success(FlipperObject(json.encodeToString(response)))
         }
     }
