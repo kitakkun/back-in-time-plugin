@@ -80,3 +80,5 @@ androidApplication = { id = "com.android.application", version.ref = "android-li
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
+
