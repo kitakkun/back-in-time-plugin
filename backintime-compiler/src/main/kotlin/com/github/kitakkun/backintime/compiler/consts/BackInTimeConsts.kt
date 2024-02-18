@@ -16,11 +16,11 @@ object BackInTimeConsts {
     val backInTimeInitializedPropertyMapName = Name.identifier("backInTimeInitializedPropertyMap")
 
     val backInTimeDebugServiceClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugService")
-    val backInTimeDebugServiceEventClassId = classId("com.github.kitakkun.backintime.runtime", "BackInTimeDebugServiceEvent")
-    val registerEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("RegisterInstance"))
-    val registerRelationshipEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("RegisterRelationShip"))
-    val methodCallEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("MethodCall"))
-    val propertyValueChangeEventClassId = backInTimeDebugServiceEventClassId.createNestedClassId(Name.identifier("PropertyValueChange"))
+    val debuggableStateHolderEventClassId = classId("com.github.kitakkun.backintime.runtime", "DebuggableStateHolderEvent")
+    val registerEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("RegisterInstance"))
+    val registerRelationshipEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("RegisterRelationShip"))
+    val methodCallEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("MethodCall"))
+    val propertyValueChangeEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("PropertyValueChange"))
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
     val instanceInfoClassId = classId("com.github.kitakkun.backintime.runtime", "InstanceInfo")

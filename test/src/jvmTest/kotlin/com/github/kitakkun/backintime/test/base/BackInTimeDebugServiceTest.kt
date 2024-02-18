@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.test.base
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.runtime.DebuggableStateHolderEvent
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot
@@ -11,14 +11,14 @@ import kotlin.test.BeforeTest
 
 abstract class BackInTimeDebugServiceTest {
     private lateinit var service: BackInTimeDebugService
-    private val eventSlot = slot<BackInTimeDebugServiceEvent>()
-    private val mutableEvents = mutableListOf<BackInTimeDebugServiceEvent>()
-    val events: List<BackInTimeDebugServiceEvent> get() = mutableEvents
+    private val eventSlot = slot<DebuggableStateHolderEvent>()
+    private val mutableEvents = mutableListOf<DebuggableStateHolderEvent>()
+    val events: List<DebuggableStateHolderEvent> get() = mutableEvents
 
-    val registerInstanceEvents get() = events.filterIsInstance<BackInTimeDebugServiceEvent.RegisterInstance>()
-    val propertyValueChangeEvents get() = events.filterIsInstance<BackInTimeDebugServiceEvent.PropertyValueChange>()
-    val methodCallEvents get() = events.filterIsInstance<BackInTimeDebugServiceEvent.MethodCall>()
-    val registerRelationShipEvents get() = events.filterIsInstance<BackInTimeDebugServiceEvent.RegisterRelationShip>()
+    val registerInstanceEvents get() = events.filterIsInstance<DebuggableStateHolderEvent.RegisterInstance>()
+    val propertyValueChangeEvents get() = events.filterIsInstance<DebuggableStateHolderEvent.PropertyValueChange>()
+    val methodCallEvents get() = events.filterIsInstance<DebuggableStateHolderEvent.MethodCall>()
+    val registerRelationShipEvents get() = events.filterIsInstance<DebuggableStateHolderEvent.RegisterRelationShip>()
 
     @BeforeTest
     fun setup() {

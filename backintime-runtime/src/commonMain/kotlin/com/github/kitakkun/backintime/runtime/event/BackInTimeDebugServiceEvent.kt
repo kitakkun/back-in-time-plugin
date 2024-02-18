@@ -1,12 +1,13 @@
-package com.github.kitakkun.backintime.runtime.flipper.events
+package com.github.kitakkun.backintime.runtime.event
 
 import com.github.kitakkun.backintime.runtime.PropertyInfo
 import kotlinx.serialization.Serializable
 
 /**
- * Mobile app -> Desktop app
+ * events from debugService to debugger
  */
-sealed interface FlipperOutgoingEvent {
+@Serializable
+sealed interface BackInTimeDebugServiceEvent {
     @Serializable
     data class RegisterInstance(
         val instanceUUID: String,
@@ -14,11 +15,7 @@ sealed interface FlipperOutgoingEvent {
         val superClassName: String,
         val properties: List<PropertyInfo>,
         val registeredAt: Long,
-    ) : FlipperOutgoingEvent {
-        companion object {
-            const val EVENT_NAME = "register"
-        }
-    }
+    ) : BackInTimeDebugServiceEvent
 
     @Serializable
     data class NotifyValueChange(
@@ -26,11 +23,7 @@ sealed interface FlipperOutgoingEvent {
         val propertyName: String,
         val value: String,
         val methodCallUUID: String,
-    ) : FlipperOutgoingEvent {
-        companion object {
-            const val EVENT_NAME = "notifyValueChange"
-        }
-    }
+    ) : BackInTimeDebugServiceEvent
 
     @Serializable
     data class NotifyMethodCall(
@@ -38,19 +31,11 @@ sealed interface FlipperOutgoingEvent {
         val methodName: String,
         val methodCallUUID: String,
         val calledAt: Long,
-    ) : FlipperOutgoingEvent {
-        companion object {
-            const val EVENT_NAME = "notifyMethodCall"
-        }
-    }
+    ) : BackInTimeDebugServiceEvent
 
     @Serializable
     data class RegisterRelationship(
         val parentUUID: String,
         val childUUID: String,
-    ) : FlipperOutgoingEvent {
-        companion object {
-            const val EVENT_NAME = "registerRelationship"
-        }
-    }
+    ) : BackInTimeDebugServiceEvent
 }

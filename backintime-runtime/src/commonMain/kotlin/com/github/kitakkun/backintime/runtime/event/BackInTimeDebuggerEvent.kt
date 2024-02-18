@@ -1,19 +1,16 @@
-package com.github.kitakkun.backintime.runtime.flipper.events
+package com.github.kitakkun.backintime.runtime.event
 
 import kotlinx.serialization.Serializable
 
 /**
- * Desktop app -> Mobile app
+ * events from debugger to debugService
  */
-sealed interface FlipperIncomingEvent {
+@Serializable
+sealed interface BackInTimeDebuggerEvent {
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
-    ) : FlipperIncomingEvent {
-        companion object {
-            const val EVENT_NAME = "refreshInstanceAliveStatus"
-        }
-
+    ) : BackInTimeDebuggerEvent {
         @Serializable
         data class Response(
             val isAlive: Map<String, Boolean>,
@@ -26,9 +23,5 @@ sealed interface FlipperIncomingEvent {
         val propertyName: String,
         val value: String,
         val valueType: String,
-    ) : FlipperIncomingEvent {
-        companion object {
-            const val EVENT_NAME = "forceSetPropertyValue"
-        }
-    }
+    ) : BackInTimeDebuggerEvent
 }

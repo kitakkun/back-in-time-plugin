@@ -1,8 +1,8 @@
 package com.github.kitakkun.backintime.compiler.backend
 
+import com.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import com.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
-import com.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
@@ -26,8 +26,8 @@ class BackInTimePluginContext(
     // BackInTimeDebugService
     val backInTimeServiceClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
 
-    // BackInTimeDebugServiceEvent
-    private val backInTimeServiceEventClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceEventClassId)!!
+    // DebuggableStateHolderEvent
+    private val backInTimeServiceEventClassSymbol = referenceClass(BackInTimeConsts.debuggableStateHolderEventClassId)!!
     private val backInTimeServiceEventSealedSubClasses = backInTimeServiceEventClassSymbol.owner.sealedSubclasses
     val emitEventFunctionSymbol = backInTimeServiceClassSymbol.getSimpleFunction("emitEvent")!!
     val registerInstanceEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.registerEventClassId }.constructors.first { it.owner.isPrimary }
