@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.test.base
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.github.kitakkun.backintime.runtime.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.slot

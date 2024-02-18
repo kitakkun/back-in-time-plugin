@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.runtime.event
 
-import com.github.kitakkun.backintime.runtime.PropertyInfo
 import kotlinx.serialization.Serializable
 
 /**
