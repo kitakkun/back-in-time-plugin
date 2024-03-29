@@ -1,5 +1,5 @@
 pluginManagement {
-    includeBuild("build-logic")
+    includeBuild("build-logic-for-testing")
     repositories {
         mavenLocal()
         mavenCentral()

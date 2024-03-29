@@ -18,7 +18,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "build-logic"
+rootProject.name = "build-logic-for-testing"
 
 include(":backintime-plugin-common")
 include(":backintime-gradle-plugin")
