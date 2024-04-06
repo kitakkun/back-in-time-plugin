@@ -74,7 +74,7 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     }
 
     override fun getCompilerPluginId(): String {
-        return BackInTimePluginConsts.pluginId
+        return BackInTimePluginConsts.PLUGIN_ID
     }
 
     override fun getPluginArtifact(): SubpluginArtifact {

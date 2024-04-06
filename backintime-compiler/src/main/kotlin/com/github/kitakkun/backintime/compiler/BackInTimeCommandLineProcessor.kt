@@ -17,7 +17,7 @@ import java.util.Base64
 @OptIn(ExperimentalCompilerApi::class)
 @AutoService(CommandLineProcessor::class)
 class BackInTimeCommandLineProcessor : CommandLineProcessor {
-    override val pluginId: String = BackInTimePluginConsts.pluginId
+    override val pluginId: String = BackInTimePluginConsts.PLUGIN_ID
     override val pluginOptions: Collection<AbstractCliOption> = listOf(
         CliOption(
             optionName = BackInTimeCompilerOptionKey.ENABLED,

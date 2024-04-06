@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.ir.util.getSimpleFunction
 context(IrPluginContext)
 fun IrBlockBodyBuilder.generateUUIDVariable(): IrVariable? {
     val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId) ?: return null
-    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName) ?: return null
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.RANDOM_UUID_FUNCTION_NAME) ?: return null
     val toStringFunction = uuidClass.getSimpleFunction("toString") ?: return null
     return irTemporary(
         value = irCall(toStringFunction).apply {

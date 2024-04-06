@@ -61,7 +61,7 @@ class BackInTimePluginContext(
 
     // uuid
     private val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId)!!
-    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName)!!
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.RANDOM_UUID_FUNCTION_NAME)!!
     val toStringFunction = uuidClass.getSimpleFunction("toString")!!
 
     val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
