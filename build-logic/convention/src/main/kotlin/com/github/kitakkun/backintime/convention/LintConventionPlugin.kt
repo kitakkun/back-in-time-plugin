@@ -5,6 +5,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 class LintConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -16,6 +17,9 @@ class LintConventionPlugin : Plugin<Project> {
             configure<KtlintExtension> {
                 version.set(libs.findVersion("ktlint").get().requiredVersion)
                 ignoreFailures.set(true)
+                reporters {
+                    reporter(ReporterType.CHECKSTYLE)
+                }
             }
         }
     }
