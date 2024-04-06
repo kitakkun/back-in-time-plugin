@@ -29,6 +29,9 @@ ktlint = "1.2.1"
 jetbrains-compose = "1.6.0"
 
 [libraries]
+# gradle
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+jetbrains-compose-gradle-plugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrains-compose" }
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
 
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -77,6 +80,8 @@ koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
 [plugins]
 # convention
 backintimeLint = { id = "backintime.lint", version = "unspecified" }
+debuggerFeature = { id = "backintime.debugger.feature", version = "unspecified" }
+
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

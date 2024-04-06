@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
+    alias(libs.plugins.debuggerFeature) apply false
 }
 
 group = "com.github.kitakkun.backintime"
