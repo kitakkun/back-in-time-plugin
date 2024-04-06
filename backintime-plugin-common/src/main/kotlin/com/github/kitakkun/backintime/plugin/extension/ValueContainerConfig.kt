@@ -12,4 +12,3 @@ data class ValueContainerConfig(
     var serializeItself: Boolean = false,
     var serializeAs: String? = null,
 )
-

@@ -44,7 +44,6 @@ class BackInTimePluginContext(
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction = referenceFunctions(BackInTimeConsts.listOfFunctionId).first { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg }
 
-
     private val backInTimeRuntimeExceptionClassSymbol = referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     val typeMismatchExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.typeMismatchExceptionClassId }.constructors.first()
@@ -62,7 +61,7 @@ class BackInTimePluginContext(
 
     // uuid
     private val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId)!!
-    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName)!!
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.RANDOM_UUID_FUNCTION_NAME)!!
     val toStringFunction = uuidClass.getSimpleFunction("toString")!!
 
     val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }

@@ -68,13 +68,13 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
                     .map { Base64.getEncoder().encodeToString(it.toByteArray(Charsets.UTF_8)) }
                     .map {
                         SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_CONTAINER, value = it)
-                    }
+                    },
             )
         }
     }
 
     override fun getCompilerPluginId(): String {
-        return BackInTimePluginConsts.pluginId
+        return BackInTimePluginConsts.PLUGIN_ID
     }
 
     override fun getPluginArtifact(): SubpluginArtifact {

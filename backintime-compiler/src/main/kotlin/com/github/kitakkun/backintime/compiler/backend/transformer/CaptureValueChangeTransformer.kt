@@ -107,7 +107,7 @@ class CaptureValueChangeTransformer(
                     passedProperties = passedProperties,
                     classDispatchReceiverParameter = classDispatchReceiverParameter,
                     uuidVariable = uuidVariable,
-                )
+                ),
             )
         }
     }

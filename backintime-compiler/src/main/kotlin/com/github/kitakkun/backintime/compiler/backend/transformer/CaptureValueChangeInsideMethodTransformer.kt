@@ -1,10 +1,10 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irEmitEventCall
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -47,7 +47,7 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
                     parentClassSymbol = parentClassSymbol,
                     classDispatchReceiverParameter = parentClassDispatchReceiver,
                     uuidVariable = uuidVariable,
-                )
+                ),
             )
         }
 

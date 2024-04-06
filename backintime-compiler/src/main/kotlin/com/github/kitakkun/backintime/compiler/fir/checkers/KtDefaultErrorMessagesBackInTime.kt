@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.diagnostics.KtDiagnosticFactoryToRendererMap
 import org.jetbrains.kotlin.diagnostics.rendering.BaseDiagnosticRendererFactory
 
 object KtDefaultErrorMessagesBackInTime : BaseDiagnosticRendererFactory() {
+    @Suppress("ktlint:standard:property-naming")
     override val MAP = KtDiagnosticFactoryToRendererMap("BackInTime").apply {
         put(
             FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE,

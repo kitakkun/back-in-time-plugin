@@ -73,7 +73,7 @@ fun EditTodoDialog(
                         colors = IconButtonDefaults.filledTonalIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.errorContainer,
                             contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        )
+                        ),
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = null)
                     }

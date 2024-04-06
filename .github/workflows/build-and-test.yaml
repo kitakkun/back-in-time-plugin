@@ -1,9 +1,7 @@
-name: Build and Test Workflow
+name: Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
     branches: [ main, develop ]
 
 jobs:
@@ -18,6 +16,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'adopt'
+
+      - name: Publish to MavenLocal
+        run: ./gradlew publishToMavenLocal
 
       - name: Run JVM tests and Debug Unit Tests
         run: ./gradlew allTests

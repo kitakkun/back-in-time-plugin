@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.backintimeLint)
     id("com.github.kitakkun.backintime") version "1.0.0"
 }
 

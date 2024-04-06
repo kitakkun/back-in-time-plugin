@@ -14,6 +14,6 @@ fun IrClass.getSimpleFunctionsRecursively(name: Name): List<IrSimpleFunctionSymb
                 .flatMap { it.classOrNull?.owner?.getSimpleFunctionsRecursively(name) ?: emptyList() }
                 .filter {
                     it.owner.visibility.isVisibleOutside()
-                }
+                },
         )
 }
