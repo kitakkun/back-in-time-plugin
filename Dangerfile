@@ -10,6 +10,6 @@ if github.pr_json['assignee'] == nil
 end
 
 checkstyle_format.base_path = Dir.pwd
-Dir.glob("build/reports/**/*.xml") do |file|
+Dir.glob("**/build/reports/**/*.xml") do |file|
   checkstyle_format.report file
 end
