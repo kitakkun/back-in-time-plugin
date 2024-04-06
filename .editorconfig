@@ -1,3 +1,4 @@
 [*.{kt,kts}]
 max_line_length = off
 ktlint_standard_multiline-expression-wrapping = disabled
+ktlint_standard_function-signature = disabled
