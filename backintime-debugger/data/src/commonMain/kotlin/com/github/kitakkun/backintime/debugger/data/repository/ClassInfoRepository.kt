@@ -1,9 +1,12 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
 import app.cash.sqldelight.ColumnAdapter
+import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.ClassInfoQueries
 import com.github.kitakkun.backintime.runtime.event.PropertyInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -15,19 +18,21 @@ interface ClassInfoRepository {
     fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>)
 }
 
-class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository {
+class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository, CoroutineScope by IOScope() {
     override fun select(sessionId: String, className: String): ClassInfo? {
         return queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
     }
 
     override fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
-        queries.insert(
-            id = "$sessionId/$className",
-            className = className,
-            superClassName = superClassName,
-            properties = properties,
-            sessionId = sessionId,
-        )
+        launch {
+            queries.insert(
+                id = "$sessionId/$className",
+                className = className,
+                superClassName = superClassName,
+                properties = properties,
+                sessionId = sessionId,
+            )
+        }
     }
 }
 
