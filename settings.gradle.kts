@@ -26,5 +26,12 @@ include(
     ":backintime-annotations",
     ":test",
     ":backintime-demo",
-    ":backintime-demo:app"
+    ":backintime-demo:app",
+    ":backintime-debugger:app",
+    ":backintime-debugger:data",
+    ":backintime-debugger:featurecommon",
+    ":backintime-debugger:feature:instance",
+    ":backintime-debugger:feature:log",
+    ":backintime-debugger:feature:server",
+    ":backintime-debugger:feature:settings",
 )
