@@ -26,6 +26,7 @@ soloader = "0.10.5"
 
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
+jetbrains-compose = "1.6.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -85,3 +86,4 @@ androidApplication = { id = "com.android.application", version.ref = "android-li
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
