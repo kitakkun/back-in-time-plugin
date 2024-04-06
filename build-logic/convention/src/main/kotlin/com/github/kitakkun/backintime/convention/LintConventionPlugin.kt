@@ -9,6 +9,8 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 class LintConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
+
+
         with(target) {
             with(pluginManager) {
                 apply("org.jlleitschuh.gradle.ktlint")
