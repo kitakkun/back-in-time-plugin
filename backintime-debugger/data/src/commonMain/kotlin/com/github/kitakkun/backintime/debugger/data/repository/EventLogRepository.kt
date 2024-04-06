@@ -9,21 +9,21 @@ import com.github.kitakkun.backintime.runtime.backInTimeJson
 import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import java.util.UUID
 
 interface EventLogRepository {
     fun logFlow(sessionId: String): Flow<List<EventLog>>
-    fun insert(sessionId: String, event: BackInTimeDebugServiceEvent)
-    fun deleteAll(sessionId: String)
+    suspend fun insert(sessionId: String, event: BackInTimeDebugServiceEvent)
+    suspend fun deleteAll(sessionId: String)
 }
 
 class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineScope by IOScope(), EventLogRepository {
     override fun logFlow(sessionId: String): Flow<List<EventLog>> = queries.selectSessionEvents(sessionId).asFlow().mapToList(coroutineContext)
 
-    override fun insert(sessionId: String, event: BackInTimeDebugServiceEvent) {
-        launch {
+    override suspend fun insert(sessionId: String, event: BackInTimeDebugServiceEvent) {
+        withContext(coroutineContext) {
             queries.insert(
                 id = UUID.randomUUID().toString(),
                 sessionId = sessionId,
@@ -34,8 +34,8 @@ class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineSc
         }
     }
 
-    override fun deleteAll(sessionId: String) {
-        launch {
+    override suspend fun deleteAll(sessionId: String) {
+        withContext(coroutineContext) {
             queries.deleteSessionEvents(sessionId)
         }
     }
