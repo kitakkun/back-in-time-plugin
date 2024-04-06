@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
 import com.github.kitakkun.backintime.evaluation.data.Todo
 import com.github.kitakkun.backintime.evaluation.data.TodoDao

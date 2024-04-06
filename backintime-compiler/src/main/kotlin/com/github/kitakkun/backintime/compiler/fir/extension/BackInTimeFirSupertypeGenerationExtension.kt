@@ -17,8 +17,10 @@ class BackInTimeFirSupertypeGenerationExtension(session: FirSession) : FirSupert
 
     context(TypeResolveServiceContainer)
     override fun computeAdditionalSupertypes(classLikeDeclaration: FirClassLikeDeclaration, resolvedSupertypes: List<FirResolvedTypeRef>): List<FirResolvedTypeRef> {
-        return listOf(buildResolvedTypeRef {
-            type = BackInTimeConsts.backInTimeDebuggableInterfaceClassId.defaultType(emptyList())
-        })
+        return listOf(
+            buildResolvedTypeRef {
+                type = BackInTimeConsts.backInTimeDebuggableInterfaceClassId.defaultType(emptyList())
+            },
+        )
     }
 }

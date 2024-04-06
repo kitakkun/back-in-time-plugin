@@ -138,4 +138,3 @@ fun IrBuilderWithScope.irWhenByProperties(
         branches = branches,
     )
 }
-

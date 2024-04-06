@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend.utils
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -15,7 +15,7 @@ import org.jetbrains.kotlin.ir.util.getSimpleFunction
 context(IrPluginContext)
 fun IrBlockBodyBuilder.generateUUIDVariable(): IrVariable? {
     val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId) ?: return null
-    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.randomUUIDFunctionName) ?: return null
+    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.RANDOM_UUID_FUNCTION_NAME) ?: return null
     val toStringFunction = uuidClass.getSimpleFunction("toString") ?: return null
     return irTemporary(
         value = irCall(toStringFunction).apply {

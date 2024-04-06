@@ -13,7 +13,9 @@ import kotlin.test.assertIs
 
 class TypeMismatchExceptionTest {
     @ValueContainer
-    private class AnnotationConfiguredValueContainer<T>(@Getter @Setter @Capture var value: T)
+    private class AnnotationConfiguredValueContainer<T>(
+        @Getter @Setter @Capture var value: T,
+    )
 
     @DebuggableStateHolder
     private class TestStateHolder {

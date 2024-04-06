@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
@@ -8,9 +7,20 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irThrowNoSuchProper
 import com.github.kitakkun.backintime.compiler.backend.utils.irThrowTypeMismatchException
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
+import org.jetbrains.kotlin.ir.builders.irBlockBody
+import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irComposite
+import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irIfThenElse
+import org.jetbrains.kotlin.ir.builders.irIs
+import org.jetbrains.kotlin.ir.builders.irReturn
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrProperty
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.IrSimpleType
@@ -19,7 +29,10 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.kotlinFqName
+import org.jetbrains.kotlin.ir.util.parentClassOrNull
+import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.psi.stubs.impl.serialize
 
@@ -75,7 +88,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -100,7 +113,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -125,7 +138,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -170,7 +183,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(valueParameter))
                 putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
-            }
+            },
         )
     }
 
@@ -180,7 +193,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(valueParameter))
                 putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
-            }
+            },
         )
     }
 

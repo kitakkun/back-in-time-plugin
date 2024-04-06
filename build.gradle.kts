@@ -6,6 +6,9 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.kotlinAndroid) apply false
+    alias(libs.plugins.ktlint) apply false
+    // convention plugin
+    alias(libs.plugins.backintimeLint) apply false
 }
 
 group = "com.github.kitakkun.backintime"

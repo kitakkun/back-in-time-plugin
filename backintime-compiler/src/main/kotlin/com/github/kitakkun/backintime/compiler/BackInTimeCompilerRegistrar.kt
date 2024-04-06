@@ -28,4 +28,3 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(config))
     }
 }
-
