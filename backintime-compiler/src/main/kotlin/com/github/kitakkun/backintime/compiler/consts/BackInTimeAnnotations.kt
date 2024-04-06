@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
+
 object BackInTimeAnnotations {
     val debuggableStateHolderAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.DebuggableStateHolder")
     val debuggableStateHolderAnnotationClassId = ClassId.topLevel(debuggableStateHolderAnnotationFqName)
