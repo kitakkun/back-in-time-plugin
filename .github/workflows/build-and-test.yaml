@@ -1,7 +1,7 @@
-name: Review
+name: Build and Test
 
 on:
-  pull_request:
+  push:
     branches: [ main, develop ]
 
 jobs:
@@ -22,21 +22,3 @@ jobs:
 
       - name: Run JVM tests and Debug Unit Tests
         run: ./gradlew allTests
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.2.2
-
-      - name: Install Bundle
-        run: |
-          gem install bundler
-          bundle install
-
-      - name: Run Lint
-        run: ./gradlew ktlintCheck
-
-      - name: Run Danger
-        env:
-          DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec danger
