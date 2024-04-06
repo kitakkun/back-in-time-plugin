@@ -1,8 +1,6 @@
 name: Review
 
-on:
-  pull_request:
-    branches: [ main, develop ]
+on: pull_request
 
 jobs:
   build-and-test:
