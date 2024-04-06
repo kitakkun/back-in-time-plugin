@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.compiler.backend.utils
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -118,9 +118,8 @@ fun IrBuilderWithScope.irThrowTypeMismatchException(
     irCallConstructor(typeMismatchExceptionConstructor, emptyList()).apply {
         putValueArgument(0, irString(propertyName))
         putValueArgument(1, irString(expectedType))
-    }
+    },
 )
-
 
 context(BackInTimePluginContext)
 fun IrBuilderWithScope.irThrowNoSuchPropertyException(
@@ -130,5 +129,5 @@ fun IrBuilderWithScope.irThrowNoSuchPropertyException(
     irCallConstructor(noSuchPropertyExceptionConstructor, emptyList()).apply {
         putValueArgument(0, irString(parentClassFqName))
         putValueArgument(1, irGet(propertyNameParameter))
-    }
+    },
 )

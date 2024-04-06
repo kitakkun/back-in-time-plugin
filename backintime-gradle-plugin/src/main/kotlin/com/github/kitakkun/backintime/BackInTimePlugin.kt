@@ -68,7 +68,7 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
                     .map { Base64.getEncoder().encodeToString(it.toByteArray(Charsets.UTF_8)) }
                     .map {
                         SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_CONTAINER, value = it)
-                    }
+                    },
             )
         }
     }

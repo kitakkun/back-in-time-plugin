@@ -13,7 +13,9 @@ import kotlin.test.assertIs
 
 class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
     @ValueContainer
-    private class AnnotationConfiguredValueContainer<T>(@Getter @Setter @Capture var value: T) {
+    private class AnnotationConfiguredValueContainer<T>(
+        @Getter @Setter @Capture var value: T,
+    ) {
         @Capture
         fun update(newValue: T) {
             value = newValue

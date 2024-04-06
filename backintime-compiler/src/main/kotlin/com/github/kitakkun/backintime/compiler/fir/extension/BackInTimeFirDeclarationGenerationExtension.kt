@@ -35,8 +35,8 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
                 config = {
                     status { isOverride = true }
                     modality = Modality.OPEN
-                }
-            ).symbol
+                },
+            ).symbol,
         )
     }
 
@@ -56,16 +56,19 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
                     superDeclaration.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
                     status { isOverride = true }
                     modality = Modality.OPEN
-                }
-            ).symbol
+                },
+            ).symbol,
         )
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         return if (classSymbol is FirRegularClassSymbol && session.debuggableStateHolderPredicateMatcher.isAnnotated(classSymbol)) {
             setOf(
-                BackInTimeConsts.serializeMethodName, BackInTimeConsts.deserializeMethodName, BackInTimeConsts.forceSetValueMethodName,
-                BackInTimeConsts.backInTimeInstanceUUIDName, BackInTimeConsts.backInTimeInitializedPropertyMapName,
+                BackInTimeConsts.serializeMethodName,
+                BackInTimeConsts.deserializeMethodName,
+                BackInTimeConsts.forceSetValueMethodName,
+                BackInTimeConsts.backInTimeInstanceUUIDName,
+                BackInTimeConsts.backInTimeInitializedPropertyMapName,
             )
         } else {
             emptySet()

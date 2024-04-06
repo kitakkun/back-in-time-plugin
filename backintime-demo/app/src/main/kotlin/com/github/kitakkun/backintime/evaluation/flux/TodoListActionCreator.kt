@@ -1,9 +1,9 @@
 package com.github.kitakkun.backintime.evaluation.flux
 
-import com.github.kitakkun.backintime.evaluation.flux.architecture.Dispatcher
 import com.github.kitakkun.backintime.evaluation.data.Todo
 import com.github.kitakkun.backintime.evaluation.data.TodoDao
 import com.github.kitakkun.backintime.evaluation.flux.architecture.ActionCreator
+import com.github.kitakkun.backintime.evaluation.flux.architecture.Dispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

@@ -44,7 +44,6 @@ class BackInTimePluginContext(
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction = referenceFunctions(BackInTimeConsts.listOfFunctionId).first { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg }
 
-
     private val backInTimeRuntimeExceptionClassSymbol = referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
     val typeMismatchExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
         .first { it.owner.classId == BackInTimeConsts.typeMismatchExceptionClassId }.constructors.first()

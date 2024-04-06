@@ -1,6 +1,5 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
-import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
@@ -8,6 +7,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irThrowNoSuchProper
 import com.github.kitakkun.backintime.compiler.backend.utils.irThrowTypeMismatchException
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
+import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
@@ -75,7 +75,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -100,7 +100,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -125,7 +125,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                             parentClassFqName = parentClass.kotlinFqName.asString(),
                             propertyNameParameter = it,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -170,7 +170,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(valueParameter))
                 putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
-            }
+            },
         )
     }
 
@@ -180,7 +180,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                 extensionReceiver = irCall(backInTimeJsonGetter)
                 putValueArgument(0, irGet(valueParameter))
                 putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
-            }
+            },
         )
     }
 

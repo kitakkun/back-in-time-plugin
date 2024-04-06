@@ -31,7 +31,7 @@ class BackInTimeCommandLineProcessor : CommandLineProcessor {
             description = "predefined debuggable value-container class",
             allowMultipleOccurrences = true,
             required = false,
-        )
+        ),
     )
 
     override fun processOption(option: AbstractCliOption, value: String, configuration: CompilerConfiguration) = when (option.optionName) {
