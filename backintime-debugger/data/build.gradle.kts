@@ -22,6 +22,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlin.test.junit)
             implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
 
         jvmMain.dependencies {

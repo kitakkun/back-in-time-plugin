@@ -6,7 +6,7 @@ import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.ClassInfoQueries
 import com.github.kitakkun.backintime.runtime.event.PropertyInfo
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -14,17 +14,19 @@ import kotlinx.serialization.json.Json
  * manage class information related to each session
  */
 interface ClassInfoRepository {
-    fun select(sessionId: String, className: String): ClassInfo?
-    fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>)
+    suspend fun select(sessionId: String, className: String): ClassInfo?
+    suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>)
 }
 
 class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository, CoroutineScope by IOScope() {
-    override fun select(sessionId: String, className: String): ClassInfo? {
-        return queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
+    override suspend fun select(sessionId: String, className: String): ClassInfo? {
+        return withContext(coroutineContext) {
+            queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
+        }
     }
 
-    override fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
-        launch {
+    override suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
+        withContext(coroutineContext) {
             queries.insert(
                 id = "$sessionId/$className",
                 className = className,
