@@ -1,0 +1,16 @@
+import com.github.kitakkun.backintime.runtime.event.PropertyInfo;
+import kotlin.collections.List;
+
+CREATE TABLE IF NOT EXISTS classInfo(
+    id TEXT PRIMARY KEY,
+    sessionId TEXT NOT NULL,
+    className TEXT NOT NULL,
+    superClassName TEXT,
+    properties TEXT AS List<PropertyInfo> NOT NULL
+);
+
+select:
+SELECT * FROM classInfo WHERE className = ? AND sessionId = ?;
+
+insert:
+INSERT OR REPLACE INTO classInfo (id, sessionId, className, superClassName, properties) VALUES (?,  ?, ?, ?, ?);
