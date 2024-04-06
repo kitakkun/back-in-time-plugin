@@ -14,7 +14,7 @@ class LintConventionPlugin : Plugin<Project> {
             }
 
             configure<KtlintExtension> {
-                version.set(libs.findVersion("ktlint").get().toString())
+                version.set(libs.findVersion("ktlint").get().requiredVersion)
                 ignoreFailures.set(true)
             }
         }
