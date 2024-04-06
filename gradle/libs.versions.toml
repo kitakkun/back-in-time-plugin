@@ -76,6 +76,7 @@ koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
 [plugins]
 # convention
 backintimeLint = { id = "backintime.lint", version = "unspecified" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
