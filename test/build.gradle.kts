@@ -19,8 +19,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":backintime-runtime"))
-                implementation(project(":backintime-annotations"))
+                implementation(project(":backintime-library:runtime"))
+                implementation(project(":backintime-library:annotations"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }
@@ -78,12 +78,12 @@ backInTime {
 
 // publish required artifacts when performing sync on IDEA
 tasks.prepareKotlinIdeaImport {
-    dependsOn(":backintime-plugin-common:publishToMavenLocal")
-    dependsOn(":backintime-compiler:publishToMavenLocal")
+    dependsOn(":backintime-plugin:common:publishToMavenLocal")
+    dependsOn(":backintime-plugin:compiler:publishToMavenLocal")
 }
 
 // publish required artifacts when compiling via ./gradlew
 tasks.withType(KotlinCompile::class).all {
-    dependsOn(":backintime-plugin-common:publishToMavenLocal")
-    dependsOn(":backintime-compiler:publishToMavenLocal")
+    dependsOn(":backintime-plugin:common:publishToMavenLocal")
+    dependsOn(":backintime-plugin:compiler:publishToMavenLocal")
 }

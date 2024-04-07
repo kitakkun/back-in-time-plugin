@@ -20,11 +20,9 @@ dependencyResolutionManagement {
 rootProject.name = "backintime"
 
 include(
-    ":backintime-plugin-common",
-    ":backintime-gradle-plugin",
-    ":backintime-compiler",
-    ":backintime-runtime",
-    ":backintime-annotations",
+    ":backintime-plugin:common",
+    ":backintime-plugin:gradle",
+    ":backintime-plugin:compiler",
     ":test",
     ":backintime-demo",
     ":backintime-demo:app",
@@ -36,4 +34,10 @@ include(
     ":backintime-debugger:feature:log",
     ":backintime-debugger:feature:server",
     ":backintime-debugger:feature:settings",
+    ":backintime-library:runtime",
+    ":backintime-library:annotations",
+    ":backintime-library:websocket:server",
+    ":backintime-library:websocket:client",
+    ":backintime-library:websocket:event",
+    ":backintime-library:websocket:test",
 )

@@ -33,3 +33,11 @@ android {
     compileSdk = 34
     namespace = "com.github.kitakkun.backintime.runtime"
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "backintime-runtime"
+        }
+    }
+}

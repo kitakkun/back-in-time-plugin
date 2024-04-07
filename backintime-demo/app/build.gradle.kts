@@ -56,6 +56,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":backintime-library:runtime"))
+    implementation(project(":backintime-library:annotations"))
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)
