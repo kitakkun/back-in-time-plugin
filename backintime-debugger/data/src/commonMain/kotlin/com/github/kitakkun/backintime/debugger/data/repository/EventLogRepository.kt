@@ -10,6 +10,7 @@ import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import java.util.UUID
 
@@ -29,7 +30,7 @@ class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineSc
                 sessionId = sessionId,
                 kind = event.javaClass.name,
                 payload = backInTimeJson.encodeToString(event),
-                createdAt = System.currentTimeMillis(),
+                createdAt = Clock.System.now().epochSeconds,
             )
         }
     }

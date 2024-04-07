@@ -8,11 +8,12 @@ import com.github.kitakkun.backintime.debugger.database.SessionInfoQueries
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 
 interface SessionInfoRepository {
     val allConnectedSessions: Flow<List<SessionInfo>>
     val allDisconnectedSessions: Flow<List<SessionInfo>>
-    suspend fun insert(sessionId: String, label: String? = null, startedAt: Long = System.currentTimeMillis())
+    suspend fun insert(sessionId: String, label: String? = null, startedAt: Long = Clock.System.now().epochSeconds)
     suspend fun select(sessionId: String): SessionInfo?
 }
 
@@ -33,7 +34,7 @@ class SessionInfoRepositoryImpl(
             queries.insert(
                 id = sessionId,
                 label = label ?: sessionId,
-                startedAt = System.currentTimeMillis(),
+                startedAt = startedAt,
             )
         }
     }

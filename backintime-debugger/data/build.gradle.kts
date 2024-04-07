@@ -16,6 +16,7 @@ kotlin {
             implementation(libs.multiplatform.settings)
             implementation(libs.koin.core)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.datetime)
         }
 
         commonTest.dependencies {
