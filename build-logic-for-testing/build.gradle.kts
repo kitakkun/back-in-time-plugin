@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
+    alias(libs.plugins.debuggerFeature) apply false
 }
 
 group = "com.github.kitakkun.backintime"

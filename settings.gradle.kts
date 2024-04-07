@@ -30,6 +30,7 @@ include(
     ":backintime-demo:app",
     ":backintime-debugger:app",
     ":backintime-debugger:data",
+    ":backintime-debugger:ui",
     ":backintime-debugger:featurecommon",
     ":backintime-debugger:feature:instance",
     ":backintime-debugger:feature:log",
