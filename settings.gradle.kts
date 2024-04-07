@@ -27,5 +27,9 @@ include(
     ":backintime-annotations",
     ":test",
     ":backintime-demo",
-    ":backintime-demo:app"
+    ":backintime-demo:app",
+    ":backintime-websocket:server",
+    ":backintime-websocket:client",
+    ":backintime-websocket:event",
+    ":backintime-websocket:test",
 )
