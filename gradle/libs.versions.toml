@@ -33,7 +33,6 @@ jetbrains-compose = "1.6.0"
 
 sqldelight = "2.0.1"
 koin = "3.5.0"
-ktor = "2.3.9"
 multiplatformSettings = "1.1.1"
 kotlinx-datetime = "0.5.0"
 
