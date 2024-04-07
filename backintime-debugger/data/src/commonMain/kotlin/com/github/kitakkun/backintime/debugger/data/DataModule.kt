@@ -4,6 +4,8 @@ import com.github.kitakkun.backintime.debugger.data.repository.ClassInfoReposito
 import com.github.kitakkun.backintime.debugger.data.repository.ClassInfoRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.EventLogRepository
 import com.github.kitakkun.backintime.debugger.data.repository.EventLogRepositoryImpl
+import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepository
+import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import org.koin.dsl.module
@@ -11,6 +13,7 @@ import org.koin.dsl.module
 val dataModule = module {
     // repositories
     single<ClassInfoRepository> { ClassInfoRepositoryImpl(get()) }
+    single<InstanceRepository> { InstanceRepositoryImpl(get()) }
     single<EventLogRepository> { EventLogRepositoryImpl(get()) }
 
     // sqldelight
@@ -25,5 +28,6 @@ val dataModule = module {
         )
     }
     single { get<BackInTimeDatabase>().classInfoQueries }
+    single { get<BackInTimeDatabase>().instanceQueries }
     single { get<BackInTimeDatabase>().eventLogQueries }
 }
