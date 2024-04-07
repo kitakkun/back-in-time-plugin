@@ -15,7 +15,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.multiplatform.settings)
             implementation(libs.koin.core)
-            implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.kotlinx.datetime)
         }
 
@@ -24,12 +23,6 @@ kotlin {
             implementation(libs.kotlin.test.junit)
             implementation(libs.koin.test)
             implementation(libs.kotlinx.coroutines.test)
-        }
-
-        jvmMain.dependencies {
-            implementation(libs.ktor.server.core.jvm)
-            implementation(libs.ktor.server.websockets.jvm)
-            implementation(libs.ktor.server.netty.jvm)
         }
     }
 }
