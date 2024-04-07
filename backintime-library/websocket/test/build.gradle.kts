@@ -15,9 +15,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-websocket:event"))
-            implementation(project(":backintime-websocket:server"))
-            implementation(project(":backintime-websocket:client"))
+            implementation(project(":backintime-library:websocket:event"))
+            implementation(project(":backintime-library:websocket:server"))
+            implementation(project(":backintime-library:websocket:client"))
         }
 
         commonTest.dependencies {

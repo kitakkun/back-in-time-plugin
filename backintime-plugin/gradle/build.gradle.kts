@@ -16,8 +16,16 @@ gradlePlugin {
     }
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = "backintime-gradle-plugin"
+        }
+    }
+}
+
 dependencies {
-    implementation(project(":backintime-plugin-common"))
+    implementation(project(":backintime-plugin:common"))
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlinx.serialization.json)
 
