@@ -78,12 +78,12 @@ backInTime {
 
 // publish required artifacts when performing sync on IDEA
 tasks.prepareKotlinIdeaImport {
-    dependsOn(":backintime-plugin-common:publishToMavenLocal")
-    dependsOn(":backintime-compiler:publishToMavenLocal")
+    dependsOn(":backintime-plugin:common:publishToMavenLocal")
+    dependsOn(":backintime-plugin:compiler:publishToMavenLocal")
 }
 
 // publish required artifacts when compiling via ./gradlew
 tasks.withType(KotlinCompile::class).all {
-    dependsOn(":backintime-plugin-common:publishToMavenLocal")
-    dependsOn(":backintime-compiler:publishToMavenLocal")
+    dependsOn(":backintime-plugin:common:publishToMavenLocal")
+    dependsOn(":backintime-plugin:compiler:publishToMavenLocal")
 }

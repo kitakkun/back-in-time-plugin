@@ -21,7 +21,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "build-logic-for-testing"
 
-include(":backintime-plugin-common")
-include(":backintime-gradle-plugin")
-project(":backintime-plugin-common").projectDir = file("../backintime-plugin-common")
-project(":backintime-gradle-plugin").projectDir = file("../backintime-gradle-plugin")
+include(":backintime-plugin:common")
+include(":backintime-plugin:gradle")
+project(":backintime-plugin:common").projectDir = file("../backintime-plugin/common")
+project(":backintime-plugin:gradle").projectDir = file("../backintime-plugin/gradle")

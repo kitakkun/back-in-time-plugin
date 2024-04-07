@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":backintime-plugin-common"))
+    implementation(project(":backintime-plugin:common"))
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlin.compiler.embeddable)
     implementation(libs.kotlinx.serialization.json)
