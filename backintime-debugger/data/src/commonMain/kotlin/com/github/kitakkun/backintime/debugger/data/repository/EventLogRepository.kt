@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
+import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
@@ -29,7 +30,7 @@ class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineSc
                 id = UUID.randomUUID().toString(),
                 sessionId = sessionId,
                 kind = event.javaClass.name,
-                payload = backInTimeJson.encodeToString(event),
+                payload = event,
                 createdAt = Clock.System.now().epochSeconds,
             )
         }
@@ -39,5 +40,15 @@ class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineSc
         withContext(coroutineContext) {
             queries.deleteSessionEvents(sessionId)
         }
+    }
+}
+
+val backInTimeDebugServiceEventAdapter = object : ColumnAdapter<BackInTimeDebugServiceEvent, String> {
+    override fun encode(value: BackInTimeDebugServiceEvent): String {
+        return backInTimeJson.encodeToString(value)
+    }
+
+    override fun decode(databaseValue: String): BackInTimeDebugServiceEvent {
+        return backInTimeJson.decodeFromString(databaseValue)
     }
 }

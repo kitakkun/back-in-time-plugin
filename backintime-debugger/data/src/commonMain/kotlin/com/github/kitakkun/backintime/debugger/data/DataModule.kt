@@ -8,8 +8,10 @@ import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepositor
 import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoRepository
 import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoRepositoryImpl
+import com.github.kitakkun.backintime.debugger.data.repository.backInTimeDebugServiceEventAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
+import com.github.kitakkun.backintime.debugger.database.EventLog
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -27,6 +29,9 @@ val dataModule = module {
             driver = driver,
             classInfoAdapter = ClassInfo.Adapter(
                 propertiesAdapter = listOfPropertyInfoAdapter,
+            ),
+            eventLogAdapter = EventLog.Adapter(
+                payloadAdapter = backInTimeDebugServiceEventAdapter,
             ),
         )
     }

@@ -1,8 +1,10 @@
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent;
+
 CREATE TABLE IF NOT EXISTS eventLog(
     id TEXT PRIMARY KEY,
     sessionId TEXT NOT NULL,
     kind TEXT NOT NULL,
-    payload TEXT NOT NULL,
+    payload TEXT AS BackInTimeDebugServiceEvent NOT NULL,
     createdAt INTEGER NOT NULL
 );
 
