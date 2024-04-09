@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.runtime.event
+package com.github.kitakkun.backintime.websocket.event
 
 import kotlinx.serialization.Serializable
 
@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed interface BackInTimeDebuggerEvent {
+    @Serializable
+    data object Ping : BackInTimeDebuggerEvent
+
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,

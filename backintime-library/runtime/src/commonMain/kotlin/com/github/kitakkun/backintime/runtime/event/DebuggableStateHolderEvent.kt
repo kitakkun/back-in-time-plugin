@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.runtime.event
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
+import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 
 /**
  * events inside debuggableStateHolder

@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.websocket.client
 
-import com.github.kitakkun.backintime.websocket.event.AppToDebuggerEvent
-import com.github.kitakkun.backintime.websocket.event.DebuggerToAppEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
@@ -37,7 +37,7 @@ class BackInTimeWebSocketClient : CoroutineScope {
     private var session: DefaultClientWebSocketSession? = null
     val connected: Boolean get() = session != null
 
-    private val mutableReceivedEventFlow = MutableSharedFlow<DebuggerToAppEvent>()
+    private val mutableReceivedEventFlow = MutableSharedFlow<BackInTimeDebuggerEvent>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
     fun connect(host: String, port: Int) {
@@ -52,7 +52,7 @@ class BackInTimeWebSocketClient : CoroutineScope {
                 incoming
                     .consumeAsFlow()
                     .filterIsInstance<Frame.Text>()
-                    .map { Json.decodeFromString<DebuggerToAppEvent>(it.readText()) }
+                    .map { Json.decodeFromString<BackInTimeDebuggerEvent>(it.readText()) }
                     .collect {
                         mutableReceivedEventFlow.emit(it)
                     }
@@ -60,7 +60,7 @@ class BackInTimeWebSocketClient : CoroutineScope {
         }
     }
 
-    fun send(event: AppToDebuggerEvent) {
+    fun send(event: BackInTimeDebugServiceEvent) {
         launch {
             session?.outgoing?.send(Frame.Text(Json.encodeToString(event)))
         }

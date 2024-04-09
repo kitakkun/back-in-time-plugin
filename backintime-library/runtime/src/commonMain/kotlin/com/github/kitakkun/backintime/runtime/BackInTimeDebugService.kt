@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.runtime
 
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -120,7 +120,6 @@ object BackInTimeDebugService : CoroutineScope {
             null
         }
     }
-
 
     /**
      * check if the instance is still alive

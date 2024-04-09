@@ -16,6 +16,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(project(":backintime-library:websocket:event"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }

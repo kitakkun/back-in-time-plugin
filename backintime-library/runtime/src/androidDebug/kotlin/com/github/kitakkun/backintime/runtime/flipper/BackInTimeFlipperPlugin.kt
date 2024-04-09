@@ -4,8 +4,8 @@ import com.facebook.flipper.core.FlipperConnection
 import com.facebook.flipper.core.FlipperObject
 import com.facebook.flipper.core.FlipperPlugin
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggerEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -51,6 +51,7 @@ class BackInTimeFlipperPlugin : FlipperPlugin, CoroutineScope by MainScope() {
                     is BackInTimeDebugServiceEvent.RegisterRelationship -> "registerRelationship"
                     is BackInTimeDebugServiceEvent.NotifyMethodCall -> "notifyMethodCall"
                     is BackInTimeDebugServiceEvent.NotifyValueChange -> "notifyValueChange"
+                    is BackInTimeDebugServiceEvent.Ping -> "ping"
                 }
                 connection?.send(eventKey, FlipperObject(json.encodeToString(event)))
             }

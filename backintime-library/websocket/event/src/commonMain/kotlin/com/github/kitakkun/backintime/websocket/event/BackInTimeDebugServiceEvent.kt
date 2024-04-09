@@ -1,5 +1,6 @@
-package com.github.kitakkun.backintime.runtime.event
+package com.github.kitakkun.backintime.websocket.event
 
+import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 import kotlinx.serialization.Serializable
 
 /**
@@ -7,6 +8,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 sealed interface BackInTimeDebugServiceEvent {
+    @Serializable
+    data object Ping : BackInTimeDebugServiceEvent
+
     @Serializable
     data class RegisterInstance(
         val instanceUUID: String,

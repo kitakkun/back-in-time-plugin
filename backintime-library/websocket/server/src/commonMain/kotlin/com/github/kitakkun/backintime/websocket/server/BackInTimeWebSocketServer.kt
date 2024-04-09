@@ -1,8 +1,8 @@
 package com.github.kitakkun.backintime.websocket.server
 
 import com.benasher44.uuid.uuid4
-import com.github.kitakkun.backintime.websocket.event.AppToDebuggerEvent
-import com.github.kitakkun.backintime.websocket.event.DebuggerToAppEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
@@ -47,7 +47,7 @@ class BackInTimeWebSocketServer : CoroutineScope {
     private val mutableConnectionEstablishedFlow = MutableSharedFlow<String>()
     val connectionEstablishedFlow = mutableConnectionEstablishedFlow.asSharedFlow()
 
-    private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, AppToDebuggerEvent>>()
+    private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
     fun start(port: Int) {
@@ -69,7 +69,7 @@ class BackInTimeWebSocketServer : CoroutineScope {
                     incoming
                         .consumeAsFlow()
                         .filterIsInstance<Frame.Text>()
-                        .map { Json.decodeFromString<AppToDebuggerEvent>(it.readText()) }
+                        .map { Json.decodeFromString<BackInTimeDebugServiceEvent>(it.readText()) }
                         .collect {
                             mutableReceivedEventFlow.emit(connection.id to it)
                         }
@@ -80,7 +80,7 @@ class BackInTimeWebSocketServer : CoroutineScope {
         server?.start()
     }
 
-    fun send(event: DebuggerToAppEvent) {
+    fun send(event: BackInTimeDebuggerEvent) {
         launch {
             connections.forEach {
                 it.session.send(Json.encodeToString(event))

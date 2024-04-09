@@ -1,8 +1,8 @@
 package com.github.kitakkun.backintime.websocket.test
 
 import com.github.kitakkun.backintime.websocket.client.BackInTimeWebSocketClient
-import com.github.kitakkun.backintime.websocket.event.AppToDebuggerEvent
-import com.github.kitakkun.backintime.websocket.event.DebuggerToAppEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,11 +47,11 @@ class WebSocketCommunicationTest {
 
     @Test
     fun sendEventFromDebuggerToApp() = runBlocking {
-        val collectedEvents = mutableListOf<DebuggerToAppEvent>()
+        val collectedEvents = mutableListOf<BackInTimeDebuggerEvent>()
 
         val job = launch { client.receivedEventFlow.collect(collectedEvents::add) }
 
-        val event = DebuggerToAppEvent.Ping
+        val event = BackInTimeDebuggerEvent.Ping
         server.send(event)
         delay(50) // FIXME: This is a hack to wait for the event to be processed
         job.cancel()
@@ -62,11 +62,11 @@ class WebSocketCommunicationTest {
 
     @Test
     fun sendEventFromAppToDebugger() = runBlocking {
-        val collectedEvents = mutableListOf<AppToDebuggerEvent>()
+        val collectedEvents = mutableListOf<BackInTimeDebugServiceEvent>()
 
         val job = launch { server.receivedEventFlow.collect { collectedEvents.add(it.second) } }
 
-        val event = AppToDebuggerEvent.Ping
+        val event = BackInTimeDebugServiceEvent.Ping
         client.send(event)
         delay(50) // FIXME: This is a hack to wait for the event to be processed
         job.cancel()
