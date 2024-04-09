@@ -14,28 +14,21 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import io.ktor.websocket.send
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.coroutines.CoroutineContext
 
 data class Connection(
     val session: DefaultWebSocketServerSession,
     val id: String = uuid4().toString(),
 )
 
-class BackInTimeWebSocketServer : CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + SupervisorJob()
+class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
 
     suspend fun getActualPort() = server?.resolvedConnectors()?.firstOrNull()?.port
@@ -80,11 +73,9 @@ class BackInTimeWebSocketServer : CoroutineScope {
         server?.start()
     }
 
-    fun send(event: BackInTimeDebuggerEvent) {
-        launch {
-            connections.forEach {
-                it.session.send(Json.encodeToString(event))
-            }
+    suspend fun send(event: BackInTimeDebuggerEvent) {
+        connections.forEach {
+            it.session.send(Json.encodeToString(event))
         }
     }
 

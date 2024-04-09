@@ -5,6 +5,7 @@ import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEven
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.AfterTest
@@ -28,28 +29,21 @@ class WebSocketCommunicationTest {
         assertNotNull(host)
         assertNotNull(port)
 
-        client.connect(host = host, port = port)
-
-        while (!client.connected) {
-            // Wait for the client to connect
-            delay(500)
-        }
+        client.connectUntilSuccess(host = host, port = port)
         assertTrue(client.connected)
     }
 
     @AfterTest
-    fun tearDown() {
-        runBlocking {
-            client.close()
-            server.stop()
-        }
+    fun tearDown() = runBlocking {
+        client.close()
+        server.stop()
     }
 
     @Test
     fun sendEventFromDebuggerToApp() = runBlocking {
         val collectedEvents = mutableListOf<BackInTimeDebuggerEvent>()
 
-        val job = launch { client.receivedEventFlow.collect(collectedEvents::add) }
+        val job = launch { client.receivedEventFlow.toList(collectedEvents) }
 
         val event = BackInTimeDebuggerEvent.Ping
         server.send(event)

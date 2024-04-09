@@ -13,20 +13,23 @@ import io.ktor.websocket.readText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-class BackInTimeWebSocketClient : CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + SupervisorJob()
-
+/**
+ * This class is responsible for connecting to the back-in-time debugger server
+ */
+class BackInTimeWebSocketClient {
     private val client = HttpClient {
         install(WebSockets) {
             maxFrameSize = Long.MAX_VALUE
@@ -40,36 +43,46 @@ class BackInTimeWebSocketClient : CoroutineScope {
     private val mutableReceivedEventFlow = MutableSharedFlow<BackInTimeDebuggerEvent>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
-    fun connect(host: String, port: Int) {
-        launch {
-            client.webSocket(
-                host = host,
-                port = port,
-                path = "/backintime",
-            ) {
-                session = this
+    suspend fun connectUntilSuccess(host: String, port: Int) {
+        suspendCoroutine { continuation ->
+            CoroutineScope(Dispatchers.IO).launch {
+                var retryCount = 0
+                while (isActive) {
+                    try {
+                        client.webSocket(
+                            host = host,
+                            port = port,
+                            path = "/backintime",
+                        ) {
+                            session = this
 
-                incoming
-                    .consumeAsFlow()
-                    .filterIsInstance<Frame.Text>()
-                    .map { Json.decodeFromString<BackInTimeDebuggerEvent>(it.readText()) }
-                    .collect {
-                        mutableReceivedEventFlow.emit(it)
+                            retryCount = 0
+                            continuation.resume(Unit)
+
+                            incoming
+                                .consumeAsFlow()
+                                .filterIsInstance<Frame.Text>()
+                                .map { Json.decodeFromString<BackInTimeDebuggerEvent>(it.readText()) }
+                                .collect {
+                                    mutableReceivedEventFlow.emit(it)
+                                }
+                        }
+                    } catch (e: Throwable) {
+                        session = null
+                        retryCount++
+                        delay((retryCount * 1000L).coerceAtMost(5000L))
                     }
+                }
             }
         }
     }
 
-    fun send(event: BackInTimeDebugServiceEvent) {
-        launch {
-            session?.outgoing?.send(Frame.Text(Json.encodeToString(event)))
-        }
+    suspend fun send(event: BackInTimeDebugServiceEvent) {
+        session?.outgoing?.send(Frame.Text(Json.encodeToString(event)))
     }
 
-    fun close() {
-        launch {
-            session?.close()
-        }
+    suspend fun close() {
+        session?.close()
         session = null
     }
 }
