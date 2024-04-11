@@ -6,12 +6,14 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(17)
 
     jvm()
-    androidTarget {
-        publishLibraryVariants("debug")
-    }
+    androidTarget { publishAllLibraryVariants() }
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain
