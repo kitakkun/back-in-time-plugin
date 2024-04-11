@@ -47,7 +47,7 @@ class WebSocketCommunicationTest {
 
         val event = BackInTimeDebuggerEvent.Ping
         server.send(event)
-        delay(50) // FIXME: This is a hack to wait for the event to be processed
+        delay(500) // FIXME: This is a hack to wait for the event to be processed
         job.cancel()
 
         assertEquals(expected = 1, actual = collectedEvents.size)
@@ -62,7 +62,7 @@ class WebSocketCommunicationTest {
 
         val event = BackInTimeDebugServiceEvent.Ping
         client.send(event)
-        delay(50) // FIXME: This is a hack to wait for the event to be processed
+        delay(500) // FIXME: This is a hack to wait for the event to be processed
         job.cancel()
 
         assertEquals(expected = 1, actual = collectedEvents.size)
