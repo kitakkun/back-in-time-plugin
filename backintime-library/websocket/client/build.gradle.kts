@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    `maven-publish`
 }
 
 kotlin {
@@ -27,4 +28,12 @@ kotlin {
 android {
     namespace = "com.github.kitakkun.backintime.websocket.client"
     compileSdk = 34
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "backintime-websocket-client"
+        }
+    }
 }
