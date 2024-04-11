@@ -20,5 +20,5 @@ jobs:
       - name: Publish to MavenLocal
         run: ./gradlew publishToMavenLocal
 
-      - name: Run JVM tests and Debug Unit Tests
-        run: ./gradlew allTests
+      - name: Run tests
+        run: ./gradlew iosSimulatorArm64Test iosX64Test jvmTest testDebugUnitTest
