@@ -29,6 +29,7 @@ uuid = "0.8.4"
 
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
+kotlinx-datetime = "0.6.0-RC.2"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -86,6 +87,7 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 # multiplatform uuid
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 # convention

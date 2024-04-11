@@ -30,7 +30,7 @@ class WebSocketCommunicationTest {
         assertNotNull(port)
 
         client.connectUntilSuccess(host = host, port = port)
-        assertTrue(client.connected)
+        assertTrue(client.connectedFlow.value)
     }
 
     @AfterTest

@@ -27,4 +27,9 @@ sealed interface BackInTimeDebuggerEvent {
         val value: String,
         val valueType: String,
     ) : BackInTimeDebuggerEvent
+
+    @Serializable
+    data class Error(
+        val message: String,
+    ) : BackInTimeDebugServiceEvent
 }

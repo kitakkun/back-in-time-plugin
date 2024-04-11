@@ -41,4 +41,15 @@ sealed interface BackInTimeDebugServiceEvent {
         val parentUUID: String,
         val childUUID: String,
     ) : BackInTimeDebugServiceEvent
+
+    @Serializable
+    data class CheckInstanceAliveResult(
+        val instanceUUIDs: List<String>,
+        val result: List<Boolean>,
+    ) : BackInTimeDebugServiceEvent
+
+    @Serializable
+    data class Error(
+        val message: String,
+    ) : BackInTimeDebugServiceEvent
 }

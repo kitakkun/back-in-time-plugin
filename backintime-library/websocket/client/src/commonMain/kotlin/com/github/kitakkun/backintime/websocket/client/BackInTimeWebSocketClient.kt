@@ -15,7 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -38,7 +40,8 @@ class BackInTimeWebSocketClient {
     }
 
     private var session: DefaultClientWebSocketSession? = null
-    val connected: Boolean get() = session != null
+    private val mutableConnectedFlow = MutableStateFlow(false)
+    val connectedFlow = mutableConnectedFlow.asStateFlow()
 
     private val mutableReceivedEventFlow = MutableSharedFlow<BackInTimeDebuggerEvent>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
@@ -55,6 +58,7 @@ class BackInTimeWebSocketClient {
                             path = "/backintime",
                         ) {
                             session = this
+                            mutableConnectedFlow.emit(true)
 
                             retryCount = 0
                             continuation.resume(Unit)
