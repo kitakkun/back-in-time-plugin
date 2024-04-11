@@ -5,9 +5,12 @@ import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
 import com.github.kitakkun.backintime.annotations.Getter
 import com.github.kitakkun.backintime.annotations.Setter
 import com.github.kitakkun.backintime.annotations.ValueContainer
+import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     @ValueContainer
@@ -117,12 +120,11 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     private fun ValueContainerHolder.assertRequirementsAreMet() {
-        // FIXME
-//        assertIs<BackInTimeDebuggable>(this)
-//        assertEquals(10, container.value)
-//        assertEquals(1, propertyValueChangeEvents.size)
-//        assertEquals(this, propertyValueChangeEvents[0].instance)
-//        assertEquals("container", propertyValueChangeEvents[0].propertyName)
-//        assertEquals(10, propertyValueChangeEvents[0].propertyValue)
+        assertIs<BackInTimeDebuggable>(this)
+        assertEquals(10, container.value)
+        assertEquals(1, notifyValueChangeEvents.size)
+        assertEquals(this.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
+        assertEquals("container", notifyValueChangeEvents[0].propertyName)
+        assertEquals(10, notifyValueChangeEvents[0].value.toInt())
     }
 }
