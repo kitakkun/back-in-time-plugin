@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    `maven-publish`
 }
 
 kotlin {
@@ -22,10 +23,23 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.uuid)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.ktor.server.test.host)
+            implementation(libs.ktor.server.websockets)
+        }
     }
 }
 
 android {
     namespace = "com.github.kitakkun.backintime.websocket.server"
     compileSdk = 34
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            artifactId = "backintime-websocket-server"
+        }
+    }
 }

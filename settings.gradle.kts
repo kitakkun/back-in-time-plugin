@@ -31,5 +31,4 @@ include(
     ":backintime-library:websocket:server",
     ":backintime-library:websocket:client",
     ":backintime-library:websocket:event",
-    ":backintime-library:websocket:test",
 )
