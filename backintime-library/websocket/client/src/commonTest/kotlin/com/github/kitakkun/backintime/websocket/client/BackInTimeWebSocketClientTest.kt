@@ -37,7 +37,6 @@ class BackInTimeWebSocketClientTest {
         runBlocking {
             val result = client.connect()
             assertTrue(result.isFailure)
-            println(result)
         }
     }
 
@@ -59,6 +58,7 @@ class BackInTimeWebSocketClientTest {
 
             val result = client.connect()
             assertTrue(result.isSuccess)
+            client.close()
         }
     }
 
@@ -87,6 +87,7 @@ class BackInTimeWebSocketClientTest {
 
             val serverReceivedEvent = serverReceiveFlow.first()
             assertEquals(expected = BackInTimeDebugServiceEvent.Ping, actual = serverReceivedEvent)
+            client.close()
         }
     }
 
@@ -108,6 +109,7 @@ class BackInTimeWebSocketClientTest {
 
             val receivedEvent = client.receiveEventAsFlow().first()
             assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = receivedEvent)
+            client.close()
         }
     }
 
