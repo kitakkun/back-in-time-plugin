@@ -11,6 +11,7 @@ import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -65,7 +66,7 @@ class BackInTimeWebSocketClientTest {
     @Test
     fun `test success to send event`() {
         testApplication {
-            val serverReceiveFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>()
+            val serverReceiveFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>(replay = 1)
 
             configureServer(
                 host = TEST_HOST,
@@ -98,6 +99,7 @@ class BackInTimeWebSocketClientTest {
                 host = TEST_HOST,
                 port = TEST_PORT,
                 serverSession = {
+                    delay(1000)
                     send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping)))
                 },
             )
