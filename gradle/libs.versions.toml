@@ -36,7 +36,6 @@ kotlinx-datetime = "0.6.0-RC.2"
 sqldelight = "2.0.1"
 koin = "3.5.0"
 multiplatformSettings = "1.1.1"
-kotlinx-datetime = "0.5.0"
 
 [libraries]
 # gradle
@@ -106,7 +105,6 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 # multiplatform uuid
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
-kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 [plugins]
 # convention
