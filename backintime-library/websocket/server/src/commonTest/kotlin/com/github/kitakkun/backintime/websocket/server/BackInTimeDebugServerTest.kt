@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.websocket.server
 
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
@@ -8,9 +9,15 @@ import io.ktor.server.application.Application
 import io.ktor.server.engine.connector
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
+import io.ktor.websocket.send
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 // FIXME: this test fails for native target
@@ -81,6 +88,38 @@ class BackInTimeDebugServerTest {
             }
 
             assertTrue(connectedFlow.first())
+        }
+    }
+
+    @Test
+    fun `test send`() {
+        testApplication {
+            environment {
+                connector {
+                    host = TEST_HOST
+                    port = TEST_PORT
+                }
+            }
+            application {
+                configureApplication(
+                    onConnect = {
+                        it.session.send(Json.encodeToString(BackInTimeDebuggerEvent.Ping))
+                    },
+                    onReceiveEvent = { _, _ ->
+                    },
+                )
+            }
+
+            startSession(
+                host = TEST_HOST,
+                port = TEST_PORT,
+            ) {
+                // Do nothing
+                val receivedEvent = (incoming.receive() as? Frame.Text)?.let {
+                    Json.decodeFromString<BackInTimeDebuggerEvent.Ping>(it.readText())
+                }
+                assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = receivedEvent)
+            }
         }
     }
 
