@@ -1,33 +1,34 @@
 package com.github.kitakkun.backintime.websocket.client
 
-import com.github.kitakkun.backintime.websocket.event.AppToDebuggerEvent
-import com.github.kitakkun.backintime.websocket.event.DebuggerToAppEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.consumeAsFlow
+import io.ktor.websocket.send
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.coroutines.CoroutineContext
 
-class BackInTimeWebSocketClient : CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + SupervisorJob()
-
-    private val client = HttpClient {
+/**
+ * This class is responsible for connecting to the back-in-time debugger server
+ */
+class BackInTimeWebSocketClient(
+    private val host: String,
+    private val port: Int,
+    engine: HttpClientEngine = CIO.create(),
+    client: HttpClient? = null,
+) {
+    private val client = client ?: HttpClient(engine) {
         install(WebSockets) {
             maxFrameSize = Long.MAX_VALUE
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
@@ -35,41 +36,29 @@ class BackInTimeWebSocketClient : CoroutineScope {
     }
 
     private var session: DefaultClientWebSocketSession? = null
-    val connected: Boolean get() = session != null
+    val isConnected: Boolean get() = session != null
 
-    private val mutableReceivedEventFlow = MutableSharedFlow<DebuggerToAppEvent>()
-    val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
-
-    fun connect(host: String, port: Int) {
-        launch {
-            client.webSocket(
-                host = host,
-                port = port,
-                path = "/backintime",
-            ) {
-                session = this
-
-                incoming
-                    .consumeAsFlow()
-                    .filterIsInstance<Frame.Text>()
-                    .map { Json.decodeFromString<DebuggerToAppEvent>(it.readText()) }
-                    .collect {
-                        mutableReceivedEventFlow.emit(it)
-                    }
-            }
+    suspend fun connect(): Result<Unit> {
+        return try {
+            session = client.webSocketSession(host = host, port = port, path = "/backintime")
+            Result.success(Unit)
+        } catch (e: Throwable) {
+            Result.failure(e)
         }
     }
 
-    fun send(event: AppToDebuggerEvent) {
-        launch {
-            session?.outgoing?.send(Frame.Text(Json.encodeToString(event)))
-        }
+    fun receiveEventAsFlow() = session?.incoming?.receiveAsFlow()
+        ?.filterIsInstance<Frame.Text>()
+        ?.map {
+            Json.decodeFromString<BackInTimeDebuggerEvent>(it.readText())
+        } ?: error("Not connected")
+
+    suspend fun send(event: BackInTimeDebugServiceEvent) {
+        session?.send(Json.encodeToString(event))
     }
 
-    fun close() {
-        launch {
-            session?.close()
-        }
+    suspend fun close() {
+        session?.close()
         session = null
     }
 }

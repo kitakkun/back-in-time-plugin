@@ -21,6 +21,8 @@ kotlin {
             dependencies {
                 implementation(project(":backintime-library:runtime"))
                 implementation(project(":backintime-library:annotations"))
+                implementation(project(":backintime-library:websocket:server"))
+                implementation(project(":backintime-library:websocket:event"))
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }
@@ -39,17 +41,6 @@ kotlin {
                 implementation(libs.androidx.lifecycle.runtime.ktx)
                 implementation(libs.androidx.lifecycle.livedata.core.ktx)
                 implementation(libs.androidx.compose.runtime)
-            }
-        }
-        val androidUnitTest by getting {
-            dependencies {
-                implementation(libs.robolectric)
-                implementation(libs.mockk)
-            }
-        }
-        jvmTest {
-            dependencies {
-                implementation(libs.mockk)
             }
         }
     }
