@@ -4,7 +4,7 @@ import app.cash.sqldelight.ColumnAdapter
 import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.ClassInfoQueries
-import com.sun.beans.introspect.PropertyInfo
+import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
