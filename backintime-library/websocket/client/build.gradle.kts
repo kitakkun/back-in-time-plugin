@@ -21,11 +21,13 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.ktor.server.test.host)
             implementation(libs.ktor.server.websockets)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

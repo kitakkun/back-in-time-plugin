@@ -13,7 +13,7 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -28,20 +28,18 @@ class BackInTimeWebSocketClientTest {
     }
 
     @Test
-    fun `test fails to connect`() {
+    fun `test fails to connect`() = runTest {
         val client = BackInTimeWebSocketClient(
             host = TEST_HOST,
             port = TEST_PORT,
         )
 
-        runBlocking {
-            val result = client.connect()
-            assertTrue(result.isFailure)
-        }
+        val result = client.connect()
+        assertTrue(result.isFailure)
     }
 
     @Test
-    fun `test success to connect`() {
+    fun `test success to connect`() = runTest {
         testApplication {
             configureServer(
                 host = TEST_HOST,
@@ -63,7 +61,7 @@ class BackInTimeWebSocketClientTest {
     }
 
     @Test
-    fun `test success to send event`() {
+    fun `test success to send event`() = runTest {
         testApplication {
             val serverReceiveFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>()
 
@@ -92,7 +90,7 @@ class BackInTimeWebSocketClientTest {
     }
 
     @Test
-    fun `test success to receive event`() {
+    fun `test success to receive event`() = runTest {
         testApplication {
             configureServer(
                 host = TEST_HOST,
