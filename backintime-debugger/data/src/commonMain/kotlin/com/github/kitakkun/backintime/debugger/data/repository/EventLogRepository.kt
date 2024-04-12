@@ -7,7 +7,7 @@ import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.EventLog
 import com.github.kitakkun.backintime.debugger.database.EventLogQueries
 import com.github.kitakkun.backintime.runtime.backInTimeJson
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext

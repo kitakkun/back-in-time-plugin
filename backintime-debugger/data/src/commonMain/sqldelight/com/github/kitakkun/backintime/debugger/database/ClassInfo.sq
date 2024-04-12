@@ -1,4 +1,4 @@
-import com.github.kitakkun.backintime.runtime.event.PropertyInfo;
+import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo;
 import kotlin.collections.List;
 
 CREATE TABLE IF NOT EXISTS classInfo(

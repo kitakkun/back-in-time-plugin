@@ -1,4 +1,4 @@
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent;
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
 
 CREATE TABLE IF NOT EXISTS eventLog(
     id TEXT PRIMARY KEY,
