@@ -81,7 +81,7 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     private fun sendOrQueue(event: BackInTimeDebugServiceEvent) {
-        if (connector?.isConnected == true) {
+        if (connector?.connected == true) {
             connector?.sendEvent(event)
         } else {
             serviceEventDispatchQueue.add(event)

@@ -5,7 +5,7 @@ import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.flow.Flow
 
 interface BackInTimeConnector {
-    val isConnected: Boolean
+    val connected: Boolean
     val connectedFlow: Flow<Boolean>
     fun connect()
     fun disconnect()

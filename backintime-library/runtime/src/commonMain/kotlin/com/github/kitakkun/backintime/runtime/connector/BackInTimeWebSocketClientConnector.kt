@@ -6,28 +6,34 @@ import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class BackInTimeWebSocketClientConnector(
-    private val host: String,
-    private val port: Int,
-) : BackInTimeConnector {
-    private val client: BackInTimeWebSocketClient = BackInTimeWebSocketClient()
+class BackInTimeWebSocketClientConnector(host: String, port: Int) : BackInTimeConnector {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    override val connectedFlow: Flow<Boolean> = client.connectedFlow
-    override val isConnected: Boolean get() = client.connectedFlow.value
+    private val client: BackInTimeWebSocketClient = BackInTimeWebSocketClient(host = host, port = port)
+    override val connected: Boolean get() = client.isConnected
+    private val mutableIsConnectedFlow = MutableStateFlow(false)
+    override val connectedFlow: Flow<Boolean> get() = mutableIsConnectedFlow.asSharedFlow()
 
     override fun connect() {
         coroutineScope.launch {
-            client.connectUntilSuccess(host, port)
+            while (true) {
+                val result = client.connect()
+                if (result.isSuccess) break
+                delay(3000L)
+            }
+            mutableIsConnectedFlow.value = true
         }
     }
 
     override fun disconnect() {
         coroutineScope.launch {
             client.close()
+            mutableIsConnectedFlow.value = false
         }
     }
 
@@ -37,11 +43,5 @@ class BackInTimeWebSocketClientConnector(
         }
     }
 
-    override fun receiveEventAsFlow(): Flow<BackInTimeDebuggerEvent> {
-        return flow {
-            client.receivedEventFlow.collect {
-                emit(it)
-            }
-        }
-    }
+    override fun receiveEventAsFlow(): Flow<BackInTimeDebuggerEvent> = client.receiveEventAsFlow()
 }

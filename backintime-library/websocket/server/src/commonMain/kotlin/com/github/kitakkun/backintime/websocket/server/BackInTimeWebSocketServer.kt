@@ -3,6 +3,7 @@ package com.github.kitakkun.backintime.websocket.server
 import com.benasher44.uuid.uuid4
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
+import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
@@ -16,9 +17,6 @@ import io.ktor.websocket.readText
 import io.ktor.websocket.send
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -43,44 +41,59 @@ class BackInTimeWebSocketServer {
     private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
-    fun start(port: Int) {
-        server = embeddedServer(
-            factory = CIO,
-            port = port,
-            host = "127.0.0.1",
-        ) {
-            install(WebSockets) {
-                timeoutMillis = 1000 * 60 * 10
-            }
-            routing {
-                webSocket("/backintime") {
-                    val connection = Connection(this)
-                    connections += connection
-
-                    mutableConnectionEstablishedFlow.emit(connection.id)
-
-                    incoming
-                        .consumeAsFlow()
-                        .filterIsInstance<Frame.Text>()
-                        .map { Json.decodeFromString<BackInTimeDebugServiceEvent>(it.readText()) }
-                        .collect {
-                            mutableReceivedEventFlow.emit(connection.id to it)
-                        }
-                }
-            }
-        }
-
+    fun start(host: String, port: Int) {
+        server = configureServer(host, port)
         server?.start()
     }
 
-    suspend fun send(event: BackInTimeDebuggerEvent) {
-        connections.forEach {
-            it.session.send(Json.encodeToString(event))
-        }
+    suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
+        val session = connections.find { it.id == sessionId }?.session ?: return
+        session.send(Json.encodeToString(event))
     }
 
     fun stop() {
         server?.stop()
         server = null
+    }
+
+    private fun configureServer(host: String, port: Int) = embeddedServer(
+        factory = CIO,
+        port = port,
+        host = host,
+    ) {
+        installWebSocket()
+        configureWebSocketRouting(
+            onConnect = {
+                connections.add(it)
+                mutableConnectionEstablishedFlow.emit(it.id)
+            },
+            onReceiveEvent = { connection, event ->
+                mutableReceivedEventFlow.emit(connection.id to event)
+            },
+        )
+    }
+}
+
+fun Application.installWebSocket() {
+    install(WebSockets) {
+        timeoutMillis = 1000 * 60 * 10
+    }
+}
+
+fun Application.configureWebSocketRouting(
+    onConnect: suspend (Connection) -> Unit,
+    onReceiveEvent: suspend (Connection, BackInTimeDebugServiceEvent) -> Unit,
+) {
+    routing {
+        webSocket("/backintime") {
+            val connection = Connection(this)
+            onConnect(connection)
+
+            for (frame in incoming) {
+                if (frame !is Frame.Text) continue
+                val event = Json.decodeFromString<BackInTimeDebugServiceEvent>(frame.readText())
+                onReceiveEvent(connection, event)
+            }
+        }
     }
 }

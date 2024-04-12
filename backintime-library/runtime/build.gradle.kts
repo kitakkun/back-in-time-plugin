@@ -19,6 +19,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":backintime-library:websocket:client"))
             implementation(project(":backintime-library:websocket:event"))
+            implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)

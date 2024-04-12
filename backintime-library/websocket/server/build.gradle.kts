@@ -23,6 +23,11 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.uuid)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.ktor.server.test.host)
+            implementation(libs.ktor.server.websockets)
+        }
     }
 }
 
