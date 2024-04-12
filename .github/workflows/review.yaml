@@ -5,6 +5,7 @@ on: pull_request
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -18,8 +19,8 @@ jobs:
       - name: Publish to MavenLocal
         run: ./gradlew publishToMavenLocal
 
-      - name: Run JVM tests and Debug Unit Tests
-        run: ./gradlew allTests
+      - name: Run tests
+        run: ./gradlew iosSimulatorArm64Test iosX64Test jvmTest testDebugUnitTest
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

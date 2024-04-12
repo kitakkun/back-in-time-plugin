@@ -1,15 +1,18 @@
 package com.github.kitakkun.backintime.runtime
 
-import com.github.kitakkun.backintime.runtime.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.runtime.connector.BackInTimeConnector
 import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
+import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
-import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -19,55 +22,115 @@ import kotlin.coroutines.CoroutineContext
 object BackInTimeDebugService : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
 
-    private val instances = WeakHashMap<BackInTimeDebuggable, String>()
+    private val instances = mutableMapOf<String, WeakReference<BackInTimeDebuggable>>()
+    private val serviceEventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
 
-    private val mutableServiceEventFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>()
-    val serviceEventFlow = mutableServiceEventFlow.asSharedFlow()
+    private var connector: BackInTimeConnector? = null
+    private var processDebuggerEventJob: Job? = null
+    private var observeConnectedFlowJob: Job? = null
 
-    private val mutableInternalErrorFlow = MutableSharedFlow<Throwable>()
-    val internalErrorFlow = mutableInternalErrorFlow.asSharedFlow()
+    init {
+        // clean up instances that are garbage collected
+        startInstanceCleanUpJob()
+    }
 
-    private val internalServiceEventQueue = mutableListOf<BackInTimeDebugServiceEvent>()
-    private var isConnected: Boolean = false
+    fun setConnector(connector: BackInTimeConnector) {
+        this.connector = connector
+    }
 
-    /**
-     * start processing events (also process queued events)
-     * should be called from FlipperPlugin
-     */
-    fun start() {
-        isConnected = true
-        internalServiceEventQueue.forEach { event -> launch { mutableServiceEventFlow.emit(event) } }
-        internalServiceEventQueue.clear()
+    fun startService() {
+        val connector = this.connector ?: return
+        connector.connect()
+        processDebuggerEventJob = launch {
+            connector.receiveEventAsFlow().collect { event ->
+                val result = processDebuggerRequest(event) ?: return@collect
+                sendOrQueue(result)
+            }
+        }
+        observeConnectedFlowJob = launch {
+            connector.connectedFlow.filter { it }.collect {
+                serviceEventDispatchQueue.forEach { event ->
+                    connector.sendEvent(event)
+                }
+                serviceEventDispatchQueue.clear()
+            }
+        }
+    }
+
+    fun stopService() {
+        processDebuggerEventJob?.cancel()
+        observeConnectedFlowJob?.cancel()
+        connector?.disconnect()
+        processDebuggerEventJob = null
+        observeConnectedFlowJob = null
+        connector = null
+    }
+
+    private fun startInstanceCleanUpJob() {
+        launch {
+            while (true) {
+                instances.keys.forEach { key ->
+                    val instance = instances[key] ?: return@forEach
+                    if (instance.get() == null) {
+                        instances.remove(key)
+                    }
+                }
+                delay(1000 * 15)
+            }
+        }
+    }
+
+    private fun sendOrQueue(event: BackInTimeDebugServiceEvent) {
+        if (connector?.connected == true) {
+            connector?.sendEvent(event)
+        } else {
+            serviceEventDispatchQueue.add(event)
+        }
     }
 
     /**
-     * suspend processing events
-     * should be called from FlipperPlugin
+     * process event from [com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer]
+     * consume it and generate [BackInTimeDebugServiceEvent]
      */
-    fun suspend() {
-        isConnected = false
+    private fun processDebuggerRequest(event: BackInTimeDebuggerEvent): BackInTimeDebugServiceEvent? {
+        return when (event) {
+            is BackInTimeDebuggerEvent.CheckInstanceAlive -> {
+                val result = event.instanceUUIDs.map { uuid -> instances[uuid]?.get() != null }
+                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(event.instanceUUIDs, result)
+            }
+
+            is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
+                forceSetValue(event.instanceUUID, event.propertyName, event.value)
+                null
+            }
+
+            is BackInTimeDebuggerEvent.Ping -> {
+                // do nothing
+                null
+            }
+        }
     }
 
     /**
-     * send event to Flipper
-     * should be called from BackInTimeDebuggable instance
-     * @param event event to be sent
+     * process event from [BackInTimeDebuggable] instance
+     * consume it and generate [BackInTimeDebugServiceEvent]
      */
-    fun emitEvent(event: DebuggableStateHolderEvent) {
-        val result = when (event) {
+    private fun processStateHolderEvent(event: DebuggableStateHolderEvent): BackInTimeDebugServiceEvent? {
+        return when (event) {
             is DebuggableStateHolderEvent.RegisterInstance -> register(event)
             is DebuggableStateHolderEvent.RegisterRelationShip -> registerRelationship(event)
             is DebuggableStateHolderEvent.MethodCall -> notifyMethodCall(event)
             is DebuggableStateHolderEvent.PropertyValueChange -> notifyPropertyChanged(event)
         }
+    }
 
-        if (result != null) {
-            if (isConnected) {
-                launch { mutableServiceEventFlow.emit(result) }
-            } else {
-                internalServiceEventQueue.add(result)
-            }
-        }
+    /**
+     * send event to debugger from [BackInTimeDebuggable] instance
+     * should be called from compiler-generate code inside [BackInTimeDebuggable] classes
+     */
+    fun emitEvent(event: DebuggableStateHolderEvent) {
+        val result = processStateHolderEvent(event) ?: return
+        sendOrQueue(result)
     }
 
     /**
@@ -76,13 +139,13 @@ object BackInTimeDebugService : CoroutineScope {
      */
     private fun register(event: DebuggableStateHolderEvent.RegisterInstance): BackInTimeDebugServiceEvent {
         // When the instance of subclass is registered, it overrides the instance of superclass.
-        instances[event.instance] = event.instance.backInTimeInstanceUUID
+        instances[event.instance.backInTimeInstanceUUID] = weakReferenceOf(event.instance)
         return BackInTimeDebugServiceEvent.RegisterInstance(
             instanceUUID = event.instance.backInTimeInstanceUUID,
             className = event.className,
             superClassName = event.superClassName,
             properties = event.properties,
-            registeredAt = System.currentTimeMillis(),
+            registeredAt = Clock.System.now().epochSeconds,
         )
     }
 
@@ -94,52 +157,36 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     private fun notifyMethodCall(event: DebuggableStateHolderEvent.MethodCall): BackInTimeDebugServiceEvent? {
-        val instanceId = instances[event.instance] ?: return null
         return BackInTimeDebugServiceEvent.NotifyMethodCall(
-            instanceUUID = instanceId,
+            instanceUUID = event.instance.backInTimeInstanceUUID,
             methodName = event.methodName,
             methodCallUUID = event.methodCallId,
-            calledAt = System.currentTimeMillis(),
+            calledAt = Clock.System.now().epochSeconds,
         )
     }
 
     private fun notifyPropertyChanged(event: DebuggableStateHolderEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
-        val instanceUUID = instances[event.instance] ?: return null
         return try {
             val serializedValue = event.instance.serializeValue(event.propertyName, event.propertyValue)
             BackInTimeDebugServiceEvent.NotifyValueChange(
-                instanceUUID = instanceUUID,
+                instanceUUID = event.instance.backInTimeInstanceUUID,
                 propertyName = event.propertyName,
                 value = serializedValue,
                 methodCallUUID = event.methodCallId,
             )
         } catch (e: SerializationException) {
-            launch {
-                mutableInternalErrorFlow.emit(e)
-            }
+            sendOrQueue(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
             null
         }
     }
 
-
-    /**
-     * check if the instance is still alive
-     * this function is necessary because WeakHashMap doesn't have callback when the instance is garbage collected
-     * @param instanceId UUID of the instance
-     */
-    fun checkIfInstanceIsAlive(instanceId: String): Boolean {
-        return instances.containsValue(instanceId)
-    }
-
-    fun forceSetValue(instanceId: String, name: String, value: String) {
-        val targetInstance = instances.filterValues { it == instanceId }.keys.firstOrNull() ?: return
+    private fun forceSetValue(instanceId: String, name: String, value: String) {
+        val targetInstance = instances.filterKeys { it == instanceId }.values.firstOrNull()?.get() ?: return
         try {
             val deserializedValue = targetInstance.deserializeValue(name, value)
             targetInstance.forceSetValue(name, deserializedValue)
         } catch (e: SerializationException) {
-            launch {
-                mutableInternalErrorFlow.emit(e)
-            }
+            sendOrQueue(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
         }
     }
 }

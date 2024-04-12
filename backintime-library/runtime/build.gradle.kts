@@ -9,22 +9,24 @@ kotlin {
     jvmToolchain(8)
 
     jvm()
-    androidTarget {
-        publishLibraryVariants("debug")
-    }
+    androidTarget()
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.serialization.json)
-            }
+        commonMain.dependencies {
+            implementation(project(":backintime-library:websocket:client"))
+            implementation(project(":backintime-library:websocket:event"))
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
+            implementation(libs.uuid)
         }
-
-        androidMain {
-            dependencies {
-                compileOnly(libs.flipper)
-            }
+        androidMain.dependencies {
+            implementation(libs.flipper)
         }
     }
 }

@@ -31,16 +31,19 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
             val version = "1.0.0"
             val annotationDependencyNotation = "com.github.kitakkun.backintime:backintime-annotations:$version"
             val runtimeDependencyNotation = "com.github.kitakkun.backintime:backintime-runtime:$version"
+            val eventDependencyNotation = "com.github.kitakkun.backintime:backintime-websocket-event:$version"
 
             when (kotlinExtension) {
                 is KotlinSingleTargetExtension<*> -> {
                     dependencies.add("implementation", annotationDependencyNotation)
                     dependencies.add("implementation", runtimeDependencyNotation)
+                    dependencies.add("implementation", eventDependencyNotation)
                 }
 
                 is KotlinMultiplatformExtension -> {
                     dependencies.add("commonMainImplementation", annotationDependencyNotation)
                     dependencies.add("commonMainImplementation", runtimeDependencyNotation)
+                    dependencies.add("commonMainImplementation", eventDependencyNotation)
                 }
 
                 else -> {

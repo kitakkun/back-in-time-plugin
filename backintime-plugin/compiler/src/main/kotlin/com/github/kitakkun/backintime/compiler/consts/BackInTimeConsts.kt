@@ -23,7 +23,7 @@ object BackInTimeConsts {
     val propertyValueChangeEventClassId = debuggableStateHolderEventClassId.createNestedClassId(Name.identifier("PropertyValueChange"))
     val printlnCallableId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
 
-    val propertyInfoClassId = classId("com.github.kitakkun.backintime.runtime.event", "PropertyInfo")
+    val propertyInfoClassId = classId("com.github.kitakkun.backintime.websocket.event.model", "PropertyInfo")
     val listOfFunctionId = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
     val UUIDClassId = classId("java.util", "UUID")
     const val RANDOM_UUID_FUNCTION_NAME = "randomUUID"
