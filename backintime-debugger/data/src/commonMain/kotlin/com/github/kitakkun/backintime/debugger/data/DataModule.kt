@@ -8,6 +8,8 @@ import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepositor
 import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoRepository
 import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoRepositoryImpl
+import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepository
+import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.backInTimeDebugServiceEventAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
@@ -20,6 +22,7 @@ val dataModule = module {
     single<InstanceRepository> { InstanceRepositoryImpl(get()) }
     single<EventLogRepository> { EventLogRepositoryImpl(get()) }
     single<SessionInfoRepository> { SessionInfoRepositoryImpl(get()) }
+    single<SettingsRepository> { SettingsRepositoryImpl() }
 
     // sqldelight
     single {
