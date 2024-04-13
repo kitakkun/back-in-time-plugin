@@ -18,3 +18,6 @@ SELECT * FROM sessionInfo WHERE isConnected = 1;
 
 selectAllDisconnectedSessions:
 SELECT * FROM sessionInfo WHERE isConnected = 0;
+
+markAllAsDisconnected:
+UPDATE sessionInfo SET isConnected = 0;

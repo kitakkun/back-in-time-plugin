@@ -7,6 +7,7 @@ import com.github.kitakkun.backintime.debugger.database.SessionInfo
 import com.github.kitakkun.backintime.debugger.database.SessionInfoQueries
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
@@ -22,6 +23,13 @@ class SessionInfoRepositoryImpl(
 ) : SessionInfoRepository, CoroutineScope by IOScope() {
     override val allConnectedSessions = queries.selectAllConnectedSessions().asFlow().mapToList(coroutineContext)
     override val allDisconnectedSessions = queries.selectAllDisconnectedSessions().asFlow().mapToList(coroutineContext)
+
+    init {
+        // mark all sessions as disconnected on startup
+        launch {
+            queries.markAllAsDisconnected()
+        }
+    }
 
     override suspend fun select(sessionId: String): SessionInfo? {
         return withContext(coroutineContext) {
