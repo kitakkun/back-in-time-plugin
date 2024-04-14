@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.backintimeLint)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
