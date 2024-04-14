@@ -16,6 +16,7 @@ interface InstanceRepository {
     suspend fun updateAlive(sessionId: String, id: String, alive: Boolean)
     suspend fun updateClassName(sessionId: String, id: String, className: String)
     suspend fun deleteAll(sessionId: String)
+    suspend fun addChildInstance(sessionId: String, parentId: String, childId: String)
 }
 
 class InstanceRepositoryImpl(
@@ -32,6 +33,7 @@ class InstanceRepositoryImpl(
                 registeredAt = registeredAt,
                 alive = true,
                 sessionId = sessionId,
+                childInstanceIds = emptyList(),
             )
         }
     }
@@ -51,6 +53,21 @@ class InstanceRepositoryImpl(
     override suspend fun deleteAll(sessionId: String) {
         withContext(coroutineContext) {
             queries.deleteBySessionId(sessionId)
+        }
+    }
+
+    override suspend fun addChildInstance(sessionId: String, parentId: String, childId: String) {
+        withContext(coroutineContext) {
+            val childInstanceIds = queries.select(
+                id = parentId,
+                sessionId = sessionId,
+            ).executeAsOne().childInstanceIds.toMutableList()
+            childInstanceIds.add(childId)
+            queries.updateChildInstanceIds(
+                id = parentId,
+                sessionId = sessionId,
+                childInstanceIds = childInstanceIds,
+            )
         }
     }
 }
