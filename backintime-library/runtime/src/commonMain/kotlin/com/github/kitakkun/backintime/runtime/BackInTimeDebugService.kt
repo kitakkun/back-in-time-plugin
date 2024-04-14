@@ -104,10 +104,9 @@ object BackInTimeDebugService : CoroutineScope {
                 null
             }
 
-            is BackInTimeDebuggerEvent.Ping -> {
-                // do nothing
-                null
-            }
+            is BackInTimeDebuggerEvent.Ping -> null // do nothing
+
+            is BackInTimeDebuggerEvent.Error -> null // do nothing
         }
     }
 
