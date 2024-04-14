@@ -1,5 +1,6 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
+import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
@@ -69,5 +70,15 @@ class InstanceRepositoryImpl(
                 childInstanceIds = childInstanceIds,
             )
         }
+    }
+}
+
+val listOfStringAdapter = object : ColumnAdapter<List<String>, String> {
+    override fun encode(value: List<String>): String {
+        return value.joinToString(",")
+    }
+
+    override fun decode(databaseValue: String): List<String> {
+        return databaseValue.split(",")
     }
 }
