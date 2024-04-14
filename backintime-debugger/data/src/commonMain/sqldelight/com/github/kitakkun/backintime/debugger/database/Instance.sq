@@ -1,0 +1,36 @@
+import kotlin.Boolean;
+import kotlin.String;
+import kotlin.collections.List;
+
+CREATE TABLE IF NOT EXISTS instance(
+    id TEXT PRIMARY KEY,
+    className TEXT NOT NULL,
+    registeredAt INTEGER NOT NULL,
+    alive INTEGER AS Boolean NOT NULL,
+    sessionId TEXT NOT NULL,
+    childInstanceIds TEXT AS List<String> NOT NULL
+);
+
+selectAliveBySessionId:
+SELECT * FROM instance WHERE alive = 1 AND sessionId = ?;
+
+selectDeadBySessionId:
+SELECT * FROM instance WHERE alive = 0 AND sessionId = ?;
+
+insert:
+INSERT INTO instance(id, className, registeredAt, alive, sessionId, childInstanceIds) VALUES(?, ?, ?, ?, ?, ?);
+
+updateAlive:
+UPDATE instance SET alive = ? WHERE id = ? AND sessionId = ?;
+
+updateClassName:
+UPDATE instance SET className = ? WHERE id = ? AND sessionId = ?;
+
+deleteBySessionId:
+DELETE FROM instance WHERE sessionId = ?;
+
+updateChildInstanceIds:
+UPDATE instance SET childInstanceIds = ? WHERE id = ? AND sessionId = ?;
+
+select:
+SELECT * FROM instance WHERE id = ? AND sessionId = ?;

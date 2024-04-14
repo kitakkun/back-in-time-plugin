@@ -1,0 +1,23 @@
+import kotlin.Boolean;
+
+CREATE TABLE IF NOT EXISTS sessionInfo(
+    id TEXT PRIMARY KEY NOT NULL,
+    label TEXT NOT NULL,
+    startedAt INTEGER NOT NULL,
+    isConnected INTEGER AS Boolean NOT NULL DEFAULT 1
+);
+
+selectById:
+SELECT * FROM sessionInfo WHERE id = ?;
+
+insert:
+INSERT INTO sessionInfo (id, label, startedAt) VALUES (?, ?, ?);
+
+selectAllConnectedSessions:
+SELECT * FROM sessionInfo WHERE isConnected = 1;
+
+selectAllDisconnectedSessions:
+SELECT * FROM sessionInfo WHERE isConnected = 0;
+
+markAllAsDisconnected:
+UPDATE sessionInfo SET isConnected = 0;
