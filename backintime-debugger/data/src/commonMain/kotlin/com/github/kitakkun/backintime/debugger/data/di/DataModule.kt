@@ -1,5 +1,7 @@
-package com.github.kitakkun.backintime.debugger.data
+package com.github.kitakkun.backintime.debugger.data.di
 
+import com.github.kitakkun.backintime.debugger.data.BackInTimeDatabase
+import com.github.kitakkun.backintime.debugger.data.driver.createSqlDriver
 import com.github.kitakkun.backintime.debugger.data.repository.ClassInfoRepository
 import com.github.kitakkun.backintime.debugger.data.repository.ClassInfoRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.EventLogRepository
