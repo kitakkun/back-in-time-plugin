@@ -15,9 +15,13 @@ import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepositor
 import com.github.kitakkun.backintime.debugger.data.repository.backInTimeDebugServiceEventAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfValueChangeInfoAdapter
+import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerService
+import com.github.kitakkun.backintime.debugger.data.server.IncomingEventProcessor
+import com.github.kitakkun.backintime.debugger.data.server.IncomingEventProcessorImpl
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.EventLog
 import com.github.kitakkun.backintime.debugger.database.MethodCallInfo
+import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
 import org.koin.dsl.module
 
 val dataModule = module {
@@ -28,6 +32,11 @@ val dataModule = module {
     single<SessionInfoRepository> { SessionInfoRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl() }
     single<MethodCallInfoRepository> { MethodCallInfoRepositoryImpl(get()) }
+
+    // debugger services
+    single<BackInTimeDebuggerService> { BackInTimeDebuggerService(get(), get()) }
+    factory<IncomingEventProcessor> { IncomingEventProcessorImpl(get(), get(), get(), get()) }
+    single<BackInTimeWebSocketServer> { BackInTimeWebSocketServer() }
 
     // sqldelight
     single {

@@ -12,6 +12,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":backintime-library:runtime"))
             implementation(project(":backintime-library:websocket:event"))
+            implementation(project(":backintime-library:websocket:server"))
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqldelight.coroutines.extensions)
             implementation(libs.kotlinx.serialization.json)
