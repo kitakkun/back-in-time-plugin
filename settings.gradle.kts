@@ -32,7 +32,7 @@ include(
     ":backintime-debugger:featurecommon",
     ":backintime-debugger:feature:instance",
     ":backintime-debugger:feature:log",
-    ":backintime-debugger:feature:server",
+    ":backintime-debugger:feature:connection",
     ":backintime-debugger:feature:settings",
     ":backintime-library:runtime",
     ":backintime-library:annotations",
