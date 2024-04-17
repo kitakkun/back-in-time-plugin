@@ -17,6 +17,9 @@ kotlin {
             implementation(project(":backintime-debugger:feature:settings"))
             implementation(project(":backintime-debugger:feature:connection"))
         }
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
     }
 }
 

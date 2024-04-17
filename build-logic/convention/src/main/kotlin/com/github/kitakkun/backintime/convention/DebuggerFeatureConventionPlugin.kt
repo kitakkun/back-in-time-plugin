@@ -26,10 +26,10 @@ class DebuggerFeatureConventionPlugin : Plugin<Project> {
                         implementation(libs.findBundle("composeIcons").get())
                         implementation(libs.findLibrary("koin-core").get())
                         implementation(compose.materialIconsExtended)
+                        implementation(compose.material3)
                     }
                     jvmMain.dependencies {
-                        implementation(compose.desktop.currentOs)
-                        implementation(compose.material3)
+                        implementation(compose.uiTooling)
                         // need this to use Dispatchers.Main
                         implementation(libs.findLibrary("kotlinx-coroutines-swing").get())
                     }
