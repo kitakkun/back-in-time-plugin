@@ -7,15 +7,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import com.github.kitakkun.backintime.settings.generated.resources.Res
+import com.github.kitakkun.backintime.settings.generated.resources.settings_tab_title
+import org.jetbrains.compose.resources.stringResource
 
 object SettingsTab : Tab {
     override val options: TabOptions
         @Composable get() {
+            val title = stringResource(Res.string.settings_tab_title)
             val icon = rememberVectorPainter(image = Icons.Default.Settings)
             return remember {
                 TabOptions(
                     index = 4u,
-                    title = "Settings",
+                    title = title,
                     icon = icon,
                 )
             }

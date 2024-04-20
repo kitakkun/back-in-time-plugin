@@ -10,8 +10,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
+import com.github.kitakkun.backintime.app.generated.resources.Res
+import com.github.kitakkun.backintime.app.generated.resources.dismiss
+import com.github.kitakkun.backintime.app.generated.resources.starting_websocket_server
+import com.github.kitakkun.backintime.app.generated.resources.websocket_server_started
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.stringResource
 
 object RootScreen : Screen {
     @Composable
@@ -24,15 +29,26 @@ object RootScreen : Screen {
             model.startServer()
         }
 
+        val messageWebSocketServerStarted = stringResource(Res.string.websocket_server_started)
+        val messageWebSocketServerStarting = stringResource(Res.string.starting_websocket_server)
+        val dismissText = stringResource(Res.string.dismiss)
+
         LaunchedEffect(snackbarHostState) {
             snapshotFlow { model.state.value }
                 .map { it.isServerRunning }
                 .distinctUntilChanged()
                 .collect { isServerRunning ->
                     if (isServerRunning) {
-                        snackbarHostState.showSnackbar("WebSocket Server started", duration = SnackbarDuration.Short, actionLabel = "Dismiss")
+                        snackbarHostState.showSnackbar(
+                            message = messageWebSocketServerStarted,
+                            duration = SnackbarDuration.Short,
+                            actionLabel = dismissText,
+                        )
                     } else {
-                        snackbarHostState.showSnackbar("Starting WebSocket Server...", duration = SnackbarDuration.Indefinite)
+                        snackbarHostState.showSnackbar(
+                            message = messageWebSocketServerStarting,
+                            duration = SnackbarDuration.Indefinite,
+                        )
                     }
                 }
         }

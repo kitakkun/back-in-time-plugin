@@ -16,10 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.tab.CurrentTab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
+import com.github.kitakkun.backintime.app.generated.resources.Res
+import com.github.kitakkun.backintime.app.generated.resources.starting_websocket_server
 import com.github.kitakkun.backintime.debugger.feature.connection.ConnectionTab
 import com.github.kitakkun.backintime.debugger.feature.instance.InstancesTab
 import com.github.kitakkun.backintime.debugger.feature.log.LogTab
 import com.github.kitakkun.backintime.debugger.feature.settings.SettingsTab
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RootView(
@@ -44,7 +47,7 @@ fun RootView(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {
-                        Text("Starting WebSocket Server...")
+                        Text(stringResource(Res.string.starting_websocket_server))
                         Spacer(modifier = Modifier.height(16.dp))
                         CircularProgressIndicator()
                     }
