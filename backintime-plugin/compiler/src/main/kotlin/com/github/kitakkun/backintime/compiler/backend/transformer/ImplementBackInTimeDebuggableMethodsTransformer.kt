@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classFqName
@@ -67,6 +68,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
     /**
      * generate body for [BackInTimeDebuggable.forceSetValue]
      */
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBody {
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
@@ -97,6 +99,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
     /**
      * generate body for [BackInTimeDebuggable.serialize]
      */
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBody {
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
         with(declaration.irBlockBodyBuilder()) {
@@ -122,6 +125,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
     /**
      * generate body for [BackInTimeDebuggable.deserialize]
      */
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBody {
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
         with(declaration.irBlockBodyBuilder()) {
@@ -144,6 +148,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
         }
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrBuilderWithScope.irSetPropertyValue(
         parentClassReceiver: IrValueParameter,
         property: IrProperty,
@@ -197,6 +202,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
         )
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrType.getSerializerType(): IrType? {
         val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == this.classOrNull?.owner?.classId }
             ?: return this

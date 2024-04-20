@@ -15,8 +15,7 @@ class BackInTimeFirSupertypeGenerationExtension(session: FirSession) : FirSupert
         return declaration.hasAnnotationSafe(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)
     }
 
-    context(TypeResolveServiceContainer)
-    override fun computeAdditionalSupertypes(classLikeDeclaration: FirClassLikeDeclaration, resolvedSupertypes: List<FirResolvedTypeRef>): List<FirResolvedTypeRef> {
+    override fun computeAdditionalSupertypes(classLikeDeclaration: FirClassLikeDeclaration, resolvedSupertypes: List<FirResolvedTypeRef>, typeResolver: TypeResolveService): List<FirResolvedTypeRef> {
         return listOf(
             buildResolvedTypeRef {
                 type = BackInTimeConsts.backInTimeDebuggableInterfaceClassId.defaultType(emptyList())

@@ -4,7 +4,9 @@ import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
+import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irEquals
@@ -15,9 +17,9 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(BackInTimePluginContext)
@@ -25,12 +27,14 @@ class LambdaArgumentBodyTransformer(
     private val passedProperties: Set<IrProperty>,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
-) : IrElementTransformerVoid() {
+    private val scope: Scope,
+) : IrElementTransformerVoidWithContext() {
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid(this)
         return element
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall): IrExpression {
         val receiver = expression.receiver ?: return expression
         val receiverClassId = receiver.type.classOrNull?.owner?.classId
@@ -44,7 +48,7 @@ class LambdaArgumentBodyTransformer(
             propertyClassId == receiverClassId
         }
 
-        with(expression.irBlockBodyBuilder()) {
+        with(expression.irBlockBodyBuilder(scope)) {
             val captureCalls = possibleReceiverProperties.mapNotNull { property ->
                 val propertyGetter = property.getter ?: return@mapNotNull null
                 val captureCall = property.generateCaptureValueCallForValueContainer(
