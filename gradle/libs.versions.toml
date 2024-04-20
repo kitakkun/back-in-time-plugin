@@ -30,7 +30,7 @@ uuid = "0.8.4"
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
 
-jetbrains-compose = "1.6.0"
+jetbrains-compose = "1.6.10-beta01"
 kotlinx-datetime = "0.6.0-RC.2"
 
 sqldelight = "2.0.1"
