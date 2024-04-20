@@ -6,8 +6,10 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irRegisterRelations
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -22,6 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.hasAnnotation
@@ -29,7 +32,6 @@ import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 /**
  * generate code to register the relationship between the instance and the property (both are debuggable)
@@ -37,8 +39,13 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 context(BackInTimePluginContext)
 class RelationshipResolveCallGenerationTransformer(
     private val parentClass: IrClass,
-) : IrElementTransformerVoid() {
+) : IrElementTransformerVoidWithContext() {
+    private val scope = Scope(parentClass.symbol)
+
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val initializedMapProperty = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }
+
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val IrProperty.isDebuggableStateHolder get() = getter?.returnType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) == true
 
     override fun visitElement(element: IrElement): IrElement {
@@ -46,6 +53,7 @@ class RelationshipResolveCallGenerationTransformer(
         return element
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val propertyRelationshipResolveCalls = parentClass.properties
             .filter { it.isDebuggableStateHolder && !it.isDelegated && !it.isVar }
@@ -64,6 +72,7 @@ class RelationshipResolveCallGenerationTransformer(
         return declaration
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall): IrExpression {
         expression.transformChildrenVoid()
 
@@ -76,7 +85,7 @@ class RelationshipResolveCallGenerationTransformer(
         val receiver = expression.receiver ?: return expression
 
         if (property.isDebuggableStateHolder && property.isDelegated) {
-            with(expression.irBlockBodyBuilder()) {
+            with(expression.irBlockBodyBuilder(scope)) {
                 val condition = irNotEquals(
                     arg1 = irTrue(),
                     arg2 = irCall(irBuiltIns.mapClass.getSimpleFunction("get")!!).apply {

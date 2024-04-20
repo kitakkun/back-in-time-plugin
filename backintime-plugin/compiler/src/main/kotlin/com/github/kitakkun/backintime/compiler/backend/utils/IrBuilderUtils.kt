@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.impl.IrErrorClassImpl.symbol
 
 fun IrSymbolOwner.irBlockBuilder(pluginContext: IrPluginContext) = IrBlockBuilder(
     context = pluginContext,
@@ -39,16 +38,16 @@ fun IrSymbolOwner.irBlockBodyBuilder(pluginContext: IrPluginContext) = IrBlockBo
     endOffset = endOffset,
 )
 
-fun IrExpression.irBlockBuilder(pluginContext: IrPluginContext) = IrBlockBuilder(
+fun IrExpression.irBlockBuilder(pluginContext: IrPluginContext, scope: Scope) = IrBlockBuilder(
     context = pluginContext,
-    scope = Scope(symbol),
+    scope = scope,
     startOffset = startOffset,
     endOffset = endOffset,
 )
 
-fun IrExpression.irBlockBodyBuilder(pluginContext: IrPluginContext) = IrBlockBodyBuilder(
+fun IrExpression.irBlockBodyBuilder(pluginContext: IrPluginContext, scope: Scope) = IrBlockBodyBuilder(
     context = pluginContext,
-    scope = Scope(symbol),
+    scope = scope,
     startOffset = startOffset,
     endOffset = endOffset,
 )
@@ -60,10 +59,10 @@ context(BackInTimePluginContext)
 fun IrSymbolOwner.irBlockBodyBuilder() = irBlockBodyBuilder(pluginContext)
 
 context(BackInTimePluginContext)
-fun IrExpression.irBlockBuilder() = irBlockBuilder(pluginContext)
+fun IrExpression.irBlockBuilder(scope: Scope) = irBlockBuilder(pluginContext, scope)
 
 context(BackInTimePluginContext)
-fun IrExpression.irBlockBodyBuilder() = irBlockBodyBuilder(pluginContext)
+fun IrExpression.irBlockBodyBuilder(scope: Scope) = irBlockBodyBuilder(pluginContext, scope)
 
 context(IrPluginContext)
 fun IrBuilderWithScope.irPropertySetterCall(
