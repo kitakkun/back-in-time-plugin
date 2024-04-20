@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Back In Time Debugger</string>
+    <string name="starting_websocket_server">Starting WebSocket server...</string>
+    <string name="websocket_server_started">WebSocket server started</string>
+    <string name="dismiss">Dismiss</string>
+</resources>
