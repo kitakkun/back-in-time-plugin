@@ -9,6 +9,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.github.kitakkun.backintime.app.generated.resources.Res
 import com.github.kitakkun.backintime.app.generated.resources.app_name
 import com.github.kitakkun.backintime.debugger.data.di.dataModule
+import com.github.kitakkun.backintime.debugger.feature.connection.connectionFeatureModule
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.startKoin
 
@@ -17,6 +18,7 @@ fun main() {
         modules(
             appModule,
             dataModule,
+            connectionFeatureModule,
         )
     }
 

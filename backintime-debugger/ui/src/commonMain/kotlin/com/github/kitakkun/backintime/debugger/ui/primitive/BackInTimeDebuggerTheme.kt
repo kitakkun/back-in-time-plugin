@@ -29,4 +29,6 @@ object BackInTimeDebuggerTheme {
     val typography: Typography = Typography()
 
     val shapes: Shapes = Shapes()
+
+    val staticColors = StaticColors
 }
