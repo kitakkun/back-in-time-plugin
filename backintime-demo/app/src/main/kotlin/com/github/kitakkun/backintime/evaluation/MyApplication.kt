@@ -1,11 +1,9 @@
 package com.github.kitakkun.backintime.evaluation
 
 import android.app.Application
-import com.facebook.flipper.android.AndroidFlipperClient
-import com.facebook.flipper.android.utils.FlipperUtils
-import com.facebook.soloader.SoLoader
 import com.github.kitakkun.backintime.evaluation.di.appModule
-import com.github.kitakkun.backintime.runtime.flipper.BackInTimeFlipperPlugin
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
+import com.github.kitakkun.backintime.runtime.connector.BackInTimeWebSocketClientConnector
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -14,11 +12,10 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        SoLoader.init(this, false)
-        if (BuildConfig.DEBUG && FlipperUtils.shouldEnableFlipper(this)) {
-            val client = AndroidFlipperClient.getInstance(this)
-            client.addPlugin(BackInTimeFlipperPlugin())
-            client.start()
+        if (BuildConfig.DEBUG) {
+            val connector = BackInTimeWebSocketClientConnector("10.0.2.2", 8080)
+            BackInTimeDebugService.setConnector(connector)
+            BackInTimeDebugService.startService()
         }
 
         startKoin {
