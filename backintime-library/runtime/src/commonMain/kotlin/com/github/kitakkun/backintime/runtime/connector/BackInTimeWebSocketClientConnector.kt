@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
-class BackInTimeWebSocketClientConnector(host: String, port: Int) : BackInTimeConnector {
+class BackInTimeWebSocketClientConnector(host: String, port: Int, private val automaticReconnect: Boolean = true) : BackInTimeConnector {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val client: BackInTimeWebSocketClient = BackInTimeWebSocketClient(host = host, port = port)
     override val connected: Boolean get() = client.isConnected
@@ -28,9 +28,11 @@ class BackInTimeWebSocketClientConnector(host: String, port: Int) : BackInTimeCo
             }
             mutableIsConnectedFlow.value = true
             // reconnect after disconnection
-            client.closeReason().await()
-            mutableIsConnectedFlow.value = false
-            connect()
+            if (automaticReconnect) {
+                client.closeReason().await()
+                mutableIsConnectedFlow.value = false
+                connect()
+            }
         }
     }
 
