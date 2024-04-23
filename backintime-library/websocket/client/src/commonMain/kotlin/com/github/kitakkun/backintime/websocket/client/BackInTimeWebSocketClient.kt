@@ -41,11 +41,16 @@ class BackInTimeWebSocketClient(
     suspend fun connect(): Result<Unit> {
         return try {
             session = client.webSocketSession(host = host, port = port, path = "/backintime")
+            session?.closeReason?.invokeOnCompletion {
+                session = null
+            }
             Result.success(Unit)
         } catch (e: Throwable) {
             Result.failure(e)
         }
     }
+
+    fun closeReason() = session?.closeReason ?: error("Not connected")
 
     fun receiveEventAsFlow() = session?.incoming?.receiveAsFlow()
         ?.filterIsInstance<Frame.Text>()

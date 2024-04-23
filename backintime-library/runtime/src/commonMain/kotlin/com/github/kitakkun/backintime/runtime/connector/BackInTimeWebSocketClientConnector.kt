@@ -27,6 +27,10 @@ class BackInTimeWebSocketClientConnector(host: String, port: Int) : BackInTimeCo
                 delay(3000L)
             }
             mutableIsConnectedFlow.value = true
+            // reconnect after disconnection
+            client.closeReason().await()
+            mutableIsConnectedFlow.value = false
+            connect()
         }
     }
 
