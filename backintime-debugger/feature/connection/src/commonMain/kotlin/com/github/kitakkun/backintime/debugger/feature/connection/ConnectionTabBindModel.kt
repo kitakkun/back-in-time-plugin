@@ -8,4 +8,6 @@ sealed interface ConnectionTabBindModel {
         val port: Int,
         val sessionBindModels: List<SessionBindModel>,
     ) : ConnectionTabBindModel
+
+    data class ServerError(private val error: Throwable) : ConnectionTabBindModel
 }

@@ -3,4 +3,7 @@
     <string name="starting_websocket_server">Starting WebSocket server...</string>
     <string name="websocket_server_started">WebSocket server started</string>
     <string name="dismiss">Dismiss</string>
+    <string name="server_error">Server Error: %1$s</string>
+    <string name="restart_server">Restart Server</string>
+    <string name="unknown_error">Unknown Error</string>
 </resources>

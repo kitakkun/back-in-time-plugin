@@ -7,4 +7,5 @@
     <string name="waiting_for_connection">Waiting for connection...</string>
     <string name="active_sessions">Active Sessions</string>
     <string name="text_loading_server_status">Loading Server Status...</string>
+    <string name="failed_to_start_server">Failed to start server. Check your configurations are valid.</string>
 </resources>

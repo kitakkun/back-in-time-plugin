@@ -4,19 +4,21 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.getScreenModel
 import com.github.kitakkun.backintime.app.generated.resources.Res
 import com.github.kitakkun.backintime.app.generated.resources.dismiss
+import com.github.kitakkun.backintime.app.generated.resources.restart_server
+import com.github.kitakkun.backintime.app.generated.resources.server_error
 import com.github.kitakkun.backintime.app.generated.resources.starting_websocket_server
+import com.github.kitakkun.backintime.app.generated.resources.unknown_error
 import com.github.kitakkun.backintime.app.generated.resources.websocket_server_started
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import org.jetbrains.compose.resources.stringResource
+import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerServiceState
+import org.jetbrains.compose.resources.getString
 
 object RootScreen : Screen {
     @Composable
@@ -29,32 +31,40 @@ object RootScreen : Screen {
             model.startServer()
         }
 
-        val messageWebSocketServerStarted = stringResource(Res.string.websocket_server_started)
-        val messageWebSocketServerStarting = stringResource(Res.string.starting_websocket_server)
-        val dismissText = stringResource(Res.string.dismiss)
-
         LaunchedEffect(snackbarHostState) {
-            snapshotFlow { model.state.value }
-                .map { it.isServerRunning }
-                .distinctUntilChanged()
-                .collect { isServerRunning ->
-                    if (isServerRunning) {
+            model.serverState.collect {
+                when (it) {
+                    is BackInTimeDebuggerServiceState.Uninitialized -> {
                         snackbarHostState.showSnackbar(
-                            message = messageWebSocketServerStarted,
-                            duration = SnackbarDuration.Short,
-                            actionLabel = dismissText,
-                        )
-                    } else {
-                        snackbarHostState.showSnackbar(
-                            message = messageWebSocketServerStarting,
+                            message = getString(Res.string.starting_websocket_server),
                             duration = SnackbarDuration.Indefinite,
                         )
                     }
+
+                    is BackInTimeDebuggerServiceState.Running -> {
+                        snackbarHostState.showSnackbar(
+                            message = getString(Res.string.websocket_server_started),
+                            duration = SnackbarDuration.Short,
+                            actionLabel = getString(Res.string.dismiss),
+                        )
+                    }
+
+                    is BackInTimeDebuggerServiceState.Error -> {
+                        val errorMessage = it.error.cause?.message ?: it.error.message ?: getString(Res.string.unknown_error)
+                        val result = snackbarHostState.showSnackbar(
+                            message = getString(Res.string.server_error, errorMessage),
+                            duration = SnackbarDuration.Indefinite,
+                            actionLabel = getString(Res.string.restart_server),
+                        )
+                        if (result == SnackbarResult.ActionPerformed) {
+                            model.startServer()
+                        }
+                    }
                 }
+            }
         }
 
         RootView(
-            state = model.state.value,
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackbarHostState,
