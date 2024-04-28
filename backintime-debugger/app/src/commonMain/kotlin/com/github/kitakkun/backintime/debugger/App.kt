@@ -72,7 +72,7 @@ fun App() {
         Row {
             BackInTimeDebuggerNavigationRail(navController = navHostController)
             Scaffold(
-                snackbarHost = { SnackbarHost(snackbarHostState) }
+                snackbarHost = { SnackbarHost(snackbarHostState) },
             ) { innerPadding ->
                 BackInTimeDebuggerNavHost(
                     navController = navHostController,
@@ -84,4 +84,3 @@ fun App() {
         }
     }
 }
-
