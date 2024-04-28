@@ -30,14 +30,16 @@ uuid = "0.8.4"
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
 
-jetbrains-compose = "1.6.10-beta01"
+jetbrains-compose = "1.6.10-beta02"
 kotlinx-datetime = "0.6.0-RC.2"
 
 sqldelight = "2.0.1"
 koin = "3.5.0"
 multiplatformSettings = "1.1.1"
 composeIcons = "1.1.0"
-voyager = "1.0.0"
+
+navigation-compose = "2.8.0-alpha02"
+lifecycle-viewmodel-compose = "2.8.0-beta01"
 
 [libraries]
 # gradle
@@ -87,7 +89,8 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
 koin-android = { group = "io.insert-koin", name = "koin-android" }
-koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose" }
 
 # debugger
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
@@ -109,6 +112,9 @@ ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktor" }
 # multiplatform uuid
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
+# compose-navigation and compose-viewmodel
+jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
+jetbrains-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
 
 # Compose Icons
 composeIcons-cssGg = { module = "br.com.devsrsouza.compose.icons:css-gg", version.ref = "composeIcons" }
@@ -121,14 +127,6 @@ composeIcons-linea = { module = "br.com.devsrsouza.compose.icons:linea", version
 composeIcons-octicons = { module = "br.com.devsrsouza.compose.icons:octicons", version.ref = "composeIcons" }
 composeIcons-simpleIcons = { module = "br.com.devsrsouza.compose.icons:simple-icons", version.ref = "composeIcons" }
 composeIcons-tablerIcons = { module = "br.com.devsrsouza.compose.icons:tabler-icons", version.ref = "composeIcons" }
-
-# voyager
-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
-voyager-screenModel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
-voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
-voyager-tabNavigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyager" }
-voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
-voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyager" }
 
 [plugins]
 # convention
@@ -159,12 +157,4 @@ composeIcons = [
     "composeIcons-octicons",
     "composeIcons-simpleIcons",
     "composeIcons-tablerIcons"
-]
-voyager = [
-    "voyager-navigator",
-    "voyager-screenModel",
-    "voyager-bottomSheetNavigator",
-    "voyager-tabNavigator",
-    "voyager-transitions",
-    "voyager-koin"
 ]

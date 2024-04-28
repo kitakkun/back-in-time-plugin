@@ -1,24 +1,25 @@
 package com.github.kitakkun.backintime.debugger.feature.connection
 
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerService
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerServiceState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ConnectionTabScreenModel(
-    debuggerService: BackInTimeDebuggerService,
-) : ScreenModel, KoinComponent {
+class ConnectionViewModel : ViewModel(), KoinComponent {
+    private val debuggerService: BackInTimeDebuggerService by inject()
+
     val bindModel = combine(
         debuggerService.serviceStateFlow,
         debuggerService.connectionSpecsFlow,
     ) { serviceState, connectionSpecs ->
         when (serviceState) {
-            is BackInTimeDebuggerServiceState.Uninitialized -> ConnectionTabBindModel.ServerNotStarted
-            is BackInTimeDebuggerServiceState.Running -> ConnectionTabBindModel.ServerRunning(
+            is BackInTimeDebuggerServiceState.Uninitialized -> ConnectionBindModel.ServerNotStarted
+            is BackInTimeDebuggerServiceState.Running -> ConnectionBindModel.ServerRunning(
                 host = serviceState.host,
                 port = serviceState.port,
                 sessionBindModels = connectionSpecs.map {
@@ -30,13 +31,13 @@ class ConnectionTabScreenModel(
                 },
             )
 
-            is BackInTimeDebuggerServiceState.Error -> ConnectionTabBindModel.ServerError(
+            is BackInTimeDebuggerServiceState.Error -> ConnectionBindModel.ServerError(
                 error = serviceState.error,
             )
         }
     }.stateIn(
-        scope = screenModelScope,
+        scope = viewModelScope,
         started = SharingStarted.Lazily,
-        initialValue = ConnectionTabBindModel.Loading,
+        initialValue = ConnectionBindModel.Loading,
     )
 }

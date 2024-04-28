@@ -1,6 +1,6 @@
-package com.github.kitakkun.backintime.debugger.root
+package com.github.kitakkun.backintime.debugger
 
-import cafe.adriel.voyager.core.model.ScreenModel
+import androidx.lifecycle.ViewModel
 import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepository
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerService
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerServiceState
@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.StateFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class RootScreenModel(
-    private val settingsRepository: SettingsRepository,
-) : ScreenModel, KoinComponent {
+class RootViewModel : ViewModel(), KoinComponent {
+    private val settingsRepository: SettingsRepository by inject()
     private val service: BackInTimeDebuggerService by inject()
+
     val serverState: StateFlow<BackInTimeDebuggerServiceState> = service.serviceStateFlow
 
     fun startServer() {

@@ -20,15 +20,15 @@ import com.github.kitakkun.backintime.settings.generated.resources.text_loading_
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun SettingsTabView(
-    bindModel: SettingsTabBindModel,
+fun SettingsView(
+    bindModel: SettingsBindModel,
     onChangeWebSocketPort: (Int) -> Unit,
     onChangeDeleteSessionDataOnDisconnect: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (bindModel) {
-        is SettingsTabBindModel.Loading -> LoadingView(modifier = modifier)
-        is SettingsTabBindModel.Loaded -> LoadedView(
+        is SettingsBindModel.Loading -> LoadingView(modifier = modifier)
+        is SettingsBindModel.Loaded -> LoadedView(
             bindModel = bindModel,
             onChangeWebSocketPort = onChangeWebSocketPort,
             onChangeDeleteSessionDataOnDisconnect = onChangeDeleteSessionDataOnDisconnect,
@@ -54,7 +54,7 @@ private fun LoadingView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedView(
-    bindModel: SettingsTabBindModel.Loaded,
+    bindModel: SettingsBindModel.Loaded,
     onChangeWebSocketPort: (Int) -> Unit,
     onChangeDeleteSessionDataOnDisconnect: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -100,7 +100,7 @@ private fun LoadingViewPreview() {
 @Composable
 private fun LoadedViewPreview() {
     LoadedView(
-        bindModel = SettingsTabBindModel.Loaded(
+        bindModel = SettingsBindModel.Loaded(
             webSocketPort = 8080,
             deleteSessionDataOnDisconnect = true,
         ),
