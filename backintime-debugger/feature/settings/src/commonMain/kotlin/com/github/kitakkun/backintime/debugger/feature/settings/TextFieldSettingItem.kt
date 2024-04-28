@@ -50,11 +50,11 @@ fun TextFieldSettingItem(
                     } else {
                         Icon(
                             imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit"
+                            contentDescription = "Edit",
                         )
                     }
                 }
-            }
+            },
         )
     }
 }

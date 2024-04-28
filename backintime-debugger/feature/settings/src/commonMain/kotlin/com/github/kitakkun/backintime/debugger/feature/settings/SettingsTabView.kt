@@ -35,7 +35,6 @@ fun SettingsTabView(
             modifier = modifier,
         )
     }
-
 }
 
 @Composable
@@ -65,7 +64,7 @@ private fun LoadedView(
             TopAppBar(
                 title = {
                     Text(stringResource(Res.string.settings_tab_title))
-                }
+                },
             )
         },
         modifier = modifier.fillMaxSize(),
@@ -90,7 +89,6 @@ private fun LoadedView(
         }
     }
 }
-
 
 @Preview
 @Composable

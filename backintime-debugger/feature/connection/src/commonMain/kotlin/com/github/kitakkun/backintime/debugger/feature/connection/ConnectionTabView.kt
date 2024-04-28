@@ -82,7 +82,7 @@ private fun ServerNotStartedView() {
                         end = Offset(size.width, size.height),
                         strokeWidth = 4.dp.toPx(),
                     )
-                }
+                },
         )
         Text(stringResource(Res.string.server_not_started))
     }
@@ -158,7 +158,7 @@ private fun ServerErrorView() {
                         end = Offset(size.width, size.height),
                         strokeWidth = 4.dp.toPx(),
                     )
-                }
+                },
         )
         Text(stringResource(Res.string.failed_to_start_server))
     }

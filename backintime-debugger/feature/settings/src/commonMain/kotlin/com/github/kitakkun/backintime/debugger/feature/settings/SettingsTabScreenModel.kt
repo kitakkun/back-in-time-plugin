@@ -8,15 +8,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
 class SettingsTabScreenModel(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
 ) : ScreenModel {
     val bindModel = combine(
         settingsRepository.websocketPortFlow,
-        settingsRepository.deleteSessionDataOnDisconnectFlow
+        settingsRepository.deleteSessionDataOnDisconnectFlow,
     ) { webSocketPort, deleteSessionDataOnDisconnect ->
         SettingsTabBindModel.Loaded(
             webSocketPort = webSocketPort,
-            deleteSessionDataOnDisconnect = deleteSessionDataOnDisconnect
+            deleteSessionDataOnDisconnect = deleteSessionDataOnDisconnect,
         )
     }.stateIn(
         scope = screenModelScope,
