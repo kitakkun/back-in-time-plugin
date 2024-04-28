@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.github.kitakkun.backintime.connection.generated.resources.Res
 import com.github.kitakkun.backintime.connection.generated.resources.active_sessions
+import com.github.kitakkun.backintime.connection.generated.resources.failed_to_start_server
 import com.github.kitakkun.backintime.connection.generated.resources.host
 import com.github.kitakkun.backintime.connection.generated.resources.ic_server_line
 import com.github.kitakkun.backintime.connection.generated.resources.port
@@ -43,6 +44,7 @@ fun ConnectionTabView(
             is ConnectionTabBindModel.Loading -> LoadingView()
             is ConnectionTabBindModel.ServerNotStarted -> ServerNotStartedView()
             is ConnectionTabBindModel.ServerRunning -> ServerRunningView(it)
+            is ConnectionTabBindModel.ServerError -> ServerErrorView()
         }
     }
 }
@@ -132,6 +134,33 @@ private fun ServerRunningView(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ServerErrorView() {
+    val errorColor = BackInTimeDebuggerTheme.colorScheme.error
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_server_line),
+            contentDescription = null,
+            modifier = Modifier
+                .size(64.dp)
+                .drawWithContent {
+                    drawContent()
+                    drawLine(
+                        color = errorColor,
+                        start = Offset.Zero,
+                        end = Offset(size.width, size.height),
+                        strokeWidth = 4.dp.toPx(),
+                    )
+                }
+        )
+        Text(stringResource(Res.string.failed_to_start_server))
     }
 }
 

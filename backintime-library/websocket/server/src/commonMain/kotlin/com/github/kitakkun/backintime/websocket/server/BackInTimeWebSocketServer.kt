@@ -52,16 +52,17 @@ class BackInTimeWebSocketServer {
     private val connectionsFlow = mutableConnectionsFlow.asStateFlow()
     val connectionSpecsFlow = connectionsFlow.map { it.map { it.spec } }
 
-    private val mutableServerSpecFlow = MutableStateFlow<ServerSpec?>(null)
-    val serverSpecFlow = mutableServerSpecFlow.asStateFlow()
-
     private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
-    fun start(host: String, port: Int) {
-        server = configureServer(host, port)
-        server?.start()
-        mutableServerSpecFlow.value = ServerSpec(host, port)
+    fun start(host: String, port: Int): Result<ServerSpec> {
+        return try {
+            server = configureServer(host, port)
+            server?.start()
+            Result.success(ServerSpec(host, port))
+        } catch (e: Throwable) {
+            Result.failure(e)
+        }
     }
 
     suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
@@ -72,7 +73,6 @@ class BackInTimeWebSocketServer {
     fun stop() {
         server?.stop()
         server = null
-        mutableServerSpecFlow.value = null
     }
 
     private fun configureServer(host: String, port: Int) = embeddedServer(

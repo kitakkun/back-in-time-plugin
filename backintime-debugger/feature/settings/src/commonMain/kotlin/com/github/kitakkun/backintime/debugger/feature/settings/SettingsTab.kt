@@ -3,8 +3,11 @@ package com.github.kitakkun.backintime.debugger.feature.settings
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import cafe.adriel.voyager.koin.getScreenModel
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 import com.github.kitakkun.backintime.settings.generated.resources.Res
@@ -27,6 +30,13 @@ object SettingsTab : Tab {
 
     @Composable
     override fun Content() {
-        // TODO
+        val screenModel = getScreenModel<SettingsTabScreenModel>()
+        val bindModel by screenModel.bindModel.collectAsState()
+
+        SettingsTabView(
+            bindModel = bindModel,
+            onChangeWebSocketPort = screenModel::updateWebSocketPort,
+            onChangeDeleteSessionDataOnDisconnect = screenModel::updateDeleteSessionDataOnDisconnect,
+        )
     }
 }
