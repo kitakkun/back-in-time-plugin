@@ -15,6 +15,7 @@ class DebuggerFeatureConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("org.jetbrains.compose")
                 apply("org.jetbrains.kotlin.multiplatform")
+                apply("backintime.lint")
             }
 
             configure<KotlinMultiplatformExtension> {
