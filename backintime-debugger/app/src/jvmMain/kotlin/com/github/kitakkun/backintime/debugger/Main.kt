@@ -10,6 +10,7 @@ import com.github.kitakkun.backintime.app.generated.resources.Res
 import com.github.kitakkun.backintime.app.generated.resources.app_name
 import com.github.kitakkun.backintime.debugger.data.di.dataModule
 import com.github.kitakkun.backintime.debugger.feature.connection.connectionFeatureModule
+import com.github.kitakkun.backintime.debugger.feature.settings.settingsFeatureModule
 import org.jetbrains.compose.resources.stringResource
 import org.koin.core.context.startKoin
 
@@ -19,6 +20,7 @@ fun main() {
             appModule,
             dataModule,
             connectionFeatureModule,
+            settingsFeatureModule,
         )
     }
 

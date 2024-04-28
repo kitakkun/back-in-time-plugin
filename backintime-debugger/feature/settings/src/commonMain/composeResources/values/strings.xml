@@ -1,3 +1,4 @@
 <resources>
     <string name="settings_tab_title">Settings</string>
+    <string name="text_loading_settings">Loading Settings...</string>
 </resources>
