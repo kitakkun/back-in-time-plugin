@@ -26,10 +26,14 @@ class DebuggerFeatureConventionPlugin : Plugin<Project> {
                 with(sourceSets) {
                     commonMain.dependencies {
                         implementation(project(":backintime-debugger:ui"))
+                        implementation(project(":backintime-debugger:featurecommon"))
                         implementation(project(":backintime-debugger:data"))
-                        implementation(libs.findBundle("voyager").get())
                         implementation(libs.findBundle("composeIcons").get())
+                        implementation(project.dependencies.platform(libs.findLibrary("koin-bom").get()))
                         implementation(libs.findLibrary("koin-core").get())
+                        implementation(libs.findLibrary("koin-compose").get())
+                        implementation(libs.findLibrary("jetbrains-navigation-compose").get())
+                        implementation(libs.findLibrary("jetbrains-lifecycle-viewmodel-compose").get())
                         implementation(compose.materialIconsExtended)
                         implementation(compose.material3)
                         implementation(compose.components.resources)

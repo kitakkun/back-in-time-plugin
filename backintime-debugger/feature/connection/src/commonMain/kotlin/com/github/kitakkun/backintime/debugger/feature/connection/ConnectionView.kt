@@ -33,18 +33,18 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ConnectionTabView(
-    bindModel: ConnectionTabBindModel,
+fun ConnectionView(
+    bindModel: ConnectionBindModel,
 ) {
     Crossfade(
         targetState = bindModel,
         animationSpec = tween(1000, 500),
     ) {
         when (it) {
-            is ConnectionTabBindModel.Loading -> LoadingView()
-            is ConnectionTabBindModel.ServerNotStarted -> ServerNotStartedView()
-            is ConnectionTabBindModel.ServerRunning -> ServerRunningView(it)
-            is ConnectionTabBindModel.ServerError -> ServerErrorView()
+            is ConnectionBindModel.Loading -> LoadingView()
+            is ConnectionBindModel.ServerNotStarted -> ServerNotStartedView()
+            is ConnectionBindModel.ServerRunning -> ServerRunningView(it)
+            is ConnectionBindModel.ServerError -> ServerErrorView()
         }
     }
 }
@@ -90,7 +90,7 @@ private fun ServerNotStartedView() {
 
 @Composable
 private fun ServerRunningView(
-    bindModel: ConnectionTabBindModel.ServerRunning,
+    bindModel: ConnectionBindModel.ServerRunning,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -180,7 +180,7 @@ private fun ServerNotStartedViewPreview() {
 @Composable
 private fun ServerRunningViewPreview_EmptySessions() {
     ServerRunningView(
-        bindModel = ConnectionTabBindModel.ServerRunning(
+        bindModel = ConnectionBindModel.ServerRunning(
             host = "localhost",
             port = 8080,
             sessionBindModels = emptyList(),
@@ -192,7 +192,7 @@ private fun ServerRunningViewPreview_EmptySessions() {
 @Composable
 private fun ServerRunningViewPreview_WithSessions() {
     ServerRunningView(
-        bindModel = ConnectionTabBindModel.ServerRunning(
+        bindModel = ConnectionBindModel.ServerRunning(
             host = "localhost",
             port = 8080,
             sessionBindModels = listOf(
