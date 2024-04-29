@@ -5,14 +5,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.github.kitakkun.backintime.debugger.feature.settings.SettingsPage
 
-const val SettingsGraphRoute = "settings"
+const val SETTINGS_GRAPH_ROUTE = "settings"
 
 fun NavGraphBuilder.settingsNavGraph(navController: NavController) {
-    composable(SettingsGraphRoute) {
+    composable(SETTINGS_GRAPH_ROUTE) {
         SettingsPage()
     }
 }
 
 fun NavController.navigateToSettings() {
-    navigate(SettingsGraphRoute) { launchSingleTop = true }
+    navigate(SETTINGS_GRAPH_ROUTE) { launchSingleTop = true }
 }

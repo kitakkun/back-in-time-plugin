@@ -5,14 +5,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.github.kitakkun.backintime.debugger.feature.connection.ConnectionPage
 
-const val ConnectionGraphRoute = "connection"
+const val CONNECTION_GRAPH_ROUTE = "connection"
 
 fun NavGraphBuilder.connectionNavGraph(navController: NavController) {
-    composable(ConnectionGraphRoute) {
+    composable(CONNECTION_GRAPH_ROUTE) {
         ConnectionPage()
     }
 }
 
 fun NavController.navigateToConnection() {
-    navigate(ConnectionGraphRoute) { launchSingleTop = true }
+    navigate(CONNECTION_GRAPH_ROUTE) { launchSingleTop = true }
 }

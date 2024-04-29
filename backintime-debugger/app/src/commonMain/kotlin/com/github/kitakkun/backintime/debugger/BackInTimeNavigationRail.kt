@@ -27,13 +27,13 @@ import com.github.kitakkun.backintime.app.generated.resources.ic_instance_tab
 import com.github.kitakkun.backintime.app.generated.resources.instance_tab_title
 import com.github.kitakkun.backintime.app.generated.resources.log_tab_title
 import com.github.kitakkun.backintime.app.generated.resources.settings_tab_title
-import com.github.kitakkun.backintime.debugger.feature.connection.navigation.ConnectionGraphRoute
+import com.github.kitakkun.backintime.debugger.feature.connection.navigation.CONNECTION_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.connection.navigation.navigateToConnection
-import com.github.kitakkun.backintime.debugger.feature.instance.navigation.InstanceGraphRoute
+import com.github.kitakkun.backintime.debugger.feature.instance.navigation.INSTANCE_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.instance.navigation.navigateToInstance
-import com.github.kitakkun.backintime.debugger.feature.log.navigation.LogGraphRoute
+import com.github.kitakkun.backintime.debugger.feature.log.navigation.LOG_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.log.navigation.navigateToLog
-import com.github.kitakkun.backintime.debugger.feature.settings.navigation.SettingsGraphRoute
+import com.github.kitakkun.backintime.debugger.feature.settings.navigation.SETTINGS_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.settings.navigation.navigateToSettings
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -47,26 +47,26 @@ fun BackInTimeDebuggerNavigationRail(
 
     NavigationRail {
         NavigationRailItem(
-            selected = currentRoute == InstanceGraphRoute,
+            selected = currentRoute == INSTANCE_GRAPH_ROUTE,
             iconPainter = painterResource(Res.drawable.ic_instance_tab),
             labelResource = Res.string.instance_tab_title,
             onClick = { navController.navigateToInstance() },
         )
         NavigationRailItem(
-            selected = currentRoute == LogGraphRoute,
+            selected = currentRoute == LOG_GRAPH_ROUTE,
             iconPainter = rememberVectorPainter(Icons.Default.FilePresent),
             labelResource = Res.string.log_tab_title,
             onClick = { navController.navigateToLog() },
         )
         Spacer(Modifier.weight(1f))
         NavigationRailItem(
-            selected = currentRoute == ConnectionGraphRoute,
+            selected = currentRoute == CONNECTION_GRAPH_ROUTE,
             iconPainter = rememberVectorPainter(Icons.Default.NetworkCheck),
             labelResource = Res.string.connection_tab_title,
             onClick = { navController.navigateToConnection() },
         )
         NavigationRailItem(
-            selected = currentRoute == SettingsGraphRoute,
+            selected = currentRoute == SETTINGS_GRAPH_ROUTE,
             iconPainter = rememberVectorPainter(Icons.Default.Settings),
             labelResource = Res.string.settings_tab_title,
             onClick = { navController.navigateToSettings() },

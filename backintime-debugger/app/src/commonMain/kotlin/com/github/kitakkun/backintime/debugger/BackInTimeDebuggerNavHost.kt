@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.github.kitakkun.backintime.debugger.feature.connection.navigation.connectionNavGraph
-import com.github.kitakkun.backintime.debugger.feature.instance.navigation.InstanceGraphRoute
+import com.github.kitakkun.backintime.debugger.feature.instance.navigation.INSTANCE_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.instance.navigation.instanceNavGraph
 import com.github.kitakkun.backintime.debugger.feature.log.navigation.logNavGraph
 import com.github.kitakkun.backintime.debugger.feature.settings.navigation.settingsNavGraph
@@ -17,7 +17,7 @@ fun BackInTimeDebuggerNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = InstanceGraphRoute,
+        startDestination = INSTANCE_GRAPH_ROUTE,
         modifier = modifier,
     ) {
         instanceNavGraph(navController)
