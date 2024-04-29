@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.github.kitakkun.backintime.debugger.feature.connection.ConnectionPage
-import com.github.kitakkun.backintime.debugger.feature.instance.InstancePage
-import com.github.kitakkun.backintime.debugger.feature.log.LogPage
-import com.github.kitakkun.backintime.debugger.feature.settings.SettingsPage
+import com.github.kitakkun.backintime.debugger.feature.connection.navigation.connectionNavGraph
+import com.github.kitakkun.backintime.debugger.feature.instance.navigation.INSTANCE_GRAPH_ROUTE
+import com.github.kitakkun.backintime.debugger.feature.instance.navigation.instanceNavGraph
+import com.github.kitakkun.backintime.debugger.feature.log.navigation.logNavGraph
+import com.github.kitakkun.backintime.debugger.feature.settings.navigation.settingsNavGraph
 
 @Composable
 fun BackInTimeDebuggerNavHost(
@@ -17,20 +17,12 @@ fun BackInTimeDebuggerNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainScreen.Instance.route,
+        startDestination = INSTANCE_GRAPH_ROUTE,
         modifier = modifier,
     ) {
-        composable(MainScreen.Instance.route) {
-            InstancePage()
-        }
-        composable(MainScreen.Log.route) {
-            LogPage()
-        }
-        composable(MainScreen.Connection.route) {
-            ConnectionPage()
-        }
-        composable(MainScreen.Settings.route) {
-            SettingsPage()
-        }
+        instanceNavGraph(navController)
+        logNavGraph(navController)
+        connectionNavGraph(navController)
+        settingsNavGraph(navController)
     }
 }
