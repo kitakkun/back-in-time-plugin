@@ -1,7 +1,7 @@
 [versions]
 flipper = "0.233.0"
 kotlinx-coroutines = "1.8.0"
-kotlinx-serialization-json = "1.6.2"
+kotlinx-serialization-json = "1.6.3"
 auto-service = "1.1.1"
 auto-service-ksp = "1.1.0"
 androidx-core = "1.12.0"
@@ -30,7 +30,7 @@ uuid = "0.8.4"
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
 
-jetbrains-compose = "1.6.10-beta02"
+jetbrains-compose = "1.6.10-beta03"
 kotlinx-datetime = "0.6.0-RC.2"
 
 sqldelight = "2.0.1"
@@ -38,8 +38,8 @@ koin = "3.5.0"
 multiplatformSettings = "1.1.1"
 composeIcons = "1.1.0"
 
-navigation-compose = "2.8.0-alpha02"
-lifecycle-viewmodel-compose = "2.8.0-beta01"
+navigation-compose = "2.7.0-alpha03"
+lifecycle-viewmodel-compose = "2.8.0-beta02"
 
 [libraries]
 # gradle
