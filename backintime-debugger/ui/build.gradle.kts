@@ -9,7 +9,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(compose.components.resources)
             implementation(compose.material3)
+            implementation(compose.preview)
         }
     }
 }
