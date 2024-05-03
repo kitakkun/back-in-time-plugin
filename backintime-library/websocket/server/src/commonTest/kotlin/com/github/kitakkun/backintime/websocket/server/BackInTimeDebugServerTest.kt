@@ -104,6 +104,7 @@ class BackInTimeDebugServerTest {
                 configureApplication(
                     onConnect = {
                         it.session.send(Json.encodeToString(BackInTimeDebuggerEvent.Ping))
+                        it.session.send(Json.encodeToString(BackInTimeDebuggerEvent.Ping))
                     },
                     onReceiveEvent = { _, _ ->
                     },

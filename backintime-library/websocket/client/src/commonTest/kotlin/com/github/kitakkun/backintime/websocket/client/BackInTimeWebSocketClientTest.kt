@@ -48,7 +48,7 @@ class BackInTimeWebSocketClientTest {
                 host = TEST_HOST,
                 port = TEST_PORT,
                 serverSession = {
-                    // Do nothing
+                    send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened("session_id"))))
                 },
             )
 
@@ -72,6 +72,7 @@ class BackInTimeWebSocketClientTest {
                 host = TEST_HOST,
                 port = TEST_PORT,
                 serverSession = {
+                    send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened("session_id"))))
                     val event = (incoming.receive() as? Frame.Text)?.let {
                         Json.decodeFromString<BackInTimeDebugServiceEvent>(it.readText())
                     } ?: return@configureServer
@@ -99,6 +100,7 @@ class BackInTimeWebSocketClientTest {
                 host = TEST_HOST,
                 port = TEST_PORT,
                 serverSession = {
+                    send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened("session_id"))))
                     delay(1000)
                     send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping)))
                 },

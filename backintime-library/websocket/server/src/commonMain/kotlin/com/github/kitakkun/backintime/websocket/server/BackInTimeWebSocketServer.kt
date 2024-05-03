@@ -84,8 +84,9 @@ class BackInTimeWebSocketServer {
     ) {
         installWebSocket()
         configureWebSocketRouting(
-            onConnect = {
-                mutableConnectionsFlow.value = connectionsFlow.value + it
+            onConnect = { connection ->
+                mutableConnectionsFlow.value = connectionsFlow.value + connection
+                connection.session.send(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened(connection.id)))
             },
             onReceiveEvent = { connection, event ->
                 mutableReceivedEventFlow.emit(connection.spec.id to event)
@@ -110,7 +111,6 @@ fun Application.configureWebSocketRouting(
                 Connection(session = this, id = sessionId)
             } ?: Connection(this)
 
-            send(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened(connection.id)))
             onConnect(connection)
 
             for (frame in incoming) {

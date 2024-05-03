@@ -37,7 +37,7 @@ class ClassInfoRepositoryTest : BackInTimeDebuggerDataTest() {
         assertEquals(
             actual = data,
             expected = ClassInfo(
-                id = "session_id/com.example.Class",
+                id = 1,
                 className = "com.example.Class",
                 superClassName = "com.exmaple.SuperClass",
                 properties = listOf(),
@@ -65,12 +65,13 @@ class ClassInfoRepositoryTest : BackInTimeDebuggerDataTest() {
             className = "com.example.Class",
         )
         assertNotNull(data)
+        // class info is finalized at compile time, and it shouldn't be updated during the same session
         assertEquals(
             actual = data,
             expected = ClassInfo(
-                id = "session_id/com.example.Class",
+                id = 1,
                 className = "com.example.Class",
-                superClassName = "com.exmaple.SuperClass.Updated",
+                superClassName = "com.exmaple.SuperClass",
                 properties = listOf(),
                 sessionId = "session_id",
             ),

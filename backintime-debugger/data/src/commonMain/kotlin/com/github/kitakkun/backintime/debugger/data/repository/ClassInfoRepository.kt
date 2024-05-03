@@ -27,6 +27,8 @@ class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfo
 
     override suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
         withContext(coroutineContext) {
+            val existingEntity = queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
+            if (existingEntity != null) return@withContext
             queries.insert(
                 className = className,
                 superClassName = superClassName,
