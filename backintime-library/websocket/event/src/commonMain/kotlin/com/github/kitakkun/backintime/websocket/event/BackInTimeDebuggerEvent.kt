@@ -13,12 +13,7 @@ sealed interface BackInTimeDebuggerEvent {
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
-    ) : BackInTimeDebuggerEvent {
-        @Serializable
-        data class Response(
-            val isAlive: Map<String, Boolean>,
-        )
-    }
+    ) : BackInTimeDebuggerEvent
 
     @Serializable
     data class ForceSetPropertyValue(
