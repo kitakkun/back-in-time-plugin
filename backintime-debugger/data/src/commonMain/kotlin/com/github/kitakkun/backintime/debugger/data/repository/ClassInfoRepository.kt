@@ -28,7 +28,6 @@ class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfo
     override suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
         withContext(coroutineContext) {
             queries.insert(
-                id = "$sessionId/$className",
                 className = className,
                 superClassName = superClassName,
                 properties = properties,
