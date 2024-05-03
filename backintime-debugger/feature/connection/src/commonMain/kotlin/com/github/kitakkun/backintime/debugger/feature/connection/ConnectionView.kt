@@ -28,7 +28,7 @@ import com.github.kitakkun.backintime.connection.generated.resources.server_is_r
 import com.github.kitakkun.backintime.connection.generated.resources.server_not_started
 import com.github.kitakkun.backintime.connection.generated.resources.text_loading_server_status
 import com.github.kitakkun.backintime.connection.generated.resources.waiting_for_connection
-import com.github.kitakkun.backintime.debugger.ui.primitive.BackInTimeDebuggerTheme
+import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -63,7 +63,7 @@ private fun LoadingView() {
 
 @Composable
 private fun ServerNotStartedView() {
-    val errorColor = BackInTimeDebuggerTheme.colorScheme.error
+    val errorColor = DebuggerTheme.colorScheme.error
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -106,7 +106,7 @@ private fun ServerRunningView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Badge(containerColor = BackInTimeDebuggerTheme.staticColors.activeGreen)
+            Badge(containerColor = DebuggerTheme.staticColors.activeGreen)
             Text(stringResource(Res.string.server_is_running))
         }
         Row(
@@ -139,7 +139,7 @@ private fun ServerRunningView(
 
 @Composable
 private fun ServerErrorView() {
-    val errorColor = BackInTimeDebuggerTheme.colorScheme.error
+    val errorColor = DebuggerTheme.colorScheme.error
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),

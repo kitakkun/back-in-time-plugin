@@ -22,7 +22,7 @@ import com.github.kitakkun.backintime.app.generated.resources.starting_websocket
 import com.github.kitakkun.backintime.app.generated.resources.unknown_error
 import com.github.kitakkun.backintime.app.generated.resources.websocket_server_started
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerServiceState
-import com.github.kitakkun.backintime.debugger.ui.primitive.BackInTimeDebuggerTheme
+import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import org.jetbrains.compose.resources.getString
 
 @Composable
@@ -68,7 +68,7 @@ fun App() {
         }
     }
 
-    BackInTimeDebuggerTheme {
+    DebuggerTheme {
         Row {
             BackInTimeDebuggerNavigationRail(navController = navHostController)
             Scaffold(

@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.ui.primitive
+package com.github.kitakkun.backintime.debugger.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.ui.primitive
+package com.github.kitakkun.backintime.debugger.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
@@ -11,16 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 
 @Composable
-fun BackInTimeDebuggerTheme(content: @Composable () -> Unit) {
+fun DebuggerTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         content = content,
-        typography = BackInTimeDebuggerTheme.typography,
-        colorScheme = BackInTimeDebuggerTheme.colorScheme,
-        shapes = BackInTimeDebuggerTheme.shapes,
+        typography = DebuggerTheme.typography,
+        colorScheme = DebuggerTheme.colorScheme,
+        shapes = DebuggerTheme.shapes,
     )
 }
 
-object BackInTimeDebuggerTheme {
+object DebuggerTheme {
     val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable

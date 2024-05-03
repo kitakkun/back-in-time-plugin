@@ -18,7 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.github.kitakkun.backintime.debugger.ui.primitive.BackInTimeDebuggerTheme
+import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 
 @Composable
 fun TextFieldSettingItem(
@@ -45,7 +45,7 @@ fun TextFieldSettingItem(
                         Icon(
                             imageVector = Icons.Filled.Done,
                             contentDescription = "Done",
-                            tint = BackInTimeDebuggerTheme.colorScheme.primary,
+                            tint = DebuggerTheme.colorScheme.primary,
                         )
                     } else {
                         Icon(
