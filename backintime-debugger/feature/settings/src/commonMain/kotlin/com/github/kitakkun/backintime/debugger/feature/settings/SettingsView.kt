@@ -5,15 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.github.kitakkun.backintime.debugger.ui.customview.CommonLoadingView
 import com.github.kitakkun.backintime.settings.generated.resources.Res
 import com.github.kitakkun.backintime.settings.generated.resources.settings_tab_title
 import com.github.kitakkun.backintime.settings.generated.resources.text_loading_settings
@@ -27,27 +26,13 @@ fun SettingsView(
     modifier: Modifier = Modifier,
 ) {
     when (bindModel) {
-        is SettingsBindModel.Loading -> LoadingView(modifier = modifier)
+        is SettingsBindModel.Loading -> CommonLoadingView(modifier = modifier, stringResource(Res.string.text_loading_settings))
         is SettingsBindModel.Loaded -> LoadedView(
             bindModel = bindModel,
             onChangeWebSocketPort = onChangeWebSocketPort,
             onChangeDeleteSessionDataOnDisconnect = onChangeDeleteSessionDataOnDisconnect,
             modifier = modifier,
         )
-    }
-}
-
-@Composable
-private fun LoadingView(
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-    ) {
-        Text(stringResource(Res.string.text_loading_settings))
-        CircularProgressIndicator()
     }
 }
 
@@ -88,12 +73,6 @@ private fun LoadedView(
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun LoadingViewPreview() {
-    LoadingView()
 }
 
 @Preview
