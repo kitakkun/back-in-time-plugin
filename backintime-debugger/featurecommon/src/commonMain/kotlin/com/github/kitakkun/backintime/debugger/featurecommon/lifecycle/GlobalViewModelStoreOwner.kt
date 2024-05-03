@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.featurecommon
+package com.github.kitakkun.backintime.debugger.featurecommon.lifecycle
 
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
