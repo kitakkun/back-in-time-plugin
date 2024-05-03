@@ -11,7 +11,7 @@ import com.github.kitakkun.backintime.debugger.feature.log.navigation.logNavGrap
 import com.github.kitakkun.backintime.debugger.feature.settings.navigation.settingsNavGraph
 
 @Composable
-fun BackInTimeDebuggerNavHost(
+fun DebuggerNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {

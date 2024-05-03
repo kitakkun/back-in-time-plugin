@@ -35,15 +35,16 @@ import com.github.kitakkun.backintime.debugger.feature.log.navigation.LOG_GRAPH_
 import com.github.kitakkun.backintime.debugger.feature.log.navigation.navigateToLog
 import com.github.kitakkun.backintime.debugger.feature.settings.navigation.SETTINGS_GRAPH_ROUTE
 import com.github.kitakkun.backintime.debugger.feature.settings.navigation.navigateToSettings
+import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun BackInTimeDebuggerNavigationRail(
+fun DebuggerNavigationRail(
     navController: NavController,
 ) {
-    val currentRoute by navController.currentRouteAsState()
+    val currentRoute by navController.currentRootRouteAsState()
 
     NavigationRail {
         NavigationRailItem(
@@ -75,14 +76,20 @@ fun BackInTimeDebuggerNavigationRail(
 }
 
 @Composable
-private fun NavController.currentRouteAsState(): State<String?> {
+private fun NavController.currentRootRouteAsState(): State<String?> {
     val navBackStackEntry by currentBackStackEntryAsState()
     return produceState(initialValue = navBackStackEntry?.destination?.route) {
-        snapshotFlow {
-            navBackStackEntry?.destination?.route
-        }.collect {
-            value = it
-        }
+        snapshotFlow { navBackStackEntry?.destination }
+            .map {
+                var currentDestination = it
+                while (currentDestination?.parent?.route != null) {
+                    currentDestination = currentDestination.parent!!
+                }
+                currentDestination?.route
+            }
+            .collect {
+                value = it
+            }
     }
 }
 
