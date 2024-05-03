@@ -25,11 +25,13 @@ import kotlinx.serialization.json.Json
 
 data class Connection(
     val session: DefaultWebSocketServerSession,
+    val id: String = uuid4().toString(),
 ) {
     val spec: ConnectionSpec = ConnectionSpec(
         host = session.call.request.local.remoteHost,
         port = session.call.request.local.remotePort,
         address = session.call.request.local.remoteAddress,
+        id = id,
     )
 }
 
@@ -37,7 +39,7 @@ data class ConnectionSpec(
     val host: String,
     val port: Int,
     val address: String,
-    val id: String = uuid4().toString(),
+    val id: String,
 )
 
 data class ServerSpec(
@@ -104,7 +106,11 @@ fun Application.configureWebSocketRouting(
 ) {
     routing {
         webSocket("/backintime") {
-            val connection = Connection(this)
+            val connection = this.call.request.queryParameters["sessionId"]?.let { sessionId ->
+                Connection(session = this, id = sessionId)
+            } ?: Connection(this)
+
+            send(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.SessionOpened(connection.id)))
             onConnect(connection)
 
             for (frame in incoming) {

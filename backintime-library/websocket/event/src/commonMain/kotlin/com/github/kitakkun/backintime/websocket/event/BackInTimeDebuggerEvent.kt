@@ -11,6 +11,11 @@ sealed interface BackInTimeDebuggerEvent {
     data object Ping : BackInTimeDebuggerEvent
 
     @Serializable
+    data class SessionOpened(
+        val sessionUUID: String,
+    ) : BackInTimeDebuggerEvent
+
+    @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
     ) : BackInTimeDebuggerEvent
