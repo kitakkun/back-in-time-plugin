@@ -16,6 +16,7 @@ interface SessionInfoRepository {
     val allDisconnectedSessions: Flow<List<SessionInfo>>
     suspend fun insert(sessionId: String, label: String? = null, startedAt: Long = Clock.System.now().epochSeconds)
     suspend fun select(sessionId: String): SessionInfo?
+    suspend fun markAsConnected(id: String)
 }
 
 class SessionInfoRepositoryImpl(
@@ -44,6 +45,12 @@ class SessionInfoRepositoryImpl(
                 label = label ?: sessionId,
                 startedAt = startedAt,
             )
+        }
+    }
+
+    override suspend fun markAsConnected(id: String) {
+        withContext(coroutineContext) {
+            queries.markAsConnected(id)
         }
     }
 }

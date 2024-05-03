@@ -26,6 +26,7 @@ import com.github.kitakkun.backintime.debugger.database.EventLog
 import com.github.kitakkun.backintime.debugger.database.Instance
 import com.github.kitakkun.backintime.debugger.database.MethodCallInfo
 import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 internal val sharedModule = module {
@@ -38,8 +39,8 @@ internal val sharedModule = module {
     single<MethodCallInfoRepository> { MethodCallInfoRepositoryImpl(get()) }
 
     // debugger services
-    single<BackInTimeDebuggerService> { BackInTimeDebuggerService(get(), get()) }
     factory<IncomingEventProcessor> { IncomingEventProcessorImpl(get(), get(), get(), get()) }
+    singleOf(::BackInTimeDebuggerService)
     single<BackInTimeWebSocketServer> { BackInTimeWebSocketServer() }
 
     // sqldelight
