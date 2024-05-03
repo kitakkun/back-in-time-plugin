@@ -1,7 +1,5 @@
 package com.github.kitakkun.backintime.debugger.feature.connection
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Badge
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +25,7 @@ import com.github.kitakkun.backintime.connection.generated.resources.server_is_r
 import com.github.kitakkun.backintime.connection.generated.resources.server_not_started
 import com.github.kitakkun.backintime.connection.generated.resources.text_loading_server_status
 import com.github.kitakkun.backintime.connection.generated.resources.waiting_for_connection
+import com.github.kitakkun.backintime.debugger.ui.customview.CommonLoadingView
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,28 +34,11 @@ import org.jetbrains.compose.resources.stringResource
 fun ConnectionView(
     bindModel: ConnectionBindModel,
 ) {
-    Crossfade(
-        targetState = bindModel,
-        animationSpec = tween(1000, 500),
-    ) {
-        when (it) {
-            is ConnectionBindModel.Loading -> LoadingView()
-            is ConnectionBindModel.ServerNotStarted -> ServerNotStartedView()
-            is ConnectionBindModel.ServerRunning -> ServerRunningView(it)
-            is ConnectionBindModel.ServerError -> ServerErrorView()
-        }
-    }
-}
-
-@Composable
-private fun LoadingView() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(stringResource(Res.string.text_loading_server_status))
-        CircularProgressIndicator()
+    when (bindModel) {
+        is ConnectionBindModel.Loading -> CommonLoadingView(message = stringResource(Res.string.text_loading_server_status))
+        is ConnectionBindModel.ServerNotStarted -> ServerNotStartedView()
+        is ConnectionBindModel.ServerRunning -> ServerRunningView(bindModel)
+        is ConnectionBindModel.ServerError -> ServerErrorView()
     }
 }
 
@@ -162,12 +143,6 @@ private fun ServerErrorView() {
         )
         Text(stringResource(Res.string.failed_to_start_server))
     }
-}
-
-@Preview
-@Composable
-private fun LoadingViewPreview() {
-    LoadingView()
 }
 
 @Preview
