@@ -1,9 +1,8 @@
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
 
 CREATE TABLE IF NOT EXISTS eventLog(
-    id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     sessionId TEXT NOT NULL,
-    kind TEXT NOT NULL,
     payload TEXT AS BackInTimeDebugServiceEvent NOT NULL,
     createdAt INTEGER NOT NULL
 );
@@ -12,7 +11,7 @@ selectSessionEvents:
 SELECT * FROM eventLog WHERE sessionId = ?;
 
 insert:
-INSERT INTO eventLog(id, sessionId, kind, payload, createdAt) VALUES(?, ?, ?, ?, ?);
+INSERT INTO eventLog(sessionId, payload, createdAt) VALUES(?, ?, ?);
 
 deleteSessionEvents:
 DELETE FROM eventLog WHERE sessionId = ?;
