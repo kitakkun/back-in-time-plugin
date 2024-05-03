@@ -4,6 +4,7 @@ import com.github.kitakkun.backintime.debugger.data.repository.ClassInfoReposito
 import com.github.kitakkun.backintime.debugger.data.repository.EventLogRepository
 import com.github.kitakkun.backintime.debugger.data.repository.InstanceRepository
 import com.github.kitakkun.backintime.debugger.data.repository.MethodCallInfoRepository
+import com.github.kitakkun.backintime.debugger.data.repository.ValueChangeInfoRepository
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 
@@ -16,6 +17,7 @@ class IncomingEventProcessorImpl(
     private val instanceRepository: InstanceRepository,
     private val logRepository: EventLogRepository,
     private val methodCallInfoRepository: MethodCallInfoRepository,
+    private val valueChangeInfoRepository: ValueChangeInfoRepository,
 ) : IncomingEventProcessor {
     override suspend fun processEvent(sessionId: String, event: BackInTimeDebugServiceEvent): BackInTimeDebuggerEvent? {
         logRepository.insert(sessionId, event)
@@ -51,7 +53,7 @@ class IncomingEventProcessorImpl(
         methodCallInfoRepository.insert(
             sessionId = sessionId,
             instanceUUID = event.instanceUUID,
-            className = "FIXME", // FIXME: get class name
+            className = event.className,
             methodName = event.methodName,
             callId = event.methodCallUUID,
         )
@@ -59,13 +61,13 @@ class IncomingEventProcessorImpl(
     }
 
     private suspend fun notifyValueChange(sessionId: String, event: BackInTimeDebugServiceEvent.NotifyValueChange): BackInTimeDebuggerEvent? {
-        methodCallInfoRepository.insertValueChange(
+        valueChangeInfoRepository.insert(
             sessionId = sessionId,
-            instanceUUID = event.instanceUUID,
-            className = "FIXME", // FIXME: get class name
-            callId = event.methodCallUUID,
+            instanceId = event.instanceUUID,
+            ownerClassName = event.className,
+            methodCallId = event.methodCallUUID,
             propertyName = event.propertyName,
-            propertyValue = event.value,
+            value = event.value,
         )
         return null
     }

@@ -16,9 +16,12 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.classOrFail
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
@@ -39,6 +42,7 @@ fun irRegisterRelationship(getParentInstance: IrExpression, getChildInstance: Ir
     }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 fun irCapturePropertyValue(
     propertyName: String,
     getValueCall: IrCall,
@@ -48,8 +52,9 @@ fun irCapturePropertyValue(
     irCallConstructor(propertyValueChangeEventConstructorSymbol, emptyList()).apply {
         putValueArgument(0, irGet(instanceParameter))
         putValueArgument(1, irGet(uuidVariable))
-        putValueArgument(2, irString(propertyName))
-        putValueArgument(3, getValueCall)
+        putValueArgument(2, irString(instanceParameter.type.classOrFail.owner.kotlinFqName.asString()))
+        putValueArgument(3, irString(propertyName))
+        putValueArgument(4, getValueCall)
     }
 }
 

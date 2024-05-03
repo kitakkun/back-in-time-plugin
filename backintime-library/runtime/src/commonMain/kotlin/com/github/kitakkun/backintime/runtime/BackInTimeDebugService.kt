@@ -163,6 +163,7 @@ object BackInTimeDebugService : CoroutineScope {
             methodName = event.methodName,
             methodCallUUID = event.methodCallId,
             calledAt = Clock.System.now().epochSeconds,
+            className = event.className,
         )
     }
 
@@ -174,6 +175,7 @@ object BackInTimeDebugService : CoroutineScope {
                 propertyName = event.propertyName,
                 value = serializedValue,
                 methodCallUUID = event.methodCallId,
+                className = event.className,
             )
         } catch (e: SerializationException) {
             sendOrQueue(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))

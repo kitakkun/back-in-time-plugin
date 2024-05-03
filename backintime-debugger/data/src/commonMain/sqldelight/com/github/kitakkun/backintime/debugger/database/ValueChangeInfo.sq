@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS valueChangeInfo(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sessionId TEXT NOT NULL,
+    instanceId TEXT NOT NULL,
+    methodCallId TEXT NOT NULL,
+    className TEXT NOT NULL,
+    propertyName TEXT NOT NULL,
+    propertyValue TEXT NOT NULL
+);
+
+insert:
+INSERT INTO valueChangeInfo(sessionId, instanceId, methodCallId, className, propertyName, propertyValue) VALUES(?, ?, ?, ?, ?, ?);
+
+selectBySessionId:
+SELECT * FROM valueChangeInfo WHERE sessionId = ?;

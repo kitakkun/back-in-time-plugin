@@ -14,17 +14,17 @@ import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoReposi
 import com.github.kitakkun.backintime.debugger.data.repository.SessionInfoRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepository
 import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepositoryImpl
+import com.github.kitakkun.backintime.debugger.data.repository.ValueChangeInfoRepository
+import com.github.kitakkun.backintime.debugger.data.repository.ValueChangeInfoRepositoryImpl
 import com.github.kitakkun.backintime.debugger.data.repository.backInTimeDebugServiceEventAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
 import com.github.kitakkun.backintime.debugger.data.repository.listOfStringAdapter
-import com.github.kitakkun.backintime.debugger.data.repository.listOfValueChangeInfoAdapter
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerService
 import com.github.kitakkun.backintime.debugger.data.server.IncomingEventProcessor
 import com.github.kitakkun.backintime.debugger.data.server.IncomingEventProcessorImpl
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.EventLog
 import com.github.kitakkun.backintime.debugger.database.Instance
-import com.github.kitakkun.backintime.debugger.database.MethodCallInfo
 import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -37,10 +37,11 @@ internal val sharedModule = module {
     single<SessionInfoRepository> { SessionInfoRepositoryImpl(get()) }
     single<SettingsRepository> { SettingsRepositoryImpl() }
     single<MethodCallInfoRepository> { MethodCallInfoRepositoryImpl(get()) }
+    single<ValueChangeInfoRepository> { ValueChangeInfoRepositoryImpl(get()) }
 
     // debugger services
-    factory<IncomingEventProcessor> { IncomingEventProcessorImpl(get(), get(), get(), get()) }
     singleOf(::BackInTimeDebuggerService)
+    factory<IncomingEventProcessor> { IncomingEventProcessorImpl(get(), get(), get(), get(), get()) }
     single<BackInTimeWebSocketServer> { BackInTimeWebSocketServer() }
 
     // sqldelight
@@ -58,9 +59,6 @@ internal val sharedModule = module {
             eventLogAdapter = EventLog.Adapter(
                 payloadAdapter = backInTimeDebugServiceEventAdapter,
             ),
-            methodCallInfoAdapter = MethodCallInfo.Adapter(
-                valueChangesAdapter = listOfValueChangeInfoAdapter,
-            ),
         )
     }
     single { get<BackInTimeDatabase>().sessionInfoQueries }
@@ -68,4 +66,5 @@ internal val sharedModule = module {
     single { get<BackInTimeDatabase>().instanceQueries }
     single { get<BackInTimeDatabase>().eventLogQueries }
     single { get<BackInTimeDatabase>().methodCallInfoQueries }
+    single { get<BackInTimeDatabase>().valueChangeInfoQueries }
 }

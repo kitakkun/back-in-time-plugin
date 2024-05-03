@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -26,7 +27,8 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         if (!shouldBeTransformed(declaration)) return declaration
 
-        val parentClassSymbol = declaration.parentClassOrNull?.symbol ?: return declaration
+        val parentClass = declaration.parentClassOrNull ?: return declaration
+        val parentClassSymbol = parentClass.symbol
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return declaration
 
         with(declaration.irBlockBodyBuilder()) {
@@ -35,8 +37,9 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
             val notifyMethodCallFunctionCall = irEmitEventCall {
                 irCallConstructor(methodCallEventConstructorSymbol, emptyList()).apply {
                     putValueArgument(0, irGet(parentClassDispatchReceiver))
-                    putValueArgument(1, irGet(uuidVariable))
-                    putValueArgument(2, irString(declaration.name.asString()))
+                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                    putValueArgument(2, irGet(uuidVariable))
+                    putValueArgument(3, irString(declaration.name.asString()))
                 }
             }
 

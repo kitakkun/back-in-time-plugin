@@ -1,20 +1,10 @@
-import com.github.kitakkun.backintime.debugger.data.model.ValueChangeInfo;
-import kotlin.collections.List;
-
 CREATE TABLE IF NOT EXISTS methodCallInfo (
     id TEXT PRIMARY KEY NOT NULL,
     methodName TEXT NOT NULL,
     instanceId TEXT NOT NULL,
     className TEXT NOT NULL,
-    sesionId TEXT NOT NULL,
-    valueChanges TEXT AS List<ValueChangeInfo> NOT NULL
+    sesionId TEXT NOT NULL
 );
 
 insert:
-INSERT INTO methodCallInfo (id, methodName, instanceId, className, sesionId, valueChanges) VALUES (?, ?, ?, ?, ?, ?);
-
-selectById:
-SELECT * FROM methodCallInfo WHERE id = ?;
-
-updateValueChangesById:
-UPDATE methodCallInfo SET valueChanges = ? WHERE id = ?;
+INSERT INTO methodCallInfo (id, methodName, instanceId, className, sesionId) VALUES (?, ?, ?, ?, ?);

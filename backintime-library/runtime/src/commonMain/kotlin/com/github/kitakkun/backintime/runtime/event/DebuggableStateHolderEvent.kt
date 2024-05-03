@@ -35,11 +35,13 @@ sealed interface DebuggableStateHolderEvent {
     /**
      * Notify that a method is called
      * @param instance the reference to the instance
+     * @param className the FqName of the class
      * @param methodCallId the unique id of the method call
      * @param methodName the name of the method
      */
     data class MethodCall(
         val instance: BackInTimeDebuggable,
+        val className: String,
         val methodCallId: String,
         val methodName: String,
     ) : DebuggableStateHolderEvent
@@ -48,12 +50,14 @@ sealed interface DebuggableStateHolderEvent {
      * Notify that a property value is changed
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
+     * @param className the FqName of the class
      * @param propertyName the name of the property
      * @param propertyValue the value of the property
      */
     data class PropertyValueChange(
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
+        val className: String,
         val propertyName: String,
         val propertyValue: Any?,
     ) : DebuggableStateHolderEvent

@@ -28,8 +28,8 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
@@ -80,8 +80,8 @@ class ConstructorTransformer : IrElementTransformerVoid() {
     private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irEmitEventCall {
         irCallConstructor(registerInstanceEventConstructorSymbol, emptyList()).apply {
             putValueArgument(0, irGet(parentClass.thisReceiver!!))
-            putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
-            putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
+            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+            putValueArgument(2, irString(parentClass.superClass?.kotlinFqName?.asString() ?: "unknown"))
             putValueArgument(3, generatePropertiesInfo(parentClass.properties))
         }
     }
