@@ -1,0 +1,7 @@
+<resources>
+    <string name="msg_no_active_connections">No active connections available. You can inspect previous session by opening it manually.</string>
+    <string name="open_session">Open session</string>
+    <string name="cancel">Cancel</string>
+    <string name="open">Open</string>
+    <string name="msg_no_sessions_available">No sessions available</string>
+</resources>
