@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.component
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.component
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable

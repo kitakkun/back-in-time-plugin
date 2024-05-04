@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog
 
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -12,8 +12,8 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.SessionLogContentPage
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.detail.SessionLogDetailPage
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.SessionLogContentPage
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.detail.SessionLogDetailPage
 import com.github.kitakkun.backintime.debugger.featurecommon.view.sessiontab.SessionTabPage
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane

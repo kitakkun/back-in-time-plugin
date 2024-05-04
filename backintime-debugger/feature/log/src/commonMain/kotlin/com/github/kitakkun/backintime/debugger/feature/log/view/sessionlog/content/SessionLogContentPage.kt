@@ -1,11 +1,11 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.SessionLogViewModel
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogViewModel
 import com.github.kitakkun.backintime.debugger.featurecommon.lifecycle.GlobalViewModelStoreOwner
 
 @Composable

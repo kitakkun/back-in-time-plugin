@@ -1,10 +1,10 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.kitakkun.backintime.debugger.data.repository.EventLogRepository
 import com.github.kitakkun.backintime.debugger.database.EventLog
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.model.EventKind
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow

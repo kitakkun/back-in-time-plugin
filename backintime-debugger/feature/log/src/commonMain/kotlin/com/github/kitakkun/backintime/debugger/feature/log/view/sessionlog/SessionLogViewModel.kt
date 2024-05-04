@@ -1,7 +1,7 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog
 
 import androidx.lifecycle.ViewModel
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.LogItemBindModel
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.LogItemBindModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.model
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model
 
 import androidx.compose.runtime.Composable
 import com.github.kitakkun.backintime.log.generated.resources.Res

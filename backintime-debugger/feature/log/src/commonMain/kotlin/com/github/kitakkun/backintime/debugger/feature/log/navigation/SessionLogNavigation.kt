@@ -3,7 +3,7 @@ package com.github.kitakkun.backintime.debugger.feature.log.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.SessionLogPage
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogPage
 
 const val SESSION_LOG_ROUTE = "session_log"
 

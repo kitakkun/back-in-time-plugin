@@ -1,9 +1,9 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.filterpopup.kind
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.kind
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.model.EventKind
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
 
 @Composable
 fun KindFilterPopup(

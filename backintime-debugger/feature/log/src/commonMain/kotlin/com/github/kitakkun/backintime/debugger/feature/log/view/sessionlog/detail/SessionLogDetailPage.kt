@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.detail
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.detail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.SessionLogViewModel
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogViewModel
 import com.github.kitakkun.backintime.debugger.featurecommon.lifecycle.GlobalViewModelStoreOwner
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import com.github.kitakkun.backintime.log.generated.resources.Res

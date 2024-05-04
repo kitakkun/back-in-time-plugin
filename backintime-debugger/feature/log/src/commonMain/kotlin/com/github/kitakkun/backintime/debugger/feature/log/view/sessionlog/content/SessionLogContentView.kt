@@ -1,8 +1,8 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content
+package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.model.EventKind
+import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
 import com.github.kitakkun.backintime.debugger.ui.customview.CommonLoadingView
 
 sealed class SessionLogContentBindModel {
