@@ -17,6 +17,7 @@ interface SessionInfoRepository {
     suspend fun insert(sessionId: String, label: String? = null, startedAt: Long = Clock.System.now().epochSeconds)
     suspend fun select(sessionId: String): SessionInfo?
     suspend fun markAsConnected(id: String)
+    suspend fun markAsDisconnected(id: String)
 }
 
 class SessionInfoRepositoryImpl(
@@ -51,6 +52,12 @@ class SessionInfoRepositoryImpl(
     override suspend fun markAsConnected(id: String) {
         withContext(coroutineContext) {
             queries.markAsConnected(id)
+        }
+    }
+
+    override suspend fun markAsDisconnected(id: String) {
+        withContext(coroutineContext) {
+            queries.markAsDisconnected(id)
         }
     }
 }

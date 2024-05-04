@@ -44,6 +44,10 @@ class BackInTimeDebugServerTest {
                         connectedFlow.emit(true)
                     },
                     onReceiveEvent = { _, _ ->
+                        // Do nothing
+                    },
+                    onDisconnect = {
+                        // Do nothing
                     },
                 )
             }
@@ -56,6 +60,42 @@ class BackInTimeDebugServerTest {
             }
 
             assertTrue(connectedFlow.first())
+        }
+    }
+
+    @Test
+    fun `test onDisconnect called`() {
+        testApplication {
+            val disconnectedFlow = MutableSharedFlow<Boolean>(replay = 1)
+
+            environment {
+                connector {
+                    host = TEST_HOST
+                    port = TEST_PORT
+                }
+            }
+            application {
+                configureApplication(
+                    onConnect = {
+                        // Do nothing
+                    },
+                    onReceiveEvent = { _, _ ->
+                        // Do nothing
+                    },
+                    onDisconnect = {
+                        disconnectedFlow.emit(true)
+                    },
+                )
+            }
+
+            startSession(
+                host = TEST_HOST,
+                port = TEST_PORT,
+            ) {
+                // Do nothing
+            }
+
+            assertTrue(disconnectedFlow.first())
         }
     }
 
@@ -76,6 +116,10 @@ class BackInTimeDebugServerTest {
                         connectedFlow.emit(true)
                     },
                     onReceiveEvent = { _, _ ->
+                        // Do nothing
+                    },
+                    onDisconnect = {
+                        // Do nothing
                     },
                 )
             }
@@ -107,6 +151,10 @@ class BackInTimeDebugServerTest {
                         it.session.send(Json.encodeToString(BackInTimeDebuggerEvent.Ping))
                     },
                     onReceiveEvent = { _, _ ->
+                        // Do nothing
+                    },
+                    onDisconnect = {
+                        // Do nothing
                     },
                 )
             }
@@ -127,11 +175,13 @@ class BackInTimeDebugServerTest {
     private fun Application.configureApplication(
         onConnect: suspend (Connection) -> Unit,
         onReceiveEvent: suspend (Connection, BackInTimeDebugServiceEvent) -> Unit,
+        onDisconnect: suspend (Connection) -> Unit,
     ) {
         installWebSocket()
         configureWebSocketRouting(
             onConnect = onConnect,
             onReceiveEvent = onReceiveEvent,
+            onDisconnect = onDisconnect,
         )
     }
 

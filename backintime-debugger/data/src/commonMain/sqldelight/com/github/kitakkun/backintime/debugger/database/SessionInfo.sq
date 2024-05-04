@@ -24,3 +24,6 @@ UPDATE sessionInfo SET isConnected = 0;
 
 markAsConnected:
 UPDATE sessionInfo SET isConnected = 1 WHERE id = ?;
+
+markAsDisconnected:
+UPDATE sessionInfo SET isConnected = 0 WHERE id = ?;

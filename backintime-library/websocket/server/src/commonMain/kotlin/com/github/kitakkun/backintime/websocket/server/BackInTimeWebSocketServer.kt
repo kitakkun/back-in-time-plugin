@@ -54,6 +54,9 @@ class BackInTimeWebSocketServer {
     private val connectionsFlow = mutableConnectionsFlow.asStateFlow()
     val connectionSpecsFlow = connectionsFlow.map { it.map { it.spec } }
 
+    private val mutableDisconnectedConnectionsFlow = MutableSharedFlow<Connection>()
+    val disconnectedConnectionIdFlow = mutableDisconnectedConnectionsFlow.map { it.id }
+
     private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
     val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
@@ -91,6 +94,10 @@ class BackInTimeWebSocketServer {
             onReceiveEvent = { connection, event ->
                 mutableReceivedEventFlow.emit(connection.spec.id to event)
             },
+            onDisconnect = { connection ->
+                mutableConnectionsFlow.value = connectionsFlow.value - connection
+                mutableDisconnectedConnectionsFlow.emit(connection)
+            }
         )
     }
 }
@@ -104,6 +111,7 @@ fun Application.installWebSocket() {
 fun Application.configureWebSocketRouting(
     onConnect: suspend (Connection) -> Unit,
     onReceiveEvent: suspend (Connection, BackInTimeDebugServiceEvent) -> Unit,
+    onDisconnect: suspend (Connection) -> Unit,
 ) {
     routing {
         webSocket("/backintime") {
@@ -118,6 +126,8 @@ fun Application.configureWebSocketRouting(
                 val event = Json.decodeFromString<BackInTimeDebugServiceEvent>(frame.readText())
                 onReceiveEvent(connection, event)
             }
+
+            onDisconnect(connection)
         }
     }
 }

@@ -33,6 +33,11 @@ class BackInTimeDebuggerService(
             }
         }
         launch {
+            server.disconnectedConnectionIdFlow.collect { disconnectedConnectionId ->
+                sessionInfoRepository.markAsDisconnected(disconnectedConnectionId)
+            }
+        }
+        launch {
             server.receivedEventFlow.collect { (sessionId, event) ->
                 val result = incomingEventProcessor.processEvent(sessionId, event) ?: return@collect
                 server.send(sessionId, result)
