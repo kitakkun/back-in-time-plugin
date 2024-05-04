@@ -2,10 +2,9 @@ package com.github.kitakkun.backintime.debugger.data.repository
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.ValueChangeInfo
 import com.github.kitakkun.backintime.debugger.database.ValueChangeInfoQueries
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
@@ -24,9 +23,11 @@ interface ValueChangeInfoRepository {
 
 class ValueChangeInfoRepositoryImpl(
     private val valueChangeInfoQueries: ValueChangeInfoQueries,
-) : ValueChangeInfoRepository, CoroutineScope by IOScope() {
+) : ValueChangeInfoRepository {
+    private val dispatcher = Dispatchers.IO
+
     override fun selectForSessionAsFlow(sessionId: String): Flow<List<ValueChangeInfo>> {
-        return valueChangeInfoQueries.selectBySessionId(sessionId).asFlow().mapToList(coroutineContext)
+        return valueChangeInfoQueries.selectBySessionId(sessionId).asFlow().mapToList(dispatcher)
     }
 
     override suspend fun insert(
@@ -37,7 +38,7 @@ class ValueChangeInfoRepositoryImpl(
         propertyName: String,
         value: String,
     ) {
-        withContext(coroutineContext) {
+        withContext(dispatcher) {
             valueChangeInfoQueries.insert(
                 sessionId = sessionId,
                 instanceId = instanceId,

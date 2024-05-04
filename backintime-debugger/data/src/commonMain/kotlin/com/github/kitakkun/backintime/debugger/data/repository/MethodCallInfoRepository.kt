@@ -1,8 +1,7 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
-import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.MethodCallInfoQueries
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 interface MethodCallInfoRepository {
@@ -11,7 +10,9 @@ interface MethodCallInfoRepository {
 
 class MethodCallInfoRepositoryImpl(
     private val queries: MethodCallInfoQueries,
-) : MethodCallInfoRepository, CoroutineScope by IOScope() {
+) : MethodCallInfoRepository {
+    private val dispatcher = Dispatchers.IO
+
     private fun generateId(sessionId: String, instanceUUID: String, callId: String) = "$sessionId/$instanceUUID/$callId"
 
     override suspend fun insert(
@@ -21,7 +22,7 @@ class MethodCallInfoRepositoryImpl(
         methodName: String,
         callId: String,
     ) {
-        withContext(coroutineContext) {
+        withContext(dispatcher) {
             queries.insert(
                 id = generateId(sessionId, instanceUUID, callId),
                 instanceId = instanceUUID,

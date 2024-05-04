@@ -3,12 +3,11 @@ package com.github.kitakkun.backintime.debugger.data.repository
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
-import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.EventLog
 import com.github.kitakkun.backintime.debugger.database.EventLogQueries
 import com.github.kitakkun.backintime.runtime.backInTimeJson
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -20,11 +19,13 @@ interface EventLogRepository {
     suspend fun deleteAll(sessionId: String)
 }
 
-class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineScope by IOScope(), EventLogRepository {
-    override fun logFlow(sessionId: String): Flow<List<EventLog>> = queries.selectSessionEvents(sessionId).asFlow().mapToList(coroutineContext)
+class EventLogRepositoryImpl(private val queries: EventLogQueries) : EventLogRepository {
+    private val dispatcher = Dispatchers.IO
+
+    override fun logFlow(sessionId: String): Flow<List<EventLog>> = queries.selectSessionEvents(sessionId).asFlow().mapToList(dispatcher)
 
     override suspend fun insert(sessionId: String, event: BackInTimeDebugServiceEvent) {
-        withContext(coroutineContext) {
+        withContext(dispatcher) {
             queries.insert(
                 sessionId = sessionId,
                 payload = event,
@@ -34,7 +35,7 @@ class EventLogRepositoryImpl(private val queries: EventLogQueries) : CoroutineSc
     }
 
     override suspend fun deleteAll(sessionId: String) {
-        withContext(coroutineContext) {
+        withContext(dispatcher) {
             queries.deleteSessionEvents(sessionId)
         }
     }

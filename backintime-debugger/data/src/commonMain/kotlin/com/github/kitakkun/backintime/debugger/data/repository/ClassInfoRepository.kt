@@ -1,11 +1,10 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
 import app.cash.sqldelight.ColumnAdapter
-import com.github.kitakkun.backintime.debugger.data.coroutines.IOScope
 import com.github.kitakkun.backintime.debugger.database.ClassInfo
 import com.github.kitakkun.backintime.debugger.database.ClassInfoQueries
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -18,15 +17,17 @@ interface ClassInfoRepository {
     suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>)
 }
 
-class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository, CoroutineScope by IOScope() {
+class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository {
+    private val dispatcher = Dispatchers.IO
+
     override suspend fun select(sessionId: String, className: String): ClassInfo? {
-        return withContext(coroutineContext) {
+        return withContext(dispatcher) {
             queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
         }
     }
 
     override suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>) {
-        withContext(coroutineContext) {
+        withContext(dispatcher) {
             val existingEntity = queries.select(className = className, sessionId = sessionId).executeAsOneOrNull()
             if (existingEntity != null) return@withContext
             queries.insert(
