@@ -2,14 +2,16 @@ package com.github.kitakkun.backintime.debugger.feature.log.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.github.kitakkun.backintime.debugger.feature.log.LogPage
+import androidx.navigation.navigation
 
 const val LOG_GRAPH_ROUTE = "log"
 
 fun NavGraphBuilder.logNavGraph(navController: NavController) {
-    composable(LOG_GRAPH_ROUTE) {
-        LogPage()
+    navigation(
+        route = LOG_GRAPH_ROUTE,
+        startDestination = SESSION_LOG_ROUTE,
+    ) {
+        sessionLog(navController)
     }
 }
 

@@ -1,3 +1,20 @@
 <resources>
     <string name="log_tab_title">Log</string>
+    <string name="table_column_time">Time</string>
+    <string name="table_column_kind">Kind</string>
+    <string name="table_column_payload">Payload</string>
+    <string name="table_column_action">Action</string>
+    <string name="label_register_instance">register</string>
+    <string name="label_check_instance_alive">check instance alive</string>
+    <string name="label_method_call">method call</string>
+    <string name="label_value_change">value change</string>
+    <string name="label_register_relationship">register relationship</string>
+    <string name="label_error">error</string>
+    <string name="label_ping">ping</string>
+    <string name="kind_filter">Kind Filter</string>
+    <string name="select_all">Select All</string>
+    <string name="unselect_all">Unselect All</string>
+    <string name="time_filter">Time Filter</string>
+    <string name="start_time">Start Time</string>
+    <string name="end_time">End Time</string>
 </resources>
