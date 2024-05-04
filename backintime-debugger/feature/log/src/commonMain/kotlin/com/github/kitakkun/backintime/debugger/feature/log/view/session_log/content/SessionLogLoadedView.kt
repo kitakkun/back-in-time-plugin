@@ -1,13 +1,20 @@
 package com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.kitakkun.backintime.debugger.feature.log.view.session_log.content.component.TableBodyCell
@@ -70,69 +77,83 @@ fun SessionLogContentLoadedView(
 ) {
     val timeColumnWidth = 160.dp
     val kindColumnWidth = 200.dp
+    val lazyListState = rememberLazyListState()
 
-    LazyColumn(
-        modifier = modifier,
-    ) {
-        item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                TableHeadCell(
-                    text = stringResource(Res.string.table_column_time),
-                    style = DebuggerTheme.typography.bodyMedium,
-                    isSortActive = bindModel.sortRule == SortRule.CREATED_AT_ASC || bindModel.sortRule == SortRule.CREATED_AT_DESC,
-                    isSortedAscending = bindModel.sortRule == SortRule.CREATED_AT_ASC,
-                    filterPopupDialog = { TimeFilterPopup(it) },
-                    onClickSort = onToggleSortWithTime,
-                    modifier = Modifier.width(timeColumnWidth),
-                )
-                TableHeadCell(
-                    text = stringResource(Res.string.table_column_kind),
-                    style = DebuggerTheme.typography.bodyMedium,
-                    isSortActive = bindModel.sortRule == SortRule.KIND_ASC || bindModel.sortRule == SortRule.KIND_DESC,
-                    isSortedAscending = bindModel.sortRule == SortRule.KIND_ASC,
-                    onClickSort = onToggleSortWithKind,
-                    filterPopupDialog = { dismiss ->
-                        KindFilterPopup(
-                            selectedKinds = bindModel.visibleKinds,
-                            onSelectedKindsUpdate = onUpdateVisibleKinds,
-                            onDismissRequest = dismiss,
-                        )
+    Box(modifier) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = modifier,
+        ) {
+            item {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    TableHeadCell(
+                        text = stringResource(Res.string.table_column_time),
+                        style = DebuggerTheme.typography.bodyMedium,
+                        isSortActive = bindModel.sortRule == SortRule.CREATED_AT_ASC || bindModel.sortRule == SortRule.CREATED_AT_DESC,
+                        isSortedAscending = bindModel.sortRule == SortRule.CREATED_AT_ASC,
+                        filterPopupDialog = { TimeFilterPopup(it) },
+                        onClickSort = onToggleSortWithTime,
+                        modifier = Modifier.width(timeColumnWidth),
+                    )
+                    TableHeadCell(
+                        text = stringResource(Res.string.table_column_kind),
+                        style = DebuggerTheme.typography.bodyMedium,
+                        isSortActive = bindModel.sortRule == SortRule.KIND_ASC || bindModel.sortRule == SortRule.KIND_DESC,
+                        isSortedAscending = bindModel.sortRule == SortRule.KIND_ASC,
+                        onClickSort = onToggleSortWithKind,
+                        filterPopupDialog = { dismiss ->
+                            KindFilterPopup(
+                                selectedKinds = bindModel.visibleKinds,
+                                onSelectedKindsUpdate = onUpdateVisibleKinds,
+                                onDismissRequest = dismiss,
+                            )
+                        },
+                        modifier = Modifier.width(kindColumnWidth),
+                    )
+                    TableHeadCell(
+                        text = stringResource(Res.string.table_column_payload),
+                        style = DebuggerTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            items(bindModel.logs) { logBindModel ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.clickable {
+                        onSelectLogItem(logBindModel)
                     },
-                    modifier = Modifier.width(kindColumnWidth),
-                )
-                TableHeadCell(
-                    text = stringResource(Res.string.table_column_payload),
-                    style = DebuggerTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                )
+                ) {
+                    TableBodyCell(
+                        text = logBindModel.formattedCreatedAt,
+                        style = DebuggerTheme.typography.bodyMedium,
+                        modifier = Modifier.width(timeColumnWidth),
+                    )
+                    TableBodyCell(
+                        text = logBindModel.kind.label,
+                        style = DebuggerTheme.typography.bodyMedium,
+                        modifier = Modifier.width(kindColumnWidth),
+                    )
+                    TableBodyCell(
+                        text = logBindModel.simplifiedPayload,
+                        style = DebuggerTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
-        items(bindModel.logs) { logBindModel ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.clickable {
-                    onSelectLogItem(logBindModel)
-                },
-            ) {
-                TableBodyCell(
-                    text = logBindModel.formattedCreatedAt,
-                    style = DebuggerTheme.typography.bodyMedium,
-                    modifier = Modifier.width(timeColumnWidth),
-                )
-                TableBodyCell(
-                    text = logBindModel.kind.label,
-                    style = DebuggerTheme.typography.bodyMedium,
-                    modifier = Modifier.width(kindColumnWidth),
-                )
-                TableBodyCell(
-                    text = logBindModel.simplifiedPayload,
-                    style = DebuggerTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
+        VerticalScrollbar(
+            adapter = rememberScrollbarAdapter(scrollState = lazyListState),
+            style = defaultScrollbarStyle().copy(
+                hoverColor = DebuggerTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                unhoverColor = DebuggerTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+            ),
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight(),
+        )
     }
 }
 
