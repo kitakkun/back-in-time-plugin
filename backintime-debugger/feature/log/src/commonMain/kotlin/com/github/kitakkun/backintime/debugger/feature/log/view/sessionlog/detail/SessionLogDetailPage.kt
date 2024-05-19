@@ -13,19 +13,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogViewModel
-import com.github.kitakkun.backintime.debugger.featurecommon.lifecycle.GlobalViewModelStoreOwner
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import com.github.kitakkun.backintime.log.generated.resources.Res
 import com.github.kitakkun.backintime.log.generated.resources.table_column_kind
 import com.github.kitakkun.backintime.log.generated.resources.table_column_payload
 import com.github.kitakkun.backintime.log.generated.resources.table_column_time
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinNavViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun SessionLogDetailPage() {
-    val sharedViewModel: SessionLogViewModel = viewModel(GlobalViewModelStoreOwner)
+    val sharedViewModel: SessionLogViewModel = koinNavViewModel()
     val selectedLogItemBindModel by sharedViewModel.selectedLogItem.collectAsState()
 
     selectedLogItemBindModel?.let {

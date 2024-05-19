@@ -4,9 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.github.kitakkun.backintime.debugger.featurecommon.lifecycle.GlobalViewModelStoreOwner
 import com.github.kitakkun.backintime.debugger.featurecommon.view.sessionselect.SessionSelectDialogPage
+import org.koin.compose.koinInject
 
 @Composable
 fun SessionTabPage(
@@ -14,7 +13,7 @@ fun SessionTabPage(
     tabTrailingContent: @Composable () -> Unit = {},
     content: @Composable (sessionId: String) -> Unit,
 ) {
-    val viewModel: SessionTabViewModel = viewModel(GlobalViewModelStoreOwner)
+    val viewModel: SessionTabViewModel = koinInject()
     val bindModel by viewModel.bindModel.collectAsState()
 
     if (bindModel.showSelectSessionDialog) {

@@ -20,6 +20,14 @@ private data class SessionTabViewModelState(
     val showSelectSessionDialog: Boolean = false,
 )
 
+/**
+ * FIXME: This class doesn't need to be a ViewModel,
+ *  it inherits from ViewModel just because we want to use `viewModelScope` for `combine` and `stateIn`.
+ *
+ * Singleton shared ViewModel between two pages:
+ * - [com.github.kitakkun.backintime.debugger.feature.instance.InstancePage]
+ * - [com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogPage]
+ */
 class SessionTabViewModel : ViewModel(), KoinComponent {
     private val sessionInfoRepository: SessionInfoRepository by inject()
     private val mutableViewModelState = MutableStateFlow(SessionTabViewModelState())

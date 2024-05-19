@@ -18,6 +18,8 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.jetbrains.navigation.compose)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.composeVM)
             implementation(libs.kotlinx.datetime)
         }
     }

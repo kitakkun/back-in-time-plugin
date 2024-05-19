@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.github.kitakkun.backintime.app.generated.resources.Res
 import com.github.kitakkun.backintime.app.generated.resources.dismiss
@@ -24,10 +23,13 @@ import com.github.kitakkun.backintime.app.generated.resources.websocket_server_s
 import com.github.kitakkun.backintime.debugger.data.server.BackInTimeDebuggerServiceState
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import org.jetbrains.compose.resources.getString
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun App() {
-    val rootViewModel: RootViewModel = viewModel()
+    val rootViewModel: RootViewModel = koinViewModel()
     val navHostController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 

@@ -33,6 +33,7 @@ class DebuggerFeatureConventionPlugin : Plugin<Project> {
                         implementation(project.dependencies.platform(libs.findLibrary("koin-bom").get()))
                         implementation(libs.findLibrary("koin-core").get())
                         implementation(libs.findLibrary("koin-compose").get())
+                        implementation(libs.findLibrary("koin-composeVM").get())
                         implementation(libs.findLibrary("jetbrains-navigation-compose").get())
                         implementation(libs.findLibrary("jetbrains-lifecycle-viewmodel-compose").get())
                         implementation(compose.materialIconsExtended)

@@ -4,14 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogViewModel
-import com.github.kitakkun.backintime.debugger.featurecommon.lifecycle.GlobalViewModelStoreOwner
+import org.koin.compose.viewmodel.koinNavViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.core.parameter.parametersOf
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun SessionLogContentPage(sessionId: String) {
-    val sharedViewModel: SessionLogViewModel = viewModel(GlobalViewModelStoreOwner)
-    val viewModel = viewModel(key = sessionId) { SessionLogContentViewModel(sessionId) }
+    val sharedViewModel: SessionLogViewModel = koinNavViewModel()
+    val viewModel = koinViewModel<SessionLogContentViewModel>(key = sessionId) { parametersOf(sessionId) }
     val bindModel by viewModel.bindModel.collectAsState()
 
     DisposableEffect(Unit) {

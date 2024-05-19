@@ -22,6 +22,8 @@ activity-compose = "1.8.2"
 compose-bom = "2024.01.00"
 room-runtime = "2.6.1"
 koin-bom = "3.5.0"
+koin = "3.6.0-Beta4"
+koin-compose = "1.2.0-Beta4"
 soloader = "0.10.5"
 
 ktor = "2.3.9"
@@ -34,7 +36,6 @@ jetbrains-compose = "1.6.10-rc03"
 kotlinx-datetime = "0.6.0-RC.2"
 
 sqldelight = "2.0.1"
-koin = "3.5.0"
 multiplatformSettings = "1.1.1"
 composeIcons = "1.1.0"
 
@@ -90,7 +91,8 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
 koin-android = { group = "io.insert-koin", name = "koin-android" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
-koin-compose = { group = "io.insert-koin", name = "koin-compose" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin-compose" }
+koin-composeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin-compose" }
 
 # debugger
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
