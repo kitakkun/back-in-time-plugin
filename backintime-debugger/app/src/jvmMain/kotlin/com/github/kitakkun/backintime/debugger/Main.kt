@@ -8,18 +8,10 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.github.kitakkun.backintime.app.generated.resources.Res
 import com.github.kitakkun.backintime.app.generated.resources.app_name
-import com.github.kitakkun.backintime.debugger.data.di.dataModule
-import com.github.kitakkun.backintime.debugger.feature.instance.di.instanceFeatureModule
 import org.jetbrains.compose.resources.stringResource
-import org.koin.core.context.startKoin
 
 fun main() {
-    startKoin {
-        modules(
-            dataModule,
-            instanceFeatureModule,
-        )
-    }
+    initKoin()
 
     application {
         Window(
