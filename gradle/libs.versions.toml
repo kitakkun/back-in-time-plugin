@@ -30,7 +30,7 @@ uuid = "0.8.4"
 ktlint-gradle = "12.1.0"
 ktlint = "1.2.1"
 
-jetbrains-compose = "1.6.10-beta03"
+jetbrains-compose = "1.6.10-rc03"
 kotlinx-datetime = "0.6.0-RC.2"
 
 sqldelight = "2.0.1"
@@ -38,8 +38,8 @@ koin = "3.5.0"
 multiplatformSettings = "1.1.1"
 composeIcons = "1.1.0"
 
-navigation-compose = "2.7.0-alpha03"
-lifecycle-viewmodel-compose = "2.8.0-beta02"
+navigation-compose = "2.7.0-alpha06"
+lifecycle-viewmodel-compose = "2.8.0-rc03"
 
 [libraries]
 # gradle
