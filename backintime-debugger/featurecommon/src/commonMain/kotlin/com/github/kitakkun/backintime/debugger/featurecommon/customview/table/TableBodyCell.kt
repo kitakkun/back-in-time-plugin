@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.component
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

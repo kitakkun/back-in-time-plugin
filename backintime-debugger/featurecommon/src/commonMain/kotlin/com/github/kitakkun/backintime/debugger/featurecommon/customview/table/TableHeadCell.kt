@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.component
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.clickable
@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,6 +49,7 @@ fun TableHeadCell(
 
     Row(
         modifier = modifier.padding(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = text,
