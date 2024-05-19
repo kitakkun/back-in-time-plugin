@@ -144,6 +144,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [bundles]
 composeIcons = [
