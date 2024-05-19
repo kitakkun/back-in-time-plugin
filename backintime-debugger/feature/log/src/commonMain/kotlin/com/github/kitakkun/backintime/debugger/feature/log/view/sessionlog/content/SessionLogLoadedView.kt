@@ -22,22 +22,18 @@ import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.conte
 import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.kind.KindFilterPopup
 import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.time.TimeFilterPopup
 import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
+import com.github.kitakkun.backintime.debugger.featurecommon.util.formatEpochSecondsToDateTimeText
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import com.github.kitakkun.backintime.log.generated.resources.Res
 import com.github.kitakkun.backintime.log.generated.resources.table_column_kind
 import com.github.kitakkun.backintime.log.generated.resources.table_column_payload
 import com.github.kitakkun.backintime.log.generated.resources.table_column_time
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.ClassDiscriminatorMode
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.stringResource
-import java.time.format.DateTimeFormatter
 
 data class LogItemBindModel(
     val payload: BackInTimeDebugServiceEvent,
@@ -56,11 +52,7 @@ data class LogItemBindModel(
 
     val kind: EventKind = EventKind.fromEvent(payload)
 
-    val formattedCreatedAt: String
-        get() {
-            val datetime = Instant.fromEpochSeconds(createdAt, 0).toLocalDateTime(TimeZone.currentSystemDefault())
-            return DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(datetime.toJavaLocalDateTime())
-        }
+    val formattedCreatedAt: String = formatEpochSecondsToDateTimeText(createdAt)
 
     val simplifiedPayload: String = simplifyJson.encodeToString(payload)
     val formattedPayload: String = prettyPrintJson.encodeToString(payload)
