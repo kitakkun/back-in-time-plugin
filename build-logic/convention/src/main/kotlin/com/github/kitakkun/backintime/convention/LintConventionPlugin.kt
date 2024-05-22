@@ -20,6 +20,10 @@ class LintConventionPlugin : Plugin<Project> {
                 reporters {
                     reporter(ReporterType.CHECKSTYLE)
                 }
+                filter {
+                    exclude("**/generated/**")
+                    include("**/kotlin/**")
+                }
             }
         }
     }
