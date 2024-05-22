@@ -16,13 +16,13 @@ import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module(includes = [SharedModule::class])
-@ComponentScan("com.github.kitakkun.backintime.debugger.data")
 class DataModule {
     @Factory
     fun sqlDriver() = createSqlDriver()
 }
 
 @Module
+@ComponentScan("com.github.kitakkun.backintime.debugger.data")
 internal class SharedModule {
     @Single
     fun backInTimeWebSocketServer() = BackInTimeWebSocketServer()
