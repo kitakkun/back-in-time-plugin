@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.sqldelight)
     alias(libs.plugins.backintimeLint)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -20,6 +21,7 @@ kotlin {
             implementation(libs.multiplatform.settings.coroutines)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.datetime)
+            compileOnly(libs.koin.annotations)
         }
 
         commonTest.dependencies {
@@ -29,6 +31,16 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
         }
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
+    add("kspJvm", libs.koin.ksp.compiler)
+}
+
+ksp {
+    arg("KOIN_CONFIG_CHECK", "true")
+    arg("KOIN_DEFAULT_MODULE", "false")
 }
 
 sqldelight {

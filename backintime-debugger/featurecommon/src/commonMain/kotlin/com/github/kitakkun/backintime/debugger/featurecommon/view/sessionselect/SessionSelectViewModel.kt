@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -17,8 +19,9 @@ private data class SessionSelectViewModelState(
     val selectedSessionIds: List<String> = emptyList(),
 )
 
+@KoinViewModel
 class SessionSelectViewModel(
-    private val openedSessionIds: List<String>,
+    @InjectedParam private val openedSessionIds: List<String>,
 ) : ViewModel(), KoinComponent {
     private val sessionInfoRepository: SessionInfoRepository by inject()
     private val mutableViewModelState = MutableStateFlow(SessionSelectViewModelState())

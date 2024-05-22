@@ -1,8 +1,8 @@
 package com.github.kitakkun.backintime.debugger.feature.settings
 
-import org.koin.compose.viewmodel.dsl.viewModelOf
-import org.koin.dsl.module
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 
-val settingsFeatureModule = module {
-    viewModelOf(::SettingsViewModel)
-}
+@Module
+@ComponentScan("com.github.kitakkun.backintime.debugger.feature.settings")
+class SettingsFeatureModule

@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Singleton
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -28,6 +30,8 @@ private data class SessionTabViewModelState(
  * - [com.github.kitakkun.backintime.debugger.feature.instance.InstancePage]
  * - [com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogPage]
  */
+@Singleton
+@KoinViewModel
 class SessionTabViewModel : ViewModel(), KoinComponent {
     private val sessionInfoRepository: SessionInfoRepository by inject()
     private val mutableViewModelState = MutableStateFlow(SessionTabViewModelState())

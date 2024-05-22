@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.koin.core.annotation.Singleton
 
 /**
  * manage class information related to each session
@@ -17,6 +18,7 @@ interface ClassInfoRepository {
     suspend fun insert(sessionId: String, className: String, superClassName: String, properties: List<PropertyInfo>)
 }
 
+@Singleton(binds = [ClassInfoRepository::class])
 class ClassInfoRepositoryImpl(private val queries: ClassInfoQueries) : ClassInfoRepository {
     private val dispatcher = Dispatchers.IO
 

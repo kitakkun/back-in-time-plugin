@@ -1,8 +1,8 @@
 package com.github.kitakkun.backintime.debugger.feature.connection
 
-import org.koin.compose.viewmodel.dsl.viewModelOf
-import org.koin.dsl.module
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 
-val connectionFeatureModule = module {
-    viewModelOf(::ConnectionViewModel)
-}
+@Module
+@ComponentScan("com.github.kitakkun.backintime.debugger.feature.connection")
+class ConnectionFeatureModule

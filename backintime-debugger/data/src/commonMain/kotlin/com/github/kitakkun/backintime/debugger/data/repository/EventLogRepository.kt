@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
+import org.koin.core.annotation.Singleton
 
 interface EventLogRepository {
     fun logFlow(sessionId: String): Flow<List<EventLog>>
@@ -19,6 +20,7 @@ interface EventLogRepository {
     suspend fun deleteAll(sessionId: String)
 }
 
+@Singleton(binds = [EventLogRepository::class])
 class EventLogRepositoryImpl(private val queries: EventLogQueries) : EventLogRepository {
     private val dispatcher = Dispatchers.IO
 

@@ -7,11 +7,13 @@ import com.github.kitakkun.backintime.debugger.data.repository.MethodCallInfoRep
 import com.github.kitakkun.backintime.debugger.data.repository.ValueChangeInfoRepository
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
+import org.koin.core.annotation.Factory
 
 interface IncomingEventProcessor {
     suspend fun processEvent(sessionId: String, event: BackInTimeDebugServiceEvent): BackInTimeDebuggerEvent?
 }
 
+@Factory(binds = [IncomingEventProcessor::class])
 class IncomingEventProcessorImpl(
     private val classInfoRepository: ClassInfoRepository,
     private val instanceRepository: InstanceRepository,

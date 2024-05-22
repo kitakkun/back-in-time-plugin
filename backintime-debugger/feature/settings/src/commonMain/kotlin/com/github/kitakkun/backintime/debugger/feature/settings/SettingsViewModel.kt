@@ -6,9 +6,11 @@ import com.github.kitakkun.backintime.debugger.data.repository.SettingsRepositor
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import org.koin.android.annotation.KoinViewModel
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+@KoinViewModel
 class SettingsViewModel : ViewModel(), KoinComponent {
     private val settingsRepository: SettingsRepository by inject()
 

@@ -7,6 +7,7 @@ import com.github.kitakkun.backintime.debugger.database.ValueChangeInfoQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Singleton
 
 interface ValueChangeInfoRepository {
     fun selectForSessionAsFlow(sessionId: String): Flow<List<ValueChangeInfo>>
@@ -21,6 +22,7 @@ interface ValueChangeInfoRepository {
     )
 }
 
+@Singleton(binds = [ValueChangeInfoRepository::class])
 class ValueChangeInfoRepositoryImpl(
     private val valueChangeInfoQueries: ValueChangeInfoQueries,
 ) : ValueChangeInfoRepository {

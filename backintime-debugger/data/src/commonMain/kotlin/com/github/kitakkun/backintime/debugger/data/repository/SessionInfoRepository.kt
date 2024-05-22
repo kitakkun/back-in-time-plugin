@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import org.koin.core.annotation.Singleton
 
 interface SessionInfoRepository {
     val allConnectedSessions: Flow<List<SessionInfo>>
@@ -19,6 +20,7 @@ interface SessionInfoRepository {
     suspend fun markAllAsDisconnected()
 }
 
+@Singleton(binds = [SessionInfoRepository::class])
 class SessionInfoRepositoryImpl(
     private val queries: SessionInfoQueries,
 ) : SessionInfoRepository {

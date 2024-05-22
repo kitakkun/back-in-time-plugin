@@ -1,9 +1,65 @@
 package com.github.kitakkun.backintime.debugger.data.di
 
+import app.cash.sqldelight.db.SqlDriver
+import com.github.kitakkun.backintime.debugger.data.BackInTimeDatabase
 import com.github.kitakkun.backintime.debugger.data.driver.createSqlDriver
-import org.koin.dsl.module
+import com.github.kitakkun.backintime.debugger.data.repository.backInTimeDebugServiceEventAdapter
+import com.github.kitakkun.backintime.debugger.data.repository.listOfPropertyInfoAdapter
+import com.github.kitakkun.backintime.debugger.data.repository.listOfStringAdapter
+import com.github.kitakkun.backintime.debugger.database.ClassInfo
+import com.github.kitakkun.backintime.debugger.database.EventLog
+import com.github.kitakkun.backintime.debugger.database.Instance
+import com.github.kitakkun.backintime.websocket.server.BackInTimeWebSocketServer
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Factory
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-val dataModule = module {
-    includes(sharedModule)
-    factory { createSqlDriver() }
+@Module(includes = [SharedModule::class])
+@ComponentScan("com.github.kitakkun.backintime.debugger.data")
+class DataModule {
+    @Factory
+    fun sqlDriver() = createSqlDriver()
+}
+
+@Module
+internal class SharedModule {
+    @Single
+    fun backInTimeWebSocketServer() = BackInTimeWebSocketServer()
+
+    // sqldelight
+    @Single
+    fun backInTimeDatabase(driver: SqlDriver): BackInTimeDatabase {
+        BackInTimeDatabase.Schema.create(driver)
+        return BackInTimeDatabase(
+            driver = driver,
+            instanceAdapter = Instance.Adapter(
+                childInstanceIdsAdapter = listOfStringAdapter,
+            ),
+            classInfoAdapter = ClassInfo.Adapter(
+                propertiesAdapter = listOfPropertyInfoAdapter,
+            ),
+            eventLogAdapter = EventLog.Adapter(
+                payloadAdapter = backInTimeDebugServiceEventAdapter,
+            ),
+        )
+    }
+
+    @Single
+    fun sessionInfoQueries(database: BackInTimeDatabase) = database.sessionInfoQueries
+
+    @Single
+    fun classInfoQueries(database: BackInTimeDatabase) = database.classInfoQueries
+
+    @Single
+    fun instanceQueries(database: BackInTimeDatabase) = database.instanceQueries
+
+    @Single
+    fun eventLogQueries(database: BackInTimeDatabase) = database.eventLogQueries
+
+    @Single
+    fun methodCallInfoQueries(database: BackInTimeDatabase) = database.methodCallInfoQueries
+
+    @Single
+    fun valueChangeInfoQueries(database: BackInTimeDatabase) = database.valueChangeInfoQueries
 }

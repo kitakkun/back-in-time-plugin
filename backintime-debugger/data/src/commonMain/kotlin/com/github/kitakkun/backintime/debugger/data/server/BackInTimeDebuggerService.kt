@@ -8,7 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.Singleton
 
+@Singleton
 class BackInTimeDebuggerService(
     private val server: BackInTimeWebSocketServer,
     private val incomingEventProcessor: IncomingEventProcessor,

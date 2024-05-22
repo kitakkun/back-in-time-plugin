@@ -19,4 +19,5 @@ dependencies {
     compileOnly(libs.ktlint.gradle)
     compileOnly(libs.kotlin.gradle.plugin)
     compileOnly(libs.jetbrains.compose.gradle.plugin)
+    compileOnly(libs.ksp.gradle)
 }

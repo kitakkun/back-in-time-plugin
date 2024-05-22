@@ -8,6 +8,7 @@ import com.github.kitakkun.backintime.debugger.database.InstanceQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Singleton
 
 interface InstanceRepository {
     fun selectActiveInstances(sessionId: String): Flow<List<Instance>>
@@ -19,6 +20,7 @@ interface InstanceRepository {
     suspend fun addChildInstance(sessionId: String, parentId: String, childId: String)
 }
 
+@Singleton(binds = [InstanceRepository::class])
 class InstanceRepositoryImpl(
     private val queries: InstanceQueries,
 ) : InstanceRepository {

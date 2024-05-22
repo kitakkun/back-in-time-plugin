@@ -8,6 +8,7 @@ import com.russhwolf.settings.coroutines.getBooleanFlow
 import com.russhwolf.settings.coroutines.getIntFlow
 import com.russhwolf.settings.int
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Singleton
 
 interface SettingsRepository {
     var webSocketPort: Int
@@ -17,6 +18,7 @@ interface SettingsRepository {
 }
 
 @OptIn(ExperimentalSettingsApi::class)
+@Singleton(binds = [SettingsRepository::class])
 class SettingsRepositoryImpl : SettingsRepository {
     private val observableSettings: ObservableSettings = createObservableSettings()
 
