@@ -27,7 +27,7 @@ soloader = "0.10.5"
 ktor = "2.3.9"
 uuid = "0.8.4"
 
-ktlint-gradle = "12.1.0"
+ktlint-gradle = "12.1.1"
 ktlint = "1.2.1"
 kotlinx-datetime = "0.6.0"
 
