@@ -1,6 +1,6 @@
 [versions]
 flipper = "0.233.0"
-kotlinx-coroutines = "1.7.3"
+kotlinx-coroutines = "1.8.1"
 kotlinx-serialization-json = "1.6.3"
 auto-service = "1.1.1"
 auto-service-ksp = "1.1.0"
