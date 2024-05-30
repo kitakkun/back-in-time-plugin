@@ -10,7 +10,7 @@ androidx-compose = "1.6.7"
 robolectric = "4.12.2"
 mockk = "1.13.11"
 kotlin = "2.0.0-RC1"
-android-library = "8.2.2"
+android-library = "8.4.1"
 ksp = "2.0.0-1.0.21"
 
 core-ktx = "1.12.0"
