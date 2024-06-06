@@ -1,11 +1,11 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irBlockBody
@@ -72,7 +72,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
 
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             return irBlockBody {
                 +irWhenByProperties(
                     properties = parentClass.properties.toList(),
@@ -101,7 +101,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBody {
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             return irBlockBody {
                 +irWhenByProperties(
                     properties = parentClass.properties.toList(),
@@ -127,7 +127,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction, parentClass: IrClass): IrBody {
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             return irBlockBody {
                 +irWhenByProperties(
                     properties = parentClass.properties.toList(),
@@ -180,7 +180,7 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
             elsePart = irCall(throwTypeMismatchExceptionFunctionSymbol).apply {
                 putValueArgument(0, irString(property.name.asString()))
                 putValueArgument(1, irString(serializerType.classFqName?.asString() ?: "unknown"))
-            }
+            },
         )
     }
 

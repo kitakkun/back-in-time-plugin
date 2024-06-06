@@ -2,8 +2,8 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -28,7 +28,7 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
         val parentClassSymbol = declaration.parentClassOrNull?.symbol ?: return declaration
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return declaration
 
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             val uuidVariable = generateUUIDVariable() ?: return declaration
 
             val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {

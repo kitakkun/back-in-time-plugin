@@ -5,9 +5,9 @@ import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringC
 import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.hasBackInTimeDebuggableAsInterface
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irBoolean
@@ -46,7 +46,7 @@ class ConstructorTransformer : IrElementTransformerVoid() {
         val parentClass = declaration.parentClassOrNull ?: return declaration
         if (!parentClass.hasBackInTimeDebuggableAsInterface) return declaration
 
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             val initUUIDCall = irSetField(
                 receiver = irGet(parentClass.thisReceiver!!),
                 field = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInstanceUUIDName }.backingField!!,

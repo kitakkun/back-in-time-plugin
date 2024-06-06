@@ -5,7 +5,6 @@ import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerSt
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
@@ -14,7 +13,6 @@ import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
-import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -41,8 +39,6 @@ class CaptureValueChangeTransformer(
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
 ) : IrElementTransformerVoid() {
-    private val scope = Scope(parentClassSymbol)
-
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid(this)
         return element
@@ -122,7 +118,6 @@ class CaptureValueChangeTransformer(
                     passedProperties = passedProperties,
                     classDispatchReceiverParameter = classDispatchReceiverParameter,
                     uuidVariable = uuidVariable,
-                    scope = scope,
                 ),
             )
         }
@@ -130,7 +125,7 @@ class CaptureValueChangeTransformer(
 
     private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
         val property = receiver?.getCorrespondingProperty() ?: return null
-        with(irBlockBuilder(scope)) {
+        with(irBuiltIns.createIrBuilder(symbol)) {
             val getValueCall = property.generateCaptureValueCallForValueContainer(
                 instanceParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
@@ -144,7 +139,7 @@ class CaptureValueChangeTransformer(
 
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
         val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
-        with(irBlockBuilder(scope)) {
+        with(irBuiltIns.createIrBuilder(symbol)) {
             val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
                 property.generateCaptureValueCallForValueContainer(
                     instanceParameter = classDispatchReceiverParameter,
