@@ -31,22 +31,6 @@ fun irCapturePropertyValue(
 }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
-fun IrProperty.generateCaptureValueCallForPureVariable(
-    instanceParameter: IrValueParameter,
-    uuidVariable: IrVariable,
-): IrCall? {
-    val getter = getter ?: return null
-    return irCapturePropertyValue(
-        propertyName = name.asString(),
-        getValueCall = irCall(getter.symbol).apply {
-            this.dispatchReceiver = irGet(instanceParameter)
-        },
-        instanceParameter = instanceParameter,
-        uuidVariable = uuidVariable,
-    )
-}
-
-context(IrBuilderWithScope, BackInTimePluginContext)
 fun IrProperty.generateCaptureValueCallForValueContainer(
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,

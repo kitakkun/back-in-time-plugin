@@ -2,7 +2,6 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
-import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForPureVariable
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
@@ -11,10 +10,15 @@ import com.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueCont
 import com.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.Scope
+import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
+import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -71,16 +75,21 @@ class CaptureValueChangeTransformer(
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrCall.transformPureSetterCall(): IrExpression? {
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
-        with(irBlockBuilder(scope)) {
-            val captureCall = property.generateCaptureValueCallForPureVariable(
-                instanceParameter = classDispatchReceiverParameter,
-                uuidVariable = uuidVariable,
-            ) ?: return null
-            return irComposite {
-                +this@transformPureSetterCall
-                +captureCall
-            }
-        }
+        val value = this.valueArguments.first()
+
+        this.putValueArgument(
+            index = 0,
+            valueArgument = with(irBuiltIns.createIrBuilder(symbol)) {
+                irCall(captureThenReturnValueFunctionSymbol).apply {
+                    putValueArgument(0, irGet(classDispatchReceiverParameter))
+                    putValueArgument(1, irGet(uuidVariable))
+                    putValueArgument(2, irString(property.name.asString()))
+                    putValueArgument(3, value)
+                }
+            },
+        )
+
+        return this
     }
 
     private fun IrCall.transformValueContainerRelevantCall(): IrExpression {

@@ -34,6 +34,9 @@ class BackInTimePluginContext(
     val throwTypeMismatchExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwTypeMismatchException"))).first()
     val throwNoSuchPropertyExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwNoSuchPropertyException"))).first()
 
+    // capture utils
+    val captureThenReturnValueFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("captureThenReturnValue"))).first()
+
     val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
     /**
