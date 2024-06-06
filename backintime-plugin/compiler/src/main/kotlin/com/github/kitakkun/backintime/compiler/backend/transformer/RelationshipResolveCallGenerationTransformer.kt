@@ -2,7 +2,6 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import com.github.kitakkun.backintime.compiler.backend.utils.irRegisterRelationship
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
@@ -62,10 +61,10 @@ class RelationshipResolveCallGenerationTransformer(
                 val parentReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
                 with(declaration.irBlockBodyBuilder()) {
-                    irRegisterRelationship(
-                        irGet(parentReceiver),
-                        irGetField(receiver = irGet(parentReceiver), field = backingField),
-                    )
+                    irCall(reportNewRelationshipFunctionSymbol).apply {
+                        putValueArgument(0, irGet(parentReceiver))
+                        putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
+                    }
                 }
             }
         (declaration.body as? IrBlockBody)?.statements?.addAll(propertyRelationshipResolveCalls)
@@ -94,10 +93,10 @@ class RelationshipResolveCallGenerationTransformer(
                     },
                 )
                 val thenPart = irComposite {
-                    +irRegisterRelationship(
-                        receiver,
-                        irCall(property.getter!!).apply { dispatchReceiver = receiver },
-                    )
+                    +irCall(reportNewRelationshipFunctionSymbol).apply {
+                        putValueArgument(0, receiver)
+                        putValueArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
+                    }
                     +irCall(irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
                         dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
                         putValueArgument(0, irString(property.name.asString()))

@@ -6,7 +6,6 @@ import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.github.kitakkun.backintime.compiler.backend.utils.hasBackInTimeDebuggableAsInterface
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import com.github.kitakkun.backintime.compiler.backend.utils.irEmitEventCall
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.ir.IrStatement
@@ -77,13 +76,11 @@ class ConstructorTransformer : IrElementTransformerVoid() {
 
     /** see [com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent.RegisterInstance] */
     @OptIn(UnsafeDuringIrConstructionAPI::class)
-    private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irEmitEventCall {
-        irCallConstructor(registerInstanceEventConstructorSymbol, emptyList()).apply {
-            putValueArgument(0, irGet(parentClass.thisReceiver!!))
-            putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
-            putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
-            putValueArgument(3, generatePropertiesInfo(parentClass.properties))
-        }
+    private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(reportInstanceRegistrationFunctionSymbol).apply {
+        putValueArgument(0, irGet(parentClass.thisReceiver!!))
+        putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
+        putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
+        putValueArgument(3, generatePropertiesInfo(parentClass.properties))
     }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)

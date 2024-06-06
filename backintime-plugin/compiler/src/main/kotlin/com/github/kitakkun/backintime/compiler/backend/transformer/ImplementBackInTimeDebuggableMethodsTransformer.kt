@@ -3,8 +3,6 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
-import com.github.kitakkun.backintime.compiler.backend.utils.irThrowNoSuchPropertyException
-import com.github.kitakkun.backintime.compiler.backend.utils.irThrowTypeMismatchException
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
@@ -17,6 +15,7 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irIfThenElse
 import org.jetbrains.kotlin.ir.builders.irIs
 import org.jetbrains.kotlin.ir.builders.irReturn
+import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -86,10 +85,10 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                         )
                     },
                     elseBranchExpression = {
-                        irThrowNoSuchPropertyException(
-                            parentClassFqName = parentClass.kotlinFqName.asString(),
-                            propertyNameParameter = it,
-                        )
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
+                            putValueArgument(1, irGet(it))
+                        }
                     },
                 )
             }
@@ -112,10 +111,10 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                         generateSerializeCall(type = propertyType, valueParameter = valueParameter)
                     },
                     elseBranchExpression = {
-                        irThrowNoSuchPropertyException(
-                            parentClassFqName = parentClass.kotlinFqName.asString(),
-                            propertyNameParameter = it,
-                        )
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
+                            putValueArgument(1, irGet(it))
+                        }
                     },
                 )
             }
@@ -138,10 +137,10 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                         generateDeserializeCall(valueParameter = valueParameter, type = propertyType)
                     },
                     elseBranchExpression = {
-                        irThrowNoSuchPropertyException(
-                            parentClassFqName = parentClass.kotlinFqName.asString(),
-                            propertyNameParameter = it,
-                        )
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
+                            putValueArgument(1, irGet(it))
+                        }
                     },
                 )
             }
@@ -178,7 +177,10 @@ class ImplementBackInTimeDebuggableMethodsTransformer : IrElementTransformerVoid
                 }
             },
             type = pluginContext.irBuiltIns.unitType,
-            elsePart = irThrowTypeMismatchException(propertyName = property.name.asString(), expectedType = serializerType.classFqName?.asString() ?: "unknown"),
+            elsePart = irCall(throwTypeMismatchExceptionFunctionSymbol).apply {
+                putValueArgument(0, irString(property.name.asString()))
+                putValueArgument(1, irString(serializerType.classFqName?.asString() ?: "unknown"))
+            }
         )
     }
 
