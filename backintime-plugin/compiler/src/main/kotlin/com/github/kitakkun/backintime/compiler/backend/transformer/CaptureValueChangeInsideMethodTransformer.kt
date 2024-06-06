@@ -2,11 +2,10 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import com.github.kitakkun.backintime.compiler.backend.utils.irEmitEventCall
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
+import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
@@ -29,15 +28,13 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
         val parentClassSymbol = declaration.parentClassOrNull?.symbol ?: return declaration
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return declaration
 
-        with(declaration.irBlockBodyBuilder()) {
+        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             val uuidVariable = generateUUIDVariable() ?: return declaration
 
-            val notifyMethodCallFunctionCall = irEmitEventCall {
-                irCallConstructor(methodCallEventConstructorSymbol, emptyList()).apply {
-                    putValueArgument(0, irGet(parentClassDispatchReceiver))
-                    putValueArgument(1, irGet(uuidVariable))
-                    putValueArgument(2, irString(declaration.name.asString()))
-                }
+            val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {
+                putValueArgument(0, irGet(parentClassDispatchReceiver))
+                putValueArgument(1, irGet(uuidVariable))
+                putValueArgument(2, irString(declaration.name.asString()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))

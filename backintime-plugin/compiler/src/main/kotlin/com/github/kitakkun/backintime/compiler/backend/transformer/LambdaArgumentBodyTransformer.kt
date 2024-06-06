@@ -2,11 +2,10 @@ package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irEquals
@@ -27,7 +26,6 @@ class LambdaArgumentBodyTransformer(
     private val passedProperties: Set<IrProperty>,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
-    private val scope: Scope,
 ) : IrElementTransformerVoidWithContext() {
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid(this)
@@ -48,7 +46,7 @@ class LambdaArgumentBodyTransformer(
             propertyClassId == receiverClassId
         }
 
-        with(expression.irBlockBodyBuilder(scope)) {
+        with(irBuiltIns.createIrBuilder(expression.symbol)) {
             val captureCalls = possibleReceiverProperties.mapNotNull { property ->
                 val propertyGetter = property.getter ?: return@mapNotNull null
                 val captureCall = property.generateCaptureValueCallForValueContainer(

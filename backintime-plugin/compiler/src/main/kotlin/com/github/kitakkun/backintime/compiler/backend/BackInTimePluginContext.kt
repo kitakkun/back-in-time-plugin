@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isVararg
@@ -23,17 +22,20 @@ class BackInTimePluginContext(
     val pluginContext: IrPluginContext = baseContext
     val valueContainerClassInfoList: List<ValueContainerClassInfo> = config.valueContainers + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
-    // BackInTimeDebugService
-    val backInTimeServiceClassSymbol = referenceClass(BackInTimeConsts.backInTimeDebugServiceClassId)!!
+    private val internalCompilerApiPackageFqName = FqName("com.github.kitakkun.backintime.runtime.internal")
 
-    // DebuggableStateHolderEvent
-    private val backInTimeServiceEventClassSymbol = referenceClass(BackInTimeConsts.debuggableStateHolderEventClassId)!!
-    private val backInTimeServiceEventSealedSubClasses = backInTimeServiceEventClassSymbol.owner.sealedSubclasses
-    val emitEventFunctionSymbol = backInTimeServiceClassSymbol.getSimpleFunction("emitEvent")!!
-    val registerInstanceEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.registerEventClassId }.constructors.first { it.owner.isPrimary }
-    val registerRelationshipEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.registerRelationshipEventClassId }.constructors.first { it.owner.isPrimary }
-    val methodCallEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.methodCallEventClassId }.constructors.first { it.owner.isPrimary }
-    val propertyValueChangeEventConstructorSymbol = backInTimeServiceEventSealedSubClasses.first { it.owner.classId == BackInTimeConsts.propertyValueChangeEventClassId }.constructors.first { it.owner.isPrimary }
+    // event report functions
+    val reportInstanceRegistrationFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportInstanceRegistration"))).first()
+    val reportMethodInvocationFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportMethodInvocation"))).first()
+    val reportPropertyValueChangeFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportPropertyValueChange"))).first()
+    val reportNewRelationshipFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportNewRelationship"))).first()
+
+    // error generation functions
+    val throwTypeMismatchExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwTypeMismatchException"))).first()
+    val throwNoSuchPropertyExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwNoSuchPropertyException"))).first()
+
+    // capture utils
+    val captureThenReturnValueFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("captureThenReturnValue"))).first()
 
     val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
@@ -43,12 +45,6 @@ class BackInTimePluginContext(
     val propertyInfoClass = referenceClass(BackInTimeConsts.propertyInfoClassId)!!
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction = referenceFunctions(BackInTimeConsts.listOfFunctionId).first { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg }
-
-    private val backInTimeRuntimeExceptionClassSymbol = referenceClass(BackInTimeConsts.backInTimeRuntimeExceptionClassId)!!
-    val typeMismatchExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
-        .first { it.owner.classId == BackInTimeConsts.typeMismatchExceptionClassId }.constructors.first()
-    val noSuchPropertyExceptionConstructor = backInTimeRuntimeExceptionClassSymbol.owner.sealedSubclasses
-        .first { it.owner.classId == BackInTimeConsts.noSuchPropertyExceptionClassId }.constructors.first()
 
     // kotlinx-serialization
     val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
