@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
     `java-gradle-plugin`
@@ -28,8 +27,5 @@ dependencies {
     implementation(project(":backintime-plugin:common"))
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlinx.serialization.json)
-
-    compileOnly(libs.auto.service)
-    ksp(libs.auto.service.ksp)
     compileOnly(kotlin("gradle-plugin"))
 }
