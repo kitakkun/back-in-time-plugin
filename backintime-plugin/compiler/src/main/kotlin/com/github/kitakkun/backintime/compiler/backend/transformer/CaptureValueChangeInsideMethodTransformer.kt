@@ -10,7 +10,9 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -22,6 +24,7 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
         return parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) && !declaration.name.isSpecial
     }
 
+    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         if (!shouldBeTransformed(declaration)) return declaration
 
@@ -36,6 +39,7 @@ class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
                 putValueArgument(0, irGet(parentClassDispatchReceiver))
                 putValueArgument(1, irGet(uuidVariable))
                 putValueArgument(2, irString(declaration.name.asString()))
+                putValueArgument(3, irString(parentClassSymbol.owner.kotlinFqName.asString()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))

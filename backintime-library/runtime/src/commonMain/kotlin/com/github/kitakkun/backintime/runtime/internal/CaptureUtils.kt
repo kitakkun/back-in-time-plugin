@@ -10,12 +10,14 @@ internal inline fun <T : Any> captureThenReturnValue(
     methodInvocationId: String,
     propertyName: String,
     propertyValue: T,
+    className: String,
 ): T {
     reportPropertyValueChange(
         instance = instance,
         methodInvocationId = methodInvocationId,
         propertyName = propertyName,
         propertyValue = propertyValue,
+        className = className,
     )
     return propertyValue
 }

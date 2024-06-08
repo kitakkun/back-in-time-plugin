@@ -15,10 +15,13 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.kotlinFqName
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
 fun irCapturePropertyValue(
+    parentClassName: String,
     propertyName: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
@@ -28,6 +31,7 @@ fun irCapturePropertyValue(
     putValueArgument(1, irGet(uuidVariable))
     putValueArgument(2, irString(propertyName))
     putValueArgument(3, getValueCall)
+    putValueArgument(4, irString(parentClassName))
 }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
@@ -52,6 +56,7 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
         },
         instanceParameter = instanceParameter,
         uuidVariable = uuidVariable,
+        parentClassName = parentAsClass.kotlinFqName.asString(),
     )
 }
 

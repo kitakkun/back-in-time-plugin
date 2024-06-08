@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -81,6 +82,7 @@ class CaptureValueChangeTransformer(
                     putValueArgument(1, irGet(uuidVariable))
                     putValueArgument(2, irString(property.name.asString()))
                     putValueArgument(3, value)
+                    putValueArgument(4, irString(parentClassSymbol.owner.kotlinFqName.asString()))
                 }
             },
         )

@@ -27,11 +27,13 @@ internal inline fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
     methodName: String,
+    className: String,
 ) = BackInTimeDebugService.emitEvent(
     DebuggableStateHolderEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
         methodName = methodName,
+        className = className,
     ),
 )
 
@@ -41,12 +43,14 @@ internal inline fun reportPropertyValueChange(
     methodInvocationId: String,
     propertyName: String,
     propertyValue: Any?,
+    className: String,
 ) = BackInTimeDebugService.emitEvent(
     DebuggableStateHolderEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
         propertyName = propertyName,
         propertyValue = propertyValue,
+        className = className,
     ),
 )
 
