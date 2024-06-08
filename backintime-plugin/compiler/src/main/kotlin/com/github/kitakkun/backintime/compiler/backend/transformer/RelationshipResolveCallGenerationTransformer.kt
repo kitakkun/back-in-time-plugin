@@ -1,15 +1,13 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.irBlockBodyBuilder
-import com.github.kitakkun.backintime.compiler.backend.utils.irRegisterRelationship
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
+import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.Scope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -40,8 +38,6 @@ context(BackInTimePluginContext)
 class RelationshipResolveCallGenerationTransformer(
     private val parentClass: IrClass,
 ) : IrElementTransformerVoidWithContext() {
-    private val scope = Scope(parentClass.symbol)
-
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val initializedMapProperty = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }
 
@@ -61,11 +57,11 @@ class RelationshipResolveCallGenerationTransformer(
                 val backingField = property.backingField ?: return@mapNotNull null
                 val parentReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
-                with(declaration.irBlockBodyBuilder()) {
-                    irRegisterRelationship(
-                        irGet(parentReceiver),
-                        irGetField(receiver = irGet(parentReceiver), field = backingField),
-                    )
+                with(irBuiltIns.createIrBuilder(declaration.symbol)) {
+                    irCall(reportNewRelationshipFunctionSymbol).apply {
+                        putValueArgument(0, irGet(parentReceiver))
+                        putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
+                    }
                 }
             }
         (declaration.body as? IrBlockBody)?.statements?.addAll(propertyRelationshipResolveCalls)
@@ -85,7 +81,7 @@ class RelationshipResolveCallGenerationTransformer(
         val receiver = expression.receiver ?: return expression
 
         if (property.isDebuggableStateHolder && property.isDelegated) {
-            with(expression.irBlockBodyBuilder(scope)) {
+            with(irBuiltIns.createIrBuilder(expression.symbol)) {
                 val condition = irNotEquals(
                     arg1 = irTrue(),
                     arg2 = irCall(irBuiltIns.mapClass.getSimpleFunction("get")!!).apply {
@@ -94,10 +90,10 @@ class RelationshipResolveCallGenerationTransformer(
                     },
                 )
                 val thenPart = irComposite {
-                    +irRegisterRelationship(
-                        receiver,
-                        irCall(property.getter!!).apply { dispatchReceiver = receiver },
-                    )
+                    +irCall(reportNewRelationshipFunctionSymbol).apply {
+                        putValueArgument(0, receiver)
+                        putValueArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
+                    }
                     +irCall(irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
                         dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
                         putValueArgument(0, irString(property.name.asString()))
