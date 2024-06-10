@@ -9,7 +9,7 @@ androidx-lifecycle = "2.8.1"
 androidx-compose = "1.6.7"
 robolectric = "4.12.2"
 mockk = "1.13.11"
-kotlin = "2.0.0-RC1"
+kotlin = "2.0.0"
 android-library = "8.4.2"
 ksp = "2.0.0-1.0.22"
 
@@ -102,3 +102,4 @@ androidApplication = { id = "com.android.application", version.ref = "android-li
 androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
