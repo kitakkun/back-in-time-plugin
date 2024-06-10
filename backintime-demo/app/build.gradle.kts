@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
+    alias(libs.plugins.compose.compiler)
     id("com.github.kitakkun.backintime") version "1.0.0"
 }
 
@@ -44,9 +45,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.13-dev-k2.0.0-RC1-50f08dfa4b4"
     }
     packaging {
         resources {
