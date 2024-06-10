@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -74,7 +74,7 @@ tasks.prepareKotlinIdeaImport {
 }
 
 // publish required artifacts when compiling via ./gradlew
-tasks.withType(KotlinCompile::class).all {
+tasks.withType<KotlinCompilationTask<*>>().all {
     dependsOn(":backintime-plugin:common:publishToMavenLocal")
     dependsOn(":backintime-plugin:compiler:publishToMavenLocal")
 }
