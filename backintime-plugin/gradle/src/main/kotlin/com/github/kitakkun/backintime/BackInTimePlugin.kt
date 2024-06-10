@@ -3,7 +3,6 @@ package com.github.kitakkun.backintime
 import com.github.kitakkun.backintime.extension.BackInTimeExtension
 import com.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import com.github.kitakkun.backintime.plugin.BackInTimePluginConsts
-import com.google.auto.service.AutoService
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.gradle.api.Project
@@ -17,8 +16,6 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import java.util.Base64
 
-@Suppress("unused")
-@AutoService(KotlinCompilerPluginSupportPlugin::class)
 class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
         with(target) {
