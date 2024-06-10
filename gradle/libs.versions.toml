@@ -9,7 +9,7 @@ androidx-lifecycle = "2.8.1"
 androidx-compose = "1.6.7"
 robolectric = "4.12.2"
 mockk = "1.13.11"
-kotlin = "2.0.0-RC1"
+kotlin = "2.0.0"
 android-library = "8.4.2"
 ksp = "2.0.0-1.0.22"
 
