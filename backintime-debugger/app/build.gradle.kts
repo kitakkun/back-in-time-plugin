@@ -10,8 +10,8 @@ val appVersion = "1.0.0"
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-library:runtime"))
-            implementation(project(":backintime-library:websocket:event"))
+            implementation(project(":backintime-runtime"))
+            implementation(project(":backintime-websocket-event"))
             implementation(project(":backintime-debugger:feature:instance"))
             implementation(project(":backintime-debugger:feature:log"))
             implementation(project(":backintime-debugger:feature:settings"))

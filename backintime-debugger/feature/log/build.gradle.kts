@@ -7,7 +7,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-library:websocket:event"))
+            implementation(project(":backintime-websocket-event"))
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
         }

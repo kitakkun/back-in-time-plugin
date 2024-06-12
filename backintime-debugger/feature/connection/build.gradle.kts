@@ -6,7 +6,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // FIXME: feature modules should not depend on websocket server module.
-            implementation(project(":backintime-library:websocket:server"))
+            implementation(project(":backintime-websocket-server"))
         }
     }
 }

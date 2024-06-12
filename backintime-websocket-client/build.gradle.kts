@@ -8,20 +8,19 @@ kotlin {
     jvm()
     androidTarget()
 
-    iosArm64()
     iosX64()
+    iosArm64()
     iosSimulatorArm64()
 
     jvmToolchain(17)
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-library:websocket:event"))
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.ktor.server.cio)
-            implementation(libs.ktor.server.websockets)
+            implementation(project(":backintime-websocket-event"))
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.uuid)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -32,14 +31,6 @@ kotlin {
 }
 
 android {
-    namespace = "com.github.kitakkun.backintime.websocket.server"
+    namespace = "com.github.kitakkun.backintime.websocket.client"
     compileSdk = 34
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            artifactId = "backintime-websocket-server"
-        }
-    }
 }
