@@ -26,11 +26,3 @@ android {
     namespace = "com.github.kitakkun.backintime.websocket.event"
     compileSdk = 34
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            artifactId = "backintime-websocket-event"
-        }
-    }
-}
