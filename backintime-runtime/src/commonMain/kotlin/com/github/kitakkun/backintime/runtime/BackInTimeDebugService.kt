@@ -9,8 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
@@ -44,7 +42,6 @@ object BackInTimeDebugService : CoroutineScope {
         launch {
             connector.connect()
             observeConnectedFlowJob = launch {
-                connector.connectedFlow.filter { it }.first()
                 processDebuggerEventJob = launch {
                     connector.receiveEventAsFlow().collect collectReceive@{ event ->
                         val result = processDebuggerRequest(event) ?: return@collectReceive

@@ -6,9 +6,7 @@ import com.github.kitakkun.backintime.runtime.backInTimeJson
 import com.github.kitakkun.backintime.runtime.connector.BackInTimeConnector
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -16,7 +14,6 @@ import kotlinx.serialization.json.Json
 class BackInTimeFlipperConnector(
     private val connection: FlipperConnection,
 ) : BackInTimeConnector {
-    override val connectedFlow: Flow<Boolean> = flow { emit(true) }
     override val connected: Boolean get() = true
 
     override suspend fun connect() {
