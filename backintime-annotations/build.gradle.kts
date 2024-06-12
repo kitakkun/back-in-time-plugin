@@ -24,11 +24,3 @@ android {
     compileSdk = 34
     namespace = "com.github.kitakkun.backintime.annotations"
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            artifactId = "backintime-annotations"
-        }
-    }
-}
