@@ -19,11 +19,11 @@ class BackInTimeFlipperConnector(
     override val connectedFlow: Flow<Boolean> = flow { emit(true) }
     override val connected: Boolean get() = true
 
-    override fun connect() {
+    override suspend fun connect() {
         // no-op
     }
 
-    override fun disconnect() {
+    override suspend fun disconnect() {
         // no-op
     }
 

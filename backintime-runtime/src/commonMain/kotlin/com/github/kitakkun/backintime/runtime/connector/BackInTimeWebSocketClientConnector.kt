@@ -19,28 +19,24 @@ class BackInTimeWebSocketClientConnector(host: String, port: Int, private val au
     private val mutableIsConnectedFlow = MutableStateFlow(false)
     override val connectedFlow: Flow<Boolean> get() = mutableIsConnectedFlow.asSharedFlow()
 
-    override fun connect() {
-        coroutineScope.launch {
-            while (true) {
-                val result = client.connect()
-                if (result.isSuccess) break
-                delay(3000L)
-            }
-            mutableIsConnectedFlow.value = true
-            // reconnect after disconnection
-            if (automaticReconnect) {
-                client.closeReason().await()
-                mutableIsConnectedFlow.value = false
-                connect()
-            }
+    override suspend fun connect() {
+        while (true) {
+            val result = client.connect()
+            if (result.isSuccess) break
+            delay(3000L)
+        }
+        mutableIsConnectedFlow.value = true
+        // reconnect after disconnection
+        if (automaticReconnect) {
+            client.closeReason().await()
+            mutableIsConnectedFlow.value = false
+            connect()
         }
     }
 
-    override fun disconnect() {
-        coroutineScope.launch {
-            client.close()
-            mutableIsConnectedFlow.value = false
-        }
+    override suspend fun disconnect() {
+        client.close()
+        mutableIsConnectedFlow.value = false
     }
 
     override fun sendEvent(event: BackInTimeDebugServiceEvent) {

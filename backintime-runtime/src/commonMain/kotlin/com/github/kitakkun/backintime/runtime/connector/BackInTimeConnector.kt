@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.Flow
 interface BackInTimeConnector {
     val connected: Boolean
     val connectedFlow: Flow<Boolean>
-    fun connect()
-    fun disconnect()
+    suspend fun connect()
+    suspend fun disconnect()
     fun sendEvent(event: BackInTimeDebugServiceEvent)
     fun receiveEventAsFlow(): Flow<BackInTimeDebuggerEvent>
 }

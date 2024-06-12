@@ -41,29 +41,33 @@ object BackInTimeDebugService : CoroutineScope {
 
     fun startService() {
         val connector = this.connector ?: return
-        connector.connect()
-        observeConnectedFlowJob = launch {
-            connector.connectedFlow.filter { it }.first()
-            processDebuggerEventJob = launch {
-                connector.receiveEventAsFlow().collect collectReceive@{ event ->
-                    val result = processDebuggerRequest(event) ?: return@collectReceive
-                    sendOrQueue(result)
+        launch {
+            connector.connect()
+            observeConnectedFlowJob = launch {
+                connector.connectedFlow.filter { it }.first()
+                processDebuggerEventJob = launch {
+                    connector.receiveEventAsFlow().collect collectReceive@{ event ->
+                        val result = processDebuggerRequest(event) ?: return@collectReceive
+                        sendOrQueue(result)
+                    }
                 }
+                serviceEventDispatchQueue.forEach { event ->
+                    connector.sendEvent(event)
+                }
+                serviceEventDispatchQueue.clear()
             }
-            serviceEventDispatchQueue.forEach { event ->
-                connector.sendEvent(event)
-            }
-            serviceEventDispatchQueue.clear()
         }
     }
 
     fun stopService() {
         processDebuggerEventJob?.cancel()
         observeConnectedFlowJob?.cancel()
-        connector?.disconnect()
-        processDebuggerEventJob = null
-        observeConnectedFlowJob = null
-        connector = null
+        launch {
+            connector?.disconnect()
+            processDebuggerEventJob = null
+            observeConnectedFlowJob = null
+            connector = null
+        }
     }
 
     private fun startInstanceCleanUpJob() {
