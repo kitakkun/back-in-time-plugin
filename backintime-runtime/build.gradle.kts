@@ -9,7 +9,7 @@ kotlin {
     jvmToolchain(8)
 
     jvm()
-    androidTarget()
+    androidTarget { publishAllLibraryVariants() }
 
     iosX64()
     iosArm64()
