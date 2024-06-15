@@ -19,7 +19,7 @@ context(BackInTimePluginContext)
 class CaptureValueChangeInsideMethodTransformer : IrElementTransformerVoid() {
     private fun shouldBeTransformed(declaration: IrSimpleFunction): Boolean {
         val parentClass = declaration.parentClassOrNull ?: return false
-        return parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) && !declaration.name.isSpecial
+        return parentClass.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) && !declaration.name.isSpecial
     }
 
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {

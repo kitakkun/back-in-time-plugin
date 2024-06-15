@@ -99,7 +99,7 @@ class ConstructorTransformer : IrElementTransformerVoid() {
                         val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
                         val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
-                        val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: false
+                        val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                             putValueArgument(0, irString(irProperty.name.asString()))
                             putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))

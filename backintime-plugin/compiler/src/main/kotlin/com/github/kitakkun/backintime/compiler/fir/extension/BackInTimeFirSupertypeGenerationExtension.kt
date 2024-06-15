@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.fir.types.builder.buildResolvedTypeRef
 
 class BackInTimeFirSupertypeGenerationExtension(session: FirSession) : FirSupertypeGenerationExtension(session = session) {
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean {
-        return declaration.hasAnnotationSafe(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)
+        return declaration.hasAnnotationSafe(BackInTimeAnnotations.backInTimeAnnotationClassId, session)
     }
 
     override fun computeAdditionalSupertypes(classLikeDeclaration: FirClassLikeDeclaration, resolvedSupertypes: List<FirResolvedTypeRef>, typeResolver: TypeResolveService): List<FirResolvedTypeRef> {

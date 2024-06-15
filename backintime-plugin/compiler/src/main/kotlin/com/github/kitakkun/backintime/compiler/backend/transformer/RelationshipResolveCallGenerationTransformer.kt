@@ -42,7 +42,7 @@ class RelationshipResolveCallGenerationTransformer(
     private val initializedMapProperty = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
-    private val IrProperty.isDebuggableStateHolder get() = getter?.returnType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) == true
+    private val IrProperty.isDebuggableStateHolder get() = getter?.returnType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) == true
 
     override fun visitElement(element: IrElement): IrElement {
         element.transformChildrenVoid()
