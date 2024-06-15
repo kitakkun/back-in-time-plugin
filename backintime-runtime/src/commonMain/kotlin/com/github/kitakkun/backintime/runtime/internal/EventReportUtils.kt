@@ -4,7 +4,7 @@ package com.github.kitakkun.backintime.runtime.internal
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
-import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 
 @BackInTimeCompilerInternalApi
@@ -14,7 +14,7 @@ internal inline fun reportInstanceRegistration(
     superClassName: String,
     properties: List<PropertyInfo>,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.RegisterInstance(
+    BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
         className = className,
         superClassName = superClassName,
@@ -28,7 +28,7 @@ internal inline fun reportMethodInvocation(
     methodInvocationId: String,
     methodName: String,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.MethodCall(
+    BackInTimeDebuggableInstanceEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
         methodName = methodName,
@@ -42,7 +42,7 @@ internal inline fun reportPropertyValueChange(
     propertyName: String,
     propertyValue: Any?,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.PropertyValueChange(
+    BackInTimeDebuggableInstanceEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
         propertyName = propertyName,
@@ -55,7 +55,7 @@ internal inline fun reportNewRelationship(
     parentInstance: BackInTimeDebuggable,
     childInstance: BackInTimeDebuggable,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.RegisterRelationShip(
+    BackInTimeDebuggableInstanceEvent.RegisterRelationShip(
         parentInstance = parentInstance,
         childInstance = childInstance,
     ),
