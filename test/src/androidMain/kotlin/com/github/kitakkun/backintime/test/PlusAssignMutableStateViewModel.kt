@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.test
 
 import androidx.compose.runtime.mutableStateOf
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 
 /**
  * MutableState<List<*>> なプロパティを宣言し，
@@ -11,7 +11,7 @@ import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
  *
  * この問題の修正確認用
  */
-@DebuggableStateHolder
+@BackInTime
 class PlusAssignMutableStateViewModel {
     private val mutableStrings = mutableStateOf(emptyList<String>())
 

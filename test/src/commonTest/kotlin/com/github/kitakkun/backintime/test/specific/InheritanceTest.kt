@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.specific
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
@@ -10,13 +10,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class InheritanceTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     private open class SuperClass {
         var superProperty: String = "super"
         open var overridableProperty: String = "super"
     }
 
-    @DebuggableStateHolder
+    @BackInTime
     private class SubClass : SuperClass() {
         var subProperty: String = "sub"
         override var overridableProperty: String = "sub"

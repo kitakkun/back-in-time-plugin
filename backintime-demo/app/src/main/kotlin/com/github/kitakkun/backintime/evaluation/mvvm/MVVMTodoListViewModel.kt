@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.evaluation.data.Todo
 import com.github.kitakkun.backintime.evaluation.data.TodoDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@DebuggableStateHolder
+@BackInTime
 class MVVMTodoListViewModel(
     private val todoDao: TodoDao,
 ) : ViewModel() {

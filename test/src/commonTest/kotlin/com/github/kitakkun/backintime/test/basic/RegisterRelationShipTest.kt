@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.basic
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
@@ -13,18 +13,18 @@ import kotlin.test.assertIs
  * Checks if relationship between state holders are captured as expected.
  */
 class RegisterRelationShipTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     private class ParentTestStateHolderWithNormalChild {
         val child = ChildTestStateHolder()
     }
 
-    @DebuggableStateHolder
+    @BackInTime
     private class ParentTestStateHolderWithLazyChild {
         val lazyChild by lazy { ChildTestStateHolder() }
         fun accessLazyChild() = lazyChild
     }
 
-    @DebuggableStateHolder
+    @BackInTime
     private class ChildTestStateHolder
 
     @Test

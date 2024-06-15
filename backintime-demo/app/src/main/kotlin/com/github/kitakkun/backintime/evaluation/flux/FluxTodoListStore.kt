@@ -4,13 +4,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.evaluation.data.Todo
 import com.github.kitakkun.backintime.evaluation.flux.architecture.ActionEvent
 import com.github.kitakkun.backintime.evaluation.flux.architecture.Dispatcher
 import com.github.kitakkun.backintime.evaluation.flux.architecture.Store
 
-@DebuggableStateHolder
+@BackInTime
 class FluxTodoListStore(
     private val dispatcher: Dispatcher,
 ) : Store, ViewModel() {

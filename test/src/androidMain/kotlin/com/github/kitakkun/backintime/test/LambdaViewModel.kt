@@ -2,9 +2,9 @@ package com.github.kitakkun.backintime.test
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 
-@DebuggableStateHolder
+@BackInTime
 class LambdaViewModel {
     private val mutableState = mutableStateOf(0)
 

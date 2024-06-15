@@ -1,13 +1,13 @@
 package com.github.kitakkun.backintime.test.specific
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class SelfSerializableValueHolderTest {
-    @DebuggableStateHolder
+    @BackInTime
     private class TestStateHolder {
         val mutableList = mutableListOf<String>()
     }

@@ -2,14 +2,14 @@ package com.github.kitakkun.backintime.test
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 
-@DebuggableStateHolder
+@BackInTime
 class StateFlowCaptureViewModel : ViewModel() {
     private val mutableStateFlow = MutableStateFlow("")
 

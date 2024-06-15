@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.test.specific
 
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.annotations.Capture
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
 import com.github.kitakkun.backintime.annotations.Getter
 import com.github.kitakkun.backintime.annotations.Setter
 import com.github.kitakkun.backintime.annotations.ValueContainer
@@ -18,7 +18,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
         @Getter @Setter @Capture var value: T,
     )
 
-    @DebuggableStateHolder
+    @BackInTime
     private class ValueContainerHolder {
         val container = AnnotationConfiguredValueContainer(0)
 
