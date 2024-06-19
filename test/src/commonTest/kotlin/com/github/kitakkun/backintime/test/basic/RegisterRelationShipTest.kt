@@ -41,15 +41,24 @@ class RegisterRelationShipTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun testLazyChild() = runBlocking {
+    fun testLazyChildExternalAccess() = runBlocking {
         val parent = ParentTestStateHolderWithLazyChild()
         assertIs<BackInTimeDebuggable>(parent)
 
         delay(100)
         assertEquals(0, registerRelationshipEvents.size)
 
-        // access from external scope can't trigger relationship event
+        // access from external scope can trigger relationship event
         parent.lazyChild
+        delay(100)
+        assertEquals(1, registerRelationshipEvents.size)
+    }
+
+    @Test
+    fun testLazyChildInternalAccess() = runBlocking {
+        val parent = ParentTestStateHolderWithLazyChild()
+        assertIs<BackInTimeDebuggable>(parent)
+
         delay(100)
         assertEquals(0, registerRelationshipEvents.size)
 

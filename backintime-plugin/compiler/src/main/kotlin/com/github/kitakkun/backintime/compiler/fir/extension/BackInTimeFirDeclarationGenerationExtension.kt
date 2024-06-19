@@ -9,6 +9,8 @@ import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
+import org.jetbrains.kotlin.fir.resolve.getSuperClassSymbolOrAny
+import org.jetbrains.kotlin.fir.resolve.getSuperTypes
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -73,6 +75,12 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
         return when {
             classSymbol !is FirRegularClassSymbol -> emptySet()
+
+            classSymbol.getSuperClassSymbolOrAny(session).getSuperTypes(session).any { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } -> setOf(
+                BackInTimeConsts.serializeMethodName,
+                BackInTimeConsts.deserializeMethodName,
+                BackInTimeConsts.forceSetValueMethodName,
+            )
 
             session.debuggableStateHolderPredicateMatcher.isAnnotated(classSymbol) -> setOf(
                 // methods

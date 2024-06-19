@@ -11,7 +11,6 @@ import com.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSet
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
@@ -38,11 +37,6 @@ class CaptureValueChangeTransformer(
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
 ) : IrElementTransformerVoid() {
-    override fun visitElement(element: IrElement): IrElement {
-        element.transformChildrenVoid(this)
-        return element
-    }
-
     override fun visitCall(expression: IrCall): IrExpression {
         expression.transformChildrenVoid(this)
 
