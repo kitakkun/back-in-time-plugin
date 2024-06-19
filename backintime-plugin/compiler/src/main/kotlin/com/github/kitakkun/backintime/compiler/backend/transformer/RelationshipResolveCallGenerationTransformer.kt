@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.hasAnnotation
@@ -37,13 +36,10 @@ context(BackInTimePluginContext)
 class RelationshipResolveCallGenerationTransformer(
     private val parentClass: IrClass,
 ) : IrElementTransformerVoidWithContext() {
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val initializedMapProperty = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val IrProperty.isDebuggableStateHolder get() = getter?.returnType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) == true
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val propertyRelationshipResolveCalls = parentClass.properties
             .filter { it.isDebuggableStateHolder && !it.isDelegated && !it.isVar }
@@ -62,7 +58,6 @@ class RelationshipResolveCallGenerationTransformer(
         return declaration
     }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall): IrExpression {
         expression.transformChildrenVoid()
 

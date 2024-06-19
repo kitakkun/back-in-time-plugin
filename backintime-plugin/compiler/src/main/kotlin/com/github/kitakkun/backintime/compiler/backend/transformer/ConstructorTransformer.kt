@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -41,7 +40,6 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
  */
 context(BackInTimePluginContext)
 class ConstructorTransformer : IrElementTransformerVoid() {
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentClassOrNull ?: return declaration
         if (!parentClass.hasBackInTimeDebuggableAsInterface) return declaration
@@ -75,7 +73,6 @@ class ConstructorTransformer : IrElementTransformerVoid() {
     }
 
     /** see [com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent.RegisterInstance] */
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(reportInstanceRegistrationFunctionSymbol).apply {
         putValueArgument(0, irGet(parentClass.thisReceiver!!))
         putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
@@ -83,7 +80,6 @@ class ConstructorTransformer : IrElementTransformerVoid() {
         putValueArgument(3, generatePropertiesInfo(parentClass.properties))
     }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(listOfFunction).apply {

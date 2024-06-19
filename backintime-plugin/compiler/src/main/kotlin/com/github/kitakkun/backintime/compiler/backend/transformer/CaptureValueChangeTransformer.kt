@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.isSetter
@@ -54,7 +53,6 @@ class CaptureValueChangeTransformer(
         } ?: expression
     }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrCall.isPureSetterCall(): Boolean {
         val propertySymbol = this.symbol.owner.correspondingPropertySymbol?.owner ?: return false
         return this.symbol.owner.isSetter && propertySymbol.parentClassOrNull?.symbol == parentClassSymbol
@@ -68,7 +66,6 @@ class CaptureValueChangeTransformer(
             }
     }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrCall.transformPureSetterCall(): IrExpression? {
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
         val value = this.valueArguments.first()
