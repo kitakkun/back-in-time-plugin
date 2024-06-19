@@ -6,7 +6,6 @@ import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
@@ -43,11 +42,6 @@ class RelationshipResolveCallGenerationTransformer(
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     private val IrProperty.isDebuggableStateHolder get() = getter?.returnType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) == true
-
-    override fun visitElement(element: IrElement): IrElement {
-        element.transformChildrenVoid()
-        return element
-    }
 
     @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
