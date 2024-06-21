@@ -13,7 +13,7 @@ at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back
 Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
 > [!IMPORTANT]
-> This project is still a work in in progress, and its API is unstable and may change without any
+> This project is still a work in progress, and its API is unstable and may change without any
 > notice.
 > Also, we are planning make back-in-time-debugger implementation independent from Flipper to
 > support other platforms (iOS, Desktop, JS...).
@@ -44,7 +44,7 @@ pluginManagement {
     }
     plugins {
         id("com.github.kitakkun.backintime") version "1.0.0" apply false
-        kotlin("plugin.serialization") version "1.9.22" apply false // required by the plugin
+        kotlin("plugin.serialization") version "2.0.0" apply false // required by the plugin
     }
 }
 
@@ -79,6 +79,7 @@ dependencies {
 
 backInTime {
     enabled = true // default is true
+    // we might remove this feature later, and will introduce more easy way to existing value containers.
     valueContainers {
         androidValueContainers() // support for MutableLiveData, MutableStateFlow, MutableState
         composeMutableStates()   // support for MutableState, MutableIntState, MutableLongState, etc...
@@ -103,11 +104,10 @@ Make sure property you want to debug is holding serializable value by kotlinx.se
 ```kotlin
 @BackInTime
 class CounterViewModel : ViewModel() {
-    private val mutableCount = MutbaleStateFlow(0)
-    val count = mutableCount.asStateFlow()
+    var count = 0
 
     fun increment() {
-        count.value++
+        count++
     }
 }
 ```
