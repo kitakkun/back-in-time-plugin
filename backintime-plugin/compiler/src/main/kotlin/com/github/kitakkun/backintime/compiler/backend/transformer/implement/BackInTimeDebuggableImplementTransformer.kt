@@ -3,7 +3,6 @@ package com.github.kitakkun.backintime.compiler.backend.transformer.implement
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
-import com.github.kitakkun.backintime.compiler.backend.utils.irWhenByProperties
 import com.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -11,14 +10,18 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.declarations.addBackingField
 import org.jetbrains.kotlin.ir.builders.irBlockBody
+import org.jetbrains.kotlin.ir.builders.irBranch
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
+import org.jetbrains.kotlin.ir.builders.irElseBranch
+import org.jetbrains.kotlin.ir.builders.irEquals
 import org.jetbrains.kotlin.ir.builders.irExprBody
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irIfThenElse
 import org.jetbrains.kotlin.ir.builders.irIs
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -77,26 +80,25 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
 
-        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
-            return irBlockBody {
-                +irWhenByProperties(
-                    properties = parentClass.properties.toList(),
-                    propertyNameParameter = propertyNameParameter,
-                    buildBranchResultExpression = { property ->
-                        irSetPropertyValue(
-                            parentClassReceiver = parentClassReceiver,
-                            property = property,
-                            valueParameter = valueParameter,
-                        )
+        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
+            +irWhen(
+                type = irBuiltIns.unitType,
+                branches = parentClass.properties.mapNotNull { property ->
+                    irBranch(
+                        condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
+                        result = irSetPropertyValue(
+                            parentClassReceiver,
+                            property,
+                            valueParameter,
+                        ) ?: return@mapNotNull null,
+                    )
+                }.toList() + irElseBranch(
+                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                        putValueArgument(0, irGet(propertyNameParameter))
+                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
                     },
-                    elseBranchExpression = {
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
-                            putValueArgument(1, irGet(it))
-                        }
-                    },
-                )
-            }
+                ),
+            )
         }
     }
 
@@ -106,23 +108,26 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
-            return irBlockBody {
-                +irWhenByProperties(
-                    properties = parentClass.properties.toList(),
-                    propertyNameParameter = propertyNameParameter,
-                    buildBranchResultExpression = { property ->
-                        val propertyType = property.getter?.returnType ?: return@irWhenByProperties null
-                        generateSerializeCall(type = propertyType, valueParameter = valueParameter)
+        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
+            +irWhen(
+                type = irBuiltIns.stringType,
+                branches = parentClass.properties.mapNotNull { property ->
+                    irBranch(
+                        condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
+                        result = irReturn(
+                            generateSerializeCall(
+                                type = property.getter?.returnType ?: return@mapNotNull null,
+                                valueParameter = valueParameter,
+                            ) ?: return@mapNotNull null,
+                        ),
+                    )
+                }.toList() + irElseBranch(
+                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                        putValueArgument(0, irGet(propertyNameParameter))
+                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
                     },
-                    elseBranchExpression = {
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
-                            putValueArgument(1, irGet(it))
-                        }
-                    },
-                )
-            }
+                ),
+            )
         }
     }
 
@@ -132,23 +137,26 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
-            return irBlockBody {
-                +irWhenByProperties(
-                    properties = parentClass.properties.toList(),
-                    propertyNameParameter = propertyNameParameter,
-                    buildBranchResultExpression = { property ->
-                        val propertyType = property.getter?.returnType ?: return@irWhenByProperties null
-                        generateDeserializeCall(valueParameter = valueParameter, type = propertyType)
+        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
+            +irWhen(
+                type = irBuiltIns.anyNType,
+                branches = parentClass.properties.mapNotNull { property ->
+                    irBranch(
+                        condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
+                        result = irReturn(
+                            generateDeserializeCall(
+                                type = property.getter?.returnType ?: return@mapNotNull null,
+                                valueParameter = valueParameter,
+                            ) ?: return@mapNotNull null,
+                        ),
+                    )
+                }.toList() + irElseBranch(
+                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                        putValueArgument(0, irGet(propertyNameParameter))
+                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
                     },
-                    elseBranchExpression = {
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irString(parentClass.kotlinFqName.asString()))
-                            putValueArgument(1, irGet(it))
-                        }
-                    },
-                )
-            }
+                ),
+            )
         }
     }
 
