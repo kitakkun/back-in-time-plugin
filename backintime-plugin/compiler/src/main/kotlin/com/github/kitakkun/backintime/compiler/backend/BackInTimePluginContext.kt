@@ -36,7 +36,7 @@ class BackInTimePluginContext(
     val captureThenReturnValueFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("captureThenReturnValue"))).first()
 
     /**
-     * Used in [com.github.kitakkun.backintime.compiler.backend.transformer.ConstructorTransformer]
+     * Used in [com.github.kitakkun.backintime.compiler.backend.transformer.BackInTimeDebuggableConstructorTransformer]
      */
     val propertyInfoClass = referenceClass(BackInTimeConsts.propertyInfoClassId)!!
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }

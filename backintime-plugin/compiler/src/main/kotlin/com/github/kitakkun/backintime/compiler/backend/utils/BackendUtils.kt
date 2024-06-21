@@ -9,15 +9,18 @@ import org.jetbrains.kotlin.ir.builders.parent
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.name.Name
 
 context(BackInTimePluginContext)
-fun IrBuilderWithScope.generateUUIDVariable(): IrVariable? {
+fun IrBuilderWithScope.generateUUIDVariable(): IrVariable {
     return IrVariableImpl(
         startOffset = this.startOffset,
         endOffset = this.endOffset,
@@ -42,3 +45,5 @@ val IrDeclaration.isBackInTimeGenerated: Boolean
 
 val IrClass.isBackInTimeDebuggable: Boolean
     get() = this.superTypes.any { it.getClass()?.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId }
+
+val IrProperty.isBackInTimeDebuggable get() = getter?.returnType?.classOrNull?.owner?.getAllSuperclasses()?.any { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: false
