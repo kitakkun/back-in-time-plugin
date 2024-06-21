@@ -91,12 +91,14 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                             valueParameter,
                         ) ?: return@mapNotNull null,
                     )
-                }.toList() + irElseBranch(
-                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                        putValueArgument(0, irGet(propertyNameParameter))
-                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                    },
-                ),
+                }.plus(
+                    irElseBranch(
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irGet(propertyNameParameter))
+                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                        },
+                    ),
+                ).toList(),
             )
         }
     }
@@ -121,12 +123,14 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                                 putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
                             },
                         )
-                    }.toList() + irElseBranch(
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irGet(propertyNameParameter))
-                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                        },
-                    ),
+                    }.plus(
+                        irElseBranch(
+                            irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                putValueArgument(0, irGet(propertyNameParameter))
+                                putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                            },
+                        ),
+                    ).toList(),
                 ),
             )
         }
@@ -152,12 +156,14 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                                 putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
                             },
                         )
-                    }.toList() + irElseBranch(
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irGet(propertyNameParameter))
-                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                        },
-                    ),
+                    }.plus(
+                        irElseBranch(
+                            irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                putValueArgument(0, irGet(propertyNameParameter))
+                                putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                            },
+                        ),
+                    ).toList(),
                 ),
             )
         }
