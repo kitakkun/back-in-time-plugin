@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.ir.builders.irExprBody
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irIfThenElse
 import org.jetbrains.kotlin.ir.builders.irIs
-import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -108,25 +107,26 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     private fun generateSerializePropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
-            +irWhen(
-                type = irBuiltIns.stringType,
-                branches = parentClass.properties.mapNotNull { property ->
-                    irBranch(
-                        condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
-                        result = irReturn(
-                            irCall(encodeToStringFunction).apply {
+        val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+        return with(irBuilder) {
+            irExprBody(
+                irWhen(
+                    type = irBuiltIns.stringType,
+                    branches = parentClass.properties.mapNotNull { property ->
+                        irBranch(
+                            condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
+                            result = irCall(encodeToStringFunction).apply {
                                 extensionReceiver = irCall(backInTimeJsonGetter)
                                 putValueArgument(0, irGet(valueParameter))
                                 putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
                             },
-                        ),
-                    )
-                }.toList() + irElseBranch(
-                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                        putValueArgument(0, irGet(propertyNameParameter))
-                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                    },
+                        )
+                    }.toList() + irElseBranch(
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irGet(propertyNameParameter))
+                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                        },
+                    ),
                 ),
             )
         }
@@ -138,25 +138,26 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     private fun generateDeserializePropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
-        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
-            +irWhen(
-                type = irBuiltIns.anyNType,
-                branches = parentClass.properties.mapNotNull { property ->
-                    irBranch(
-                        condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
-                        result = irReturn(
-                            irCall(decodeFromStringFunction).apply {
+        val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+        return with(irBuilder) {
+            irExprBody(
+                irWhen(
+                    type = irBuiltIns.anyNType,
+                    branches = parentClass.properties.mapNotNull { property ->
+                        irBranch(
+                            condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
+                            result = irCall(decodeFromStringFunction).apply {
                                 extensionReceiver = irCall(backInTimeJsonGetter)
                                 putValueArgument(0, irGet(valueParameter))
                                 putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
                             },
-                        ),
-                    )
-                }.toList() + irElseBranch(
-                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                        putValueArgument(0, irGet(propertyNameParameter))
-                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                    },
+                        )
+                    }.toList() + irElseBranch(
+                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                            putValueArgument(0, irGet(propertyNameParameter))
+                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                        },
+                    ),
                 ),
             )
         }
