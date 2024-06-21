@@ -19,7 +19,7 @@ dependencies {
 kotlin.compilerOptions {
     freeCompilerArgs = listOf(
         "-Xcontext-receivers",
-        "-Xopt-in=org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
+        "-opt-in=org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
     )
 }
 
