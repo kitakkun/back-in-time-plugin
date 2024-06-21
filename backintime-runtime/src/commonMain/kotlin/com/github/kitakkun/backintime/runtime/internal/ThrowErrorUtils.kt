@@ -5,7 +5,7 @@ package com.github.kitakkun.backintime.runtime.internal
 import com.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeException
 
 @BackInTimeCompilerInternalApi
-internal inline fun throwTypeMismatchException(
+internal fun throwTypeMismatchException(
     propertyName: String,
     expectedType: String,
 ) {
@@ -16,7 +16,7 @@ internal inline fun throwTypeMismatchException(
 }
 
 @BackInTimeCompilerInternalApi
-internal inline fun throwNoSuchPropertyException(
+internal fun throwNoSuchPropertyException(
     propertyName: String,
     parentClassFqName: String,
 ) {

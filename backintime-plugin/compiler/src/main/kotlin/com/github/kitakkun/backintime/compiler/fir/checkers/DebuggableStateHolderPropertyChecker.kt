@@ -24,7 +24,7 @@ object DebuggableStateHolderPropertyChecker : FirRegularClassChecker(MppCheckerK
 
     override fun check(declaration: FirRegularClass, context: CheckerContext, reporter: DiagnosticReporter) {
         with(context) {
-            if (declaration.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationClassId, session)) {
+            if (declaration.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationClassId, session)) {
                 val memberProperties = declaration.declarations.filterIsInstance<FirProperty>()
                 memberProperties.forEach { property -> checkProperty(property, reporter, context) }
             }

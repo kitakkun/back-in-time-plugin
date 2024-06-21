@@ -58,7 +58,7 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
 
         val propertyClass = declaration.getter?.returnType?.classOrNull?.owner ?: return
         val parentClass = declaration.parentClassOrNull ?: return
-        if (parentClass.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)) {
+        if (parentClass.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName)) {
             val containerInfo = propertyClass.getValueContainerClassInfo()
             mutableCollectedInfoList.addIfNotNull(containerInfo)
         }

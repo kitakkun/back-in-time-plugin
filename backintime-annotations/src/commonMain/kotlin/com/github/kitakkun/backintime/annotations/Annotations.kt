@@ -1,11 +1,12 @@
+@file:Suppress("unused")
+
 package com.github.kitakkun.backintime.annotations
 
 /**
  * compiler plugin will inject code for debugging if the class is marked with this annotation.
  */
-@Suppress("unused")
 @Target(AnnotationTarget.CLASS)
-annotation class DebuggableStateHolder(val applyAllProperties: Boolean = true)
+annotation class BackInTime
 
 /**
  * configure ValueContainer by annotating the class with this annotation.

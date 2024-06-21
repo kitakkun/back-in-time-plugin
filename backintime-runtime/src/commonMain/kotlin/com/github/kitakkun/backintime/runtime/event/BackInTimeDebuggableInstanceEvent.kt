@@ -4,9 +4,9 @@ import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 
 /**
- * events inside debuggableStateHolder
+ * events inside the BackInTimeDebuggable instance
  */
-sealed interface DebuggableStateHolderEvent {
+sealed interface BackInTimeDebuggableInstanceEvent {
     /**
      * Register an instance to the debugService
      * @param instance the reference to the instance
@@ -14,12 +14,12 @@ sealed interface DebuggableStateHolderEvent {
      * @param superClassName the FqName of the super class
      * @param properties the list of property info
      */
-    data class RegisterInstance(
+    data class RegisterTarget(
         val instance: BackInTimeDebuggable,
         val className: String,
         val superClassName: String,
         val properties: List<PropertyInfo>,
-    ) : DebuggableStateHolderEvent
+    ) : BackInTimeDebuggableInstanceEvent
 
     /**
      * Register a relationship between parent and child
@@ -30,7 +30,7 @@ sealed interface DebuggableStateHolderEvent {
     data class RegisterRelationShip(
         val parentInstance: BackInTimeDebuggable,
         val childInstance: BackInTimeDebuggable,
-    ) : DebuggableStateHolderEvent
+    ) : BackInTimeDebuggableInstanceEvent
 
     /**
      * Notify that a method is called
@@ -42,7 +42,7 @@ sealed interface DebuggableStateHolderEvent {
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
         val methodName: String,
-    ) : DebuggableStateHolderEvent
+    ) : BackInTimeDebuggableInstanceEvent
 
     /**
      * Notify that a property value is changed
@@ -56,5 +56,5 @@ sealed interface DebuggableStateHolderEvent {
         val methodCallId: String,
         val propertyName: String,
         val propertyValue: Any?,
-    ) : DebuggableStateHolderEvent
+    ) : BackInTimeDebuggableInstanceEvent
 }

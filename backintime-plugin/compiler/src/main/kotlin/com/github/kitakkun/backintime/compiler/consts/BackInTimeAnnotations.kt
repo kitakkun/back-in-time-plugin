@@ -5,8 +5,8 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
 object BackInTimeAnnotations {
-    val debuggableStateHolderAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.DebuggableStateHolder")
-    val debuggableStateHolderAnnotationClassId = ClassId.topLevel(debuggableStateHolderAnnotationFqName)
+    val backInTimeAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.BackInTime")
+    val backInTimeAnnotationClassId = ClassId.topLevel(backInTimeAnnotationFqName)
 
     val valueContainerAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.ValueContainer")
     val captureAnnotationFqName = FqName("com.github.kitakkun.backintime.annotations.Capture")

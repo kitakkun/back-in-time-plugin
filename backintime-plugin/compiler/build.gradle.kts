@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ksp)
@@ -18,10 +16,11 @@ dependencies {
     ksp(libs.auto.service.ksp)
 }
 
-tasks.withType<KotlinCompilationTask<*>>().all {
-    compilerOptions {
-        freeCompilerArgs = listOf("-Xcontext-receivers")
-    }
+kotlin.compilerOptions {
+    freeCompilerArgs = listOf(
+        "-Xcontext-receivers",
+        "-opt-in=org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
+    )
 }
 
 publishing {
