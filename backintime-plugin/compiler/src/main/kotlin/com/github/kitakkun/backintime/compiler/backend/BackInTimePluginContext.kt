@@ -6,7 +6,6 @@ import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.name.CallableId
@@ -35,8 +34,6 @@ class BackInTimePluginContext(
 
     // capture utils
     val captureThenReturnValueFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("captureThenReturnValue"))).first()
-
-    val backInTimeDebuggableInterfaceType = referenceClass(BackInTimeConsts.backInTimeDebuggableInterfaceClassId)!!.defaultType
 
     /**
      * Used in [com.github.kitakkun.backintime.compiler.backend.transformer.ConstructorTransformer]
