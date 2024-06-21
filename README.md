@@ -92,11 +92,11 @@ backInTime {
 
 ### Annotate your class
 
-Annotate your class with `@DebuggableStateHolder` to make it back-in-time debuggable.
+Annotate your class with `@BackInTime` to make it back-in-time debuggable.
 Make sure property you want to debug is holding serializable value by kotlinx.serialization.
 
 ```kotlin
-@DebuggableStateHolder
+@BackInTime
 class CounterViewModel : ViewModel() {
     private val mutableCount = MutbaleStateFlow(0)
     val count = mutableCount.asStateFlow()
@@ -122,11 +122,12 @@ This plugin comes with two phases: compile-time and runtime.
 
 ### Compile-time
 
-At compile-time, this plugin finds the classes annotated with `@DebuggableStateHolder` and generates the code to track the changes of its state.
+At compile-time, this plugin finds the classes annotated with `@BackInTime` and generates the code
+to track the changes of its state.
 For example, if you have the following class:
 
 ```kotlin
-@DebuggableStateHolder
+@BackInTime
 class CounterViewModel {
     var count = 0
 
@@ -139,7 +140,7 @@ class CounterViewModel {
 The plugin modify the class as follows(not exact the same, just for explanation):
 
 ```kotlin
-@DebuggableStateHolder
+@BackInTime
 class CounterViewModel : BackInTimeDebuggable {
     var count = 0
     // other required properties for debugging...
