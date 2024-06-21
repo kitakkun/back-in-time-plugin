@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.constructors
-import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
@@ -56,9 +55,7 @@ class BackInTimePluginContext(
     } ?: error("${BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")
 
     // uuid
-    private val uuidClass = referenceClass(BackInTimeConsts.UUIDClassId)!!
-    val randomUUIDFunction = uuidClass.getSimpleFunction(BackInTimeConsts.RANDOM_UUID_FUNCTION_NAME)!!
-    val toStringFunction = uuidClass.getSimpleFunction("toString")!!
+    val uuidFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("uuid"))).single()
 
     val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
 }

@@ -1,7 +1,6 @@
 package com.github.kitakkun.backintime.compiler.backend.transformer
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringCall
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.builders.declarations.addBackingField
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -19,7 +18,7 @@ internal fun IrProperty.addBackingFieldOfBackInTimeUUID() {
         this.type = irBuiltIns.stringType
     }.apply {
         initializer = with(irBuilder) {
-            irExprBody(generateUUIDStringCall())
+            irExprBody(irCall(uuidFunctionSymbol))
         }
     }
 }

@@ -11,7 +11,6 @@ import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
-import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
 import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.classId
@@ -30,15 +29,8 @@ fun IrBuilderWithScope.generateUUIDVariable(): IrVariable? {
         isConst = false,
         isLateinit = false,
     ).apply {
-        this.initializer = generateUUIDStringCall()
+        this.initializer = irCall(uuidFunctionSymbol)
         this.parent = this@generateUUIDVariable.parent
-    }
-}
-
-context(BackInTimePluginContext)
-fun IrBuilderWithScope.generateUUIDStringCall(): IrCall {
-    return irCall(toStringFunction).apply {
-        dispatchReceiver = irCall(randomUUIDFunction)
     }
 }
 
