@@ -115,10 +115,11 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                     irBranch(
                         condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
                         result = irReturn(
-                            generateSerializeCall(
-                                type = property.getter?.returnType ?: return@mapNotNull null,
-                                valueParameter = valueParameter,
-                            ) ?: return@mapNotNull null,
+                            irCall(encodeToStringFunction).apply {
+                                extensionReceiver = irCall(backInTimeJsonGetter)
+                                putValueArgument(0, irGet(valueParameter))
+                                putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
+                            },
                         ),
                     )
                 }.toList() + irElseBranch(
@@ -144,10 +145,11 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                     irBranch(
                         condition = irEquals(irGet(propertyNameParameter), irString(property.name.asString())),
                         result = irReturn(
-                            generateDeserializeCall(
-                                type = property.getter?.returnType ?: return@mapNotNull null,
-                                valueParameter = valueParameter,
-                            ) ?: return@mapNotNull null,
+                            irCall(decodeFromStringFunction).apply {
+                                extensionReceiver = irCall(backInTimeJsonGetter)
+                                putValueArgument(0, irGet(valueParameter))
+                                putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType() ?: return@mapNotNull null)
+                            },
                         ),
                     )
                 }.toList() + irElseBranch(
@@ -193,28 +195,6 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
             elsePart = irCall(throwTypeMismatchExceptionFunctionSymbol).apply {
                 putValueArgument(0, irString(property.name.asString()))
                 putValueArgument(1, irString(serializerType.classFqName?.asString() ?: "unknown"))
-            },
-        )
-    }
-
-    context(BackInTimePluginContext)
-    private fun IrBuilderWithScope.generateSerializeCall(valueParameter: IrValueParameter, type: IrType): IrExpression? {
-        return irReturn(
-            irCall(encodeToStringFunction).apply {
-                extensionReceiver = irCall(backInTimeJsonGetter)
-                putValueArgument(0, irGet(valueParameter))
-                putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
-            },
-        )
-    }
-
-    context(BackInTimePluginContext)
-    private fun IrBuilderWithScope.generateDeserializeCall(valueParameter: IrValueParameter, type: IrType): IrExpression? {
-        return irReturn(
-            irCall(decodeFromStringFunction).apply {
-                extensionReceiver = irCall(backInTimeJsonGetter)
-                putValueArgument(0, irGet(valueParameter))
-                putTypeArgument(index = 0, type = type.getSerializerType() ?: return null)
             },
         )
     }
