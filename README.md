@@ -8,20 +8,25 @@ Also, you can easily revert the state to the previous one. We call it "back-in-t
 This plugin currently intended to be used with Android projects.
 But we are planning to support other platforms in the future.
 
-Debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
+Debugging tool is available
+at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
 Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
 > [!IMPORTANT]
-> This project is still a work in in progress, and its API is unstable and may change without any notice.
-> Also, we are planning make back-in-time-debugger implementation independent from Flipper to support other platforms (iOS, Desktop, JS...).
-> Using this plugin for a hobby project is fine, but we do not recommend using it for production projects yet.
+> This project is still a work in in progress, and its API is unstable and may change without any
+> notice.
+> Also, we are planning make back-in-time-debugger implementation independent from Flipper to
+> support other platforms (iOS, Desktop, JS...).
+> Using this plugin for a hobby project is fine, but we do not recommend using it for production
+> projects yet.
 
 ## How to use
 
 ### Manual Publishing Artifacts
 
 This plugin is still under development, and its artifacts does not exist on Maven Central yet.
-You can manually publish them to your local Maven repository by running the following command in the project's root directory:
+You can manually publish them to your local Maven repository by running the following command in the
+project's root directory:
 
 ```shell
 ./gradlew publishToMavenLocal
@@ -113,8 +118,10 @@ Currently, this plugin is completely dependent on Flipper.
 You need to setup Flipper to use this plugin.
 See [Flipper](https://fbflipper.com/) for more information.
 
-You can use pre-built FlipperPlugin implementation class `BackInTimeDebugFlipperPlugin` to add the back-in-time debugging feature to your Flipper.
-Also, debugging tool is available at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
+You can use pre-built FlipperPlugin implementation class `BackInTimeDebugFlipperPlugin` to add the
+back-in-time debugging feature to your Flipper.
+Also, debugging tool is available
+at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
 
 ## How it works
 
