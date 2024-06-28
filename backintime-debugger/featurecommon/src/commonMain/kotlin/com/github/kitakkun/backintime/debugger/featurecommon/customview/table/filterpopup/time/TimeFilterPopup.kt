@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.time
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.time
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

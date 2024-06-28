@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.time
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.time
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
@@ -20,10 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
-import com.github.kitakkun.backintime.log.generated.resources.Res
-import com.github.kitakkun.backintime.log.generated.resources.end_time
-import com.github.kitakkun.backintime.log.generated.resources.start_time
-import com.github.kitakkun.backintime.log.generated.resources.time_filter
+import com.github.kitakkun.backintime.featurecommon.generated.resources.Res
+import com.github.kitakkun.backintime.featurecommon.generated.resources.end_time
+import com.github.kitakkun.backintime.featurecommon.generated.resources.start_time
+import com.github.kitakkun.backintime.featurecommon.generated.resources.time_filter
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

@@ -27,7 +27,7 @@ private data class SessionTabViewModelState(
  *  it inherits from ViewModel just because we want to use `viewModelScope` for `combine` and `stateIn`.
  *
  * Singleton shared ViewModel between two pages:
- * - [com.github.kitakkun.backintime.debugger.feature.instance.InstancePage]
+ * - [com.github.kitakkun.backintime.debugger.feature.instance.view.list.InstanceListPage]
  * - [com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.SessionLogPage]
  */
 @Singleton

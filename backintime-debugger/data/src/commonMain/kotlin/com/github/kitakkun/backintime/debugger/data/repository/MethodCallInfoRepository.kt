@@ -1,12 +1,14 @@
 package com.github.kitakkun.backintime.debugger.data.repository
 
+import com.github.kitakkun.backintime.debugger.database.MethodCallInfo
 import com.github.kitakkun.backintime.debugger.database.MethodCallInfoQueries
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Singleton
 
 interface MethodCallInfoRepository {
-    suspend fun insert(sessionId: String, instanceUUID: String, className: String, methodName: String, callId: String)
+    suspend fun insert(sessionId: String, methodCallId: String, instanceUUID: String, className: String, methodName: String, callId: String, calledAt: Long)
+    suspend fun select(sessionId: String, instanceUUID: String, callId: String): MethodCallInfo?
 }
 
 @Singleton(binds = [MethodCallInfoRepository::class])
@@ -15,22 +17,33 @@ class MethodCallInfoRepositoryImpl(
 ) : MethodCallInfoRepository {
     private val dispatcher = Dispatchers.IO
 
-    private fun generateId(sessionId: String, instanceUUID: String, callId: String) = "$sessionId/$instanceUUID/$callId"
+    override suspend fun select(sessionId: String, instanceUUID: String, callId: String): MethodCallInfo? {
+        return withContext(dispatcher) {
+            queries.select(
+                sessionId = sessionId,
+                instanceId = instanceUUID,
+                id = callId,
+            ).executeAsOneOrNull()
+        }
+    }
 
     override suspend fun insert(
         sessionId: String,
+        methodCallId: String,
         instanceUUID: String,
         className: String,
         methodName: String,
         callId: String,
+        calledAt: Long,
     ) {
         withContext(dispatcher) {
             queries.insert(
-                id = generateId(sessionId, instanceUUID, callId),
+                id = methodCallId,
                 instanceId = instanceUUID,
                 className = className,
                 methodName = methodName,
-                sesionId = sessionId,
+                sessionId = sessionId,
+                calledAt = calledAt,
             )
         }
     }

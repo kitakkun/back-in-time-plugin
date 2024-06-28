@@ -17,11 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.kind.KindFilterPopup
-import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.time.TimeFilterPopup
-import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
 import com.github.kitakkun.backintime.debugger.featurecommon.customview.table.TableBodyCell
 import com.github.kitakkun.backintime.debugger.featurecommon.customview.table.TableHeadCell
+import com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.kind.EventKind
+import com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.kind.KindFilterPopup
+import com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.time.TimeFilterPopup
 import com.github.kitakkun.backintime.debugger.featurecommon.util.formatEpochSecondsToDateTimeText
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
 import com.github.kitakkun.backintime.log.generated.resources.Res

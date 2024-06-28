@@ -1,3 +1,14 @@
 <resources>
     <string name="instance_tab_title">Instance</string>
+    <string name="loading">Loading...</string>
+    <string name="msg_no_active_connections">No active connections available. You can inspect previous session by opening it manually.</string>
+    <string name="open_session">Open session</string>
+    <string name="loading_instances">Loading instances for the session...</string>
+    <string name="history">History</string>
+    <string name="msg_no_instance_registered">No instance registered for this session.</string>
+    <string name="name">Name:</string>
+    <string name="type">Type: </string>
+    <string name="value_type">Value Type: </string>
+    <string name="origin_class">Origin Class: </string>
+    <string name="no_changes">No changes available</string>
 </resources>

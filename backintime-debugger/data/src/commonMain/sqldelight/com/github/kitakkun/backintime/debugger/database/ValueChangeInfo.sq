@@ -13,3 +13,6 @@ INSERT INTO valueChangeInfo(sessionId, instanceId, methodCallId, className, prop
 
 selectBySessionId:
 SELECT * FROM valueChangeInfo WHERE sessionId = ?;
+
+selectByInstanceIdAndPropertyName:
+SELECT * FROM valueChangeInfo WHERE sessionId = ? AND instanceId = ? AND propertyName = ?;

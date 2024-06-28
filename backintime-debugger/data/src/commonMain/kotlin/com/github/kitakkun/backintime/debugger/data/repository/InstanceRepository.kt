@@ -3,6 +3,7 @@ package com.github.kitakkun.backintime.debugger.data.repository
 import app.cash.sqldelight.ColumnAdapter
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOneOrNull
 import com.github.kitakkun.backintime.debugger.database.Instance
 import com.github.kitakkun.backintime.debugger.database.InstanceQueries
 import kotlinx.coroutines.Dispatchers
@@ -11,8 +12,11 @@ import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Singleton
 
 interface InstanceRepository {
+    fun selectInstanceAsFlow(sessionId: String, instanceId: String): Flow<Instance?>
+    fun selectInstancesFlow(sessionId: String): Flow<List<Instance>>
     fun selectActiveInstances(sessionId: String): Flow<List<Instance>>
     fun selectDeadInstances(sessionId: String): Flow<List<Instance>>
+    suspend fun select(sessionId: String, instanceId: String): Instance?
     suspend fun insert(id: String, className: String, registeredAt: Long, sessionId: String)
     suspend fun updateAlive(sessionId: String, id: String, alive: Boolean)
     suspend fun updateClassName(sessionId: String, id: String, className: String)
@@ -26,6 +30,8 @@ class InstanceRepositoryImpl(
 ) : InstanceRepository {
     private val dispatcher = Dispatchers.IO
 
+    override fun selectInstanceAsFlow(sessionId: String, instanceId: String): Flow<Instance?> = queries.select(id = instanceId, sessionId = sessionId).asFlow().mapToOneOrNull(dispatcher)
+    override fun selectInstancesFlow(sessionId: String): Flow<List<Instance>> = queries.selectBySessionId(sessionId).asFlow().mapToList(dispatcher)
     override fun selectActiveInstances(sessionId: String) = queries.selectAliveBySessionId(sessionId).asFlow().mapToList(dispatcher)
     override fun selectDeadInstances(sessionId: String): Flow<List<Instance>> = queries.selectDeadBySessionId(sessionId).asFlow().mapToList(dispatcher)
 
@@ -72,6 +78,12 @@ class InstanceRepositoryImpl(
                 sessionId = sessionId,
                 childInstanceIds = childInstanceIds,
             )
+        }
+    }
+
+    override suspend fun select(sessionId: String, instanceId: String): Instance? {
+        return withContext(dispatcher) {
+            queries.select(id = instanceId, sessionId = sessionId).executeAsOneOrNull()
         }
     }
 }

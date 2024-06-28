@@ -1,4 +1,4 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.filterpopup.kind
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.kind
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,12 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model.EventKind
 import com.github.kitakkun.backintime.debugger.ui.theme.DebuggerTheme
-import com.github.kitakkun.backintime.log.generated.resources.Res
-import com.github.kitakkun.backintime.log.generated.resources.kind_filter
-import com.github.kitakkun.backintime.log.generated.resources.select_all
-import com.github.kitakkun.backintime.log.generated.resources.unselect_all
+import com.github.kitakkun.backintime.featurecommon.generated.resources.Res
+import com.github.kitakkun.backintime.featurecommon.generated.resources.kind_filter
+import com.github.kitakkun.backintime.featurecommon.generated.resources.select_all
+import com.github.kitakkun.backintime.featurecommon.generated.resources.unselect_all
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

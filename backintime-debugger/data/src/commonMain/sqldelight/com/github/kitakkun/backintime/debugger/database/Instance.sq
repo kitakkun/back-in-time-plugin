@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS instance(
     childInstanceIds TEXT AS List<String> NOT NULL
 );
 
+selectBySessionId:
+SELECT * FROM instance WHERE sessionId = ?;
+
 selectAliveBySessionId:
 SELECT * FROM instance WHERE alive = 1 AND sessionId = ?;
 

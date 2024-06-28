@@ -1,14 +1,14 @@
-package com.github.kitakkun.backintime.debugger.feature.log.view.sessionlog.content.model
+package com.github.kitakkun.backintime.debugger.featurecommon.customview.table.filterpopup.kind
 
 import androidx.compose.runtime.Composable
-import com.github.kitakkun.backintime.log.generated.resources.Res
-import com.github.kitakkun.backintime.log.generated.resources.label_check_instance_alive
-import com.github.kitakkun.backintime.log.generated.resources.label_error
-import com.github.kitakkun.backintime.log.generated.resources.label_method_call
-import com.github.kitakkun.backintime.log.generated.resources.label_ping
-import com.github.kitakkun.backintime.log.generated.resources.label_register_instance
-import com.github.kitakkun.backintime.log.generated.resources.label_register_relationship
-import com.github.kitakkun.backintime.log.generated.resources.label_value_change
+import com.github.kitakkun.backintime.featurecommon.generated.resources.Res
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_check_instance_alive
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_error
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_method_call
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_ping
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_register_instance
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_register_relationship
+import com.github.kitakkun.backintime.featurecommon.generated.resources.label_value_change
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource

@@ -12,9 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @DebuggableStateHolder
+open class SuperViewModel() : ViewModel() {
+    val superState = mutableStateOf("super")
+}
+
+@DebuggableStateHolder
 class MVVMTodoListViewModel(
     private val todoDao: TodoDao,
-) : ViewModel() {
+) : SuperViewModel() {
     private val mutableTodos = mutableStateListOf<Todo>()
     val todos: List<Todo> = mutableTodos
 

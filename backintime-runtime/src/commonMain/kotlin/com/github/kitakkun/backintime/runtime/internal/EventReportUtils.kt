@@ -8,7 +8,7 @@ import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 
 @BackInTimeCompilerInternalApi
-internal inline fun reportInstanceRegistration(
+internal fun reportInstanceRegistration(
     instance: BackInTimeDebuggable,
     className: String,
     superClassName: String,

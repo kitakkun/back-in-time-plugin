@@ -31,4 +31,6 @@ object DebuggerTheme {
     val shapes: Shapes = Shapes()
 
     val staticColors = StaticColors
+
+    val dynamicColors = DynamicColors
 }

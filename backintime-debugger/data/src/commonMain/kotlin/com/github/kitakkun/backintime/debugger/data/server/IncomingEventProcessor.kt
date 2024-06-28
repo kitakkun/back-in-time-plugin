@@ -36,12 +36,17 @@ class IncomingEventProcessorImpl(
     }
 
     private suspend fun register(sessionId: String, event: BackInTimeDebugServiceEvent.RegisterInstance): BackInTimeDebuggerEvent? {
-        instanceRepository.insert(
-            id = event.instanceUUID,
-            className = event.className,
-            registeredAt = event.registeredAt,
-            sessionId = sessionId,
-        )
+        val existingInstance = instanceRepository.select(sessionId, event.instanceUUID)
+        if (existingInstance != null) {
+            instanceRepository.updateClassName(sessionId, event.instanceUUID, event.className)
+        } else {
+            instanceRepository.insert(
+                id = event.instanceUUID,
+                className = event.className,
+                registeredAt = event.registeredAt,
+                sessionId = sessionId,
+            )
+        }
         classInfoRepository.insert(
             className = event.className,
             superClassName = event.superClassName,
@@ -58,6 +63,8 @@ class IncomingEventProcessorImpl(
             className = event.className,
             methodName = event.methodName,
             callId = event.methodCallUUID,
+            calledAt = event.calledAt,
+            methodCallId = event.methodCallUUID,
         )
         return null
     }

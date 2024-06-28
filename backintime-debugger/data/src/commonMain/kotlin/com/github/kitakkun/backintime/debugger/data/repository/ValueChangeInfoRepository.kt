@@ -10,6 +10,8 @@ import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Singleton
 
 interface ValueChangeInfoRepository {
+    fun selectForPropertyAsFlow(sessionId: String, instanceId: String, propertyName: String): Flow<List<ValueChangeInfo>>
+
     fun selectForSessionAsFlow(sessionId: String): Flow<List<ValueChangeInfo>>
 
     suspend fun insert(
@@ -27,6 +29,14 @@ class ValueChangeInfoRepositoryImpl(
     private val valueChangeInfoQueries: ValueChangeInfoQueries,
 ) : ValueChangeInfoRepository {
     private val dispatcher = Dispatchers.IO
+
+    override fun selectForPropertyAsFlow(sessionId: String, instanceId: String, propertyName: String): Flow<List<ValueChangeInfo>> {
+        return valueChangeInfoQueries.selectByInstanceIdAndPropertyName(
+            sessionId = sessionId,
+            instanceId = instanceId,
+            propertyName = propertyName,
+        ).asFlow().mapToList(dispatcher)
+    }
 
     override fun selectForSessionAsFlow(sessionId: String): Flow<List<ValueChangeInfo>> {
         return valueChangeInfoQueries.selectBySessionId(sessionId).asFlow().mapToList(dispatcher)

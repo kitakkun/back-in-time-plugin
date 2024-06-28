@@ -1,6 +1,7 @@
 package com.github.kitakkun.backintime.evaluation
 
 import android.app.Application
+import com.facebook.flipper.BuildConfig
 import com.github.kitakkun.backintime.evaluation.di.appModule
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import com.github.kitakkun.backintime.runtime.connector.BackInTimeWebSocketClientConnector

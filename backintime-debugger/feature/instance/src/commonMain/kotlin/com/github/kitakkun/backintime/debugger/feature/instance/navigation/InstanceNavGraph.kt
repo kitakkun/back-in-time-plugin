@@ -2,14 +2,17 @@ package com.github.kitakkun.backintime.debugger.feature.instance.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
-import com.github.kitakkun.backintime.debugger.feature.instance.InstancePage
+import androidx.navigation.navigation
 
 const val INSTANCE_GRAPH_ROUTE = "instance"
 
 fun NavGraphBuilder.instanceNavGraph(navController: NavController) {
-    composable(INSTANCE_GRAPH_ROUTE) {
-        InstancePage()
+    navigation(
+        route = INSTANCE_GRAPH_ROUTE,
+        startDestination = INSTANCE_LIST_ROUTE,
+    ) {
+        instanceList(navController)
+        instanceHistory(navController)
     }
 }
 

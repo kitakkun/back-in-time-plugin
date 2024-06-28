@@ -1,3 +1,5 @@
+import org.jetbrains.compose.ExperimentalComposeLibrary
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.backintimeLint)
@@ -11,6 +13,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":backintime-websocket-event"))
             implementation(project(":backintime-debugger:ui"))
             implementation(project(":backintime-debugger:data"))
             implementation(compose.material3)
@@ -23,6 +26,10 @@ kotlin {
             implementation(libs.koin.composeVM)
             compileOnly(libs.koin.annotations)
             implementation(libs.kotlinx.datetime)
+        }
+        jvmMain.dependencies {
+            @OptIn(ExperimentalComposeLibrary::class)
+            implementation(compose.desktop.components.splitPane)
         }
     }
 }

@@ -3,8 +3,12 @@ CREATE TABLE IF NOT EXISTS methodCallInfo (
     methodName TEXT NOT NULL,
     instanceId TEXT NOT NULL,
     className TEXT NOT NULL,
-    sesionId TEXT NOT NULL
+    sessionId TEXT NOT NULL,
+    calledAt INTEGER NOT NULL
 );
 
 insert:
-INSERT INTO methodCallInfo (id, methodName, instanceId, className, sesionId) VALUES (?, ?, ?, ?, ?);
+INSERT INTO methodCallInfo (id, methodName, instanceId, className, sessionId, calledAt) VALUES (?, ?, ?, ?, ?, ?);
+
+select:
+SELECT * FROM methodCallInfo WHERE sessionId = ? AND instanceId = ? AND id = ?;
