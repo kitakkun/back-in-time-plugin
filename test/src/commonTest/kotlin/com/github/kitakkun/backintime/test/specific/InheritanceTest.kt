@@ -14,6 +14,9 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
     private open class SuperClass {
         var superProperty: String = "super"
         open var overridableProperty: String = "super"
+
+        private var privateSuperProperty = "private-super"
+        fun getPrivateSuperProperty() = privateSuperProperty
     }
 
     @BackInTime
@@ -52,5 +55,45 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         // sub class
         instance.forceSetValue("subProperty", "sub(modified)")
         assertEquals("sub(modified)", instance.subProperty)
+
+        // private property of super class
+        instance.forceSetValue("privateSuperProperty", "private-super(modified)")
+        assertEquals("private-super(modified)", instance.getPrivateSuperProperty())
+    }
+
+    @Test
+    fun testSerializeValue() {
+        val instance = SubClass()
+        assertIs<BackInTimeDebuggable>(instance)
+
+        // super class
+        assertEquals("\"string\"", instance.serializeValue("superProperty", "string"))
+
+        // overriding property
+        assertEquals("\"string\"", instance.serializeValue("overridableProperty", "string"))
+
+        // sub class
+        assertEquals("\"string\"", instance.serializeValue("subProperty", "string"))
+
+        // private property of super class
+        assertEquals("\"string\"", instance.serializeValue("privateSuperProperty", "string"))
+    }
+
+    @Test
+    fun testDeserializeValue() {
+        val instance = SubClass()
+        assertIs<BackInTimeDebuggable>(instance)
+
+        // super class
+        assertEquals("string", instance.deserializeValue("superProperty", "\"string\""))
+
+        // overriding property
+        assertEquals("string", instance.deserializeValue("overridableProperty", "\"string\""))
+
+        // sub class
+        assertEquals("string", instance.deserializeValue("subProperty", "\"string\""))
+
+        // private property of super class
+        assertEquals("string", instance.deserializeValue("privateSuperProperty", "\"string\""))
     }
 }

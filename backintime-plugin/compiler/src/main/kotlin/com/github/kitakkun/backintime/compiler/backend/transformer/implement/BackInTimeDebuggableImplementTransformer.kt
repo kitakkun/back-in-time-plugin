@@ -6,6 +6,7 @@ import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPro
 import com.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.declarations.addBackingField
@@ -36,6 +37,7 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 context(BackInTimePluginContext)
@@ -79,6 +81,9 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
 
+        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
+        val superClassSymbol = parentClass.superClass?.symbol
+
         return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
             +irWhen(
                 type = irBuiltIns.unitType,
@@ -93,9 +98,20 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                     )
                 }.plus(
                     irElseBranch(
-                        irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                            putValueArgument(0, irGet(propertyNameParameter))
-                            putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                        if (superDeclarationSymbol != null && superClassSymbol != null) {
+                            irCall(
+                                callee = superDeclarationSymbol.owner,
+                                superQualifierSymbol = superClassSymbol,
+                            ).apply {
+                                dispatchReceiver = irGet(parentClassReceiver)
+                                putValueArgument(0, irGet(propertyNameParameter))
+                                putValueArgument(1, irGet(valueParameter))
+                            }
+                        } else {
+                            irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                putValueArgument(0, irGet(propertyNameParameter))
+                                putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                            }
                         },
                     ),
                 ).toList(),
@@ -110,6 +126,11 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
         val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+
+        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
+        val superClassSymbol = parentClass.superClass?.symbol
+        val parentClassReceiver = declaration.dispatchReceiverParameter
+
         return with(irBuilder) {
             irExprBody(
                 irWhen(
@@ -125,9 +146,20 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                         )
                     }.plus(
                         irElseBranch(
-                            irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                                putValueArgument(0, irGet(propertyNameParameter))
-                                putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                            if (superDeclarationSymbol != null && superClassSymbol != null && parentClassReceiver != null) {
+                                irCall(
+                                    callee = superDeclarationSymbol.owner,
+                                    superQualifierSymbol = superClassSymbol,
+                                ).apply {
+                                    dispatchReceiver = irGet(parentClassReceiver)
+                                    putValueArgument(0, irGet(propertyNameParameter))
+                                    putValueArgument(1, irGet(valueParameter))
+                                }
+                            } else {
+                                irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                    putValueArgument(0, irGet(propertyNameParameter))
+                                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                                }
                             },
                         ),
                     ).toList(),
@@ -143,6 +175,11 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val parentClass = declaration.parentAsClass
         val (propertyNameParameter, valueParameter) = declaration.valueParameters
         val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+
+        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
+        val superClassSymbol = parentClass.superClass?.symbol
+        val parentClassReceiver = declaration.dispatchReceiverParameter
+
         return with(irBuilder) {
             irExprBody(
                 irWhen(
@@ -158,9 +195,20 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                         )
                     }.plus(
                         irElseBranch(
-                            irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                                putValueArgument(0, irGet(propertyNameParameter))
-                                putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                            if (superDeclarationSymbol != null && superClassSymbol != null && parentClassReceiver != null) {
+                                irCall(
+                                    callee = superDeclarationSymbol.owner,
+                                    superQualifierSymbol = superClassSymbol,
+                                ).apply {
+                                    dispatchReceiver = irGet(parentClassReceiver)
+                                    putValueArgument(0, irGet(propertyNameParameter))
+                                    putValueArgument(1, irGet(valueParameter))
+                                }
+                            } else {
+                                irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                    putValueArgument(0, irGet(propertyNameParameter))
+                                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                                }
                             },
                         ),
                     ).toList(),
