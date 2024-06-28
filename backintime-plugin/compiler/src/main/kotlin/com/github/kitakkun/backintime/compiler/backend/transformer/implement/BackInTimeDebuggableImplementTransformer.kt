@@ -112,7 +112,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                                 putValueArgument(0, irGet(propertyNameParameter))
                                 putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
                             }
-                        }
+                        },
                     ),
                 ).toList(),
             )

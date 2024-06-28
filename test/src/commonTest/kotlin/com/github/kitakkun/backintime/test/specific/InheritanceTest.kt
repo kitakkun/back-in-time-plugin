@@ -79,7 +79,6 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         assertEquals("\"string\"", instance.serializeValue("privateSuperProperty", "string"))
     }
 
-
     @Test
     fun testDeserializeValue() {
         val instance = SubClass()
