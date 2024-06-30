@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.specific
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
@@ -10,13 +10,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class InheritanceTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     private open class SuperClass {
         var superProperty: String = "super"
         open var overridableProperty: String = "super"
+
+        private var privateSuperProperty = "private-super"
+        fun getPrivateSuperProperty() = privateSuperProperty
     }
 
-    @DebuggableStateHolder
+    @BackInTime
     private class SubClass : SuperClass() {
         var subProperty: String = "sub"
         override var overridableProperty: String = "sub"
@@ -52,5 +55,45 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         // sub class
         instance.forceSetValue("subProperty", "sub(modified)")
         assertEquals("sub(modified)", instance.subProperty)
+
+        // private property of super class
+        instance.forceSetValue("privateSuperProperty", "private-super(modified)")
+        assertEquals("private-super(modified)", instance.getPrivateSuperProperty())
+    }
+
+    @Test
+    fun testSerializeValue() {
+        val instance = SubClass()
+        assertIs<BackInTimeDebuggable>(instance)
+
+        // super class
+        assertEquals("\"string\"", instance.serializeValue("superProperty", "string"))
+
+        // overriding property
+        assertEquals("\"string\"", instance.serializeValue("overridableProperty", "string"))
+
+        // sub class
+        assertEquals("\"string\"", instance.serializeValue("subProperty", "string"))
+
+        // private property of super class
+        assertEquals("\"string\"", instance.serializeValue("privateSuperProperty", "string"))
+    }
+
+    @Test
+    fun testDeserializeValue() {
+        val instance = SubClass()
+        assertIs<BackInTimeDebuggable>(instance)
+
+        // super class
+        assertEquals("string", instance.deserializeValue("superProperty", "\"string\""))
+
+        // overriding property
+        assertEquals("string", instance.deserializeValue("overridableProperty", "\"string\""))
+
+        // sub class
+        assertEquals("string", instance.deserializeValue("subProperty", "\"string\""))
+
+        // private property of super class
+        assertEquals("string", instance.deserializeValue("privateSuperProperty", "\"string\""))
     }
 }

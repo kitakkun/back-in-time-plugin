@@ -9,7 +9,7 @@ class DebuggableStateHolderPredicateMatcher(
     session: FirSession,
 ) : AbstractSimpleClassPredicateMatchingService(session) {
     override val predicate = DeclarationPredicate.create {
-        annotated(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName)
+        annotated(BackInTimeAnnotations.backInTimeAnnotationFqName)
     }
 }
 

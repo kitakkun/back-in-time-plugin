@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.specific
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
@@ -30,7 +30,7 @@ class GradleConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
         }
     }
 
-    @DebuggableStateHolder
+    @BackInTime
     private class ValueContainerHolder {
         val container = GradleConfiguredValueContainer(0)
 

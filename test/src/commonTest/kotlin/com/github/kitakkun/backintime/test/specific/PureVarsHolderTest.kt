@@ -1,13 +1,13 @@
 package com.github.kitakkun.backintime.test.specific
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class PureVarsHolderTest {
-    @DebuggableStateHolder
+    @BackInTime
     private class PureVarsHolder {
         var string: String = "string value"
         var int: Int = 0

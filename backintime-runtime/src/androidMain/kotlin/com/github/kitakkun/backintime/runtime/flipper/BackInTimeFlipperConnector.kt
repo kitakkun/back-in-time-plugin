@@ -6,6 +6,7 @@ import com.github.kitakkun.backintime.runtime.backInTimeJson
 import com.github.kitakkun.backintime.runtime.connector.BackInTimeConnector
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
@@ -51,5 +52,7 @@ class BackInTimeFlipperConnector(
             }
             responder.success()
         }
+
+        awaitClose()
     }
 }

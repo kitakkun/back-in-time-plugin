@@ -5,7 +5,7 @@ package com.github.kitakkun.backintime.runtime.internal
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 
 @BackInTimeCompilerInternalApi
-internal inline fun <T : Any> captureThenReturnValue(
+internal fun <T : Any> captureThenReturnValue(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
     propertyName: String,

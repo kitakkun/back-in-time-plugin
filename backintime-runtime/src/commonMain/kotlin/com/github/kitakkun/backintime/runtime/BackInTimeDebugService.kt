@@ -1,7 +1,7 @@
 package com.github.kitakkun.backintime.runtime
 
 import com.github.kitakkun.backintime.runtime.connector.BackInTimeConnector
-import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.CoroutineScope
@@ -117,12 +117,12 @@ object BackInTimeDebugService : CoroutineScope {
      * process event from [BackInTimeDebuggable] instance
      * consume it and generate [BackInTimeDebugServiceEvent]
      */
-    private fun processStateHolderEvent(event: DebuggableStateHolderEvent): BackInTimeDebugServiceEvent? {
+    private fun processStateHolderEvent(event: BackInTimeDebuggableInstanceEvent): BackInTimeDebugServiceEvent? {
         return when (event) {
-            is DebuggableStateHolderEvent.RegisterInstance -> register(event)
-            is DebuggableStateHolderEvent.RegisterRelationShip -> registerRelationship(event)
-            is DebuggableStateHolderEvent.MethodCall -> notifyMethodCall(event)
-            is DebuggableStateHolderEvent.PropertyValueChange -> notifyPropertyChanged(event)
+            is BackInTimeDebuggableInstanceEvent.RegisterTarget -> register(event)
+            is BackInTimeDebuggableInstanceEvent.RegisterRelationShip -> registerRelationship(event)
+            is BackInTimeDebuggableInstanceEvent.MethodCall -> notifyMethodCall(event)
+            is BackInTimeDebuggableInstanceEvent.PropertyValueChange -> notifyPropertyChanged(event)
         }
     }
 
@@ -130,7 +130,7 @@ object BackInTimeDebugService : CoroutineScope {
      * send event to debugger from [BackInTimeDebuggable] instance
      * should be called from compiler-generate code inside [BackInTimeDebuggable] classes
      */
-    fun emitEvent(event: DebuggableStateHolderEvent) {
+    fun emitEvent(event: BackInTimeDebuggableInstanceEvent) {
         val result = processStateHolderEvent(event) ?: return
         sendOrQueue(result)
     }
@@ -139,7 +139,7 @@ object BackInTimeDebugService : CoroutineScope {
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
      */
-    private fun register(event: DebuggableStateHolderEvent.RegisterInstance): BackInTimeDebugServiceEvent {
+    private fun register(event: BackInTimeDebuggableInstanceEvent.RegisterTarget): BackInTimeDebugServiceEvent {
         // When the instance of subclass is registered, it overrides the instance of superclass.
         instances[event.instance.backInTimeInstanceUUID] = weakReferenceOf(event.instance)
         return BackInTimeDebugServiceEvent.RegisterInstance(
@@ -151,14 +151,14 @@ object BackInTimeDebugService : CoroutineScope {
         )
     }
 
-    private fun registerRelationship(event: DebuggableStateHolderEvent.RegisterRelationShip): BackInTimeDebugServiceEvent {
+    private fun registerRelationship(event: BackInTimeDebuggableInstanceEvent.RegisterRelationShip): BackInTimeDebugServiceEvent {
         return BackInTimeDebugServiceEvent.RegisterRelationship(
             parentUUID = event.parentInstance.backInTimeInstanceUUID,
             childUUID = event.childInstance.backInTimeInstanceUUID,
         )
     }
 
-    private fun notifyMethodCall(event: DebuggableStateHolderEvent.MethodCall): BackInTimeDebugServiceEvent? {
+    private fun notifyMethodCall(event: BackInTimeDebuggableInstanceEvent.MethodCall): BackInTimeDebugServiceEvent? {
         return BackInTimeDebugServiceEvent.NotifyMethodCall(
             instanceUUID = event.instance.backInTimeInstanceUUID,
             methodName = event.methodName,
@@ -168,7 +168,7 @@ object BackInTimeDebugService : CoroutineScope {
         )
     }
 
-    private fun notifyPropertyChanged(event: DebuggableStateHolderEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
+    private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
         return try {
             val serializedValue = event.instance.serializeValue(event.propertyName, event.propertyValue)
             BackInTimeDebugServiceEvent.NotifyValueChange(

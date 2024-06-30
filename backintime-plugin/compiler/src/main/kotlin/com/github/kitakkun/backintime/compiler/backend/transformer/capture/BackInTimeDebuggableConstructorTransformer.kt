@@ -1,10 +1,9 @@
-package com.github.kitakkun.backintime.compiler.backend.transformer
+package com.github.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.github.kitakkun.backintime.compiler.backend.utils.generateUUIDStringCall
 import com.github.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.github.kitakkun.backintime.compiler.backend.utils.getGenericTypes
-import com.github.kitakkun.backintime.compiler.backend.utils.hasBackInTimeDebuggableAsInterface
+import com.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -14,14 +13,13 @@ import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irSetField
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -29,53 +27,43 @@ import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.parentClassOrNull
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 /**
- * this transformer will:
- * - initialize a UUID field in the constructor
- * - register the instance to [BackInTimeDebugService] in the constructor
+ * insert register call and property relationship resolve calls
+ * to [IrConstructor] of [IrClass]es that are [isBackInTimeDebuggable]
  */
 context(BackInTimePluginContext)
-class ConstructorTransformer : IrElementTransformerVoid() {
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
+class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
-        val parentClass = declaration.parentClassOrNull ?: return declaration
-        if (!parentClass.hasBackInTimeDebuggableAsInterface) return declaration
+        val parentClass = declaration.parentAsClass
+        if (!parentClass.isBackInTimeDebuggable) return declaration
 
-        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
-            val initUUIDCall = irSetField(
-                receiver = irGet(parentClass.thisReceiver!!),
-                field = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInstanceUUIDName }.backingField!!,
-                value = generateUUIDStringCall(),
-            )
+        val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+        val registerCall = irBuilder.generateRegisterCall(parentClass)
+        val propertyRelationshipResolveCalls = parentClass.properties
+            .filter { it.isBackInTimeDebuggable && !it.isDelegated && !it.isVar }
+            .mapNotNull { property ->
+                val backingField = property.backingField ?: return@mapNotNull null
+                val parentReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
-            val initMap = irSetField(
-                receiver = irGet(parentClass.thisReceiver!!),
-                field = parentClass.properties.first { it.name == BackInTimeConsts.backInTimeInitializedPropertyMapName }.backingField!!,
-                value = irCall(mutableMapOfFunction).apply {
-                    putTypeArgument(0, irBuiltIns.stringType)
-                    putTypeArgument(1, irBuiltIns.booleanType)
-                },
-            )
-
-            val registerCall = generateRegisterCall(parentClass)
-
-            with(declaration.body as IrBlockBody) {
-                statements.add(0, initUUIDCall)
-                statements.add(1, initMap)
-                statements.add(registerCall)
+                with(irBuilder) {
+                    irCall(reportNewRelationshipFunctionSymbol).apply {
+                        putValueArgument(0, irGet(parentReceiver))
+                        putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
+                    }
+                }
             }
-        }
+
+        (declaration.body as IrBlockBody).statements += listOf(registerCall) + propertyRelationshipResolveCalls
 
         return declaration
     }
 
-    /** see [com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent.RegisterInstance] */
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
+    /** see [com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
     private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(reportInstanceRegistrationFunctionSymbol).apply {
         putValueArgument(0, irGet(parentClass.thisReceiver!!))
         putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
@@ -83,7 +71,6 @@ class ConstructorTransformer : IrElementTransformerVoid() {
         putValueArgument(3, generatePropertiesInfo(parentClass.properties))
     }
 
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(listOfFunction).apply {
@@ -99,7 +86,7 @@ class ConstructorTransformer : IrElementTransformerVoid() {
                         val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
                         val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
-                        val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.debuggableStateHolderAnnotationFqName) ?: false
+                        val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                             putValueArgument(0, irString(irProperty.name.asString()))
                             putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))

@@ -5,15 +5,17 @@ import com.github.kitakkun.backintime.compiler.consts.BackInTimePluginKey
 import com.github.kitakkun.backintime.compiler.fir.matcher.debuggableStateHolderPredicateMatcher
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.analysis.checkers.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
+import org.jetbrains.kotlin.fir.resolve.getSuperClassSymbolOrAny
+import org.jetbrains.kotlin.fir.resolve.getSuperTypes
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
+import org.jetbrains.kotlin.fir.types.classId
 import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
@@ -21,9 +23,13 @@ import org.jetbrains.kotlin.name.Name
 class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
     override fun generateProperties(callableId: CallableId, context: MemberGenerationContext?): List<FirPropertySymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        val superTypeClass = ownerClass.resolvedSuperTypes.mapNotNull { it.toRegularClassSymbol(session) }
-            .find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
-        val superDeclaration = superTypeClass.declarationSymbols.filterIsInstance<FirPropertySymbol>()
+
+        val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
+        val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
+
+        val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
+            .declarationSymbols
+            .filterIsInstance<FirPropertySymbol>()
             .find { it.name == callableId.callableName } ?: return emptyList()
 
         return listOf(
@@ -31,7 +37,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
                 owner = ownerClass,
                 key = BackInTimePluginKey,
                 name = callableId.callableName,
-                returnType = superDeclaration.resolvedReturnType,
+                returnType = originalDeclaration.resolvedReturnType,
                 config = {
                     status { isOverride = true }
                     modality = Modality.OPEN
@@ -42,18 +48,23 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
     override fun generateFunctions(callableId: CallableId, context: MemberGenerationContext?): List<FirNamedFunctionSymbol> {
         val ownerClass = context?.owner ?: return emptyList()
-        val superTypeClass = ownerClass.resolvedSuperTypeRefs.mapNotNull { it.toRegularClassSymbol(session) }
-            .find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
-        val superDeclaration = superTypeClass.declarationSymbols.filterIsInstance<FirNamedFunctionSymbol>()
+
+        val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
+        val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
+
+        val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
+            .declarationSymbols
+            .filterIsInstance<FirNamedFunctionSymbol>()
             .find { it.callableId.callableName == callableId.callableName } ?: return emptyList()
+
         return listOf(
             createMemberFunction(
                 owner = ownerClass,
                 key = BackInTimePluginKey,
                 name = callableId.callableName,
-                returnType = superDeclaration.resolvedReturnType,
+                returnType = originalDeclaration.resolvedReturnType,
                 config = {
-                    superDeclaration.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
+                    originalDeclaration.valueParameterSymbols.forEach { valueParameter(it.name, it.resolvedReturnType) }
                     status { isOverride = true }
                     modality = Modality.OPEN
                 },
@@ -62,16 +73,26 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        return if (classSymbol is FirRegularClassSymbol && session.debuggableStateHolderPredicateMatcher.isAnnotated(classSymbol)) {
-            setOf(
+        return when {
+            classSymbol !is FirRegularClassSymbol -> emptySet()
+
+            classSymbol.getSuperClassSymbolOrAny(session).getSuperTypes(session).any { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } -> setOf(
                 BackInTimeConsts.serializeMethodName,
                 BackInTimeConsts.deserializeMethodName,
                 BackInTimeConsts.forceSetValueMethodName,
+            )
+
+            session.debuggableStateHolderPredicateMatcher.isAnnotated(classSymbol) -> setOf(
+                // methods
+                BackInTimeConsts.serializeMethodName,
+                BackInTimeConsts.deserializeMethodName,
+                BackInTimeConsts.forceSetValueMethodName,
+                // properties
                 BackInTimeConsts.backInTimeInstanceUUIDName,
                 BackInTimeConsts.backInTimeInitializedPropertyMapName,
             )
-        } else {
-            emptySet()
+
+            else -> emptySet()
         }
     }
 }

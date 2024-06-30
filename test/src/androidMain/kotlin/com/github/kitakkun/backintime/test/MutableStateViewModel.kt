@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 
-@DebuggableStateHolder
+@BackInTime
 class MutableStateViewModel {
     private val mutableIntState = mutableIntStateOf(0)
     private val mutableDoubleState = mutableDoubleStateOf(0.0)

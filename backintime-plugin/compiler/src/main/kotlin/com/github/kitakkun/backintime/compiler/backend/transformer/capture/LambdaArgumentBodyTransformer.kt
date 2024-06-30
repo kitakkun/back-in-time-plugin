@@ -1,11 +1,10 @@
-package com.github.kitakkun.backintime.compiler.backend.transformer
+package com.github.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irEquals
@@ -16,10 +15,8 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 
 context(BackInTimePluginContext)
 class LambdaArgumentBodyTransformer(
@@ -27,12 +24,6 @@ class LambdaArgumentBodyTransformer(
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
 ) : IrElementTransformerVoidWithContext() {
-    override fun visitElement(element: IrElement): IrElement {
-        element.transformChildrenVoid(this)
-        return element
-    }
-
-    @OptIn(UnsafeDuringIrConstructionAPI::class)
     override fun visitCall(expression: IrCall): IrExpression {
         val receiver = expression.receiver ?: return expression
         val receiverClassId = receiver.type.classOrNull?.owner?.classId

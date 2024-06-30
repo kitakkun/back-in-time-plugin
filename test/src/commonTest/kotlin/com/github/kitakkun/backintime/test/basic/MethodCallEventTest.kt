@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.basic
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
  * Checks if method calls are captured correctly.
  */
 class MethodCallEventTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     private class TestStateHolder {
         fun method1() {}
         fun method2() {}

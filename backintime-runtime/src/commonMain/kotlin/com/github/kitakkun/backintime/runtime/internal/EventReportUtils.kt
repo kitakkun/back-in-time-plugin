@@ -4,7 +4,7 @@ package com.github.kitakkun.backintime.runtime.internal
 
 import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
-import com.github.kitakkun.backintime.runtime.event.DebuggableStateHolderEvent
+import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 
 @BackInTimeCompilerInternalApi
@@ -14,7 +14,7 @@ internal fun reportInstanceRegistration(
     superClassName: String,
     properties: List<PropertyInfo>,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.RegisterInstance(
+    BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
         className = className,
         superClassName = superClassName,
@@ -23,13 +23,13 @@ internal fun reportInstanceRegistration(
 )
 
 @BackInTimeCompilerInternalApi
-internal inline fun reportMethodInvocation(
+internal fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
     methodName: String,
     className: String,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.MethodCall(
+    BackInTimeDebuggableInstanceEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
         methodName = methodName,
@@ -38,14 +38,14 @@ internal inline fun reportMethodInvocation(
 )
 
 @BackInTimeCompilerInternalApi
-internal inline fun reportPropertyValueChange(
+internal fun reportPropertyValueChange(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
     propertyName: String,
     propertyValue: Any?,
     className: String,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.PropertyValueChange(
+    BackInTimeDebuggableInstanceEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
         propertyName = propertyName,
@@ -55,11 +55,11 @@ internal inline fun reportPropertyValueChange(
 )
 
 @BackInTimeCompilerInternalApi
-internal inline fun reportNewRelationship(
+internal fun reportNewRelationship(
     parentInstance: BackInTimeDebuggable,
     childInstance: BackInTimeDebuggable,
 ) = BackInTimeDebugService.emitEvent(
-    DebuggableStateHolderEvent.RegisterRelationShip(
+    BackInTimeDebuggableInstanceEvent.RegisterRelationShip(
         parentInstance = parentInstance,
         childInstance = childInstance,
     ),

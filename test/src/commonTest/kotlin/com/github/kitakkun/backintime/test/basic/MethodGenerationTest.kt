@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.basic
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class MethodGenerationTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     private class TestStateHolder {
         var property: Int = 0
     }

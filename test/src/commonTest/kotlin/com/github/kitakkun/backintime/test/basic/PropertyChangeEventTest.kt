@@ -1,6 +1,6 @@
 package com.github.kitakkun.backintime.test.basic
 
-import com.github.kitakkun.backintime.annotations.DebuggableStateHolder
+import com.github.kitakkun.backintime.annotations.BackInTime
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
-    @DebuggableStateHolder
+    @BackInTime
     class TestStateHolder {
         var property: Int = 0
         fun updateProperty(newValue: Int) {
