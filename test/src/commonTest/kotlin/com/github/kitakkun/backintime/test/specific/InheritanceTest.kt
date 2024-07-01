@@ -8,6 +8,8 @@ import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlin.test.expect
 
 class InheritanceTest : BackInTimeDebugServiceTest() {
     @BackInTime
@@ -16,13 +18,17 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         open var overridableProperty: String = "super"
 
         private var privateSuperProperty = "private-super"
+        private var conflictedPrivateProperty = "conflict"
         fun getPrivateSuperProperty() = privateSuperProperty
+        fun getSuperPrivateConflictedProperty() = conflictedPrivateProperty
     }
 
     @BackInTime
     private class SubClass : SuperClass() {
         var subProperty: String = "sub"
         override var overridableProperty: String = "sub"
+        private var conflictedPrivateProperty = "conflict"
+        fun getSubPrivateConflictedProperty() = conflictedPrivateProperty
     }
 
     @Test
@@ -95,5 +101,23 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
 
         // private property of super class
         assertEquals("string", instance.deserializeValue("privateSuperProperty", "\"string\""))
+    }
+
+    @Test
+    fun conflictedPrivatePropertyTest() {
+        val instance = SubClass()
+        assertIs<BackInTimeDebuggable>(instance)
+
+        // FIXME: This test should pass, but it's not an intended behavior.
+        //  If the names have conflicts, superClass one is no longer debuggable.
+        instance.forceSetValue("conflictedPrivateProperty", "conflict(update)")
+        assertEquals(
+            expected = "conflict(update)",
+            actual = instance.getSubPrivateConflictedProperty(),
+        )
+        assertEquals(
+            expected = "conflict",
+            actual = instance.getSuperPrivateConflictedProperty(),
+        )
     }
 }
