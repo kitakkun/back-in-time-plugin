@@ -13,7 +13,7 @@ internal fun reportInstanceRegistration(
     className: String,
     superClassName: String,
     properties: List<PropertyInfo>,
-) = BackInTimeDebugServiceImpl.emitEvent(
+) = BackInTimeDebugServiceImpl.processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
         className = className,
@@ -27,7 +27,7 @@ internal fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
     methodName: String,
-) = BackInTimeDebugServiceImpl.emitEvent(
+) = BackInTimeDebugServiceImpl.processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
@@ -41,7 +41,7 @@ internal fun reportPropertyValueChange(
     methodInvocationId: String,
     propertyFqName: String,
     propertyValue: Any?,
-) = BackInTimeDebugServiceImpl.emitEvent(
+) = BackInTimeDebugServiceImpl.processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
@@ -54,7 +54,7 @@ internal fun reportPropertyValueChange(
 internal fun reportNewRelationship(
     parentInstance: BackInTimeDebuggable,
     childInstance: BackInTimeDebuggable,
-) = BackInTimeDebugServiceImpl.emitEvent(
+) = BackInTimeDebugServiceImpl.processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterRelationShip(
         parentInstance = parentInstance,
         childInstance = childInstance,

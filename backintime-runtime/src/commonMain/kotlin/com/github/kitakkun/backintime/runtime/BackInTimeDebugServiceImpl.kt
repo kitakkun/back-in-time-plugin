@@ -118,14 +118,6 @@ object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
     }
 
     /**
-     * send event to debugger from [BackInTimeDebuggable] instance
-     * should be called from compiler-generate code inside [BackInTimeDebuggable] classes
-     */
-    fun emitEvent(event: BackInTimeDebuggableInstanceEvent) {
-        processInstanceEvent(event)
-    }
-
-    /**
      * register instance for debugging
      * if the instance is garbage collected, it will be automatically removed from the list.
      */
