@@ -20,9 +20,8 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("unused")
 object BackInTimeDebugService : CoroutineScope {
+    private val instanceManager = BackInTimeInstanceManagerImpl()
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
-
-    private val instances = mutableMapOf<String, WeakReference<BackInTimeDebuggable>>()
     private val serviceEventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
 
     private var connector: BackInTimeConnector? = null
@@ -69,12 +68,7 @@ object BackInTimeDebugService : CoroutineScope {
     private fun startInstanceCleanUpJob() {
         launch {
             while (true) {
-                instances.keys.forEach { key ->
-                    val instance = instances[key] ?: return@forEach
-                    if (instance.get() == null) {
-                        instances.remove(key)
-                    }
-                }
+                instanceManager.cleanGarbageCollectedReferences()
                 delay(1000 * 15)
             }
         }
@@ -95,7 +89,7 @@ object BackInTimeDebugService : CoroutineScope {
     private fun processDebuggerRequest(event: BackInTimeDebuggerEvent): BackInTimeDebugServiceEvent? {
         return when (event) {
             is BackInTimeDebuggerEvent.CheckInstanceAlive -> {
-                val result = event.instanceUUIDs.map { uuid -> instances[uuid]?.get() != null }
+                val result = event.instanceUUIDs.map { uuid -> instanceManager.getInstanceById(uuid) != null }
                 BackInTimeDebugServiceEvent.CheckInstanceAliveResult(event.instanceUUIDs, result)
             }
 
@@ -139,7 +133,7 @@ object BackInTimeDebugService : CoroutineScope {
      */
     private fun register(event: BackInTimeDebuggableInstanceEvent.RegisterTarget): BackInTimeDebugServiceEvent {
         // When the instance of subclass is registered, it overrides the instance of superclass.
-        instances[event.instance.backInTimeInstanceUUID] = weakReferenceOf(event.instance)
+        instanceManager.register(event.instance)
         return BackInTimeDebugServiceEvent.RegisterInstance(
             instanceUUID = event.instance.backInTimeInstanceUUID,
             className = event.className,
@@ -181,7 +175,7 @@ object BackInTimeDebugService : CoroutineScope {
     }
 
     private fun forceSetValue(instanceId: String, name: String, value: String) {
-        val targetInstance = instances.filterKeys { it == instanceId }.values.firstOrNull()?.get() ?: return
+        val targetInstance = instanceManager.getInstanceById(instanceId) ?: return
         try {
             val deserializedValue = targetInstance.deserializeValue(name, value)
             targetInstance.forceSetValue(name, deserializedValue)
