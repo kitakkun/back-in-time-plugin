@@ -12,6 +12,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class TypeMismatchExceptionTest {
+    companion object {
+        private const val PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.exception.TypeMismatchExceptionTest.TestStateHolder.property"
+        private const val VALUE_CONTAINER_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.exception.TypeMismatchExceptionTest.TestStateHolder.valueContainerProperty"
+    }
+
     @ValueContainer
     private class AnnotationConfiguredValueContainer<T>(
         @Getter @Setter @Capture var value: T,
@@ -28,7 +33,7 @@ class TypeMismatchExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.TypeMismatchException::class) {
-            holder.forceSetValue("property", 1)
+            holder.forceSetValue(PROPERTY_FQ_NAME, 1)
         }
     }
 
@@ -37,7 +42,7 @@ class TypeMismatchExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.TypeMismatchException::class) {
-            holder.forceSetValue("valueContainerProperty", "test")
+            holder.forceSetValue(VALUE_CONTAINER_PROPERTY_FQ_NAME, "test")
         }
     }
 }

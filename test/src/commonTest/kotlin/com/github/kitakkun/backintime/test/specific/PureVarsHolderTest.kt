@@ -7,6 +7,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class PureVarsHolderTest {
+    companion object {
+        private const val HOLDER_CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.specific.PureVarsHolderTest.PureVarsHolder"
+        private fun String.toFQN() = "$HOLDER_CLASS_FQ_NAME.$this"
+    }
+
     @BackInTime
     private class PureVarsHolder {
         var string: String = "string value"
@@ -40,15 +45,15 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        assertEquals("\"hogehoge\"", holder.serializeValue("string", "hogehoge"))
-        assertEquals("1000", holder.serializeValue("int", 1000))
-        assertEquals("10000000000", holder.serializeValue("long", 10000000000L))
-        assertEquals("0.1", holder.serializeValue("float", 0.1f))
-        assertEquals("0.001", holder.serializeValue("double", 0.001))
-        assertEquals("true", holder.serializeValue("boolean", true))
-        assertEquals("\"b\"", holder.serializeValue("char", 'b'))
-        assertEquals("100", holder.serializeValue("short", 100.toShort()))
-        assertEquals("100", holder.serializeValue("byte", 100.toByte()))
+        assertEquals("\"hogehoge\"", holder.serializeValue("string".toFQN(), "hogehoge"))
+        assertEquals("1000", holder.serializeValue("int".toFQN(), 1000))
+        assertEquals("10000000000", holder.serializeValue("long".toFQN(), 10000000000L))
+        assertEquals("0.1", holder.serializeValue("float".toFQN(), 0.1f))
+        assertEquals("0.001", holder.serializeValue("double".toFQN(), 0.001))
+        assertEquals("true", holder.serializeValue("boolean".toFQN(), true))
+        assertEquals("\"b\"", holder.serializeValue("char".toFQN(), 'b'))
+        assertEquals("100", holder.serializeValue("short".toFQN(), 100.toShort()))
+        assertEquals("100", holder.serializeValue("byte".toFQN(), 100.toByte()))
     }
 
     @Test
@@ -56,12 +61,12 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        assertEquals("[\"string value\"]", holder.serializeValue("stringList", listOf("string value")))
-        assertEquals("[0]", holder.serializeValue("intList", listOf(0)))
-        assertEquals("[0]", holder.serializeValue("longList", listOf(0L)))
-        assertEquals("[0.0]", holder.serializeValue("floatList", listOf(0f)))
-        assertEquals("[0.0]", holder.serializeValue("doubleList", listOf(0.0)))
-        assertEquals("[false]", holder.serializeValue("booleanList", listOf(false)))
+        assertEquals("[\"string value\"]", holder.serializeValue("stringList".toFQN(), listOf("string value")))
+        assertEquals("[0]", holder.serializeValue("intList".toFQN(), listOf(0)))
+        assertEquals("[0]", holder.serializeValue("longList".toFQN(), listOf(0L)))
+        assertEquals("[0.0]", holder.serializeValue("floatList".toFQN(), listOf(0f)))
+        assertEquals("[0.0]", holder.serializeValue("doubleList".toFQN(), listOf(0.0)))
+        assertEquals("[false]", holder.serializeValue("booleanList".toFQN(), listOf(false)))
     }
 
     @Test
@@ -69,15 +74,15 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        assertEquals("null", holder.serializeValue("nullableString", null))
-        assertEquals("null", holder.serializeValue("nullableInt", null))
-        assertEquals("null", holder.serializeValue("nullableLong", null))
-        assertEquals("null", holder.serializeValue("nullableFloat", null))
-        assertEquals("null", holder.serializeValue("nullableDouble", null))
-        assertEquals("null", holder.serializeValue("nullableBoolean", null))
-        assertEquals("null", holder.serializeValue("nullableChar", null))
-        assertEquals("null", holder.serializeValue("nullableShort", null))
-        assertEquals("null", holder.serializeValue("nullableByte", null))
+        assertEquals("null", holder.serializeValue("nullableString".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableInt".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableLong".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableFloat".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableDouble".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableBoolean".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableChar".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableShort".toFQN(), null))
+        assertEquals("null", holder.serializeValue("nullableByte".toFQN(), null))
     }
 
     @Test
@@ -85,42 +90,42 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        assertEquals("hogehoge", holder.deserializeValue("string", "\"hogehoge\""))
-        assertEquals(0, holder.deserializeValue("int", "0"))
-        assertEquals(0L, holder.deserializeValue("long", "0"))
-        assertEquals(0f, holder.deserializeValue("float", "0.0"))
-        assertEquals(0.0, holder.deserializeValue("double", "0.0"))
-        assertEquals(false, holder.deserializeValue("boolean", "false"))
-        assertEquals('a', holder.deserializeValue("char", "\"a\""))
-        assertEquals(0.toShort(), holder.deserializeValue("short", "0"))
-        assertEquals(0.toByte(), holder.deserializeValue("byte", "0"))
+        assertEquals("hogehoge", holder.deserializeValue("string".toFQN(), "\"hogehoge\""))
+        assertEquals(0, holder.deserializeValue("int".toFQN(), "0"))
+        assertEquals(0L, holder.deserializeValue("long".toFQN(), "0"))
+        assertEquals(0f, holder.deserializeValue("float".toFQN(), "0.0"))
+        assertEquals(0.0, holder.deserializeValue("double".toFQN(), "0.0"))
+        assertEquals(false, holder.deserializeValue("boolean".toFQN(), "false"))
+        assertEquals('a', holder.deserializeValue("char".toFQN(), "\"a\""))
+        assertEquals(0.toShort(), holder.deserializeValue("short".toFQN(), "0"))
+        assertEquals(0.toByte(), holder.deserializeValue("byte".toFQN(), "0"))
     }
 
     @Test
     fun deserializeNonNullCollectionFields() {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
-        assertEquals(listOf("string value"), holder.deserializeValue("stringList", "[\"string value\"]"))
-        assertEquals(listOf(0), holder.deserializeValue("intList", "[0]"))
-        assertEquals(listOf(0L), holder.deserializeValue("longList", "[0]"))
-        assertEquals(listOf(0f), holder.deserializeValue("floatList", "[0.0]"))
-        assertEquals(listOf(0.0), holder.deserializeValue("doubleList", "[0.0]"))
-        assertEquals(listOf(false), holder.deserializeValue("booleanList", "[false]"))
+        assertEquals(listOf("string value"), holder.deserializeValue("stringList".toFQN(), "[\"string value\"]"))
+        assertEquals(listOf(0), holder.deserializeValue("intList".toFQN(), "[0]"))
+        assertEquals(listOf(0L), holder.deserializeValue("longList".toFQN(), "[0]"))
+        assertEquals(listOf(0f), holder.deserializeValue("floatList".toFQN(), "[0.0]"))
+        assertEquals(listOf(0.0), holder.deserializeValue("doubleList".toFQN(), "[0.0]"))
+        assertEquals(listOf(false), holder.deserializeValue("booleanList".toFQN(), "[false]"))
     }
 
     @Test
     fun deserializeNullableFields() {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
-        assertEquals(null, holder.deserializeValue("nullableString", "null"))
-        assertEquals(null, holder.deserializeValue("nullableInt", "null"))
-        assertEquals(null, holder.deserializeValue("nullableLong", "null"))
-        assertEquals(null, holder.deserializeValue("nullableFloat", "null"))
-        assertEquals(null, holder.deserializeValue("nullableDouble", "null"))
-        assertEquals(null, holder.deserializeValue("nullableBoolean", "null"))
-        assertEquals(null, holder.deserializeValue("nullableChar", "null"))
-        assertEquals(null, holder.deserializeValue("nullableShort", "null"))
-        assertEquals(null, holder.deserializeValue("nullableByte", "null"))
+        assertEquals(null, holder.deserializeValue("nullableString".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableInt".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableLong".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableFloat".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableDouble".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableBoolean".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableChar".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableShort".toFQN(), "null"))
+        assertEquals(null, holder.deserializeValue("nullableByte".toFQN(), "null"))
     }
 
     @Test
@@ -128,41 +133,41 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue("string", "hogehoge")
+        holder.forceSetValue("string".toFQN(), "hogehoge")
         assertEquals("hogehoge", holder.string)
-        holder.forceSetValue("int", 0)
+        holder.forceSetValue("int".toFQN(), 0)
         assertEquals(0, holder.int)
-        holder.forceSetValue("long", 0L)
+        holder.forceSetValue("long".toFQN(), 0L)
         assertEquals(0L, holder.long)
-        holder.forceSetValue("float", 0f)
+        holder.forceSetValue("float".toFQN(), 0f)
         assertEquals(0f, holder.float)
-        holder.forceSetValue("double", 0.0)
+        holder.forceSetValue("double".toFQN(), 0.0)
         assertEquals(0.0, holder.double)
-        holder.forceSetValue("boolean", false)
+        holder.forceSetValue("boolean".toFQN(), false)
         assertEquals(false, holder.boolean)
-        holder.forceSetValue("char", 'a')
+        holder.forceSetValue("char".toFQN(), 'a')
         assertEquals('a', holder.char)
-        holder.forceSetValue("short", 0.toShort())
+        holder.forceSetValue("short".toFQN(), 0.toShort())
         assertEquals(0.toShort(), holder.short)
-        holder.forceSetValue("byte", 0.toByte())
+        holder.forceSetValue("byte".toFQN(), 0.toByte())
         assertEquals(0.toByte(), holder.byte)
-        holder.forceSetValue("nullableString", null)
+        holder.forceSetValue("nullableString".toFQN(), null)
         assertEquals(null, holder.nullableString)
-        holder.forceSetValue("nullableInt", null)
+        holder.forceSetValue("nullableInt".toFQN(), null)
         assertEquals(null, holder.nullableInt)
-        holder.forceSetValue("nullableLong", null)
+        holder.forceSetValue("nullableLong".toFQN(), null)
         assertEquals(null, holder.nullableLong)
-        holder.forceSetValue("nullableFloat", null)
+        holder.forceSetValue("nullableFloat".toFQN(), null)
         assertEquals(null, holder.nullableFloat)
-        holder.forceSetValue("nullableDouble", null)
+        holder.forceSetValue("nullableDouble".toFQN(), null)
         assertEquals(null, holder.nullableDouble)
-        holder.forceSetValue("nullableBoolean", null)
+        holder.forceSetValue("nullableBoolean".toFQN(), null)
         assertEquals(null, holder.nullableBoolean)
-        holder.forceSetValue("nullableChar", null)
+        holder.forceSetValue("nullableChar".toFQN(), null)
         assertEquals(null, holder.nullableChar)
-        holder.forceSetValue("nullableShort", null)
+        holder.forceSetValue("nullableShort".toFQN(), null)
         assertEquals(null, holder.nullableShort)
-        holder.forceSetValue("nullableByte", null)
+        holder.forceSetValue("nullableByte".toFQN(), null)
         assertEquals(null, holder.nullableByte)
     }
 }

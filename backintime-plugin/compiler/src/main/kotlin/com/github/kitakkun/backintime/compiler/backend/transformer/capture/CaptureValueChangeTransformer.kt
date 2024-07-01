@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -70,7 +71,7 @@ class CaptureValueChangeTransformer(
                 irCall(captureThenReturnValueFunctionSymbol).apply {
                     putValueArgument(0, irGet(classDispatchReceiverParameter))
                     putValueArgument(1, irGet(uuidVariable))
-                    putValueArgument(2, irString(property.name.asString()))
+                    putValueArgument(2, irString(property.fqNameWhenAvailable?.asString() ?: return null))
                     putValueArgument(3, value)
                 }
             },

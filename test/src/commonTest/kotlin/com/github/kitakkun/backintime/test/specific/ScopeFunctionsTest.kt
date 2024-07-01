@@ -13,6 +13,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
+    companion object {
+        private const val CONTAINER_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.ScopeFunctionsTest.ValueContainerHolder.container"
+    }
+
     @ValueContainer
     private class AnnotationConfiguredValueContainer<T>(
         @Getter @Setter @Capture var value: T,
@@ -124,7 +128,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
         assertEquals(10, container.value)
         assertEquals(1, notifyValueChangeEvents.size)
         assertEquals(this.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
-        assertEquals("container", notifyValueChangeEvents[0].propertyName)
+        assertEquals(CONTAINER_PROPERTY_FQ_NAME, notifyValueChangeEvents[0].propertyFqName)
         assertEquals(10, notifyValueChangeEvents[0].value.toInt())
     }
 }

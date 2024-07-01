@@ -39,13 +39,13 @@ internal fun reportMethodInvocation(
 internal fun reportPropertyValueChange(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
-    propertyName: String,
+    propertyFqName: String,
     propertyValue: Any?,
 ) = BackInTimeDebugService.emitEvent(
     BackInTimeDebuggableInstanceEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
-        propertyName = propertyName,
+        propertyFqName = propertyFqName,
         propertyValue = propertyValue,
     ),
 )
