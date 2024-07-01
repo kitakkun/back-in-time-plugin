@@ -100,7 +100,7 @@ object BackInTimeDebugService : CoroutineScope {
             }
 
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
-                forceSetValue(event.instanceUUID, event.propertyName, event.value)
+                forceSetValue(event.instanceUUID, event.propertyFqName, event.value)
                 null
             }
 
@@ -167,10 +167,10 @@ object BackInTimeDebugService : CoroutineScope {
 
     private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
         return try {
-            val serializedValue = event.instance.serializeValue(event.propertyName, event.propertyValue)
+            val serializedValue = event.instance.serializeValue(event.propertyFqName, event.propertyValue)
             BackInTimeDebugServiceEvent.NotifyValueChange(
                 instanceUUID = event.instance.backInTimeInstanceUUID,
-                propertyName = event.propertyName,
+                propertyFqName = event.propertyFqName,
                 value = serializedValue,
                 methodCallUUID = event.methodCallId,
             )

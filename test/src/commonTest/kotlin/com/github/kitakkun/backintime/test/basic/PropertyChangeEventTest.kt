@@ -10,6 +10,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
+    companion object {
+        private const val PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.basic.PropertyChangeEventTest.TestStateHolder.property"
+    }
+
     @BackInTime
     class TestStateHolder {
         var property: Int = 0
@@ -27,7 +31,7 @@ class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
         delay(100)
         assertEquals(expected = 1, actual = notifyValueChangeEvents.size)
         assertEquals(holder.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
-        assertEquals(expected = "property", actual = notifyValueChangeEvents[0].propertyName)
+        assertEquals(expected = PROPERTY_FQ_NAME, actual = notifyValueChangeEvents[0].propertyFqName)
         assertEquals(expected = 1, actual = notifyValueChangeEvents[0].value.toInt())
 
         // external access can't be captured

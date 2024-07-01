@@ -14,6 +14,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
+    companion object {
+        private const val CONTAINER_FQ_NAME = "com.github.kitakkun.backintime.test.specific.AnnotationConfiguredValueContainerTest.ValueContainerHolder.container"
+    }
+
     @ValueContainer
     private class AnnotationConfiguredValueContainer<T>(
         @Getter @Setter @Capture var value: T,
@@ -44,7 +48,7 @@ class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
         assertEquals(10, holder.container.value)
         assertEquals(1, notifyValueChangeEvents.size)
         assertEquals(holder.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
-        assertEquals("container", notifyValueChangeEvents[0].propertyName)
+        assertEquals(CONTAINER_FQ_NAME, notifyValueChangeEvents[0].propertyFqName)
         assertEquals(10, notifyValueChangeEvents[0].value.toInt())
     }
 
@@ -53,8 +57,8 @@ class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
         val holder = ValueContainerHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        assertEquals("10", holder.serializeValue("container", 10))
-        assertEquals(10, holder.deserializeValue("container", "10"))
+        assertEquals("10", holder.serializeValue(CONTAINER_FQ_NAME, 10))
+        assertEquals(10, holder.deserializeValue(CONTAINER_FQ_NAME, "10"))
     }
 
     @Test
@@ -62,7 +66,7 @@ class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
         val holder = ValueContainerHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue("container", 10)
+        holder.forceSetValue(CONTAINER_FQ_NAME, 10)
         assertEquals(10, holder.container.value)
     }
 }

@@ -23,7 +23,7 @@ sealed interface BackInTimeDebugServiceEvent {
     @Serializable
     data class NotifyValueChange(
         val instanceUUID: String,
-        val propertyName: String,
+        val propertyFqName: String,
         val value: String,
         val methodCallUUID: String,
     ) : BackInTimeDebugServiceEvent
