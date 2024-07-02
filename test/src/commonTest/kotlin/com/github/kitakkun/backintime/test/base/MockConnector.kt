@@ -22,7 +22,7 @@ class MockConnector : BackInTimeWebSocketConnector {
         // no-op
     }
 
-    override suspend fun sendOrQueueEvent(event: BackInTimeDebugServiceEvent) {
+    override suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent) {
         mutableEventsFromService.add(event)
     }
 }

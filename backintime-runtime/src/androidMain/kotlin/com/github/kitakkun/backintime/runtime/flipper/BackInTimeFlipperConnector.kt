@@ -36,7 +36,7 @@ class BackInTimeFlipperConnector(
         awaitClose()
     }
 
-    override suspend fun sendOrQueueEvent(event: BackInTimeDebugServiceEvent) {
+    override suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent) {
         val eventKey = when (event) {
             is BackInTimeDebugServiceEvent.RegisterInstance -> "register"
             is BackInTimeDebugServiceEvent.RegisterRelationship -> "registerRelationship"

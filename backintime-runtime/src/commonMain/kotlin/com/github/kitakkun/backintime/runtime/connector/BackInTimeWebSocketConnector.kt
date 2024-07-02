@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface BackInTimeWebSocketConnector {
     suspend fun connect(): Flow<BackInTimeDebuggerEvent>
     suspend fun awaitCloseSession()
-    suspend fun sendOrQueueEvent(event: BackInTimeDebugServiceEvent)
+    suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent)
     suspend fun close()
 }

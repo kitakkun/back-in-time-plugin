@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -24,7 +23,6 @@ class BackInTimeKtorWebSocketConnector(
     port: Int,
 ) : BackInTimeWebSocketConnector {
     private var currentSession: DefaultClientWebSocketSession? = null
-    private val eventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
 
     private val client: BackInTimeWebSocketClient = BackInTimeWebSocketClient(
         host = host,
@@ -35,21 +33,14 @@ class BackInTimeKtorWebSocketConnector(
         val session = client.openSession()
         currentSession = session
 
-        if (eventDispatchQueue.isNotEmpty()) {
-            session.launch {
-                eventDispatchQueue.forEach { session.send(Json.encodeToString(it)) }
-            }
-        }
-
         return session.incoming
             .receiveAsFlow()
             .filterIsInstance<Frame.Text>()
             .map { Json.decodeFromString(it.readText()) }
     }
 
-    override suspend fun sendOrQueueEvent(event: BackInTimeDebugServiceEvent) {
+    override suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent) {
         currentSession?.send(Json.encodeToString<BackInTimeDebugServiceEvent>(event))
-            ?: eventDispatchQueue.add(event)
     }
 
     override suspend fun awaitCloseSession() {

@@ -23,6 +23,7 @@ class BackInTimeDebugServiceImpl(
     private val instanceManager: BackInTimeInstanceManager = BackInTimeInstanceManagerImpl()
     private val coroutineScope: CoroutineScope = CoroutineScope(dispatcher + SupervisorJob())
     private var connector: BackInTimeWebSocketConnector? = null
+    private var sendEventQueue = mutableListOf<BackInTimeDebugServiceEvent>()
 
     override fun setConnector(connector: BackInTimeWebSocketConnector) {
         this.connector = connector
@@ -34,6 +35,10 @@ class BackInTimeDebugServiceImpl(
         coroutineScope.launch {
             try {
                 val receiveEventsFlow = connector.connect()
+
+                sendEventQueue.forEach {
+                    connector.sendEventToDebugger(it)
+                }
 
                 launch {
                     receiveEventsFlow.collect(::processDebuggerEvent)
@@ -73,9 +78,15 @@ class BackInTimeDebugServiceImpl(
             is BackInTimeDebuggableInstanceEvent.MethodCall -> notifyMethodCall(event)
             is BackInTimeDebuggableInstanceEvent.PropertyValueChange -> notifyPropertyChanged(event)
         }
-        coroutineScope.launch {
-            connector?.sendOrQueueEvent(resultEventForDebugger)
-        }
+        sendOrQueueEvent(resultEventForDebugger)
+    }
+
+    private fun sendOrQueueEvent(event: BackInTimeDebugServiceEvent) {
+        connector?.let {
+            coroutineScope.launch {
+                it.sendEventToDebugger(event)
+            }
+        } ?: sendEventQueue.add(event)
     }
 
     /**
@@ -100,9 +111,7 @@ class BackInTimeDebugServiceImpl(
             }
         }
         if (resultEventForDebugger != null) {
-            coroutineScope.launch {
-                connector?.sendOrQueueEvent(resultEventForDebugger)
-            }
+            sendOrQueueEvent(resultEventForDebugger)
         }
     }
 
@@ -153,9 +162,7 @@ class BackInTimeDebugServiceImpl(
             val deserializedValue = targetInstance.deserializeValue(name, value)
             targetInstance.forceSetValue(name, deserializedValue)
         } catch (e: SerializationException) {
-            coroutineScope.launch {
-                connector?.sendOrQueueEvent(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
-            }
+            sendOrQueueEvent(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
         }
     }
 }
