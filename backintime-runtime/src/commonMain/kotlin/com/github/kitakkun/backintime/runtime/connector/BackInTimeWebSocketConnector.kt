@@ -4,11 +4,9 @@ import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEven
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.flow.Flow
 
-interface BackInTimeConnector {
-    val connected: Boolean
-    val connectedFlow: Flow<Boolean>
-    fun connect()
-    fun disconnect()
-    fun sendEvent(event: BackInTimeDebugServiceEvent)
-    fun receiveEventAsFlow(): Flow<BackInTimeDebuggerEvent>
+interface BackInTimeWebSocketConnector {
+    suspend fun connect(): Flow<BackInTimeDebuggerEvent>
+    suspend fun awaitCloseSession()
+    suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent)
+    suspend fun close()
 }

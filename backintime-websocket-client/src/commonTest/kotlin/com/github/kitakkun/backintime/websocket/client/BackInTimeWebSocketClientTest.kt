@@ -10,16 +10,20 @@ import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
+import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import io.ktor.websocket.send
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 // FIXME: This test fails on iOS
 class BackInTimeWebSocketClientTest {
@@ -29,20 +33,19 @@ class BackInTimeWebSocketClientTest {
     }
 
     @Test
-    fun `test fails to connect`() {
+    fun `test fails to connect`() = runTest {
         val client = BackInTimeWebSocketClient(
             host = TEST_HOST,
             port = TEST_PORT,
         )
 
-        runBlocking {
-            val result = client.connect()
-            assertTrue(result.isFailure)
+        assertFailsWith(Throwable::class) {
+            client.openSession()
         }
     }
 
     @Test
-    fun `test success to connect`() {
+    fun `test success to connect`() = runTest {
         testApplication {
             configureServer(
                 host = TEST_HOST,
@@ -57,16 +60,14 @@ class BackInTimeWebSocketClientTest {
                 port = TEST_PORT,
             )
 
-            val result = client.connect()
-            assertTrue(result.isSuccess)
-            client.close()
+            client.openSession()
         }
     }
 
     @Test
-    fun `test success to send event`() {
+    fun `test success to send event`() = runTest {
         testApplication {
-            val serverReceiveFlow = MutableSharedFlow<BackInTimeDebugServiceEvent>(replay = 1)
+            var receivedEvent: BackInTimeDebugServiceEvent? = null
 
             configureServer(
                 host = TEST_HOST,
@@ -75,43 +76,40 @@ class BackInTimeWebSocketClientTest {
                     val event = (incoming.receive() as? Frame.Text)?.let {
                         Json.decodeFromString<BackInTimeDebugServiceEvent>(it.readText())
                     } ?: return@configureServer
-                    serverReceiveFlow.emit(event)
+                    receivedEvent = event
+                    close()
                 },
             )
 
             val client = configureClient(host = TEST_HOST, port = TEST_PORT)
-
-            val result = client.connect()
-            assertTrue(result.isSuccess)
-
-            client.send(BackInTimeDebugServiceEvent.Ping)
-
-            val serverReceivedEvent = serverReceiveFlow.first()
-            assertEquals(expected = BackInTimeDebugServiceEvent.Ping, actual = serverReceivedEvent)
-            client.close()
+            val session = client.openSession()
+            session.send(Json.encodeToString<BackInTimeDebugServiceEvent>(BackInTimeDebugServiceEvent.Ping))
+            session.closeReason.await()
+            assertEquals(expected = BackInTimeDebugServiceEvent.Ping, actual = receivedEvent)
         }
     }
 
     @Test
-    fun `test success to receive event`() {
+    fun `test success to receive event`() = runTest {
         testApplication {
             configureServer(
                 host = TEST_HOST,
                 port = TEST_PORT,
                 serverSession = {
                     delay(1000)
-                    send(Frame.Text(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping)))
+                    send(Json.encodeToString<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping))
+                    close()
                 },
             )
 
             val client = configureClient(host = TEST_HOST, port = TEST_PORT)
-
-            val result = client.connect()
-            assertTrue(result.isSuccess)
-
-            val receivedEvent = client.receiveEventAsFlow().first()
-            assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = receivedEvent)
-            client.close()
+            val session = client.openSession()
+            val receivedEventFlow = session.incoming
+                .receiveAsFlow()
+                .filterIsInstance<Frame.Text>()
+                .map { Json.decodeFromString<BackInTimeDebuggerEvent>(it.readText()) }
+            session.closeReason.await()
+            assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = receivedEventFlow.firstOrNull())
         }
     }
 
