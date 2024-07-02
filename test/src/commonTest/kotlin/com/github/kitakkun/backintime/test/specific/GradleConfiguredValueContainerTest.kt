@@ -28,7 +28,9 @@ class GradleConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
      *     }
      * }
      */
-    private class GradleConfiguredValueContainer<T>(var value: T) {
+    private class GradleConfiguredValueContainer<T>(
+        var value: T,
+    ) {
         fun update(newValue: T) {
             value = newValue
         }

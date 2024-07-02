@@ -1,13 +1,17 @@
 package com.github.kitakkun.backintime.test.base
 
-import com.github.kitakkun.backintime.runtime.BackInTimeDebugServiceImpl
+import com.github.kitakkun.backintime.runtime.BackInTimeDebugService
+import com.github.kitakkun.backintime.runtime.getBackInTimeDebugService
+import com.github.kitakkun.backintime.runtime.internal.BackInTimeCompilerInternalApi
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 
 abstract class BackInTimeDebugServiceTest {
     private val mockConnector: MockConnector = MockConnector()
-    private val service = BackInTimeDebugServiceImpl
+
+    @OptIn(BackInTimeCompilerInternalApi::class)
+    private val service: BackInTimeDebugService = getBackInTimeDebugService(useInUnitTest = true)
 
     private val events get() = mockConnector.eventsFromService
     protected val registerInstanceEvents get() = events.filterIsInstance<BackInTimeDebugServiceEvent.RegisterInstance>()

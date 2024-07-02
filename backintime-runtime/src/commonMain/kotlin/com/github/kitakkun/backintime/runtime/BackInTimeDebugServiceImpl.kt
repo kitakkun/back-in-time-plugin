@@ -1,70 +1,65 @@
 package com.github.kitakkun.backintime.runtime
 
-import com.github.kitakkun.backintime.runtime.connector.BackInTimeConnector
+import com.github.kitakkun.backintime.runtime.connector.BackInTimeWebSocketConnector
 import com.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Singleton service for back-in-time debugger
  */
 @Suppress("unused")
-object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
-    private val instanceManager = BackInTimeInstanceManagerImpl()
-    override val coroutineContext: CoroutineContext get() = Dispatchers.Default + SupervisorJob()
-    private val serviceEventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
+class BackInTimeDebugServiceImpl(
+    dispatcher: CoroutineDispatcher,
+) : BackInTimeDebugService {
+    private val instanceManager: BackInTimeInstanceManager = BackInTimeInstanceManagerImpl()
+    private val coroutineScope: CoroutineScope = CoroutineScope(dispatcher + SupervisorJob())
+    private var connector: BackInTimeWebSocketConnector? = null
 
-    private var connector: BackInTimeConnector? = null
-    private var processDebuggerEventJob: Job? = null
-    private var observeConnectedFlowJob: Job? = null
-
-    init {
-        // clean up instances that are garbage collected
-        launch {
-            while (true) {
-                instanceManager.cleanGarbageCollectedReferences()
-                delay(1000 * 15)
-            }
-        }
-    }
-
-    fun setConnector(connector: BackInTimeConnector) {
+    override fun setConnector(connector: BackInTimeWebSocketConnector) {
         this.connector = connector
     }
 
     override fun startService() {
-        val connector = this.connector ?: return
-        connector.connect()
-        processDebuggerEventJob = launch {
-            connector.receiveEventAsFlow().collect(::processDebuggerEvent)
-        }
-        observeConnectedFlowJob = launch {
-            connector.connectedFlow.filter { it }.collect {
-                serviceEventDispatchQueue.forEach { event ->
-                    connector.sendEvent(event)
+        coroutineScope.coroutineContext.cancelChildren()
+        val connector = connector ?: return
+        coroutineScope.launch {
+            try {
+                val receiveEventsFlow = connector.connect()
+
+                launch {
+                    receiveEventsFlow.collect(::processDebuggerEvent)
                 }
-                serviceEventDispatchQueue.clear()
+                launch {
+                    while (true) {
+                        instanceManager.cleanGarbageCollectedReferences()
+                        delay(1000 * 15)
+                    }
+                }
+
+                connector.awaitCloseSession()
+            } catch (e: Throwable) {
+                // do nothing
+            } finally {
+                delay(3000)
+                startService()
             }
         }
     }
 
     override fun stopService() {
-        processDebuggerEventJob?.cancel()
-        observeConnectedFlowJob?.cancel()
-        connector?.disconnect()
-        processDebuggerEventJob = null
-        observeConnectedFlowJob = null
-        connector = null
+        coroutineScope.coroutineContext.cancelChildren()
+        coroutineScope.launch {
+            connector?.close()
+        }
     }
 
     /**
@@ -78,8 +73,8 @@ object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
             is BackInTimeDebuggableInstanceEvent.MethodCall -> notifyMethodCall(event)
             is BackInTimeDebuggableInstanceEvent.PropertyValueChange -> notifyPropertyChanged(event)
         }
-        if (resultEventForDebugger != null) {
-            sendOrQueue(resultEventForDebugger)
+        coroutineScope.launch {
+            connector?.sendOrQueueEvent(resultEventForDebugger)
         }
     }
 
@@ -105,15 +100,9 @@ object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
             }
         }
         if (resultEventForDebugger != null) {
-            sendOrQueue(resultEventForDebugger)
-        }
-    }
-
-    private fun sendOrQueue(event: BackInTimeDebugServiceEvent) {
-        if (connector?.connected == true) {
-            connector?.sendEvent(event)
-        } else {
-            serviceEventDispatchQueue.add(event)
+            coroutineScope.launch {
+                connector?.sendOrQueueEvent(resultEventForDebugger)
+            }
         }
     }
 
@@ -132,33 +121,29 @@ object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
         )
     }
 
-    private fun registerRelationship(event: BackInTimeDebuggableInstanceEvent.RegisterRelationShip): BackInTimeDebugServiceEvent {
-        return BackInTimeDebugServiceEvent.RegisterRelationship(
-            parentUUID = event.parentInstance.backInTimeInstanceUUID,
-            childUUID = event.childInstance.backInTimeInstanceUUID,
-        )
-    }
+    private fun registerRelationship(event: BackInTimeDebuggableInstanceEvent.RegisterRelationShip): BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.RegisterRelationship(
+        parentUUID = event.parentInstance.backInTimeInstanceUUID,
+        childUUID = event.childInstance.backInTimeInstanceUUID,
+    )
 
-    private fun notifyMethodCall(event: BackInTimeDebuggableInstanceEvent.MethodCall): BackInTimeDebugServiceEvent {
-        return BackInTimeDebugServiceEvent.NotifyMethodCall(
-            instanceUUID = event.instance.backInTimeInstanceUUID,
-            methodName = event.methodName,
-            methodCallUUID = event.methodCallId,
-            calledAt = Clock.System.now().epochSeconds,
-        )
-    }
+    private fun notifyMethodCall(event: BackInTimeDebuggableInstanceEvent.MethodCall): BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.NotifyMethodCall(
+        instanceUUID = event.instance.backInTimeInstanceUUID,
+        methodName = event.methodName,
+        methodCallUUID = event.methodCallId,
+        calledAt = Clock.System.now().epochSeconds,
+    )
 
-    private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent? {
-        return try {
+    private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent {
+        try {
             val serializedValue = event.instance.serializeValue(event.propertyFqName, event.propertyValue)
-            BackInTimeDebugServiceEvent.NotifyValueChange(
+            return BackInTimeDebugServiceEvent.NotifyValueChange(
                 instanceUUID = event.instance.backInTimeInstanceUUID,
                 propertyFqName = event.propertyFqName,
                 value = serializedValue,
                 methodCallUUID = event.methodCallId,
             )
         } catch (e: SerializationException) {
-            BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error")
+            return BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error")
         }
     }
 
@@ -168,7 +153,9 @@ object BackInTimeDebugServiceImpl : CoroutineScope, BackInTimeDebugService {
             val deserializedValue = targetInstance.deserializeValue(name, value)
             targetInstance.forceSetValue(name, deserializedValue)
         } catch (e: SerializationException) {
-            sendOrQueue(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
+            coroutineScope.launch {
+                connector?.sendOrQueueEvent(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
+            }
         }
     }
 }

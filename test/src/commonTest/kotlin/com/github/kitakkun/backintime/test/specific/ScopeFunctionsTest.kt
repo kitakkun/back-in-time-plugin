@@ -7,6 +7,7 @@ import com.github.kitakkun.backintime.annotations.Setter
 import com.github.kitakkun.backintime.annotations.ValueContainer
 import com.github.kitakkun.backintime.runtime.BackInTimeDebuggable
 import com.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -66,7 +67,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun withTest() {
+    fun withTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByWith(10)
@@ -74,7 +75,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun applyTest() {
+    fun applyTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByApply(10)
@@ -82,7 +83,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun runTest() {
+    fun runTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByRun(10)
@@ -90,7 +91,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun letTest() {
+    fun letTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByLet(10)
@@ -98,7 +99,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun alsoTest() {
+    fun alsoTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByAlso(10)
@@ -107,7 +108,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
 
     @Ignore("takeIf is not supported yet")
     @Test
-    fun takeIfTest() {
+    fun takeIfTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByTakeIf(10)
@@ -116,7 +117,7 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
 
     @Ignore("takeUnless is not supported yet")
     @Test
-    fun takeUnlessTest() {
+    fun takeUnlessTest() = runTest {
         val holder = ValueContainerHolder()
 
         holder.updateByTakeUnless(10)

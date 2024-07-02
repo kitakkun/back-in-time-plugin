@@ -24,6 +24,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.server.test.host)
             implementation(libs.ktor.server.websockets)
         }
