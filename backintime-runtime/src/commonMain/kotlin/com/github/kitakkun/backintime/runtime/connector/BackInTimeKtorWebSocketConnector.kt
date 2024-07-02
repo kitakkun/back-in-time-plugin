@@ -16,7 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * This class is responsible for sending, queueing, and receiving events
+ * This class is responsible for sending and receiving events
  */
 class BackInTimeKtorWebSocketConnector(
     host: String,
