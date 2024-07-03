@@ -6,6 +6,8 @@ import {backInTimeStateSelector} from "./BackInTimeSelector";
 import {MethodCallHistoryInfo} from "./HistoryInfo";
 import {appActions} from "../../../reducer/appReducer";
 import {backInTimeActions} from "./BackInTimeReducer";
+import {com} from "kmp-lib";
+import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function BackInTimeModalPage() {
   const state = useSelector(backInTimeStateSelector);
@@ -36,14 +38,13 @@ export function BackInTimeModalPage() {
                 properties.forEach((name) => {
                   const value = allValueChanges.reverse().find((valueChange) => valueChange.propertyName == name)?.value;
                   if (!value) return;
-                  dispatch(appActions.forceSetPropertyValue(
-                    {
-                      instanceUUID: state.instanceUUID,
-                      propertyName: name,
-                      value: value,
-                      valueType: "", // 使われてないから大丈夫
-                    }
-                  ));
+                  const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
+                    state.instanceUUID,
+                    name,
+                    value,
+                    "", // 使われてないから大丈夫
+                  );
+                  dispatch(appActions.forceSetPropertyValue(event));
                 });
               },
             })
