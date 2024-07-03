@@ -31,7 +31,7 @@ export const backInTimeStateSelector = createSelector(
           title: "methodCall",
           timestamp: info.calledAt,
           subtitle: info.methodName,
-          description: info.valueChanges.map((change) => `${change.propertyName} = ${change.value}`).join(", "),
+          description: info.valueChanges.map((change) => `${change.propertyFqName} = ${change.value}`).join(", "),
           valueChanges: info.valueChanges,
         } as HistoryInfo;
       });

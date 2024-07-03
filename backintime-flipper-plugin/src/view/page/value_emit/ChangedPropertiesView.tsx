@@ -21,7 +21,7 @@ type ValueChangeItem = {
 
 export function ChangedPropertiesView({classInfo, methodCallInfo, onClickEmitValue, onClickEditAndEmitValue}: ChangedPropertiesViewProps) {
   const dataSource: ValueChangeItem[] = methodCallInfo.valueChanges.map((valueChange) => {
-    const property = classInfo.properties.find((property) => property.name === valueChange.propertyName)!;
+    const property = classInfo.properties.find((property) => property.name === valueChange.propertyFqName)!;
     const jsonValue = JSON.parse(valueChange.value);
     return {
       action: <EmitButton

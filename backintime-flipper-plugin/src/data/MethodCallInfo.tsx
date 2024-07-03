@@ -7,6 +7,6 @@ export interface MethodCallInfo {
 }
 
 export interface ValueChangeInfo {
-  propertyName: string;
+  propertyFqName: string;
   value: string;
 }

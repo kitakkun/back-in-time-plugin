@@ -97,7 +97,7 @@ const appSlice = createSlice({
       const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
       if (!methodCallInfo) return;
       methodCallInfo.valueChanges.push({
-        propertyName: event.propertyFqName,
+        propertyFqName: event.propertyFqName,
         value: event.value,
       });
     },

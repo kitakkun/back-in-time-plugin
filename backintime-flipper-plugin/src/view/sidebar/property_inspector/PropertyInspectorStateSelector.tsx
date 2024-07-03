@@ -12,12 +12,12 @@ export const propertyInspectorStateSelector = createSelector(
       .find((info) => info.name == state?.propertyName);
 
     const valueChanges = methodCallInfoList.filter((info) =>
-      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertyName == state.propertyName)
+      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertyFqName == state.propertyName)
     ).map((info) => {
       return {
         methodCallUUID: info.callUUID,
         time: info.calledAt,
-        value: [...info.valueChanges].reverse().find((change) => change.propertyName == state.propertyName)?.value ?? "",
+        value: [...info.valueChanges].reverse().find((change) => change.propertyFqName == state.propertyName)?.value ?? "",
       }
     });
 

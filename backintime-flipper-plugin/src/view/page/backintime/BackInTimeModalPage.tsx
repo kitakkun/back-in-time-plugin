@@ -34,9 +34,9 @@ export function BackInTimeModalPage() {
                   .filter((history) => history.title == "methodCall")
                   .map((history) => history as MethodCallHistoryInfo);
                 const allValueChanges = methodCallHistories.flatMap((history) => history.valueChanges);
-                const properties = distinctBy(allValueChanges.map((valueChange) => valueChange.propertyName), (name) => name);
+                const properties = distinctBy(allValueChanges.map((valueChange) => valueChange.propertyFqName), (name) => name);
                 properties.forEach((name) => {
-                  const value = allValueChanges.reverse().find((valueChange) => valueChange.propertyName == name)?.value;
+                  const value = allValueChanges.reverse().find((valueChange) => valueChange.propertyFqName == name)?.value;
                   if (!value) return;
                   const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
                     state.instanceUUID,
