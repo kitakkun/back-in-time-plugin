@@ -105,10 +105,9 @@ class BackInTimeDebugServiceImpl(
                 null
             }
 
-            is BackInTimeDebuggerEvent.Ping -> {
-                // do nothing
-                null
-            }
+            is BackInTimeDebuggerEvent.Ping,
+            is BackInTimeDebuggerEvent.Error,
+            -> null
         }
         if (resultEventForDebugger != null) {
             sendOrQueueEvent(resultEventForDebugger)
