@@ -1,19 +1,24 @@
+@file:OptIn(ExperimentalJsExport::class)
+@file:JsExport
+
 package com.github.kitakkun.backintime.websocket.event
 
 import kotlinx.serialization.Serializable
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
 /**
  * events from debugger to debugService
  */
 @Serializable
-sealed interface BackInTimeDebuggerEvent {
+sealed class BackInTimeDebuggerEvent {
     @Serializable
-    data object Ping : BackInTimeDebuggerEvent
+    data object Ping : BackInTimeDebuggerEvent()
 
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
-    ) : BackInTimeDebuggerEvent {
+    ) : BackInTimeDebuggerEvent() {
         @Serializable
         data class Response(
             val isAlive: Map<String, Boolean>,
@@ -26,10 +31,10 @@ sealed interface BackInTimeDebuggerEvent {
         val propertyFqName: String,
         val value: String,
         val valueType: String,
-    ) : BackInTimeDebuggerEvent
+    ) : BackInTimeDebuggerEvent()
 
     @Serializable
     data class Error(
         val message: String,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebuggerEvent()
 }

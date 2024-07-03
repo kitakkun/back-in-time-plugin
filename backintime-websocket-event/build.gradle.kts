@@ -15,6 +15,12 @@ kotlin {
 
     jvmToolchain(17)
 
+    js(IR) {
+        nodejs()
+        generateTypeScriptDefinitions()
+        binaries.library()
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
