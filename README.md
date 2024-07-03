@@ -8,8 +8,7 @@ Also, you can easily revert the state to the previous one. We call it "back-in-t
 This plugin currently intended to be used with Android projects.
 But we are planning to support other platforms in the future.
 
-Debugging tool is available
-at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
+Debugging tool is available at [backintime-flipper-plugin](backintime-flipper-plugin).
 Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
 > [!IMPORTANT]
