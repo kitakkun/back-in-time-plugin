@@ -39,3 +39,14 @@ jobs:
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bundle exec danger
+
+      - name: Set up node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "21.x"
+
+      - run: yarn install
+        working-directory: backintime-flipper-plugin
+
+      - run: yarn test
+        working-directory: backintime-flipper-plugin
