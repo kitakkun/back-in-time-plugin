@@ -1,10 +1,12 @@
 import {TestUtils} from 'flipper-plugin';
 import * as Plugin from '..';
-import {NotifyMethodCall, NotifyValueChange, RegisterInstance} from "../events/FlipperIncomingEvents";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {AppState} from "../reducer/appReducer";
 import {ClassInfo} from "../data/ClassInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
+import {com} from "kmp-lib";
+import NotifyMethodCall = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
+import NotifyValueChange = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
 
 test(`register event`, () => {
   const {instance, sendEvent} = TestUtils.startPlugin(Plugin);
@@ -13,6 +15,7 @@ test(`register event`, () => {
   sendEvent("register", {
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
     className: "com.example.DummyViewModel",
+    // @ts-ignore
     properties: [
       {
         name: "hoge",
@@ -30,7 +33,7 @@ test(`register event`, () => {
       }
     ],
     registeredAt: 1619813420,
-  } as RegisterInstance);
+  });
 
   const state = store.getState().app as AppState;
 
@@ -101,7 +104,7 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyValueChange", {
     instanceUUID: instanceUUID,
-    propertyName: "hoge",
+    propertyFqName: "hoge",
     value: "fuga",
     methodCallUUID: methodCallUUID,
   } as NotifyValueChange);
@@ -113,7 +116,7 @@ test(`notifyValueChange event`, () => {
     calledAt: calledAt,
     valueChanges: [
       {
-        propertyName: "hoge",
+        propertyFqName: "hoge",
         value: "fuga",
       }
     ],
