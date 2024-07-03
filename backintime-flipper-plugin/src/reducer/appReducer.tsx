@@ -2,7 +2,6 @@ import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {ClassInfo} from "../data/ClassInfo";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
-import {NotifyMethodCall, NotifyValueChange, RegisterInstance, RegisterRelationship} from "../events/FlipperIncomingEvents";
 import {DependencyInfo} from "../data/DependencyInfo";
 import {com} from "kmp-lib";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
@@ -34,7 +33,7 @@ const appSlice = createSlice({
   name: "app",
   initialState: initialState,
   reducers: {
-    register: (state, action: PayloadAction<RegisterInstance>) => {
+    register: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterInstance>) => {
       const event = action.payload;
       const existingInstanceInfo = state.instanceInfoList.find((info) => info.uuid == event.instanceUUID);
       // instance registration
@@ -57,7 +56,8 @@ const appSlice = createSlice({
       state.classInfoList.push({
         name: event.className,
         superClassName: event.superClassName,
-        properties: event.properties.map((property) => (
+        // @ts-ignore
+        properties: event.properties.map(property => (
           {
             name: property.name,
             type: property.propertyType,
@@ -68,7 +68,7 @@ const appSlice = createSlice({
         )),
       });
     },
-    registerRelationship: (state, action: PayloadAction<RegisterRelationship>) => {
+    registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {
       const existingDependencyInfo = state.dependencyInfoList.find((info) => info.uuid == action.payload.parentUUID);
       if (!existingDependencyInfo) {
         state.dependencyInfoList.push({
@@ -82,7 +82,7 @@ const appSlice = createSlice({
         });
       }
     },
-    registerMethodCall: (state, action: PayloadAction<NotifyMethodCall>) => {
+    registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {
       const event = action.payload;
       state.methodCallInfoList.push({
         callUUID: event.methodCallUUID,
@@ -92,12 +92,12 @@ const appSlice = createSlice({
         valueChanges: [],
       });
     },
-    registerValueChange: (state, action: PayloadAction<NotifyValueChange>) => {
+    registerValueChange: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyValueChange>) => {
       const event = action.payload;
       const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
       if (!methodCallInfo) return;
       methodCallInfo.valueChanges.push({
-        propertyName: event.propertyName,
+        propertyName: event.propertyFqName,
         value: event.value,
       });
     },

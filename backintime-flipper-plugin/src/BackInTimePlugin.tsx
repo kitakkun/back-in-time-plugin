@@ -42,7 +42,7 @@ function configurePluginStore(): Store {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: ["app/refreshInstanceAliveStatuses"],
+          ignoredActions: ["app"]
         },
       }),
   });
