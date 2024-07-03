@@ -40,6 +40,8 @@ class BackInTimeDebugServiceImpl(
                     connector.sendEventToDebugger(it)
                 }
 
+                sendEventQueue.clear()
+
                 launch {
                     receiveEventsFlow.collect(::processDebuggerEvent)
                 }
