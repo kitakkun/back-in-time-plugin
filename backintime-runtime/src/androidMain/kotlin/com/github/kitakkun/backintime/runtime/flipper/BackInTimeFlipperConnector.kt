@@ -42,6 +42,7 @@ class BackInTimeFlipperConnector(
             is BackInTimeDebugServiceEvent.RegisterRelationship -> "registerRelationship"
             is BackInTimeDebugServiceEvent.NotifyMethodCall -> "notifyMethodCall"
             is BackInTimeDebugServiceEvent.NotifyValueChange -> "notifyValueChange"
+            is BackInTimeDebugServiceEvent.CheckInstanceAliveResult -> "checkInstanceAliveResult"
             else -> null
         } ?: return
         connection.send(eventKey, FlipperObject(Json.encodeToString(event)))

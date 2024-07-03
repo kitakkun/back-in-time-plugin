@@ -2,7 +2,7 @@
 // API: https://fbflipper.com/docs/extending/flipper-plugin#pluginclient
 import {createState, PluginClient} from "flipper-plugin";
 import {IncomingEvents} from "./events/FlipperIncomingEvents";
-import {isCheckInstanceAlive, isForceSetPropertyValue, OutgoingEvent, OutgoingEvents} from "./events/FlipperOutgoingEvents";
+import {isCheckInstanceAlive, isForceSetPropertyValue, OutgoingEvents} from "./events/FlipperOutgoingEvents";
 import {configureStore, Dispatch, Store} from "@reduxjs/toolkit";
 import {appActions, appReducer} from "./reducer/appReducer";
 import {propertyInspectorReducer} from "./view/sidebar/property_inspector/propertyInspectorReducer";
@@ -12,6 +12,8 @@ import {editAndEmitValueReducer} from "./view/page/edited_value_emitter/EditAndE
 import {AtomicPersistentState, initPersistentStateSlice, persistentStateReducer} from "./reducer/PersistentStateReducer";
 import {rawLogInspectorReducer} from "./view/sidebar/raw_log_inspector/RawLogInspectorReducer";
 import {backInTimeReducer} from "./view/page/backintime/BackInTimeReducer";
+import {com} from "kmp-lib";
+import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export default (client: PluginClient<IncomingEvents, OutgoingEvents>) => {
   initPersistentStateSlice(generatePersistentStates());
@@ -37,6 +39,12 @@ function configurePluginStore(): Store {
       rawLogInspector: rawLogInspectorReducer,
       backInTime: backInTimeReducer,
     },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: ["app/refreshInstanceAliveStatuses"],
+        },
+      }),
   });
 }
 
@@ -45,23 +53,23 @@ function observeIncomingEvents(dispatch: Dispatch, client: PluginClient<Incoming
   client.onMessage("notifyValueChange", (event) => dispatch(appActions.registerValueChange(event)));
   client.onMessage("notifyMethodCall", (event) => dispatch(appActions.registerMethodCall(event)));
   client.onMessage("registerRelationship", (event) => dispatch(appActions.registerRelationship(event)));
+  client.onMessage("checkInstanceAliveResult", (event) => dispatch(appActions.updateInstanceAliveStatuses(event)))
 }
 
 function observeOutgoingEvents(dispatch: Dispatch, store: Store, client: PluginClient<IncomingEvents, OutgoingEvents>) {
   store.subscribe(() => {
-    const pendingEvents = store.getState().app.pendingFlipperEventQueue as OutgoingEvent[];
+    const pendingEvents = store.getState().app.pendingFlipperEventQueue as BackInTimeDebuggerEvent[];
     if (pendingEvents.length == 0) return;
     dispatch(appActions.clearPendingEventQueue());
     pendingEvents.forEach((event) => processOutgoingEvent(client, event, dispatch));
   });
 }
 
-function processOutgoingEvent(client: PluginClient<IncomingEvents, OutgoingEvents>, event: OutgoingEvent, dispatch: Dispatch) {
+function processOutgoingEvent(client: PluginClient<IncomingEvents, OutgoingEvents>, event: BackInTimeDebuggerEvent, dispatch: Dispatch) {
   if (isForceSetPropertyValue(event)) {
-    client.send("forceSetPropertyValue", event);
+    client.send("forceSetPropertyValue", event as BackInTimeDebuggerEvent.ForceSetPropertyValue);
   } else if (isCheckInstanceAlive(event)) {
-    client.send("refreshInstanceAliveStatus", event)
-      .then((response) => dispatch(appActions.updateInstanceAliveStatuses(response)));
+    client.send("refreshInstanceAliveStatus", event as BackInTimeDebuggerEvent.CheckInstanceAlive);
   }
 }
 

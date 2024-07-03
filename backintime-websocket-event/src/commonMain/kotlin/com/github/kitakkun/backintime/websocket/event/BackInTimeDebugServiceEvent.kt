@@ -48,8 +48,7 @@ sealed class BackInTimeDebugServiceEvent {
 
     @Serializable
     data class CheckInstanceAliveResult(
-        val instanceUUIDs: List<String>,
-        val result: List<Boolean>,
+        val isAlive: Map<String, Boolean>,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable

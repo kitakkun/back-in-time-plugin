@@ -98,8 +98,8 @@ class BackInTimeDebugServiceImpl(
     override fun processDebuggerEvent(event: BackInTimeDebuggerEvent) {
         val resultEventForDebugger = when (event) {
             is BackInTimeDebuggerEvent.CheckInstanceAlive -> {
-                val result = event.instanceUUIDs.map { uuid -> instanceManager.getInstanceById(uuid) != null }
-                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(event.instanceUUIDs, result)
+                val result = event.instanceUUIDs.associateWith { uuid -> instanceManager.getInstanceById(uuid) != null }
+                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(result)
             }
 
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {

@@ -4,6 +4,8 @@ import {EditAndEmitValueView} from "./EditAndEmitValueView";
 import React from "react";
 import {Modal} from "antd";
 import {appActions} from "../../../reducer/appReducer";
+import {com} from "kmp-lib";
+import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function EditAndEmitValueModalPage() {
   const state = useSelector(editAndEmitValueStateSelector);
@@ -17,14 +19,13 @@ export function EditAndEmitValueModalPage() {
     okText={"Emit Edited Value"}
     onOk={() => {
       if (!state.instanceUUID || !state.propertyName || !state.valueType) return;
-      dispatch(
-        appActions.forceSetPropertyValue({
-          instanceUUID: state.instanceUUID,
-          propertyName: state.propertyName,
-          value: JSON.stringify(state.editingValue),
-          valueType: state.valueType,
-        })
+      const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
+        state.instanceUUID,
+        state.propertyName,
+        JSON.stringify(state.editingValue),
+        state.valueType,
       );
+      dispatch(appActions.forceSetPropertyValue(event));
       dispatch(editAndEmitValueActions.close());
     }}
     onCancel={() => dispatch(editAndEmitValueActions.close())}

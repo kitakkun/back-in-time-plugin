@@ -3,8 +3,10 @@ import {ClassInfo} from "../data/ClassInfo";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
 import {NotifyMethodCall, NotifyValueChange, RegisterInstance, RegisterRelationship} from "../events/FlipperIncomingEvents";
-import {CheckInstanceAlive, CheckInstanceAliveResponse, ForceSetPropertyValue, OutgoingEvent} from "../events/FlipperOutgoingEvents";
 import {DependencyInfo} from "../data/DependencyInfo";
+import {com} from "kmp-lib";
+import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebugServiceEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
 
 export interface AppState {
   activeTabIndex: string;
@@ -16,7 +18,7 @@ export interface AppState {
   dependencyInfoList: DependencyInfo[];
 
   // to emit flipper events from everywhere
-  pendingFlipperEventQueue: OutgoingEvent[];
+  pendingFlipperEventQueue: BackInTimeDebuggerEvent[];
 }
 
 const initialState: AppState = {
@@ -99,16 +101,16 @@ const appSlice = createSlice({
         value: event.value,
       });
     },
-    forceSetPropertyValue: (state, action: PayloadAction<ForceSetPropertyValue>) => {
+    forceSetPropertyValue: (state, action: PayloadAction<BackInTimeDebuggerEvent.ForceSetPropertyValue>) => {
       state.pendingFlipperEventQueue.push(action.payload);
     },
-    refreshInstanceAliveStatuses: (state, action: PayloadAction<CheckInstanceAlive>) => {
+    refreshInstanceAliveStatuses: (state, action: PayloadAction<BackInTimeDebuggerEvent.CheckInstanceAlive>) => {
       state.pendingFlipperEventQueue.push(action.payload);
     },
     clearPendingEventQueue: (state) => {
       state.pendingFlipperEventQueue = [];
     },
-    updateInstanceAliveStatuses: (state, action: PayloadAction<CheckInstanceAliveResponse>) => {
+    updateInstanceAliveStatuses: (state, action: PayloadAction<BackInTimeDebugServiceEvent.CheckInstanceAliveResult>) => {
       Object.entries(action.payload.isAlive).forEach(([instanceUUID, alive]) => {
         const instanceInfo = state.instanceInfoList.find((info) => info.uuid == instanceUUID);
         if (!instanceInfo) return;

@@ -1,9 +1,13 @@
+import {com} from "kmp-lib";
+import BackInTimeDebugServiceEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
+
 export type IncomingEvents = {
   error: string;
   register: RegisterInstance;
   notifyValueChange: NotifyValueChange;
   notifyMethodCall: NotifyMethodCall;
   registerRelationship: RegisterRelationship;
+  checkInstanceAliveResult: BackInTimeDebugServiceEvent.CheckInstanceAliveResult;
 };
 
 /**
