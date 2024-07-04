@@ -42,7 +42,15 @@ function configurePluginStore(): Store {
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: ["app"]
+          ignoredActions: [
+            "app/register",
+            "app/registerRelationship",
+            "app/registerMethodCall",
+            "app/registerValueChange",
+            "app/forceSetPropertyValue",
+            "app/refreshInstanceAliveStatuses",
+            "app/updateInstanceAliveStatuses",
+          ]
         },
       }),
   });
