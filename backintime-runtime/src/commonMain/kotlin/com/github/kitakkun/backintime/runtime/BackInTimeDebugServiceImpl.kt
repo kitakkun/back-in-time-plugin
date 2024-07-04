@@ -40,6 +40,8 @@ class BackInTimeDebugServiceImpl(
                     connector.sendEventToDebugger(it)
                 }
 
+                sendEventQueue.clear()
+
                 launch {
                     receiveEventsFlow.collect(::processDebuggerEvent)
                 }
@@ -96,8 +98,8 @@ class BackInTimeDebugServiceImpl(
     override fun processDebuggerEvent(event: BackInTimeDebuggerEvent) {
         val resultEventForDebugger = when (event) {
             is BackInTimeDebuggerEvent.CheckInstanceAlive -> {
-                val result = event.instanceUUIDs.map { uuid -> instanceManager.getInstanceById(uuid) != null }
-                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(event.instanceUUIDs, result)
+                val result = event.instanceUUIDs.associateWith { uuid -> instanceManager.getInstanceById(uuid) != null }
+                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(result)
             }
 
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
@@ -105,10 +107,9 @@ class BackInTimeDebugServiceImpl(
                 null
             }
 
-            is BackInTimeDebuggerEvent.Ping -> {
-                // do nothing
-                null
-            }
+            is BackInTimeDebuggerEvent.Ping,
+            is BackInTimeDebuggerEvent.Error,
+            -> null
         }
         if (resultEventForDebugger != null) {
             sendOrQueueEvent(resultEventForDebugger)

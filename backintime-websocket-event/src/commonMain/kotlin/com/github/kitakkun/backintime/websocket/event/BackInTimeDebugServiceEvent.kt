@@ -1,15 +1,20 @@
+@file:OptIn(ExperimentalJsExport::class)
+@file:JsExport
+
 package com.github.kitakkun.backintime.websocket.event
 
 import com.github.kitakkun.backintime.websocket.event.model.PropertyInfo
 import kotlinx.serialization.Serializable
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
 /**
  * events from debugService to debugger
  */
 @Serializable
-sealed interface BackInTimeDebugServiceEvent {
+sealed class BackInTimeDebugServiceEvent {
     @Serializable
-    data object Ping : BackInTimeDebugServiceEvent
+    data object Ping : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class RegisterInstance(
@@ -18,7 +23,7 @@ sealed interface BackInTimeDebugServiceEvent {
         val superClassName: String,
         val properties: List<PropertyInfo>,
         val registeredAt: Long,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class NotifyValueChange(
@@ -26,7 +31,7 @@ sealed interface BackInTimeDebugServiceEvent {
         val propertyFqName: String,
         val value: String,
         val methodCallUUID: String,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class NotifyMethodCall(
@@ -34,22 +39,20 @@ sealed interface BackInTimeDebugServiceEvent {
         val methodName: String,
         val methodCallUUID: String,
         val calledAt: Long,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebugServiceEvent()
 
-    @Serializable
     data class RegisterRelationship(
         val parentUUID: String,
         val childUUID: String,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class CheckInstanceAliveResult(
-        val instanceUUIDs: List<String>,
-        val result: List<Boolean>,
-    ) : BackInTimeDebugServiceEvent
+        val isAlive: Map<String, Boolean>,
+    ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class Error(
         val message: String,
-    ) : BackInTimeDebugServiceEvent
+    ) : BackInTimeDebugServiceEvent()
 }
