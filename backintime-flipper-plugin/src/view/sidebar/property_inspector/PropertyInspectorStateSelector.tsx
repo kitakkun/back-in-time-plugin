@@ -12,12 +12,14 @@ export const propertyInspectorStateSelector = createSelector(
       .find((info) => info.name == state?.propertyName);
 
     const valueChanges = methodCallInfoList.filter((info) =>
-      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertyFqName == state.propertyName)
+      // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
+      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertyFqName.split(".").pop() == state.propertyName)
     ).map((info) => {
       return {
         methodCallUUID: info.callUUID,
         time: info.calledAt,
-        value: [...info.valueChanges].reverse().find((change) => change.propertyFqName == state.propertyName)?.value ?? "",
+        // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
+        value: [...info.valueChanges].reverse().find((change) => change.propertyFqName.split(".").pop() == state.propertyName)?.value ?? "",
       }
     });
 
