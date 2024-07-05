@@ -105,8 +105,8 @@ class BackInTimeDebugServiceImpl(
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
                 forceSetValue(
                     instanceId = event.instanceUUID,
-                    propertyOwnerClassName = event.propertyOwnerClassName,
-                    propertyName = event.propertyFqName,
+                    propertyOwnerClassName = event.ownerClassFqName,
+                    propertyName = event.propertyName,
                     value = event.value,
                 )
                 null
