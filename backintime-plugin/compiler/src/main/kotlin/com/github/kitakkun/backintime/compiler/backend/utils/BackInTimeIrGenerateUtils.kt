@@ -13,19 +13,22 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
 fun irCapturePropertyValue(
+    ownerClassName: String,
     propertyFqName: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
 ) = irCall(reportPropertyValueChangeFunctionSymbol).apply {
     putValueArgument(0, irGet(instanceParameter))
-    putValueArgument(1, irGet(uuidVariable))
-    putValueArgument(2, irString(propertyFqName))
-    putValueArgument(3, getValueCall)
+    putValueArgument(1, irString(ownerClassName))
+    putValueArgument(2, irGet(uuidVariable))
+    putValueArgument(3, irString(propertyFqName))
+    putValueArgument(4, getValueCall)
 }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
@@ -36,7 +39,8 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     val getter = getter ?: return null
     val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
     return irCapturePropertyValue(
-        propertyFqName = fqNameWhenAvailable?.asString() ?: return null,
+        ownerClassName = parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return null,
+        propertyFqName = name.asString(),
         getValueCall = if (valueGetterSymbol == getter.symbol) {
             irCall(getter.symbol).apply {
                 dispatchReceiver = irGet(instanceParameter)

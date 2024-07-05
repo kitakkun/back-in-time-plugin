@@ -25,6 +25,7 @@ internal fun reportInstanceRegistration(
 @BackInTimeCompilerInternalApi
 internal fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
+    ownerClassFqName: String,
     methodInvocationId: String,
     methodName: String,
 ) = getBackInTimeDebugService().processInstanceEvent(
@@ -32,12 +33,14 @@ internal fun reportMethodInvocation(
         instance = instance,
         methodCallId = methodInvocationId,
         methodName = methodName,
+        ownerClassFqName = ownerClassFqName,
     ),
 )
 
 @BackInTimeCompilerInternalApi
 internal fun reportPropertyValueChange(
     instance: BackInTimeDebuggable,
+    ownerClassFqName: String,
     methodInvocationId: String,
     propertyFqName: String,
     propertyValue: Any?,
@@ -45,8 +48,9 @@ internal fun reportPropertyValueChange(
     BackInTimeDebuggableInstanceEvent.PropertyValueChange(
         instance = instance,
         methodCallId = methodInvocationId,
-        propertyFqName = propertyFqName,
+        propertyName = propertyFqName,
         propertyValue = propertyValue,
+        ownerClassFqName = ownerClassFqName,
     ),
 )
 

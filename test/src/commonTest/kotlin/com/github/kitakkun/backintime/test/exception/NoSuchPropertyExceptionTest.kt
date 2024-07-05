@@ -18,7 +18,7 @@ class NoSuchPropertyExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.NoSuchPropertyException::class) {
-            holder.forceSetValue("property2", "test")
+            holder.forceSetValue("", "property2", "test")
         }
     }
 
@@ -27,7 +27,7 @@ class NoSuchPropertyExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.NoSuchPropertyException::class) {
-            holder.serializeValue("property2", "test")
+            holder.serializeValue("", "property2", "test")
         }
     }
 
@@ -36,7 +36,7 @@ class NoSuchPropertyExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.NoSuchPropertyException::class) {
-            holder.deserializeValue("property2", "test")
+            holder.deserializeValue("", "property2", "test")
         }
     }
 }

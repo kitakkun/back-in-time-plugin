@@ -11,7 +11,8 @@ import kotlin.test.assertIs
 
 class MethodGenerationTest : BackInTimeDebugServiceTest() {
     companion object {
-        private const val PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.basic.MethodGenerationTest.TestStateHolder.property"
+        private const val CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.basic.MethodGenerationTest.TestStateHolder"
+        private const val PROPERTY_NAME = "property"
     }
 
     @BackInTime
@@ -24,14 +25,14 @@ class MethodGenerationTest : BackInTimeDebugServiceTest() {
         val holder = TestStateHolder()
 
         assertIs<BackInTimeDebuggable>(holder)
-        assertEquals("10", holder.serializeValue(PROPERTY_FQ_NAME, 10))
-        assertEquals(10, holder.deserializeValue(PROPERTY_FQ_NAME, "10"))
+        assertEquals("10", holder.serializeValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = 10))
+        assertEquals(10, holder.deserializeValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = "10"))
 
-        holder.forceSetValue(PROPERTY_FQ_NAME, 10)
+        holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = 10)
         assertEquals(10, holder.property)
 
         assertFailsWith(BackInTimeRuntimeException.TypeMismatchException::class) {
-            holder.forceSetValue(PROPERTY_FQ_NAME, "0")
+            holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = "0")
         }
     }
 }

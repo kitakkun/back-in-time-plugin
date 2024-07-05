@@ -11,12 +11,14 @@ import kotlin.test.assertIs
 
 class InheritanceTest : BackInTimeDebugServiceTest() {
     companion object {
-        private const val SUPER_CLASS_SUPER_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SuperClass.superProperty"
-        private const val SUPER_CLASS_OVERRIDABLE_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SuperClass.overridableProperty"
-        private const val SUPER_CLASS_PRIVATE_SUPER_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SuperClass.privateSuperProperty"
-        private const val SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SuperClass.conflictedPrivateProperty"
-        private const val SUB_CLASS_SUB_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SubClass.subProperty"
-        private const val SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SubClass.conflictedPrivateProperty"
+        private const val SUPER_CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SuperClass"
+        private const val SUPER_PROPERTY_NAME = "superProperty"
+        private const val OVERRIDABLE_PROPERTY_NAME = "overridableProperty"
+        private const val PRIVATE_SUPER_PROPERTY_NAME = "privateSuperProperty"
+        private const val SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME = "conflictedPrivateProperty"
+        private const val SUB_CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.specific.InheritanceTest.SubClass"
+        private const val SUB_PROPERTY_NAME = "subProperty"
+        private const val SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME = "conflictedPrivateProperty"
     }
 
     @BackInTime
@@ -58,19 +60,19 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         assertIs<BackInTimeDebuggable>(instance)
 
         // super class
-        instance.forceSetValue(SUPER_CLASS_SUPER_PROPERTY_FQ_NAME, "super(modified)")
+        instance.forceSetValue(SUPER_CLASS_FQ_NAME, SUPER_PROPERTY_NAME, "super(modified)")
         assertEquals("super(modified)", instance.superProperty)
 
         // overriding property
-        instance.forceSetValue(SUPER_CLASS_OVERRIDABLE_PROPERTY_FQ_NAME, "overridable(modified)")
+        instance.forceSetValue(SUPER_CLASS_FQ_NAME, OVERRIDABLE_PROPERTY_NAME, "overridable(modified)")
         assertEquals("overridable(modified)", instance.overridableProperty)
 
         // sub class
-        instance.forceSetValue(SUB_CLASS_SUB_PROPERTY_FQ_NAME, "sub(modified)")
+        instance.forceSetValue(SUB_CLASS_FQ_NAME, SUB_PROPERTY_NAME, "sub(modified)")
         assertEquals("sub(modified)", instance.subProperty)
 
         // private property of super class
-        instance.forceSetValue(SUPER_CLASS_PRIVATE_SUPER_PROPERTY_FQ_NAME, "private-super(modified)")
+        instance.forceSetValue(SUPER_CLASS_FQ_NAME, PRIVATE_SUPER_PROPERTY_NAME, "private-super(modified)")
         assertEquals("private-super(modified)", instance.getPrivateSuperProperty())
     }
 
@@ -80,16 +82,16 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         assertIs<BackInTimeDebuggable>(instance)
 
         // super class
-        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_SUPER_PROPERTY_FQ_NAME, "string"))
+        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_FQ_NAME, SUPER_PROPERTY_NAME, "string"))
 
         // overriding property
-        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_OVERRIDABLE_PROPERTY_FQ_NAME, "string"))
+        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_FQ_NAME, OVERRIDABLE_PROPERTY_NAME, "string"))
 
         // sub class
-        assertEquals("\"string\"", instance.serializeValue(SUB_CLASS_SUB_PROPERTY_FQ_NAME, "string"))
+        assertEquals("\"string\"", instance.serializeValue(SUB_CLASS_FQ_NAME, SUB_PROPERTY_NAME, "string"))
 
         // private property of super class
-        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_PRIVATE_SUPER_PROPERTY_FQ_NAME, "string"))
+        assertEquals("\"string\"", instance.serializeValue(SUPER_CLASS_FQ_NAME, PRIVATE_SUPER_PROPERTY_NAME, "string"))
     }
 
     @Test
@@ -98,16 +100,16 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         assertIs<BackInTimeDebuggable>(instance)
 
         // super class
-        assertEquals("string", instance.deserializeValue(SUPER_CLASS_SUPER_PROPERTY_FQ_NAME, "\"string\""))
+        assertEquals("string", instance.deserializeValue(SUPER_CLASS_FQ_NAME, SUPER_PROPERTY_NAME, "\"string\""))
 
         // overriding property
-        assertEquals("string", instance.deserializeValue(SUPER_CLASS_OVERRIDABLE_PROPERTY_FQ_NAME, "\"string\""))
+        assertEquals("string", instance.deserializeValue(SUPER_CLASS_FQ_NAME, OVERRIDABLE_PROPERTY_NAME, "\"string\""))
 
         // sub class
-        assertEquals("string", instance.deserializeValue(SUB_CLASS_SUB_PROPERTY_FQ_NAME, "\"string\""))
+        assertEquals("string", instance.deserializeValue(SUB_CLASS_FQ_NAME, SUB_PROPERTY_NAME, "\"string\""))
 
         // private property of super class
-        assertEquals("string", instance.deserializeValue(SUPER_CLASS_PRIVATE_SUPER_PROPERTY_FQ_NAME, "\"string\""))
+        assertEquals("string", instance.deserializeValue(SUPER_CLASS_FQ_NAME, PRIVATE_SUPER_PROPERTY_NAME, "\"string\""))
     }
 
     @Test
@@ -115,11 +117,11 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         val instance = SubClass()
         assertIs<BackInTimeDebuggable>(instance)
 
-        instance.forceSetValue(SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_FQ_NAME, "conflict(update-sub)")
+        instance.forceSetValue(SUB_CLASS_FQ_NAME, SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME, "conflict(update-sub)")
         assertEquals(expected = "conflict(update-sub)", actual = instance.getSubPrivateConflictedProperty())
         assertEquals(expected = "conflict", actual = instance.getSuperPrivateConflictedProperty())
 
-        instance.forceSetValue(SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_FQ_NAME, "conflict(update-super)")
+        instance.forceSetValue(SUPER_CLASS_FQ_NAME, SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME, "conflict(update-super)")
         assertEquals(expected = "conflict(update-sub)", actual = instance.getSubPrivateConflictedProperty())
         assertEquals(expected = "conflict(update-super)", actual = instance.getSuperPrivateConflictedProperty())
     }

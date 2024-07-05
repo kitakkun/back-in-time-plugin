@@ -8,7 +8,8 @@ import kotlin.test.assertIs
 
 class SelfSerializableValueHolderTest {
     companion object {
-        private const val MUTABLE_LIST_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.specific.SelfSerializableValueHolderTest.TestStateHolder.mutableList"
+        private const val CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.specific.SelfSerializableValueHolderTest.TestStateHolder"
+        private const val MUTABLE_LIST_PROPERTY_NAME = "mutableList"
     }
 
     @BackInTime
@@ -22,7 +23,7 @@ class SelfSerializableValueHolderTest {
         assertIs<BackInTimeDebuggable>(holder)
 
         val input = listOf("Hello")
-        val serializedValue = holder.serializeValue(MUTABLE_LIST_PROPERTY_FQ_NAME, input)
+        val serializedValue = holder.serializeValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
         assertEquals("[\"Hello\"]", serializedValue)
     }
 
@@ -32,7 +33,7 @@ class SelfSerializableValueHolderTest {
         assertIs<BackInTimeDebuggable>(holder)
 
         val input = "[\"Hello\"]"
-        val deserializedValue = holder.deserializeValue(MUTABLE_LIST_PROPERTY_FQ_NAME, input)
+        val deserializedValue = holder.deserializeValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
         assertEquals(listOf("Hello"), deserializedValue)
     }
 
@@ -42,7 +43,7 @@ class SelfSerializableValueHolderTest {
         assertIs<BackInTimeDebuggable>(holder)
 
         val input = listOf("Hello")
-        holder.forceSetValue(MUTABLE_LIST_PROPERTY_FQ_NAME, input)
+        holder.forceSetValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
         assertEquals(listOf("Hello"), holder.mutableList)
     }
 }

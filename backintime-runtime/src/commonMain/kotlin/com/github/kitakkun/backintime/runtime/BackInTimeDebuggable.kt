@@ -8,11 +8,23 @@ interface BackInTimeDebuggable {
     val backInTimeInitializedPropertyMap: MutableMap<String, Boolean>
 
     @Throws(BackInTimeRuntimeException.TypeMismatchException::class, BackInTimeRuntimeException.NoSuchPropertyException::class)
-    fun forceSetValue(propertyName: String, value: Any?)
+    fun forceSetValue(
+        propertyOwnerClassFqName: String,
+        propertyName: String,
+        value: Any?,
+    )
 
     @Throws(BackInTimeRuntimeException.NoSuchPropertyException::class, SerializationException::class)
-    fun serializeValue(propertyName: String, value: Any?): String
+    fun serializeValue(
+        propertyOwnerClassFqName: String,
+        propertyName: String,
+        value: Any?,
+    ): String
 
     @Throws(BackInTimeRuntimeException.NoSuchPropertyException::class, SerializationException::class)
-    fun deserializeValue(propertyName: String, value: String): Any?
+    fun deserializeValue(
+        propertyOwnerClassFqName: String,
+        propertyName: String,
+        value: String,
+    ): Any?
 }
