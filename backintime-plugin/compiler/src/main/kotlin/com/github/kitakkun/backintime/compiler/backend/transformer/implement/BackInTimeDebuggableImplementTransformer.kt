@@ -3,10 +3,10 @@ package com.github.kitakkun.backintime.compiler.backend.transformer.implement
 import com.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.github.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
 import com.github.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
+import com.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
-import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.declarations.addBackingField
@@ -82,7 +82,6 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
         val (propertyFqNameParameter, valueParameter) = declaration.valueParameters
 
-        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
         val superClassSymbol = parentClass.superClass?.symbol
 
         return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
@@ -102,9 +101,9 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                     )
                 }.plus(
                     irElseBranch(
-                        if (superDeclarationSymbol != null && superClassSymbol != null) {
+                        if (superClassSymbol != null && superClassSymbol.owner.isBackInTimeDebuggable) {
                             irCall(
-                                callee = superDeclarationSymbol.owner,
+                                callee = declaration,
                                 superQualifierSymbol = superClassSymbol,
                             ).apply {
                                 dispatchReceiver = irGet(parentClassReceiver)
@@ -131,9 +130,8 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val (propertyFqNameParameter, valueParameter) = declaration.valueParameters
         val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
 
-        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
         val superClassSymbol = parentClass.superClass?.symbol
-        val parentClassReceiver = declaration.dispatchReceiverParameter
+        val parentClassReceiver = declaration.dispatchReceiverParameter!!
 
         return with(irBuilder) {
             irExprBody(
@@ -153,9 +151,9 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                         )
                     }.plus(
                         irElseBranch(
-                            if (superDeclarationSymbol != null && superClassSymbol != null && parentClassReceiver != null) {
+                            if (superClassSymbol != null && superClassSymbol.owner.isBackInTimeDebuggable) {
                                 irCall(
-                                    callee = superDeclarationSymbol.owner,
+                                    callee = declaration,
                                     superQualifierSymbol = superClassSymbol,
                                 ).apply {
                                     dispatchReceiver = irGet(parentClassReceiver)
@@ -183,9 +181,8 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val (propertyFqNameParameter, valueParameter) = declaration.valueParameters
         val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
 
-        val superDeclarationSymbol = declaration.overriddenSymbols.firstOrNull { it.owner.modality == Modality.OPEN }
         val superClassSymbol = parentClass.superClass?.symbol
-        val parentClassReceiver = declaration.dispatchReceiverParameter
+        val parentClassReceiver = declaration.dispatchReceiverParameter!!
 
         return with(irBuilder) {
             irExprBody(
@@ -205,9 +202,9 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                         )
                     }.plus(
                         irElseBranch(
-                            if (superDeclarationSymbol != null && superClassSymbol != null && parentClassReceiver != null) {
+                            if (superClassSymbol != null && superClassSymbol.owner.isBackInTimeDebuggable) {
                                 irCall(
-                                    callee = superDeclarationSymbol.owner,
+                                    callee = declaration,
                                     superQualifierSymbol = superClassSymbol,
                                 ).apply {
                                     dispatchReceiver = irGet(parentClassReceiver)
