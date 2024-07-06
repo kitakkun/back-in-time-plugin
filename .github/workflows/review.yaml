@@ -3,7 +3,7 @@ name: Review
 on: pull_request
 
 jobs:
-  build-and-test:
+  review-kotlin:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -41,6 +41,13 @@ jobs:
         env:
           DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bundle exec danger
+
+  review-flipper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
 
       - name: Set up node
         uses: actions/setup-node@v4
