@@ -71,6 +71,7 @@ test(`notifyMethodCall event`, () => {
 
   sendEvent("notifyMethodCall", {
     methodName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
     methodCallUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
@@ -80,6 +81,7 @@ test(`notifyMethodCall event`, () => {
 
   expect(state.methodCallInfoList[0]).toEqual({
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
+    ownerClassFqName: "com.example.MyClass",
     methodName: "hoge",
     callUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
@@ -97,6 +99,7 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyMethodCall", {
     methodName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
     methodCallUUID: methodCallUUID,
     calledAt: calledAt,
@@ -104,7 +107,8 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyValueChange", {
     instanceUUID: instanceUUID,
-    propertyFqName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
+    propertyName: "hoge",
     value: "fuga",
     methodCallUUID: methodCallUUID,
   } as NotifyValueChange);
@@ -116,7 +120,7 @@ test(`notifyValueChange event`, () => {
     calledAt: calledAt,
     valueChanges: [
       {
-        propertyFqName: "hoge",
+        propertyName: "hoge",
         value: "fuga",
       }
     ],

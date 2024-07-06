@@ -54,7 +54,7 @@ function resolveInstanceInfo(
         name: property.name,
         type: property.type,
         debuggable: property.debuggable,
-        eventCount: allValueChangeEvents.filter((event) => event.propertyFqName == `${classInfo.name}.${property.name}`).length,
+        eventCount: allValueChangeEvents.filter((event) => event.propertyName == property.name && classInfo.name == event.ownerClassFqName).length,
         stateHolderInstance: propertyInstanceInfo && resolveInstanceInfo(
           classInfoList,
           instanceInfoList,

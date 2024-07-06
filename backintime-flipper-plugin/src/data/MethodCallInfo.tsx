@@ -1,4 +1,5 @@
 export interface MethodCallInfo {
+  ownerClassFqName: string;
   callUUID: string;
   instanceUUID: string;
   methodName: string;
@@ -7,6 +8,7 @@ export interface MethodCallInfo {
 }
 
 export interface ValueChangeInfo {
-  propertyFqName: string;
+  ownerClassFqName: string;
+  propertyName: string;
   value: string;
 }

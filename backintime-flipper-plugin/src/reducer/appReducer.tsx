@@ -85,6 +85,7 @@ const appSlice = createSlice({
     registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {
       const event = action.payload;
       state.methodCallInfoList.push({
+        ownerClassFqName: event.ownerClassFqName,
         callUUID: event.methodCallUUID,
         instanceUUID: event.instanceUUID,
         methodName: event.methodName,
@@ -97,7 +98,8 @@ const appSlice = createSlice({
       const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
       if (!methodCallInfo) return;
       methodCallInfo.valueChanges.push({
-        propertyFqName: event.propertyFqName,
+        ownerClassFqName: event.ownerClassFqName,
+        propertyName: event.propertyName,
         value: event.value,
       });
     },

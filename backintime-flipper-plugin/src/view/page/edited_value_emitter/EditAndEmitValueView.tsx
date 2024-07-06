@@ -8,6 +8,7 @@ export interface EditAndEmitState {
   editingValue: any;
   open: boolean;
   instanceUUID: string;
+  ownerClassFqName: string;
   propertyName: string;
   valueType: string | undefined;
 }

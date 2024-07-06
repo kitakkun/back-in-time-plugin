@@ -58,6 +58,7 @@ export const editAndEmitValueStateSelector = createSelector(
     return {
       ...state,
       valueType: valueType,
+      ownerClassFqName: classInfo?.name,
     } as EditAndEmitState;
   }
 );
