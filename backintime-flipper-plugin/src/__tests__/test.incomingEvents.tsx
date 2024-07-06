@@ -114,12 +114,14 @@ test(`notifyValueChange event`, () => {
   } as NotifyValueChange);
 
   expect(store.getState().app.methodCallInfoList[0]).toEqual({
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
     methodName: "hoge",
     callUUID: methodCallUUID,
     calledAt: calledAt,
     valueChanges: [
       {
+        ownerClassFqName: "com.example.MyClass",
         propertyName: "hoge",
         value: "fuga",
       }
