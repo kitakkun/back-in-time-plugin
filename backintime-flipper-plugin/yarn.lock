@@ -3317,6 +3317,11 @@ babel-preset-jest@^29.6.3:
     babel-plugin-jest-hoist "^29.6.3"
     babel-preset-current-node-syntax "^1.0.0"
 
+"backintime-websocket-event@file:../backintime-websocket-event/build/dist/js/productionLibrary":
+  version "1.0.0"
+  dependencies:
+    format-util "^1.0.5"
+
 balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
@@ -5913,11 +5918,6 @@ kleur@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
-
-"kmp-lib@file:../backintime-websocket-event/build/dist/js/productionLibrary":
-  version "1.0.0"
-  dependencies:
-    format-util "^1.0.5"
 
 lazy-cache@^2.0.1:
   version "2.0.2"

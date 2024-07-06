@@ -4,7 +4,7 @@ import {InstanceInfo} from "../data/InstanceInfo";
 import {AppState} from "../reducer/appReducer";
 import {ClassInfo} from "../data/ClassInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import NotifyMethodCall = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
 import NotifyValueChange = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
 

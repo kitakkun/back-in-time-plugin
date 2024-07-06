@@ -4,7 +4,7 @@ import {EditAndEmitValueView} from "./EditAndEmitValueView";
 import React from "react";
 import {Modal} from "antd";
 import {appActions} from "../../../reducer/appReducer";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function EditAndEmitValueModalPage() {

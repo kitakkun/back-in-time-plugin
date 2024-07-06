@@ -6,7 +6,7 @@ import {backInTimeStateSelector} from "./BackInTimeSelector";
 import {MethodCallHistoryInfo} from "./HistoryInfo";
 import {appActions} from "../../../reducer/appReducer";
 import {backInTimeActions} from "./BackInTimeReducer";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function BackInTimeModalPage() {

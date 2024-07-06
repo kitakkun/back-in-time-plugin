@@ -66,7 +66,7 @@
     "@mui/material": "^5.14.18",
     "@reduxjs/toolkit": "^1.9.7",
     "@textea/json-viewer": "^3.2.3",
-    "kmp-lib": "file:../backintime-websocket-event/build/dist/js/productionLibrary",
+    "backintime-websocket-event": "file:../backintime-websocket-event/build/dist/js/productionLibrary",
     "react-icons": "^5.0.1",
     "react-redux": "^8.1.3"
   }
