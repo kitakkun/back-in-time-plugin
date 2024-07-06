@@ -1,4 +1,4 @@
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebugServiceEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
 
 export type IncomingEvents = {

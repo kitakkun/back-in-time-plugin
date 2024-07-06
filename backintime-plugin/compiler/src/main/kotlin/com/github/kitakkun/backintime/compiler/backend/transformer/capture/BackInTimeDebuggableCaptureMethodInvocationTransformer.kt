@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isPropertyAccessor
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -32,8 +33,9 @@ class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransfor
 
             val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClassDispatchReceiver))
-                putValueArgument(1, irGet(uuidVariable))
-                putValueArgument(2, irString(declaration.name.asString()))
+                putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: return declaration))
+                putValueArgument(2, irGet(uuidVariable))
+                putValueArgument(3, irString(declaration.name.asString()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))

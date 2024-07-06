@@ -11,7 +11,8 @@ import kotlin.test.assertIs
 
 class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
     companion object {
-        private const val PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.basic.PropertyChangeEventTest.TestStateHolder.property"
+        private const val CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.basic.PropertyChangeEventTest.TestStateHolder"
+        private const val PROPERTY_NAME = "property"
     }
 
     @BackInTime
@@ -31,7 +32,8 @@ class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
         delay(100)
         assertEquals(expected = 1, actual = notifyValueChangeEvents.size)
         assertEquals(holder.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
-        assertEquals(expected = PROPERTY_FQ_NAME, actual = notifyValueChangeEvents[0].propertyFqName)
+        assertEquals(expected = CLASS_FQ_NAME, actual = notifyValueChangeEvents[0].ownerClassFqName)
+        assertEquals(expected = PROPERTY_NAME, actual = notifyValueChangeEvents[0].propertyName)
         assertEquals(expected = 1, actual = notifyValueChangeEvents[0].value.toInt())
 
         // external access can't be captured

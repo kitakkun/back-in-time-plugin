@@ -13,8 +13,9 @@ import kotlin.test.assertIs
 
 class TypeMismatchExceptionTest {
     companion object {
-        private const val PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.exception.TypeMismatchExceptionTest.TestStateHolder.property"
-        private const val VALUE_CONTAINER_PROPERTY_FQ_NAME = "com.github.kitakkun.backintime.test.exception.TypeMismatchExceptionTest.TestStateHolder.valueContainerProperty"
+        private const val CLASS_FQ_NAME = "com.github.kitakkun.backintime.test.exception.TypeMismatchExceptionTest.TestStateHolder"
+        private const val PROPERTY_NAME = "property"
+        private const val VALUE_CONTAINER_PROPERTY_NAME = "valueContainerProperty"
     }
 
     @ValueContainer
@@ -33,7 +34,7 @@ class TypeMismatchExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.TypeMismatchException::class) {
-            holder.forceSetValue(PROPERTY_FQ_NAME, 1)
+            holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = 1)
         }
     }
 
@@ -42,7 +43,7 @@ class TypeMismatchExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.TypeMismatchException::class) {
-            holder.forceSetValue(VALUE_CONTAINER_PROPERTY_FQ_NAME, "test")
+            holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = VALUE_CONTAINER_PROPERTY_NAME, value = "test")
         }
     }
 }

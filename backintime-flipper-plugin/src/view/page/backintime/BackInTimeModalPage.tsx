@@ -6,7 +6,7 @@ import {backInTimeStateSelector} from "./BackInTimeSelector";
 import {MethodCallHistoryInfo} from "./HistoryInfo";
 import {appActions} from "../../../reducer/appReducer";
 import {backInTimeActions} from "./BackInTimeReducer";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function BackInTimeModalPage() {
@@ -34,15 +34,13 @@ export function BackInTimeModalPage() {
                   .filter((history) => history.title == "methodCall")
                   .map((history) => history as MethodCallHistoryInfo);
                 const allValueChanges = methodCallHistories.flatMap((history) => history.valueChanges);
-                const properties = distinctBy(allValueChanges.map((valueChange) => valueChange.propertyFqName), (name) => name);
-                properties.forEach((name) => {
-                  const value = allValueChanges.reverse().find((valueChange) => valueChange.propertyFqName == name)?.value;
-                  if (!value) return;
+                const propertyValueChanges = distinctBy(allValueChanges.reverse(), (valueChange) => valueChange.ownerClassFqName + valueChange.propertyName);
+                propertyValueChanges.forEach((info) => {
                   const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
                     state.instanceUUID,
-                    name,
-                    value,
-                    "", // 使われてないから大丈夫
+                    info.ownerClassFqName,
+                    info.propertyName,
+                    info.value,
                   );
                   dispatch(appActions.forceSetPropertyValue(event));
                 });

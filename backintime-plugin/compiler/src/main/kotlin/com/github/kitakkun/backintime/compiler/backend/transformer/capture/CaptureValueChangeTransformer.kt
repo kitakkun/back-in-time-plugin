@@ -70,9 +70,10 @@ class CaptureValueChangeTransformer(
             valueArgument = with(irBuiltIns.createIrBuilder(symbol)) {
                 irCall(captureThenReturnValueFunctionSymbol).apply {
                     putValueArgument(0, irGet(classDispatchReceiverParameter))
-                    putValueArgument(1, irGet(uuidVariable))
-                    putValueArgument(2, irString(property.fqNameWhenAvailable?.asString() ?: return null))
-                    putValueArgument(3, value)
+                    putValueArgument(1, irString(parentClassSymbol.owner.fqNameWhenAvailable?.asString() ?: return null))
+                    putValueArgument(2, irGet(uuidVariable))
+                    putValueArgument(3, irString(property.name.asString()))
+                    putValueArgument(4, value)
                 }
             },
         )

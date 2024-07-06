@@ -6,7 +6,7 @@ import {Modal} from "antd";
 import {editAndEmitValueActions} from "../edited_value_emitter/EditAndEmitValueReducer";
 import {appActions} from "../../../reducer/appReducer";
 import {EditAndEmitValueModalPage} from "../edited_value_emitter/EditAndEmitValueModalPage";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function ValueEmitModalPage() {
@@ -29,11 +29,11 @@ export function ValueEmitModalPage() {
           onValueEmit={(propertyName: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
             const valueType = state.classInfo?.properties.find((property) => property.name == propertyName)?.valueType;
-            if (!instanceUUID || !valueType) {
+            const className = state.classInfo?.name
+            if (!instanceUUID || !valueType || !className) {
               return;
             }
-            const propertyFqName = `${state.classInfo?.name}.${propertyName}`;
-            const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertyFqName, value, valueType);
+            const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, className, propertyName, value);
             dispatch(appActions.forceSetPropertyValue(event));
           }}
           onEditAndEmitValue={(propertyName: string, value: string) => {

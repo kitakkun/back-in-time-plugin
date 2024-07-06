@@ -4,7 +4,7 @@ import {InstanceInfo} from "../data/InstanceInfo";
 import {AppState} from "../reducer/appReducer";
 import {ClassInfo} from "../data/ClassInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import NotifyMethodCall = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
 import NotifyValueChange = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
 
@@ -71,6 +71,7 @@ test(`notifyMethodCall event`, () => {
 
   sendEvent("notifyMethodCall", {
     methodName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
     methodCallUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
@@ -80,6 +81,7 @@ test(`notifyMethodCall event`, () => {
 
   expect(state.methodCallInfoList[0]).toEqual({
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
+    ownerClassFqName: "com.example.MyClass",
     methodName: "hoge",
     callUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
@@ -97,6 +99,7 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyMethodCall", {
     methodName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
     methodCallUUID: methodCallUUID,
     calledAt: calledAt,
@@ -104,19 +107,22 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyValueChange", {
     instanceUUID: instanceUUID,
-    propertyFqName: "hoge",
+    ownerClassFqName: "com.example.MyClass",
+    propertyName: "hoge",
     value: "fuga",
     methodCallUUID: methodCallUUID,
   } as NotifyValueChange);
 
   expect(store.getState().app.methodCallInfoList[0]).toEqual({
+    ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
     methodName: "hoge",
     callUUID: methodCallUUID,
     calledAt: calledAt,
     valueChanges: [
       {
-        propertyFqName: "hoge",
+        ownerClassFqName: "com.example.MyClass",
+        propertyName: "hoge",
         value: "fuga",
       }
     ],

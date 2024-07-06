@@ -3,7 +3,7 @@ import {ClassInfo} from "../data/ClassInfo";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
 import {DependencyInfo} from "../data/DependencyInfo";
-import {com} from "kmp-lib";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent;
 
@@ -85,6 +85,7 @@ const appSlice = createSlice({
     registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {
       const event = action.payload;
       state.methodCallInfoList.push({
+        ownerClassFqName: event.ownerClassFqName,
         callUUID: event.methodCallUUID,
         instanceUUID: event.instanceUUID,
         methodName: event.methodName,
@@ -97,7 +98,8 @@ const appSlice = createSlice({
       const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
       if (!methodCallInfo) return;
       methodCallInfo.valueChanges.push({
-        propertyFqName: event.propertyFqName,
+        ownerClassFqName: event.ownerClassFqName,
+        propertyName: event.propertyName,
         value: event.value,
       });
     },
