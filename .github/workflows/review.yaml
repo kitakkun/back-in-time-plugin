@@ -53,5 +53,9 @@ jobs:
       - run: yarn install
         working-directory: backintime-flipper-plugin
 
+      - name: compile typescript
+        run: npx tsc
+        working-directory: backintime-flipper-plugin
+
       - run: yarn test
         working-directory: backintime-flipper-plugin
