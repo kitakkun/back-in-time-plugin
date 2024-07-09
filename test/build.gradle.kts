@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.backintimeLint)
-    id("com.github.kitakkun.backintime") version "1.0.0"
+    id("io.github.kitakkun.backintime") version "1.0.0"
 }
 
 kotlin {
@@ -48,7 +48,7 @@ kotlin {
 
 android {
     compileSdk = 34
-    namespace = "com.github.kitakkun.backintime.test"
+    namespace = "io.github.kitakkun.backintime.test"
 }
 
 backInTime {
@@ -59,7 +59,7 @@ backInTime {
         collections()
 
         container {
-            className = "com/github/kitakkun/backintime/test/specific/GradleConfiguredValueContainerTest.GradleConfiguredValueContainer"
+            className = "io/github/kitakkun/backintime/test/specific/GradleConfiguredValueContainerTest.GradleConfiguredValueContainer"
             captures = listOf("<set-value>", "update")
             getter = "<get-value>"
             setter = "<set-value>"

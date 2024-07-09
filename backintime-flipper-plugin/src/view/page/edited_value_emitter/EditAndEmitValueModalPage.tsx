@@ -4,8 +4,8 @@ import {EditAndEmitValueView} from "./EditAndEmitValueView";
 import React from "react";
 import {Modal} from "antd";
 import {appActions} from "../../../reducer/appReducer";
-import {com} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = com.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import {io} from "backintime-websocket-event";
+import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
 
 export function EditAndEmitValueModalPage() {
   const state = useSelector(editAndEmitValueStateSelector);

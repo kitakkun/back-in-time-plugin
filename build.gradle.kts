@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.backintimeLint) apply false
 }
 
-group = "com.github.kitakkun.backintime"
+group = "io.github.kitakkun.backintime"
 version = "1.0.0"
 
 subprojects {

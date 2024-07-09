@@ -5,15 +5,15 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
     alias(libs.plugins.compose.compiler)
-    id("com.github.kitakkun.backintime") version "1.0.0"
+    id("io.github.kitakkun.backintime") version "1.0.0"
 }
 
 android {
-    namespace = "com.github.kitakkun.backintime.evaluation"
+    namespace = "io.github.kitakkun.backintime.evaluation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.github.kitakkun.backintime.evaluation"
+        applicationId = "io.github.kitakkun.backintime.evaluation"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
