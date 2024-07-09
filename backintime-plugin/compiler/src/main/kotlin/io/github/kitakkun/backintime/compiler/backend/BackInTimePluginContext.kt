@@ -1,8 +1,10 @@
 package io.github.kitakkun.backintime.compiler.backend
 
-import io.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import io.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import io.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import io.github.kitakkun.backintime.compiler.util.MessageCollectorHolder
+import io.github.kitakkun.backintime.compiler.valuecontainer.ValueContainerBuiltIns
+import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
@@ -18,7 +20,13 @@ class BackInTimePluginContext(
     moduleFragment: IrModuleFragment,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
-    val valueContainerClassInfoList: List<ValueContainerClassInfo> = config.valueContainers + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
+    val valueContainerClassInfoList: List<ResolvedValueContainer> = ValueContainerBuiltIns.mapNotNull {
+        val resolvedValueContainer = ResolvedValueContainer.create(it)
+        if (resolvedValueContainer == null) {
+            MessageCollectorHolder.reportWarning("Could not resolve value container: ${it.classId}")
+        }
+        resolvedValueContainer
+    } // + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
     private val internalCompilerApiPackageFqName = FqName("io.github.kitakkun.backintime.runtime.internal")
 

@@ -8,7 +8,6 @@ import io.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExp
 import io.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
 import io.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import io.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
-import io.github.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
@@ -22,7 +21,6 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
@@ -57,7 +55,7 @@ class CaptureValueChangeTransformer(
         return receiverAndArgs()
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
-                property.parentClassOrNull?.symbol == parentClassSymbol && valueContainerClassInfoList.any { it.classId == property.getter?.returnType?.classOrNull?.owner?.classId }
+                property.parentClassOrNull?.symbol == parentClassSymbol && valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
             }
     }
 
@@ -87,7 +85,11 @@ class CaptureValueChangeTransformer(
         }
 
         if (isValueContainerSetterCall()) {
-            return transformValueContainerSetterCall() ?: this
+            return captureIfNeeded(
+                parentClassSymbol = parentClassSymbol,
+                classDispatchReceiverParameter = classDispatchReceiverParameter,
+                uuidVariable = uuidVariable,
+            ) ?: this
         }
 
         if (isIndirectValueContainerSetterCall()) {
@@ -113,20 +115,6 @@ class CaptureValueChangeTransformer(
                     uuidVariable = uuidVariable,
                 ),
             )
-        }
-    }
-
-    private fun IrCall.transformValueContainerSetterCall(): IrExpression? {
-        val property = receiver?.getCorrespondingProperty() ?: return null
-        with(irBuiltIns.createIrBuilder(symbol)) {
-            val getValueCall = property.generateCaptureValueCallForValueContainer(
-                instanceParameter = classDispatchReceiverParameter,
-                uuidVariable = uuidVariable,
-            ) ?: return null
-            return irComposite {
-                +this@transformValueContainerSetterCall
-                +getValueCall
-            }
         }
     }
 
