@@ -22,5 +22,5 @@ kotlin {
 
 android {
     compileSdk = 34
-    namespace = "com.github.kitakkun.backintime.annotations"
+    namespace = "io.github.kitakkun.backintime.annotations"
 }

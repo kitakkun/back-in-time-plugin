@@ -4,9 +4,9 @@ plugins {
 
 gradlePlugin {
     plugins {
-        register("com.github.kitakkun.backintime.conventions.ktlint") {
+        register("io.github.kitakkun.backintime.conventions.ktlint") {
             id = "backintime.lint"
-            implementationClass = "com.github.kitakkun.backintime.convention.LintConventionPlugin"
+            implementationClass = "io.github.kitakkun.backintime.convention.LintConventionPlugin"
         }
     }
 }
