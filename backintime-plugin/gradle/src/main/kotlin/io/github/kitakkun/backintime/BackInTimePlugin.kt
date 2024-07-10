@@ -3,8 +3,6 @@ package io.github.kitakkun.backintime
 import io.github.kitakkun.backintime.extension.BackInTimeExtension
 import io.github.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import io.github.kitakkun.backintime.plugin.BackInTimePluginConsts
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -14,7 +12,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
-import java.util.Base64
 
 class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
@@ -60,16 +57,7 @@ class BackInTimePlugin : KotlinCompilerPluginSupportPlugin {
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java) ?: BackInTimeExtension()
         return kotlinCompilation.target.project.provider {
-            listOf(
-                SubpluginOption(key = BackInTimeCompilerOptionKey.ENABLED, value = extension.enabled.toString()),
-            ).plus(
-                extension.valueContainers
-                    .map { Json.encodeToString(it) }
-                    .map { Base64.getEncoder().encodeToString(it.toByteArray(Charsets.UTF_8)) }
-                    .map {
-                        SubpluginOption(key = BackInTimeCompilerOptionKey.VALUE_CONTAINER, value = it)
-                    },
-            )
+            listOf(SubpluginOption(key = BackInTimeCompilerOptionKey.ENABLED, value = extension.enabled.toString()))
         }
     }
 

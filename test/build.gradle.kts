@@ -53,18 +53,6 @@ android {
 
 backInTime {
     enabled = true
-    valueContainers {
-        androidValueContainers()
-        composeMutableStates()
-        collections()
-
-        container {
-            className = "io/github/kitakkun/backintime/test/specific/GradleConfiguredValueContainerTest.GradleConfiguredValueContainer"
-            captures = listOf("<set-value>", "update")
-            getter = "<get-value>"
-            setter = "<set-value>"
-        }
-    }
 }
 
 // publish required artifacts when performing sync on IDEA

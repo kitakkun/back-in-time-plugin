@@ -90,9 +90,5 @@ dependencies {
 }
 
 backInTime {
-    valueContainers {
-        androidValueContainers()
-        composeMutableStates()
-        collections()
-    }
+    enabled = true
 }
