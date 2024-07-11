@@ -78,20 +78,6 @@ dependencies {
 
 backInTime {
     enabled = true // default is true
-    // [NOTE] we might remove this feature soon, and will introduce easier way to configure value containers in other modules by using annotations.
-    valueContainers {
-        androidValueContainers() // support for MutableLiveData, MutableStateFlow, MutableState
-        composeMutableStates()   // support for MutableState, MutableIntState, MutableLongState, etc...
-        collections()            // support for MutableList, MutableMap, MutableSet
-
-        // You can also add your own value container
-        container {
-            className = "com.example.MyValueContainer"
-            captures = listOf("<set-value>", "updateValue")
-            getter = "<get-value>"
-            setter = "<set-value>"
-        }
-    }
 }
 ```
 
