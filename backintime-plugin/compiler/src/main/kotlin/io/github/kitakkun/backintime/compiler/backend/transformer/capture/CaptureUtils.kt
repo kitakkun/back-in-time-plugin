@@ -6,8 +6,6 @@ import io.github.kitakkun.backintime.compiler.backend.utils.receiver
 import io.github.kitakkun.backintime.compiler.valuecontainer.raw.CaptureStrategy
 import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
-import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
-import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -16,13 +14,10 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.statements
 
 context(BackInTimePluginContext)
 fun IrCall.captureIfNeeded(
@@ -42,23 +37,6 @@ fun IrCall.captureIfNeeded(
     return when (captureStrategy) {
         is CaptureStrategy.AfterCall -> {
             captureAfterCall(
-                propertyGetter = propertyGetterSymbol,
-                classDispatchReceiverParameter = classDispatchReceiverParameter,
-                uuidVariable = uuidVariable,
-                ownerClassName = ownerClassName,
-                propertyName = propertyName,
-                valueContainer = valueContainer,
-            )
-        }
-
-        is CaptureStrategy.LambdaLastExpression -> {
-            captureLambdaLastExpression(
-                classDispatchReceiverParameter = classDispatchReceiverParameter,
-                uuidVariable = uuidVariable,
-                ownerClassName = ownerClassName,
-                propertyName = propertyName,
-                index = captureStrategy.index,
-            ) ?: captureAfterCall(
                 propertyGetter = propertyGetterSymbol,
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
@@ -143,40 +121,4 @@ private fun IrCall.captureValueArgument(
         },
     )
     return this
-}
-
-context(BackInTimePluginContext)
-private fun IrCall.captureLambdaLastExpression(
-    classDispatchReceiverParameter: IrValueParameter,
-    uuidVariable: IrVariable,
-    ownerClassName: String,
-    propertyName: String,
-    index: Int,
-): IrExpression? {
-    val valueArgument = valueArguments[index] ?: return null
-    when (valueArgument) {
-        is IrFunctionExpression -> {
-            val function = valueArgument.function
-            val statements = function.body?.statements ?: return null
-            val lastExpression = statements.last() as? IrExpression ?: return null
-            with(irBuiltIns.createIrBuilder(function.symbol)) {
-                function.body = irBlockBody {
-                    +statements.dropLast(1)
-                    irCall(captureThenReturnValueFunctionSymbol).apply {
-                        putValueArgument(0, irGet(classDispatchReceiverParameter))
-                        putValueArgument(1, irString(ownerClassName))
-                        putValueArgument(2, irGet(uuidVariable))
-                        putValueArgument(3, irString(propertyName))
-                        putValueArgument(4, lastExpression)
-                    }
-                }
-            }
-            return this@captureLambdaLastExpression
-        }
-
-        // shared lambda object can't be modified to capture value changes
-        is IrGetValue -> return null
-
-        else -> return null
-    }
 }
