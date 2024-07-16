@@ -28,9 +28,9 @@ val ValueContainerBuiltIns = listOf(
         setter = listOf(memberPropertySetter("value"))
         captureTargets = listOf(
             memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            memberFunction("update") to CaptureStrategy.LambdaLastExpression(),
-            memberFunction("updateAndGet") to CaptureStrategy.LambdaLastExpression(),
-            memberFunction("getAndUpdate") to CaptureStrategy.LambdaLastExpression(),
+            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("update"))) to CaptureStrategy.AfterCall,
+            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("updateAndGet"))) to CaptureStrategy.AfterCall,
+            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("getAndUpdate"))) to CaptureStrategy.AfterCall,
             memberFunction("emit") to CaptureStrategy.ValueArgument(),
             memberFunction("tryEmit") to CaptureStrategy.ValueArgument(),
         )
