@@ -128,6 +128,8 @@ private fun IrCall.captureValueArgument(
     propertyName: String,
 ): IrExpression {
     val irBuilder = irBuiltIns.createIrBuilder(symbol)
+    val originalValueArgument = getValueArgument(index)
+
     putValueArgument(
         index = index,
         valueArgument = with(irBuilder) {
@@ -136,7 +138,7 @@ private fun IrCall.captureValueArgument(
                 putValueArgument(1, irString(ownerClassName))
                 putValueArgument(2, irGet(uuidVariable))
                 putValueArgument(3, irString(propertyName))
-                putValueArgument(4, valueArguments[index])
+                putValueArgument(4, originalValueArgument)
             }
         },
     )
