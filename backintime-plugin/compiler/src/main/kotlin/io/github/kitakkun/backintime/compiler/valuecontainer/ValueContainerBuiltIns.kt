@@ -178,7 +178,7 @@ val ValueContainerBuiltIns = listOf(
             memberFunction("put") to CaptureStrategy.AfterCall,
             memberFunction("putAll") to CaptureStrategy.AfterCall,
             memberFunction("remove") to CaptureStrategy.AfterCall,
-            memberFunction("set") to CaptureStrategy.AfterCall,
+            function(CallableId(FqName("kotlin.collections"), Name.identifier("set"))) to CaptureStrategy.AfterCall,
         )
         serializeAs = classId("kotlin.collections", "Map")
     },
