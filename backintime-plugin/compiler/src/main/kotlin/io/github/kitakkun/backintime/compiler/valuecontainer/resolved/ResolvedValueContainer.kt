@@ -5,12 +5,11 @@ import io.github.kitakkun.backintime.compiler.valuecontainer.raw.CaptureStrategy
 import io.github.kitakkun.backintime.compiler.valuecontainer.raw.RawValueContainer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.kotlinFqName
+import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.synthetic.isVisibleOutside
 
 sealed class ResolvedValueContainer {
@@ -102,11 +101,7 @@ sealed class ResolvedValueContainer {
         }
 
         private fun IrClass.getAllMemberCallables(): List<IrSimpleFunctionSymbol> {
-            val allMemberDeclarations = declarations + getAllSuperclasses().flatMap { it.declarations }
-            val allMemberCallables = mutableListOf<IrSimpleFunctionSymbol>()
-            allMemberCallables += allMemberDeclarations.filterIsInstance<IrSimpleFunction>().map { it.symbol }
-            allMemberCallables += allMemberDeclarations.filterIsInstance<IrProperty>().flatMap { listOfNotNull(it.getter, it.setter) }.map { it.symbol }
-            return allMemberCallables
+            return (simpleFunctions() + getAllSuperclasses().flatMap { it.simpleFunctions() }).map { it.symbol }
         }
     }
 
