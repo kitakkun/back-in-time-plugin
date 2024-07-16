@@ -43,6 +43,11 @@ kotlin {
                 implementation(libs.androidx.compose.runtime)
             }
         }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.robolectric)
+            }
+        }
     }
 }
 
