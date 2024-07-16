@@ -10,8 +10,15 @@ class StateFlowCaptureTest : BackInTimeDebugServiceTest() {
 
         viewModel.updateValues()
 
-        val values = propertyValueChangeEvents.map { it.propertyValue }
-        val expectedValues = listOf("Hoge", "Fuga", "Piyo", "Foo", "Bar", "Baz")
+        val values = propertyValueChangeEvents.map { it.value }
+        val expectedValues = listOf(
+            "\"Hoge\"",
+            "\"Fuga\"",
+            "\"Piyo\"",
+            "\"Foo\"",
+            "\"Bar\"",
+            "\"Baz\""
+        )
         assertEquals(expectedValues, values)
     }
 }

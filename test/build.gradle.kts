@@ -46,7 +46,6 @@ kotlin {
         val androidUnitTest by getting {
             dependencies {
                 implementation(libs.robolectric)
-                implementation(libs.mockk)
             }
         }
     }
