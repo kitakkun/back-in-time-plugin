@@ -1,25 +1,46 @@
 package io.github.kitakkun.backintime.compiler.backend.transformer.capture
 
 import io.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import io.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
+import io.github.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import io.github.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
+import io.github.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
+import io.github.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
 import io.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import io.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
+import io.github.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
+import io.github.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
+import io.github.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
+import io.github.kitakkun.backintime.compiler.backend.utils.receiver
+import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
+import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irString
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isPropertyAccessor
+import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
+import org.jetbrains.kotlin.name.Name
 
 context(BackInTimePluginContext)
-class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransformerVoid() {
-    override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
+class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransformerVoidWithContext() {
+    override fun visitFunctionNew(declaration: IrFunction): IrStatement {
         if (declaration.isBackInTimeGenerated) return declaration
         if (declaration.isPropertyAccessor) return declaration
 
@@ -39,16 +60,151 @@ class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransfor
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
+        }
 
-            declaration.transformChildrenVoid(
-                CaptureValueChangeTransformer(
-                    parentClassSymbol = parentClass.symbol,
-                    classDispatchReceiverParameter = parentClassDispatchReceiver,
-                    uuidVariable = uuidVariable,
+        declaration.transformChildrenVoid()
+        return declaration
+    }
+
+    override fun visitCall(expression: IrCall): IrExpression {
+        expression.transformChildrenVoid()
+
+        return when {
+            expression.isPureSetterCall() -> expression.transformPureSetterCall()
+            expression.isValueContainerRelevantCall() -> expression.transformValueContainerRelevantCall()
+            else -> expression
+        } ?: expression
+    }
+
+    private fun IrCall.isPureSetterCall(): Boolean {
+        val propertySymbol = this.symbol.owner.correspondingPropertySymbol ?: return false
+        val propertyOwnerClass = propertySymbol.owner.parentClassOrNull ?: return false
+        val isSetter = this.symbol.owner.isSetter
+        return isSetter && propertyOwnerClass.isBackInTimeDebuggable
+    }
+
+    private fun IrCall.transformPureSetterCall(): IrExpression? {
+        val function = currentFunction?.irElement as? IrFunction ?: return null
+        val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return null
+        val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
+        val parentClassFqName = property.parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return null
+        val classDispatchReceiverParameter = function.dispatchReceiverParameter ?: return null
+        val value = this.valueArguments.first()
+
+        this.putValueArgument(
+            index = 0,
+            valueArgument = with(irBuiltIns.createIrBuilder(symbol)) {
+                irCall(captureThenReturnValueFunctionSymbol).apply {
+                    putValueArgument(0, irGet(classDispatchReceiverParameter))
+                    putValueArgument(1, irString(parentClassFqName))
+                    putValueArgument(2, uuidVariable?.let { irGet(uuidVariable) } ?: irString("GEHOGE"))
+                    putValueArgument(3, irString(property.name.asString()))
+                    putValueArgument(4, value)
+                }
+            },
+        )
+
+        return this
+    }
+
+    private fun IrFunction.getLocalMethodInvocationIdVariable(): IrVariable? {
+        var variable: IrVariable? = null
+        this.acceptVoid(
+            object : IrElementVisitorVoid {
+                override fun visitElement(element: IrElement) {
+                    element.acceptChildrenVoid(this)
+                }
+
+                override fun visitVariable(declaration: IrVariable) {
+                    if (declaration.isBackInTimeGenerated && declaration.name == Name.identifier("backInTimeUUID")) {
+                        variable = declaration
+                    }
+                }
+            }
+        )
+        return variable
+    }
+
+    private fun IrCall.isValueContainerRelevantCall(): Boolean {
+        return receiverAndArgs()
+            .mapNotNull { it.getCorrespondingProperty() }
+            .any { property ->
+                property.parentClassOrNull?.isBackInTimeDebuggable == true &&
+                    valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
+            }
+    }
+
+
+    private fun IrCall.transformValueContainerRelevantCall(): IrExpression {
+        if (isLambdaFunctionRelevantCall()) {
+            transformInsideRelevantLambdaFunctions()
+        }
+
+        if (isValueContainerSetterCall()) {
+            val function = currentFunction?.irElement as? IrFunction
+            val uuidVariable = function?.getLocalMethodInvocationIdVariable()
+            val classDispatchReceiverParameter = function?.dispatchReceiverParameter
+            val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
+
+            return captureIfNeeded(
+                parentClassSymbol = parentClassSymbol ?: return this,
+                classDispatchReceiverParameter = classDispatchReceiverParameter ?: return this,
+                uuidVariable = uuidVariable ?: return this,
+            ) ?: this
+        }
+
+        if (isIndirectValueContainerSetterCall()) {
+            return transformIndirectValueContainerSetterCall()
+        }
+
+        return this
+    }
+
+    private fun IrCall.transformInsideRelevantLambdaFunctions() {
+        val involvingLambdas = getRelevantLambdaExpressions()
+
+        val function = currentFunction?.irElement as? IrFunction
+        val uuidVariable = function?.getLocalMethodInvocationIdVariable()
+        val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
+        val classDispatchReceiverParameter = function?.dispatchReceiverParameter
+
+        val passedProperties = receiverAndArgs()
+            .mapNotNull { it.getCorrespondingProperty() }
+            .filter { it.parentClassOrNull?.symbol == parentClassSymbol }
+            .toSet()
+
+        involvingLambdas.forEach { lambda ->
+            lambda.transformChildrenVoid(
+                LambdaArgumentBodyTransformer(
+                    passedProperties = passedProperties,
+                    classDispatchReceiverParameter = classDispatchReceiverParameter ?: return,
+                    uuidVariable = uuidVariable ?: return,
                 ),
             )
         }
+    }
 
-        return declaration
+    private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
+        val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
+
+        val function = currentFunction?.irElement as? IrFunction
+        val uuidVariable = function?.getLocalMethodInvocationIdVariable()
+        val classDispatchReceiverParameter = function?.dispatchReceiverParameter
+
+        with(irBuiltIns.createIrBuilder(symbol)) {
+            val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
+                property.generateCaptureValueCallForValueContainer(
+                    instanceParameter = classDispatchReceiverParameter ?: return this@transformIndirectValueContainerSetterCall,
+                    uuidVariable = uuidVariable ?: return this@transformIndirectValueContainerSetterCall,
+                )
+            }
+
+            if (propertyCaptureCalls.isEmpty()) return this@transformIndirectValueContainerSetterCall
+
+            return irComposite {
+                +this@transformIndirectValueContainerSetterCall
+                +propertyCaptureCalls
+            }
+        }
     }
 }

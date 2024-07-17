@@ -17,8 +17,8 @@ class BackInTimeIrGenerationExtension(
         val context = BackInTimePluginContext(baseContext = pluginContext, config = config, moduleFragment = moduleFragment)
         with(context) {
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureMethodInvocationTransformer())
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer())
         }
     }
