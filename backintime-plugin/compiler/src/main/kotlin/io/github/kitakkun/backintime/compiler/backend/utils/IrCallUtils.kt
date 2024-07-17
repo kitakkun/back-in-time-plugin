@@ -5,7 +5,6 @@ import io.github.kitakkun.backintime.compiler.backend.analyzer.ValueContainerSta
 import org.jetbrains.kotlin.backend.jvm.ir.receiverAndArgs
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -48,12 +47,4 @@ fun IrCall.getRelevantLambdaExpressions(): Set<IrFunctionExpression> {
             else -> null
         }
     }.toSet()
-}
-
-fun IrExpression.toLambdaExpression(): IrFunctionExpression? {
-    return when (this) {
-        is IrFunctionExpression -> this
-        is IrGetValue -> (this.symbol.owner as? IrVariable)?.initializer as? IrFunctionExpression
-        else -> null
-    }
 }

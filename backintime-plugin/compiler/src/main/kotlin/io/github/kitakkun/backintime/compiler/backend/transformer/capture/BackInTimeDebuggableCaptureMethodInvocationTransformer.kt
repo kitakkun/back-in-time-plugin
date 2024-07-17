@@ -41,39 +41,49 @@ import org.jetbrains.kotlin.name.Name
 context(BackInTimePluginContext)
 class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransformerVoidWithContext() {
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
-        if (declaration.isBackInTimeGenerated) return declaration
-        if (declaration.isPropertyAccessor) return declaration
+        reportMethodInvocationIfNeeded(declaration)
+        return super.visitFunctionNew(declaration)
+    }
 
-        val parentClass = declaration.parentClassOrNull ?: return declaration
-        if (!parentClass.isBackInTimeDebuggable) return declaration
+    private fun reportMethodInvocationIfNeeded(declaration: IrFunction) {
+        if (declaration.isBackInTimeGenerated) return
+        if (declaration.isPropertyAccessor) return
 
-        val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return declaration
+        val parentClass = declaration.parentClassOrNull ?: return
+        if (!parentClass.isBackInTimeDebuggable) return
+        val parentClassFqName = parentClass.fqNameWhenAvailable?.asString() ?: return
+
+        val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return
 
         with(irBuiltIns.createIrBuilder(declaration.symbol)) {
             val uuidVariable = generateUUIDVariable()
 
             val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClassDispatchReceiver))
-                putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: return declaration))
+                putValueArgument(1, irString(parentClassFqName))
                 putValueArgument(2, irGet(uuidVariable))
                 putValueArgument(3, irString(declaration.name.asString()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
         }
-
-        declaration.transformChildrenVoid()
-        return declaration
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        expression.transformChildrenVoid()
+        super.visitCall(expression)
 
-        return when {
-            expression.isPureSetterCall() -> expression.transformPureSetterCall()
-            expression.isValueContainerRelevantCall() -> expression.transformValueContainerRelevantCall()
-            else -> expression
-        } ?: expression
+        when {
+            expression.isPureSetterCall() -> {
+                expression.transformPureSetterCall()
+                return expression
+            }
+
+            expression.isValueContainerRelevantCall() -> {
+                return expression.transformValueContainerRelevantCall()
+            }
+
+            else -> return expression
+        }
     }
 
     private fun IrCall.isPureSetterCall(): Boolean {
@@ -83,12 +93,12 @@ class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransfor
         return isSetter && propertyOwnerClass.isBackInTimeDebuggable
     }
 
-    private fun IrCall.transformPureSetterCall(): IrExpression? {
-        val function = currentFunction?.irElement as? IrFunction ?: return null
-        val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return null
-        val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return null
-        val parentClassFqName = property.parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return null
-        val classDispatchReceiverParameter = function.dispatchReceiverParameter ?: return null
+    private fun IrCall.transformPureSetterCall() {
+        val function = currentFunction?.irElement as? IrFunction ?: return
+        val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return
+        val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return
+        val parentClassFqName = property.parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return
+        val classDispatchReceiverParameter = function.dispatchReceiverParameter ?: return
         val value = this.valueArguments.first()
 
         this.putValueArgument(
@@ -97,14 +107,12 @@ class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransfor
                 irCall(captureThenReturnValueFunctionSymbol).apply {
                     putValueArgument(0, irGet(classDispatchReceiverParameter))
                     putValueArgument(1, irString(parentClassFqName))
-                    putValueArgument(2, uuidVariable?.let { irGet(uuidVariable) } ?: irString("GEHOGE"))
+                    putValueArgument(2, irGet(uuidVariable))
                     putValueArgument(3, irString(property.name.asString()))
                     putValueArgument(4, value)
                 }
             },
         )
-
-        return this
     }
 
     private fun IrFunction.getLocalMethodInvocationIdVariable(): IrVariable? {
