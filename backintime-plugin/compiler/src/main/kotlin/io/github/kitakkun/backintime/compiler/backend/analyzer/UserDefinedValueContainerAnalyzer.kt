@@ -1,41 +1,44 @@
 package io.github.kitakkun.backintime.compiler.backend.analyzer
 
-import io.github.kitakkun.backintime.compiler.backend.ValueContainerClassInfo
 import io.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
+import io.github.kitakkun.backintime.compiler.valuecontainer.raw.CaptureStrategy
+import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.classId
-import org.jetbrains.kotlin.ir.util.getValueArgument
+import org.jetbrains.kotlin.ir.util.findAnnotation
+import org.jetbrains.kotlin.ir.util.getAnnotationArgumentValue
+import org.jetbrains.kotlin.ir.util.getAnnotationValueOrNull
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
-import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.utils.addIfNotNull
+import kotlin.reflect.KClass
 
+context(IrPluginContext)
 class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
     companion object {
-        fun analyzeAdditionalValueContainerClassInfo(moduleFragment: IrModuleFragment): List<ValueContainerClassInfo> {
-            with(io.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer()) {
+        context(IrPluginContext)
+        fun analyzeAdditionalValueContainerClassInfo(moduleFragment: IrModuleFragment): List<ResolvedValueContainer> {
+            with(UserDefinedValueContainerAnalyzer()) {
                 moduleFragment.acceptChildrenVoid(this)
                 return collectedInfoList
             }
         }
     }
 
-    private val mutableCollectedInfoList = mutableListOf<ValueContainerClassInfo>()
-    val collectedInfoList: List<ValueContainerClassInfo> get() = mutableCollectedInfoList
+    private val mutableCollectedInfoList = mutableListOf<ResolvedValueContainer>()
+    val collectedInfoList: List<ResolvedValueContainer> get() = mutableCollectedInfoList
 
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
@@ -64,19 +67,26 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
         }
     }
 
-    private fun IrClass.getValueContainerClassInfo(): ValueContainerClassInfo? {
-        val classId = classId ?: return null
+    private fun IrClass.getValueContainerClassInfo(): ResolvedValueContainer? {
+        val isSelfContained = hasAnnotation(BackInTimeAnnotations.selfContainedValueContainerAnnotationFqName)
+        val serializeAs = annotations.findAnnotation(BackInTimeAnnotations.serializeAsAnnotationFqName)?.getAnnotationValueOrNull<KClass<*>>("clazz")?.java?.classId?.let { referenceClass(it) }
 
-        val serializableItSelfAnnotation = annotations.find { it.symbol.owner.parentAsClass.classId == BackInTimeAnnotations.serializableItSelfAnnotationClassId }
-        val serializableItSelf = serializableItSelfAnnotation != null
-        val serializeAs = (serializableItSelfAnnotation?.getValueArgument(Name.identifier("asClass")) as? IrConst<*>)?.value as? String
-        val serializeAsClass = if (!serializeAs.isNullOrBlank()) {
-            ClassId.fromString(serializeAs)
-        } else {
-            null
-        }
+        val captureTargets = simpleFunctions()
+            .filter { function ->
+                function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName)
+            }.map { function ->
+                val strategy = (function.correspondingPropertySymbol?.owner ?: function)
+                    .getAnnotationArgumentValue<io.github.kitakkun.backintime.annotations.CaptureStrategy>(
+                        BackInTimeAnnotations.captureAnnotationFqName, "strategy"
+                    ) ?: io.github.kitakkun.backintime.annotations.CaptureStrategy.AFTER_CALL
+                function.symbol to strategy
+            }.map { (function, strategy) ->
+                function to when (strategy) {
+                    io.github.kitakkun.backintime.annotations.CaptureStrategy.AFTER_CALL -> CaptureStrategy.AfterCall
+                    io.github.kitakkun.backintime.annotations.CaptureStrategy.VALUE_ARGUMENT -> CaptureStrategy.ValueArgument() // currently assume the index is 0
+                }
+            }
 
-        val captures = simpleFunctions().filter { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName) }.toList()
         val getter = simpleFunctions()
             .filter { function -> !function.isSetter }
             .firstOrNull { function -> function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.getterAnnotationFqName) }
@@ -87,17 +97,24 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
                 function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.setterAnnotationFqName)
             } ?: return null
 
-        if (captures.isEmpty()) return null
+        if (captureTargets.isEmpty()) return null
 
-        return ValueContainerClassInfo(
-            classId = classId,
-            capturedFunctionNames = captures.map { it.name },
-            getterFunctionName = getter.name,
-            preSetterFunctionNames = emptyList(),
-            setterFunctionName = setter.name,
-            serializeItSelf = serializableItSelf,
-            serializeAs = serializeAsClass,
-        )
+        if (isSelfContained) {
+            return ResolvedValueContainer.SelfContained(
+                classSymbol = this.symbol,
+                setterSymbols = listOf(setter.symbol),
+                captureTargetSymbols = captureTargets,
+                serializeAs = serializeAs,
+            )
+        } else {
+            return ResolvedValueContainer.Wrapper(
+                classSymbol = this.symbol,
+                getterSymbol = getter.symbol,
+                setterSymbols = listOf(setter.symbol),
+                captureTargetSymbols = captureTargets,
+                serializeAs = serializeAs,
+            )
+        }
     }
 
     private fun IrSimpleFunction.hasAnnotationOnSelfOrCorrespondingProperty(fqName: FqName): Boolean {

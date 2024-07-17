@@ -1,5 +1,6 @@
 package io.github.kitakkun.backintime.compiler.backend
 
+import io.github.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import io.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import io.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import io.github.kitakkun.backintime.compiler.util.MessageCollectorHolder
@@ -26,7 +27,7 @@ class BackInTimePluginContext(
             MessageCollectorHolder.reportWarning("Could not resolve value container: ${it.classId}")
         }
         resolvedValueContainer
-    } // + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
+    } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
     private val internalCompilerApiPackageFqName = FqName("io.github.kitakkun.backintime.runtime.internal")
 

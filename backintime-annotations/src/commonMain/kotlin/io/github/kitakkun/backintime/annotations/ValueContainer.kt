@@ -17,7 +17,7 @@ annotation class SelfContainedValueContainer
 @Target(AnnotationTarget.CLASS)
 annotation class ExternalValueContainerConfig(val forClass: KClass<*>)
 
-@Target(AnnotationTarget.ANNOTATION_CLASS)
+@Target(AnnotationTarget.CLASS)
 annotation class SerializableAs(val clazz: KClass<*>)
 
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.FUNCTION)
