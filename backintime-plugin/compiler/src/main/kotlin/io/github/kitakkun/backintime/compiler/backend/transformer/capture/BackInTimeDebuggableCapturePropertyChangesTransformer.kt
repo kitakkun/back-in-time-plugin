@@ -72,19 +72,18 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     }
 
     override fun visitCall(expression: IrCall): IrExpression {
-        super.visitCall(expression)
-
         when {
             expression.isPureSetterCall() -> {
                 expression.transformPureSetterCall()
             }
 
             expression.isValueContainerRelevantCall() -> {
+                super.visitCall(expression)
                 return expression.transformValueContainerRelevantCall()
             }
         }
 
-        return expression
+        return super.visitCall(expression)
     }
 
     private fun IrCall.isPureSetterCall(): Boolean {
@@ -175,7 +174,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
         val function = currentClosestBackInTimeDebuggableOwnerFunction()
         val uuidVariable = function?.getLocalMethodInvocationIdVariable()
-        val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
+        val parentClassSymbol = function?.parentClassOrNull?.symbol
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
         val passedProperties = receiverAndArgs()
