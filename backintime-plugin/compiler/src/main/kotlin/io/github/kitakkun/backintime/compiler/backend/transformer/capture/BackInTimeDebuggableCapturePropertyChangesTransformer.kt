@@ -29,9 +29,11 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.isLocal
 import org.jetbrains.kotlin.ir.util.isPropertyAccessor
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
+import org.jetbrains.kotlin.ir.util.parentDeclarationsWithSelf
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -93,7 +95,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     }
 
     private fun IrCall.transformPureSetterCall() {
-        val function = currentFunction?.irElement as? IrFunction ?: return
+        val function = currentClosestBackInTimeDebuggableOwnerFunction() ?: return
         val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return
         val parentClassFqName = property.parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return
@@ -148,7 +150,8 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
         }
 
         if (isValueContainerSetterCall()) {
-            val function = currentFunction?.irElement as? IrFunction
+            val function = currentClosestBackInTimeDebuggableOwnerFunction()
+
             val uuidVariable = function?.getLocalMethodInvocationIdVariable()
             val classDispatchReceiverParameter = function?.dispatchReceiverParameter
             val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
@@ -170,7 +173,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     private fun IrCall.transformInsideRelevantLambdaFunctions() {
         val involvingLambdas = getRelevantLambdaExpressions()
 
-        val function = currentFunction?.irElement as? IrFunction
+        val function = currentClosestBackInTimeDebuggableOwnerFunction()
         val uuidVariable = function?.getLocalMethodInvocationIdVariable()
         val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
@@ -194,7 +197,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
         val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
 
-        val function = currentFunction?.irElement as? IrFunction
+        val function = currentClosestBackInTimeDebuggableOwnerFunction()
         val uuidVariable = function?.getLocalMethodInvocationIdVariable()
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
@@ -213,5 +216,14 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
                 +propertyCaptureCalls
             }
         }
+    }
+
+    private fun currentClosestBackInTimeDebuggableOwnerFunction(): IrFunction? {
+        return (currentFunction?.irElement as? IrFunction)
+            ?.parentDeclarationsWithSelf
+            ?.filterIsInstance<IrFunction>()
+            ?.firstOrNull {
+                !it.isLocal && it.parentClassOrNull?.isBackInTimeDebuggable == true
+            }
     }
 }
