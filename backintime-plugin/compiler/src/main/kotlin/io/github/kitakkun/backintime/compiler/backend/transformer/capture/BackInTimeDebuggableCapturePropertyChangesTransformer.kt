@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.Name
 
 context(BackInTimePluginContext)
-class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransformerVoidWithContext() {
+class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransformerVoidWithContext() {
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
         reportMethodInvocationIfNeeded(declaration)
         return super.visitFunctionNew(declaration)
@@ -75,15 +75,14 @@ class BackInTimeDebuggableCaptureMethodInvocationTransformer : IrElementTransfor
         when {
             expression.isPureSetterCall() -> {
                 expression.transformPureSetterCall()
-                return expression
             }
 
             expression.isValueContainerRelevantCall() -> {
                 return expression.transformValueContainerRelevantCall()
             }
-
-            else -> return expression
         }
+
+        return expression
     }
 
     private fun IrCall.isPureSetterCall(): Boolean {
