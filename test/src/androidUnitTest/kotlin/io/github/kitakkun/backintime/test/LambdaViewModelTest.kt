@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class LambdaViewModelTest : BackInTimeDebugServiceTest() {
-
     @Test
     fun updateViaLocalLambdaTest() {
         val viewModel = LambdaViewModel()

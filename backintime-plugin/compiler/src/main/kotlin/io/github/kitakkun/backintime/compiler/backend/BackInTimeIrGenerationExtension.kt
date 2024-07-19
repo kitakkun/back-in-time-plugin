@@ -1,7 +1,7 @@
 package io.github.kitakkun.backintime.compiler.backend
 
 import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer
-import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCaptureMethodInvocationTransformer
+import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCapturePropertyChangesTransformer
 import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer
 import io.github.kitakkun.backintime.compiler.backend.transformer.implement.BackInTimeDebuggableImplementTransformer
 import io.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
@@ -17,8 +17,8 @@ class BackInTimeIrGenerationExtension(
         val context = BackInTimePluginContext(baseContext = pluginContext, config = config, moduleFragment = moduleFragment)
         with(context) {
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer())
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCapturePropertyChangesTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureMethodInvocationTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer())
         }
     }

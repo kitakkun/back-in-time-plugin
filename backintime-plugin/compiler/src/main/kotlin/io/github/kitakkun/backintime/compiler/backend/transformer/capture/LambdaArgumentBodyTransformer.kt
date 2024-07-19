@@ -26,11 +26,12 @@ class LambdaArgumentBodyTransformer(
 ) : IrElementTransformerVoidWithContext() {
     override fun visitCall(expression: IrCall): IrExpression {
         val receiver = expression.receiver ?: return expression
+        val receiverClassSymbol = receiver.type.classOrNull
         val receiverClassId = receiver.type.classOrNull?.owner?.classId
-        val callingFunctionName = expression.symbol.owner.name
+        val callingFunction = expression.symbol
 
-        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return expression
-        if (callingFunctionName !in valueContainerClassInfo.capturedFunctionNames) return expression
+        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return expression
+        if (callingFunction !in valueContainerClassInfo.captureTargetSymbols.map { it.first }) return expression
 
         val possibleReceiverProperties = passedProperties.filter {
             val propertyClassId = it.getter?.returnType?.classOrNull?.owner?.classId

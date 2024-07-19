@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentAsClass
@@ -85,7 +84,7 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                         val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
                         val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
-                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull?.owner?.classId in valueContainerClassInfoList.map { it.classId }
+                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull in valueContainerClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
                             putValueArgument(0, irString(irProperty.name.asString()))

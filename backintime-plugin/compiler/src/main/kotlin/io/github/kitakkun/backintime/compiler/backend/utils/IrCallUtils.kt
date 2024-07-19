@@ -8,16 +8,15 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.classId
 
 val IrCall.receiver get() = dispatchReceiver ?: extensionReceiver
 
 context(BackInTimePluginContext)
 fun IrCall.isValueContainerSetterCall(): Boolean {
-    val receiverClassId = this.receiver?.type?.classOrNull?.owner?.classId ?: return false
-    val callingFunctionName = this.symbol.owner.name
-    val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == receiverClassId } ?: return false
-    return valueContainerClassInfo.capturedFunctionNames.any { it == callingFunctionName }
+    val receiverClassSymbol = this.receiver?.type?.classOrNull ?: return false
+    val callingFunctionSymbol = this.symbol
+    val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return false
+    return valueContainerClassInfo.captureTargetSymbols.any { it.first == callingFunctionSymbol }
 }
 
 context(BackInTimePluginContext)

@@ -17,7 +17,7 @@ class StateFlowCaptureTest : BackInTimeDebugServiceTest() {
             "\"Piyo\"",
             "\"Foo\"",
             "\"Bar\"",
-            "\"Baz\""
+            "\"Baz\"",
         )
         assertEquals(expectedValues, values)
     }

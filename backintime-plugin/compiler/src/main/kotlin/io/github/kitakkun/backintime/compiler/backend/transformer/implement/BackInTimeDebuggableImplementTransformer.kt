@@ -6,6 +6,7 @@ import io.github.kitakkun.backintime.compiler.backend.utils.irValueContainerProp
 import io.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import io.github.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import io.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
+import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -33,7 +34,6 @@ import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
@@ -300,8 +300,8 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     ): IrExpression? {
         val type = property.getter?.returnType ?: return null
         val serializerType = property.getter?.returnType?.getSerializerType() ?: return null
-        val klass = type.classOrNull?.owner ?: return null
-        val correspondingContainerInfo = valueContainerClassInfoList.find { it.classId == klass.classId }
+        val classSymbol = type.classOrNull ?: return null
+        val correspondingContainerInfo = valueContainerClassInfoList.find { it.classSymbol == classSymbol }
 
         return irIfThenElse(
             condition = irIs(irGet(valueParameter), serializerType),
@@ -331,16 +331,15 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
 
     context(BackInTimePluginContext)
     private fun IrType.getSerializerType(): IrType? {
-        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classId == this.classOrNull?.owner?.classId }
-            ?: return this
+        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == this.classOrNull } ?: return this
 
         val typeArguments = (this as? IrSimpleType)?.arguments?.map { it.typeOrFail } ?: return null
-        val manuallyConfiguredSerializeType = valueContainerClassInfo.serializeAs?.let { referenceClass(it) }?.owner?.typeWith(typeArguments)
+        val manuallyConfiguredSerializeType = valueContainerClassInfo.serializeAs?.owner?.typeWith(typeArguments)
         if (manuallyConfiguredSerializeType != null) {
             return manuallyConfiguredSerializeType
         }
 
-        if (valueContainerClassInfo.serializeItSelf) {
+        if (valueContainerClassInfo is ResolvedValueContainer.SelfContained) {
             return this
         }
 

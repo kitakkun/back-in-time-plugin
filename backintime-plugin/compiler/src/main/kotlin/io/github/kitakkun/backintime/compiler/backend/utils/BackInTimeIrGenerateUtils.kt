@@ -1,6 +1,7 @@
 package io.github.kitakkun.backintime.compiler.backend.utils
 
 import io.github.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -11,10 +12,8 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
-import org.jetbrains.kotlin.name.SpecialNames
 
 context(IrBuilderWithScope, BackInTimePluginContext)
 fun irCapturePropertyValue(
@@ -59,12 +58,11 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
 
 context(BackInTimePluginContext)
 private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol? {
-    val propertyClass = getter?.returnType?.classOrNull?.owner ?: return null
-    val valueGetterCallableName = valueContainerClassInfoList
-        .find { it.classId == propertyClass.classId }
-        ?.getterFunctionName ?: return null
-    return when {
-        valueGetterCallableName == SpecialNames.THIS -> getter?.symbol
-        else -> propertyClass.getSimpleFunctionsRecursively(valueGetterCallableName).firstOrNull { it.owner.valueParameters.isEmpty() }
+    val propertyGetter = getter ?: return null
+    val propertyClassSymbol = propertyGetter.returnType.classOrNull ?: return null
+    val valueContainerInfo = valueContainerClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
+    return when (valueContainerInfo) {
+        is ResolvedValueContainer.SelfContained -> propertyGetter.symbol
+        is ResolvedValueContainer.Wrapper -> valueContainerInfo.getterSymbol
     }
 }
