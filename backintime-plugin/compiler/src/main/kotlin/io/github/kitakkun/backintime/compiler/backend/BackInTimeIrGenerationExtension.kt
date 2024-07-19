@@ -4,6 +4,7 @@ import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackIn
 import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCapturePropertyChangesTransformer
 import io.github.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer
 import io.github.kitakkun.backintime.compiler.backend.transformer.implement.BackInTimeDebuggableImplementTransformer
+import io.github.kitakkun.backintime.compiler.backend.transformer.init.BackInTimeEntryPointTransformer
 import io.github.kitakkun.backintime.compiler.configuration.BackInTimeCompilerConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -16,6 +17,7 @@ class BackInTimeIrGenerationExtension(
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val context = BackInTimePluginContext(baseContext = pluginContext, config = config, moduleFragment = moduleFragment)
         with(context) {
+            moduleFragment.transformChildrenVoid(BackInTimeEntryPointTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableCapturePropertyChangesTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())

@@ -4,6 +4,7 @@ import android.app.Application
 import com.facebook.flipper.android.AndroidFlipperClient
 import com.facebook.flipper.android.utils.FlipperUtils
 import com.facebook.soloader.SoLoader
+import io.github.kitakkun.backintime.annotations.BackInTimeEntryPoint
 import io.github.kitakkun.backintime.evaluation.di.appModule
 import io.github.kitakkun.backintime.runtime.flipper.BackInTimeFlipperPlugin
 import org.koin.android.ext.koin.androidContext
@@ -11,6 +12,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 class MyApplication : Application() {
+    @BackInTimeEntryPoint(host = "localhost", port = 8080)
     override fun onCreate() {
         super.onCreate()
 

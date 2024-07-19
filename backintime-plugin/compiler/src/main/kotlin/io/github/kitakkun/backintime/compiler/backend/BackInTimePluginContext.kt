@@ -64,4 +64,6 @@ class BackInTimePluginContext(
     val uuidFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("uuid"))).single()
 
     val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
+
+    val startBackInTimeDebugServiceFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("startBackInTimeDebugService"))).single()
 }

@@ -7,6 +7,7 @@ object BackInTimeAnnotations {
     private const val BASE_PACKAGE = "io.github.kitakkun.backintime.annotations"
     val backInTimeAnnotationFqName = FqName("$BASE_PACKAGE.BackInTime")
     val backInTimeAnnotationClassId = ClassId.topLevel(backInTimeAnnotationFqName)
+    val BACK_IN_TIME_ENTRY_POINT_FQ_NAME = FqName("$BASE_PACKAGE.BackInTimeEntryPoint")
 
     val valueContainerAnnotationFqName = FqName("$BASE_PACKAGE.ValueContainer")
     val captureAnnotationFqName = FqName("$BASE_PACKAGE.Capture")
