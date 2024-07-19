@@ -58,7 +58,7 @@ sealed class ResolvedValueContainer {
             if (possibleSetterSymbols.any { it.size > 1 }) {
                 MessageCollectorHolder.reportWarning(
                     "${classId.asString()} has multiple setter occurrences. Check if the matching filter is specific enough. matched setters: " +
-                        possibleSetterSymbols.joinToString("\n") { "[" + it.joinToString(", ") { it.owner.kotlinFqName.asString() } + "]" }
+                        possibleSetterSymbols.joinToString("\n") { "[" + it.joinToString(", ") { it.owner.kotlinFqName.asString() } + "]" },
                 )
                 return null
             }
@@ -79,12 +79,12 @@ sealed class ResolvedValueContainer {
                     if (possibleGetterSymbols.size > 1) {
                         MessageCollectorHolder.reportWarning(
                             "${classId.asString()} has multiple getter occurrences. Check if the matching filter is specific enough. matched getters: " +
-                                possibleGetterSymbols.joinToString(", ") { it.owner.kotlinFqName.asString() }
+                                possibleGetterSymbols.joinToString(", ") { it.owner.kotlinFqName.asString() },
                         )
                         return null
                     } else if (possibleGetterSymbols.isEmpty()) {
                         MessageCollectorHolder.reportWarning(
-                            "${classId.asString()} has no getter. Check if the matching filter is specific enough."
+                            "${classId.asString()} has no getter. Check if the matching filter is specific enough.",
                         )
                         return null
                     }
@@ -108,5 +108,4 @@ sealed class ResolvedValueContainer {
     fun shouldCapture(target: IrSimpleFunctionSymbol): Boolean {
         return captureTargetSymbols.any { it.first == target }
     }
-
 }

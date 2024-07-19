@@ -44,8 +44,8 @@ val ValueContainerBuiltIns = listOf(
                     addTypeMatcher(
                         genericParameter(
                             classId("kotlin.collections", "Collection"),
-                            typeParameter(0)
-                        )
+                            typeParameter(0),
+                        ),
                     )
                 }
             },
@@ -69,8 +69,8 @@ val ValueContainerBuiltIns = listOf(
                     addTypeMatcher(
                         genericParameter(
                             classId("kotlin.collections", "Collection"),
-                            typeParameter(0)
-                        )
+                            typeParameter(0),
+                        ),
                     )
                 }
             },
@@ -150,8 +150,8 @@ val ValueContainerBuiltIns = listOf(
                     addTypeMatcher(
                         genericParameter(
                             classId("kotlin.collections", "Collection"),
-                            typeParameter(0)
-                        )
+                            typeParameter(0),
+                        ),
                     )
                 }
             },

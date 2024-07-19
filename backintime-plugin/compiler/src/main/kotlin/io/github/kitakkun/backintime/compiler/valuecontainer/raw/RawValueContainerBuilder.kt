@@ -37,13 +37,13 @@ class RawValueContainerBuilder(
 fun valueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer {
     return RawValueContainerBuilder(
         classId = classId,
-        isSelfContained = false
+        isSelfContained = false,
     ).apply(init).build()
 }
 
 fun selfContainedValueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer {
     return RawValueContainerBuilder(
         classId = classId,
-        isSelfContained = true
+        isSelfContained = true,
     ).apply(init).build()
 }

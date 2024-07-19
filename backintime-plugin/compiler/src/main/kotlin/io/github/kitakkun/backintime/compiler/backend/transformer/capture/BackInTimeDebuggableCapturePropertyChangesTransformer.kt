@@ -128,7 +128,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
                         variable = declaration
                     }
                 }
-            }
+            },
         )
         return variable
     }
@@ -141,7 +141,6 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
                     valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
             }
     }
-
 
     private fun IrCall.transformValueContainerRelevantCall(): IrExpression {
         if (isLambdaFunctionRelevantCall()) {
