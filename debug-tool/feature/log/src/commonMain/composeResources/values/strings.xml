@@ -1,0 +1,7 @@
+<resources>
+    <string name="log_tab_title">Log</string>
+    <string name="table_column_time">Time</string>
+    <string name="table_column_kind">Kind</string>
+    <string name="table_column_payload">Payload</string>
+    <string name="table_column_action">Action</string>
+</resources>

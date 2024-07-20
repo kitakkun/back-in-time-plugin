@@ -1,59 +1,70 @@
-package io.github.kitakkun.backintime.core.websocket.server
+package io.github.kitakkun.backintime.websocket.server
 
-import com.benasher44.uuid.uuid4
 import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import io.github.kitakkun.backintime.core.websocket.server.Connection
+import io.github.kitakkun.backintime.core.websocket.server.ConnectionSpec
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
-import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.request.host
+import io.ktor.server.request.port
 import io.ktor.server.routing.routing
-import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import io.ktor.websocket.send
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-data class Connection(
-    val session: DefaultWebSocketServerSession,
-    val id: String = uuid4().toString(),
-)
+interface BackInTimeWebSocketServer {
+    fun start(host: String, port: Int)
+    fun stop()
+    suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent)
+    val newConnectionFlow: Flow<ConnectionSpec>
+    val receivedEventFlow: Flow<Pair<String, BackInTimeDebugServiceEvent>>
+    val disconnectedConnectionIdFlow: Flow<String>
+}
 
-class BackInTimeWebSocketServer {
-    private var server: ApplicationEngine? = null
+class BackInTimeWebSocketServerImpl : BackInTimeWebSocketServer {
+    private var server: EmbeddedServer<*, *>? = null
 
-    suspend fun getActualPort() = server?.resolvedConnectors()?.firstOrNull()?.port
-    suspend fun getActualHost() = server?.resolvedConnectors()?.firstOrNull()?.host
+    suspend fun getActualPort() = server?.engine?.resolvedConnectors()?.firstOrNull()?.port
+    suspend fun getActualHost() = server?.engine?.resolvedConnectors()?.firstOrNull()?.host
 
     val isRunning: Boolean get() = server?.application?.isActive == true
     private val connections = mutableListOf<Connection>()
 
-    private val mutableConnectionEstablishedFlow = MutableSharedFlow<String>()
-    val connectionEstablishedFlow = mutableConnectionEstablishedFlow.asSharedFlow()
+    private val mutableNewConnectionFlow = MutableSharedFlow<ConnectionSpec>()
+    override val newConnectionFlow = mutableNewConnectionFlow.asSharedFlow()
+
+    private val mutableDisconnectedConnectionIdFlow = MutableSharedFlow<String>()
+    override val disconnectedConnectionIdFlow = mutableDisconnectedConnectionIdFlow.asSharedFlow()
 
     private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
-    val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
+    override val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
 
-    fun start(host: String, port: Int) {
+    override fun start(host: String, port: Int) {
         server = configureServer(host, port)
         server?.start()
     }
 
-    suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
-        val session = connections.find { it.id == sessionId }?.session ?: return
-        session.send(Json.encodeToString(event))
-    }
-
-    fun stop() {
+    override fun stop() {
         server?.stop()
         server = null
+    }
+
+    override suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
+        val session = connections.find { it.id == sessionId }?.session ?: return
+        session.send(Json.encodeToString(event))
     }
 
     private fun configureServer(host: String, port: Int) = embeddedServer(
@@ -65,7 +76,20 @@ class BackInTimeWebSocketServer {
         configureWebSocketRouting(
             onConnect = {
                 connections.add(it)
-                mutableConnectionEstablishedFlow.emit(it.id)
+                mutableNewConnectionFlow.emit(
+                    ConnectionSpec(
+                        it.id,
+                        it.session.call.request.host(),
+                        it.session.call.request.port()
+                    )
+                )
+                it.session.closeReason.invokeOnCompletion { error ->
+                    connections.remove(it)
+                    launch {
+                        mutableDisconnectedConnectionIdFlow.emit(it.id)
+                    }
+                }
+
             },
             onReceiveEvent = { connection, event ->
                 mutableReceivedEventFlow.emit(connection.id to event)
