@@ -21,8 +21,13 @@ lifecycle-runtime-ktx = "2.8.3"
 activity-compose = "1.9.0"
 compose-bom = "2024.06.00"
 room-runtime = "2.6.1"
-koin-bom = "3.5.6"
 soloader = "0.11.0"
+
+# koin
+koin-bom = "3.6.0-Beta4"
+koin = "3.6.0-Beta4"
+koin-compose = "1.2.0-Beta4"
+koin-ksp = "1.3.1"
 
 ktor = "2.3.12"
 uuid = "0.8.4"
@@ -31,7 +36,14 @@ ktlint-gradle = "12.1.1"
 ktlint = "1.2.1"
 kotlinx-datetime = "0.6.0"
 
+# compose multiplatform
+jetbrainsCompose = "1.7.0-alpha02"
+navigation-compose = "2.8.0-alpha08"
+lifecycle-viewmodel-compose = "2.8.0"
+
 [libraries]
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+jetbrains-compose-gradle-plugin = { group = "org.jetbrains.compose", name = "compose-gradle-plugin", version.ref = "jetbrainsCompose" }
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
 
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -73,9 +85,17 @@ ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
+
+# koin
 koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
 koin-android = { group = "io.insert-koin", name = "koin-android" }
-koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin-compose" }
+koin-composeVM = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin-compose" }
+koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koin-ksp" }
+koin-ksp-compiler = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koin-ksp" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
 
 # ktor server
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
@@ -90,11 +110,17 @@ ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.re
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
+# compose-navigation and compose-viewmodel
+jetbrains-navigation-compose = { group = "org.jetbrains.androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
+jetbrains-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
+
 [plugins]
 # convention
 backintimeLint = { id = "backintime.lint", version = "unspecified" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
+backintimeDebuggerFeature = { id = "backintime.debugger.feature", version = "unspecified" }
+backintimeFeatureCommon = { id = "backintime.debugger.featurecommon", version = "unspecified" }
 
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -103,3 +129,12 @@ androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
+
+[bundles]
+koin = [
+    "koin-core",
+    "koin-compose",
+    "koin-composeVM",
+    "koin-annotations",
+]

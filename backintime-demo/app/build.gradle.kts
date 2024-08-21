@@ -80,7 +80,7 @@ dependencies {
     // koin
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
-    implementation(libs.koin.compose)
+    implementation(libs.koin.androidx.compose)
 
     // flipper and back-in-time
     debugImplementation(libs.flipper)
