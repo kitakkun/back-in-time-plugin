@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 kotlin {
@@ -16,7 +16,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-websocket-event"))
+            implementation(projects.backintimeWebsocketEvent)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.websockets)

@@ -54,9 +54,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":backintime-runtime"))
-    implementation(project(":backintime-annotations"))
-    implementation(project(":backintime-websocket-event"))
+    implementation(projects.backintimeRuntime)
+    implementation(projects.backintimeAnnotations)
+    implementation(projects.backintimeWebsocketEvent)
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)

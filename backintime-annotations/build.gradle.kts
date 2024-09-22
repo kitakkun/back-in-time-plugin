@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.backintimeLint)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 kotlin {

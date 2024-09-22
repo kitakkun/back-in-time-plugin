@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
-    `java-gradle-plugin`
-    `maven-publish`
+    alias(libs.plugins.javaGradlePlugin)
+    alias(libs.plugins.mavenPublish)
 }
 
 gradlePlugin {
@@ -16,8 +16,8 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(project(":backintime-plugin:common"))
+    implementation(projects.backintimePlugin.common)
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlinx.serialization.json)
-    compileOnly(kotlin("gradle-plugin"))
+    compileOnly(libs.kotlin.gradle.plugin)
 }

@@ -3,12 +3,12 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 dependencies {
-    implementation(project(":backintime-plugin:common"))
-    implementation(project(":backintime-annotations"))
+    implementation(projects.backintimePlugin.common)
+    implementation(projects.backintimeAnnotations)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlin.compiler.embeddable)
     implementation(libs.kotlinx.serialization.json)
