@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.backintimeLint)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 publishing {

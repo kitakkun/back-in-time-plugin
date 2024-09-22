@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 dependencies {

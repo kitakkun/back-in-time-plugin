@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.androidLibrary)
-    `maven-publish`
+    alias(libs.plugins.mavenPublish)
 }
 
 kotlin {

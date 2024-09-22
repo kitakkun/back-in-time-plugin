@@ -103,3 +103,5 @@ androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+mavenPublish = { id = "maven-publish" }
+javaGradlePlugin = { id = "java-gradle-plugin" }
