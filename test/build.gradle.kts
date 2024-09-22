@@ -19,10 +19,10 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":backintime-runtime"))
-                implementation(project(":backintime-annotations"))
-                implementation(project(":backintime-websocket-server"))
-                implementation(project(":backintime-websocket-event"))
+                implementation(projects.backintimeRuntime)
+                implementation(projects.backintimeAnnotations)
+                implementation(projects.backintimeWebsocketServer)
+                implementation(projects.backintimeWebsocketEvent)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }

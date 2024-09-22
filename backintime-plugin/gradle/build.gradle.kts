@@ -16,7 +16,7 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(project(":backintime-plugin:common"))
+    implementation(projects.backintimePlugin.common)
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlinx.serialization.json)
     compileOnly(kotlin("gradle-plugin"))

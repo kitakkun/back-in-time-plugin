@@ -17,8 +17,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":backintime-websocket-client"))
-            implementation(project(":backintime-websocket-event"))
+            implementation(projects.backintimeWebsocketClient)
+            implementation(projects.backintimeWebsocketEvent)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
