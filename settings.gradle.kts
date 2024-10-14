@@ -25,7 +25,7 @@ include(
     ":gradle-plugin",
     ":compiler",
     ":compiler-test",
-    ":backintime-demo:app",
+    ":demo:app",
     ":core:runtime",
     ":core:annotations",
     ":core:websocket:server",
