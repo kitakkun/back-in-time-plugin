@@ -33,7 +33,7 @@ jobs:
         run: ./gradlew core:websocket:event:jsNodeProductionLibraryDistribution
 
       - run: yarn install
-        working-directory: backintime-flipper-plugin
+        working-directory: flipper-plugin
 
       - run: yarn test
-        working-directory: backintime-flipper-plugin
+        working-directory: flipper-plugin
