@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
     alias(libs.plugins.compose.compiler)
-    id("io.github.kitakkun.backintime") version "1.0.0"
 }
 
 android {
@@ -26,8 +25,7 @@ android {
     }
 
     buildTypes {
-        debug {
-        }
+        debug { }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -40,7 +38,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
-        languageVersion = "2.0"
     }
     buildFeatures {
         compose = true
@@ -54,6 +51,7 @@ android {
 }
 
 dependencies {
+    kotlinCompilerPluginClasspath(projects.compiler)
     implementation(projects.core.runtime)
     implementation(projects.core.annotations)
     implementation(projects.core.websocket.event)
@@ -85,10 +83,5 @@ dependencies {
     // flipper and back-in-time
     debugImplementation(libs.flipper)
     debugImplementation(libs.soloader)
-    releaseImplementation(libs.flipper.noop)
     implementation(libs.kotlinx.serialization.json)
-}
-
-backInTime {
-    enabled = true
 }
