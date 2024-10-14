@@ -1,6 +1,10 @@
 package io.github.kitakkun.backintime.test.specific
 
-import io.github.kitakkun.backintime.core.annotations.*
+import io.github.kitakkun.backintime.core.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.Capture
+import io.github.kitakkun.backintime.core.annotations.Getter
+import io.github.kitakkun.backintime.core.annotations.Setter
+import io.github.kitakkun.backintime.core.annotations.ValueContainer
 import io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 import io.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.test.runTest
