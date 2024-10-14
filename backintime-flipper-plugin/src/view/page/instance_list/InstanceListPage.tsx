@@ -8,7 +8,7 @@ import {propertyInspectorActions} from "../../sidebar/property_inspector/propert
 import {backInTimeActions} from "../backintime/BackInTimeReducer";
 import {BackInTimeModalPage} from "../backintime/BackInTimeModalPage";
 import {io} from "backintime-websocket-event";
-import createCheckInstanceAliveEvent = io.github.kitakkun.backintime.websocket.event.createCheckInstanceAliveEvent;
+import createCheckInstanceAliveEvent = io.github.kitakkun.backintime.core.websocket.event.createCheckInstanceAliveEvent;
 
 export function InstanceListPage() {
   const state = useSelector(selectInstanceList);

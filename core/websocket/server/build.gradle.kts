@@ -32,7 +32,7 @@ kotlin {
 }
 
 android {
-    namespace = "io.github.kitakkun.backintime.websocket.server"
+    namespace = "io.github.kitakkun.backintime.core.websocket.server"
     compileSdk = 34
 }
 

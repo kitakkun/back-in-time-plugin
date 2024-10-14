@@ -13,7 +13,7 @@ import {AtomicPersistentState, initPersistentStateSlice, persistentStateReducer}
 import {rawLogInspectorReducer} from "./view/sidebar/raw_log_inspector/RawLogInspectorReducer";
 import {backInTimeReducer} from "./view/page/backintime/BackInTimeReducer";
 import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 
 export default (client: PluginClient<IncomingEvents, OutgoingEvents>) => {
   initPersistentStateSlice(generatePersistentStates());

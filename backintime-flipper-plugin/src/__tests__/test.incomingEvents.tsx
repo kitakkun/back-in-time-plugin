@@ -5,8 +5,8 @@ import {AppState} from "../reducer/appReducer";
 import {ClassInfo} from "../data/ClassInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
 import {io} from "backintime-websocket-event";
-import NotifyMethodCall = io.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
-import NotifyValueChange = io.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
+import NotifyMethodCall = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
+import NotifyValueChange = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
 
 test(`register event`, () => {
   const {instance, sendEvent} = TestUtils.startPlugin(Plugin);

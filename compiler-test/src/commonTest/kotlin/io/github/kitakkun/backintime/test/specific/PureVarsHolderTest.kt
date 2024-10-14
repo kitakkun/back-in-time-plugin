@@ -1,7 +1,7 @@
 package io.github.kitakkun.backintime.test.specific
 
-import io.github.kitakkun.backintime.annotations.BackInTime
-import io.github.kitakkun.backintime.runtime.BackInTimeDebuggable
+import io.github.kitakkun.backintime.core.annotations.BackInTime
+import io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs

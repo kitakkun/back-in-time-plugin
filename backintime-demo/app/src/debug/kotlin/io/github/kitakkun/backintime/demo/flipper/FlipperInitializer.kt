@@ -4,8 +4,8 @@ import android.content.Context
 import com.facebook.flipper.android.AndroidFlipperClient
 import com.facebook.flipper.android.utils.FlipperUtils
 import com.facebook.soloader.SoLoader
+import io.github.kitakkun.backintime.core.runtime.flipper.BackInTimeFlipperPlugin
 import io.github.kitakkun.backintime.evaluation.BuildConfig
-import io.github.kitakkun.backintime.runtime.flipper.BackInTimeFlipperPlugin
 
 class FlipperInitializer {
     fun init(context: Context) {

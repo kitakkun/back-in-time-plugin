@@ -1,12 +1,12 @@
 package io.github.kitakkun.backintime.test.exception
 
-import io.github.kitakkun.backintime.annotations.BackInTime
-import io.github.kitakkun.backintime.annotations.Capture
-import io.github.kitakkun.backintime.annotations.Getter
-import io.github.kitakkun.backintime.annotations.Setter
-import io.github.kitakkun.backintime.annotations.ValueContainer
-import io.github.kitakkun.backintime.runtime.BackInTimeDebuggable
-import io.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeException
+import io.github.kitakkun.backintime.core.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.Capture
+import io.github.kitakkun.backintime.core.annotations.Getter
+import io.github.kitakkun.backintime.core.annotations.Setter
+import io.github.kitakkun.backintime.core.annotations.ValueContainer
+import io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable
+import io.github.kitakkun.backintime.core.runtime.exception.BackInTimeRuntimeException
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs

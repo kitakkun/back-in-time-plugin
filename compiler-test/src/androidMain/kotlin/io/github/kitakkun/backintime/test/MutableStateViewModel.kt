@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 
 @BackInTime
 class MutableStateViewModel {

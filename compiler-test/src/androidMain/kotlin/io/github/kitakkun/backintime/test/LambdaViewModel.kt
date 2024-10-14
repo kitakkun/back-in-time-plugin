@@ -2,7 +2,7 @@ package io.github.kitakkun.backintime.test
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 
 @BackInTime
 class LambdaViewModel {

@@ -76,15 +76,15 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
                 function.hasAnnotationOnSelfOrCorrespondingProperty(BackInTimeAnnotations.captureAnnotationFqName)
             }.map { function ->
                 val strategy = (function.correspondingPropertySymbol?.owner ?: function)
-                    .getAnnotationArgumentValue<io.github.kitakkun.backintime.annotations.CaptureStrategy>(
+                    .getAnnotationArgumentValue<io.github.kitakkun.backintime.core.annotations.CaptureStrategy>(
                         BackInTimeAnnotations.captureAnnotationFqName,
                         "strategy",
-                    ) ?: io.github.kitakkun.backintime.annotations.CaptureStrategy.AFTER_CALL
+                    ) ?: io.github.kitakkun.backintime.core.annotations.CaptureStrategy.AFTER_CALL
                 function.symbol to strategy
             }.map { (function, strategy) ->
                 function to when (strategy) {
-                    io.github.kitakkun.backintime.annotations.CaptureStrategy.AFTER_CALL -> CaptureStrategy.AfterCall
-                    io.github.kitakkun.backintime.annotations.CaptureStrategy.VALUE_ARGUMENT -> CaptureStrategy.ValueArgument() // currently assume the index is 0
+                    io.github.kitakkun.backintime.core.annotations.CaptureStrategy.AFTER_CALL -> CaptureStrategy.AfterCall
+                    io.github.kitakkun.backintime.core.annotations.CaptureStrategy.VALUE_ARGUMENT -> CaptureStrategy.ValueArgument() // currently assume the index is 0
                 }
             }
 

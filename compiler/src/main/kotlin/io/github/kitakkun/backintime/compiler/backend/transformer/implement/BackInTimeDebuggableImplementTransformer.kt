@@ -9,31 +9,14 @@ import io.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import io.github.kitakkun.backintime.compiler.valuecontainer.resolved.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
+import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.addBackingField
-import org.jetbrains.kotlin.ir.builders.irBlockBody
-import org.jetbrains.kotlin.ir.builders.irBranch
-import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irComposite
-import org.jetbrains.kotlin.ir.builders.irElseBranch
-import org.jetbrains.kotlin.ir.builders.irEquals
-import org.jetbrains.kotlin.ir.builders.irExprBody
-import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irIfThenElse
-import org.jetbrains.kotlin.ir.builders.irIs
-import org.jetbrains.kotlin.ir.builders.irString
-import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classFqName
-import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.typeOrFail
-import org.jetbrains.kotlin.ir.types.typeWith
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
@@ -74,7 +57,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [io.github.kitakkun.backintime.runtime.BackInTimeDebuggable.forceSetValue]:
+     * generate body for [io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable.forceSetValue]:
      * ```kotlin
      * fun forceSetValue(propertyOwnerClassFqName: String, propertyName: String, value: Any?) {
      *     if (ownerClassFqName == "com.example.MyClass") {
@@ -146,7 +129,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [io.github.kitakkun.backintime.runtime.BackInTimeDebuggable.serializeValue]:
+     * generate body for [io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable.serializeValue]:
      * ```kotlin
      * override fun serializeValue(propertyOwnerClassFqName: String, propertyName: String, value: Any?): String =
      *     if (ownerClassFqName == "com.example.MyClass") {
@@ -220,7 +203,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * generate body for [io.github.kitakkun.backintime.runtime.BackInTimeDebuggable.deserializeValue]:
+     * generate body for [io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable.deserializeValue]:
      * ```kotlin
      * override fun deserializeValue(propertyOwnerClassFqName: String, propertyName: String, value: Any?): String =
      *     if (ownerClassFqName == "com.example.MyClass") {
@@ -347,7 +330,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * add a backing field for the [io.github.kitakkun.backintime.runtime.BackInTimeDebuggable.backInTimeInstanceUUID] property
+     * add a backing field for the [io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable.backInTimeInstanceUUID] property
      */
     private fun IrProperty.addBackingFieldOfBackInTimeUUID() {
         val irBuilder = irBuiltIns.createIrBuilder(symbol)
@@ -361,7 +344,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     }
 
     /**
-     * add a backing field for the [io.github.kitakkun.backintime.runtime.BackInTimeDebuggable.backInTimeInitializedPropertyMap] property
+     * add a backing field for the [io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable.backInTimeInitializedPropertyMap] property
      */
     private fun IrProperty.addBackingFieldOfBackInTimeInitializedPropertyMap() {
         val irBuilder = irBuiltIns.createIrBuilder(symbol)

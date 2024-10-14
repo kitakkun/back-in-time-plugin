@@ -1,6 +1,6 @@
 package io.github.kitakkun.backintime.test.basic
 
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 import io.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking

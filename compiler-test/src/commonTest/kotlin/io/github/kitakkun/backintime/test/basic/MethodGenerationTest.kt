@@ -1,8 +1,8 @@
 package io.github.kitakkun.backintime.test.basic
 
-import io.github.kitakkun.backintime.annotations.BackInTime
-import io.github.kitakkun.backintime.runtime.BackInTimeDebuggable
-import io.github.kitakkun.backintime.runtime.exception.BackInTimeRuntimeException
+import io.github.kitakkun.backintime.core.annotations.BackInTime
+import io.github.kitakkun.backintime.core.runtime.BackInTimeDebuggable
+import io.github.kitakkun.backintime.core.runtime.exception.BackInTimeRuntimeException
 import io.github.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -5,7 +5,7 @@ import React from "react";
 import {Modal} from "antd";
 import {appActions} from "../../../reducer/appReducer";
 import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 
 export function EditAndEmitValueModalPage() {
   const state = useSelector(editAndEmitValueStateSelector);

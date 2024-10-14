@@ -1,10 +1,10 @@
 package io.github.kitakkun.backintime.test
 
-import io.github.kitakkun.backintime.runtime.BackInTimeDebugService
-import io.github.kitakkun.backintime.runtime.getBackInTimeDebugService
-import io.github.kitakkun.backintime.runtime.internal.BackInTimeCompilerInternalApi
+import io.github.kitakkun.backintime.core.runtime.BackInTimeDebugService
+import io.github.kitakkun.backintime.core.runtime.getBackInTimeDebugService
+import io.github.kitakkun.backintime.core.runtime.internal.BackInTimeCompilerInternalApi
+import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import io.github.kitakkun.backintime.test.base.MockConnector
-import io.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import kotlin.test.AfterTest

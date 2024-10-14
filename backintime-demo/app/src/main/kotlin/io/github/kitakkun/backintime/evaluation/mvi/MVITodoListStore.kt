@@ -5,9 +5,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 import io.github.kitakkun.backintime.evaluation.data.Todo
-import io.github.kitakkun.backintime.evaluation.data.TodoDao
 import io.github.kitakkun.backintime.evaluation.mvi.architecture.Store
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

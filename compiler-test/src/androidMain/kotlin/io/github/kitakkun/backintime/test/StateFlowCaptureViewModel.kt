@@ -2,7 +2,7 @@ package io.github.kitakkun.backintime.test
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update

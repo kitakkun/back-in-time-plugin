@@ -8,14 +8,7 @@ import io.github.kitakkun.backintime.compiler.consts.BackInTimeAnnotations
 import io.github.kitakkun.backintime.compiler.consts.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
-import org.jetbrains.kotlin.ir.builders.irBoolean
-import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
-import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetField
-import org.jetbrains.kotlin.ir.builders.irString
-import org.jetbrains.kotlin.ir.builders.irVararg
+import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -24,11 +17,7 @@ import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.parentAsClass
-import org.jetbrains.kotlin.ir.util.properties
-import org.jetbrains.kotlin.ir.util.superClass
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
 /**
@@ -62,7 +51,7 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
         return declaration
     }
 
-    /** see [io.github.kitakkun.backintime.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
+    /** see [io.github.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
     private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(reportInstanceRegistrationFunctionSymbol).apply {
         putValueArgument(0, irGet(parentClass.thisReceiver!!))
         putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))

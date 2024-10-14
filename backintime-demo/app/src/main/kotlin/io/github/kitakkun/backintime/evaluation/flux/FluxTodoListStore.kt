@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 import io.github.kitakkun.backintime.evaluation.data.Todo
 import io.github.kitakkun.backintime.evaluation.flux.architecture.ActionEvent
 import io.github.kitakkun.backintime.evaluation.flux.architecture.Dispatcher

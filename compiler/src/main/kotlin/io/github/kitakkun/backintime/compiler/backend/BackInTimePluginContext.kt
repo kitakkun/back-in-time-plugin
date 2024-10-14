@@ -29,7 +29,7 @@ class BackInTimePluginContext(
         resolvedValueContainer
     } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
-    private val internalCompilerApiPackageFqName = FqName("io.github.kitakkun.backintime.runtime.internal")
+    private val internalCompilerApiPackageFqName = FqName("io.github.kitakkun.backintime.core.runtime.internal")
 
     // event report functions
     val reportInstanceRegistrationFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportInstanceRegistration"))).first()

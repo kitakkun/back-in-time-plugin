@@ -1,8 +1,8 @@
 package io.github.kitakkun.backintime.test.base
 
-import io.github.kitakkun.backintime.runtime.connector.BackInTimeWebSocketConnector
-import io.github.kitakkun.backintime.websocket.event.BackInTimeDebugServiceEvent
-import io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent
+import io.github.kitakkun.backintime.core.runtime.connector.BackInTimeWebSocketConnector
+import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
+import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

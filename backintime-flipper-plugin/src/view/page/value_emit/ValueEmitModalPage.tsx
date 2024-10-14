@@ -7,7 +7,7 @@ import {editAndEmitValueActions} from "../edited_value_emitter/EditAndEmitValueR
 import {appActions} from "../../../reducer/appReducer";
 import {EditAndEmitValueModalPage} from "../edited_value_emitter/EditAndEmitValueModalPage";
 import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 
 export function ValueEmitModalPage() {
   const state = useSelector(valueEmitStateSelector);

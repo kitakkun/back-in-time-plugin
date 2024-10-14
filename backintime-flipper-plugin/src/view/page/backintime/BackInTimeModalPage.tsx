@@ -7,7 +7,7 @@ import {MethodCallHistoryInfo} from "./HistoryInfo";
 import {appActions} from "../../../reducer/appReducer";
 import {backInTimeActions} from "./BackInTimeReducer";
 import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 
 export function BackInTimeModalPage() {
   const state = useSelector(backInTimeStateSelector);

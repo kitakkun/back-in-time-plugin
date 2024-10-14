@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
 object BackInTimeAnnotations {
-    private const val BASE_PACKAGE = "io.github.kitakkun.backintime.annotations"
+    private const val BASE_PACKAGE = "io.github.kitakkun.backintime.core.annotations"
     val backInTimeAnnotationFqName = FqName("$BASE_PACKAGE.BackInTime")
     val backInTimeAnnotationClassId = ClassId.topLevel(backInTimeAnnotationFqName)
 

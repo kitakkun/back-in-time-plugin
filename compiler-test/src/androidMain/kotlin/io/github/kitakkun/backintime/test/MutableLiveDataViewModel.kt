@@ -1,7 +1,7 @@
 package io.github.kitakkun.backintime.test
 
 import androidx.lifecycle.MutableLiveData
-import io.github.kitakkun.backintime.annotations.BackInTime
+import io.github.kitakkun.backintime.core.annotations.BackInTime
 
 @BackInTime
 class MutableLiveDataViewModel {
