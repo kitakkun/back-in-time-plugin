@@ -8,14 +8,9 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.buildconfig) apply false
+    alias(libs.plugins.maven.publish) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
-}
-
-group = "io.github.kitakkun.backintime"
-version = "1.0.0"
-
-subprojects {
-    group = rootProject.group
-    version = rootProject.version
+    alias(libs.plugins.backintimePublication) apply false
 }
