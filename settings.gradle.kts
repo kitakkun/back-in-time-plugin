@@ -1,6 +1,5 @@
 pluginManagement {
     includeBuild("build-logic")
-    includeBuild("build-logic-for-testing")
     repositories {
         mavenLocal()
         mavenCentral()
@@ -18,18 +17,19 @@ dependencyResolutionManagement {
 }
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 rootProject.name = "backintime"
 
 include(
-    ":backintime-plugin:common",
-    ":backintime-plugin:gradle",
-    ":backintime-plugin:compiler",
-    ":test",
-    ":backintime-demo",
-    ":backintime-demo:app",
-    ":backintime-runtime",
-    ":backintime-annotations",
-    ":backintime-websocket-server",
-    ":backintime-websocket-client",
-    ":backintime-websocket-event",
+    ":plugin-common",
+    ":gradle-plugin",
+    ":compiler",
+    ":compiler-test",
+//    ":backintime-demo",
+//    ":backintime-demo:app",
+    ":core:runtime",
+    ":core:annotations",
+    ":core:websocket:server",
+    ":core:websocket:client",
+    ":core:websocket:event",
 )

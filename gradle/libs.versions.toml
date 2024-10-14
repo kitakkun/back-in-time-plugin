@@ -1,4 +1,5 @@
 [versions]
+backintime = "0.0.1-alpha01"
 flipper = "0.250.0"
 kotlinx-coroutines = "1.8.1"
 kotlinx-serialization-json = "1.7.1"
@@ -30,6 +31,10 @@ uuid = "0.8.4"
 ktlint-gradle = "12.1.1"
 ktlint = "1.2.1"
 kotlinx-datetime = "0.6.0"
+
+buildconfig = "5.5.0"
+junit-jupiter = "5.10.3"
+maven-publish = "0.29.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -91,9 +96,14 @@ ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.re
 uuid = { module = "com.benasher44:uuid", version.ref = "uuid" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "maven-publish" }
+
 [plugins]
 # convention
 backintimeLint = { id = "backintime.lint", version = "unspecified" }
+backintimePublication = { id = "backintime.publication", version = "unspecified" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -104,5 +114,6 @@ androidLibrary = { id = "com.android.library", version.ref = "android-library" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-mavenPublish = { id = "maven-publish" }
 javaGradlePlugin = { id = "java-gradle-plugin" }
+buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
