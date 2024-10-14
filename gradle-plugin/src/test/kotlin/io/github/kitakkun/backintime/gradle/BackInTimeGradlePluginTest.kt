@@ -26,44 +26,44 @@ class BackInTimeGradlePluginTest {
     fun test() {
         settingsGradleFile.writeText(
             """
-                pluginManagement {
-                    repositories {
-                        mavenLocal()
-                        mavenCentral()
-                    }
+            pluginManagement {
+                repositories {
+                    mavenLocal()
+                    mavenCentral()
                 }
-                
-                dependencyResolutionManagement {
-                    repositories {
-                        mavenLocal()
-                        mavenCentral()
-                    }
+            }
+            
+            dependencyResolutionManagement {
+                repositories {
+                    mavenLocal()
+                    mavenCentral()
                 }
-            """.trimIndent()
+            }
+            """.trimIndent(),
         )
 
         buildGradleFile.writeText(
             """
-                plugins {
-                    id("org.jetbrains.kotlin.jvm") version "2.0.0"
-                    id("io.github.kitakkun.backintime")
-                }
-                
-                backInTime {
-                    enabled = true
-                }
-            """.trimIndent()
+            plugins {
+                id("org.jetbrains.kotlin.jvm") version "2.0.0"
+                id("io.github.kitakkun.backintime")
+            }
+            
+            backInTime {
+                enabled = true
+            }
+            """.trimIndent(),
         )
 
         val sourceFile = File(srcDir, "A.kt")
         sourceFile.writeText(
             """
-                import io.github.kitakkun.backintime.annotations.BackInTime
-                
-                @BackInTime
-                class StateHolder {
-                }
-            """.trimIndent()
+            import io.github.kitakkun.backintime.annotations.BackInTime
+            
+            @BackInTime
+            class StateHolder {
+            }
+            """.trimIndent(),
         )
 
         val result = GradleRunner.create()
