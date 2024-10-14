@@ -3317,8 +3317,8 @@ babel-preset-jest@^29.6.3:
     babel-plugin-jest-hoist "^29.6.3"
     babel-preset-current-node-syntax "^1.0.0"
 
-"backintime-websocket-event@file:../backintime-websocket-event/build/dist/js/productionLibrary":
-  version "1.0.0"
+"backintime-websocket-event@file:../core/websocket/event/build/dist/js/productionLibrary":
+  version "0.0.0-unspecified"
   dependencies:
     format-util "^1.0.5"
 

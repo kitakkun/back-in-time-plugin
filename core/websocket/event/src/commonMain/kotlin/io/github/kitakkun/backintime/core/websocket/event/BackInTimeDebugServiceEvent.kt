@@ -1,7 +1,12 @@
+@file:OptIn(ExperimentalJsExport::class)
+@file:JsExport
+
 package io.github.kitakkun.backintime.core.websocket.event
 
 import io.github.kitakkun.backintime.core.websocket.event.model.PropertyInfo
 import kotlinx.serialization.Serializable
+import kotlin.js.ExperimentalJsExport
+import kotlin.js.JsExport
 
 /**
  * events from debugService to debugger
