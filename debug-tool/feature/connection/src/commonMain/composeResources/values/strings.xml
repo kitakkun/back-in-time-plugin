@@ -1,0 +1,11 @@
+<resources>
+    <string name="connection_tab_title">Connection</string>
+    <string name="server_not_started">Server is not running. Check your configurations are valid.</string>
+    <string name="server_is_running">Server is running.</string>
+    <string name="host">Host: %1$s</string>
+    <string name="port">Port: %1$d</string>
+    <string name="waiting_for_connection">Waiting for connection...</string>
+    <string name="active_sessions">Active Sessions</string>
+    <string name="text_loading_server_status">Loading Server Status...</string>
+    <string name="failed_to_start_server">Failed to start server. Check your configurations are valid.</string>
+</resources>

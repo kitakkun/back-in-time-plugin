@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Back In Time Debugger</string>
+    <string name="starting_websocket_server">Starting WebSocket server...</string>
+    <string name="websocket_server_started">WebSocket server started</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="server_error">Server Error: %1$s</string>
+    <string name="restart_server">Restart Server</string>
+    <string name="unknown_error">Unknown Error</string>
+    <string name="instance_tab_title">Instance</string>
+    <string name="log_tab_title">Log</string>
+    <string name="connection_tab_title">Connection</string>
+    <string name="settings_tab_title">Settings</string>
+</resources>

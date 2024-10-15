@@ -1,0 +1,8 @@
+<resources>
+    <string name="tab_instance">Instances</string>
+    <string name="tab_log">Logs</string>
+    <string name="tab_connection">Connections</string>
+    <string name="tab_settings">Settings</string>
+    <!-- settings -->
+    <string name="settings_item_server_port">Websocket Server Port</string>
+</resources>

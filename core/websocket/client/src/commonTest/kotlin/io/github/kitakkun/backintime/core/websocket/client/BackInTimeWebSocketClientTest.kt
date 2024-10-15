@@ -3,7 +3,6 @@ package io.github.kitakkun.backintime.core.websocket.client
 import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import io.ktor.server.application.install
-import io.ktor.server.engine.connector
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.ktor.server.websocket.DefaultWebSocketServerSession
@@ -119,10 +118,11 @@ class BackInTimeWebSocketClientTest {
         serverSession: suspend DefaultWebSocketServerSession.() -> Unit,
     ) {
         environment {
-            connector {
-                this.host = host
-                this.port = port
-            }
+            // FIXME: Unresolved reference
+//            connector {
+//                this.host = host
+//                this.port = port
+//            }
         }
         application {
             install(WebSockets.Plugin)

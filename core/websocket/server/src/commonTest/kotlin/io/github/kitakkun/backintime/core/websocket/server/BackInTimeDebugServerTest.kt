@@ -32,7 +32,7 @@ class BackInTimeDebugServerTest {
         testApplication {
             val connectedFlow = MutableSharedFlow<Boolean>(replay = 1)
 
-            environment {
+            engine {
                 connector {
                     host = TEST_HOST
                     port = TEST_PORT
@@ -61,10 +61,10 @@ class BackInTimeDebugServerTest {
 
     @Test
     fun `test receive`() {
-        testApplication {
+        testApplication() {
             val connectedFlow = MutableSharedFlow<Boolean>(replay = 1)
 
-            environment {
+            engine {
                 connector {
                     host = TEST_HOST
                     port = TEST_PORT
@@ -94,7 +94,7 @@ class BackInTimeDebugServerTest {
     @Test
     fun `test send`() {
         testApplication {
-            environment {
+            engine {
                 connector {
                     host = TEST_HOST
                     port = TEST_PORT
