@@ -21,7 +21,7 @@ afterEvaluate {
 
         pom {
             name.set("back-in-time")
-            description.set("Kondition ensure that your Kotlin code runs under some conditions are met. It inserts code to verify conditions for value parameters or variables at compile time.")
+            description.set("Kotlin Compiler Plugin to make your program back-in-time debuggable.")
             inceptionYear.set("2024")
             url.set("https://github.com/kitakkun/back-in-time-plugin")
             licenses {
