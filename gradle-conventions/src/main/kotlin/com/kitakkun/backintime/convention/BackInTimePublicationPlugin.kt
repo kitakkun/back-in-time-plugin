@@ -5,7 +5,7 @@ package com.kitakkun.backintime.convention
 import com.kitakkun.backintime.convention.extension.BackInTimePublicationExtension
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
-import gradle_conventions.convention.BuildConfig
+import gradle_conventions.BuildConfig
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
