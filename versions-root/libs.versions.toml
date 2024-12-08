@@ -102,8 +102,8 @@ maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version
 
 [plugins]
 # convention
-backintimeLint = { id = "backintime.lint", version = "unspecified" }
-backintimePublication = { id = "backintime.publication", version = "unspecified" }
+backintimeLint = { id = "backintime-lint", version = "unspecified" }
+backintimePublication = { id = "backintime-publication", version = "unspecified" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

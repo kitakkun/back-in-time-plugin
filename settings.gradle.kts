@@ -1,24 +1,15 @@
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-}
+rootProject.name = "backintime"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "backintime"
+pluginManagement {
+    includeBuild("gradle-conventions-settings")
+    includeBuild("gradle-conventions")
+}
+
+plugins {
+    id("settings-conventions")
+}
 
 include(
     ":plugin-common",
