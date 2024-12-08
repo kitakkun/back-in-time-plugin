@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
     alias(libs.plugins.backintimePublication)
+    alias(libs.plugins.backintimeCompilerModule)
     alias(libs.plugins.buildconfig)
 }
 

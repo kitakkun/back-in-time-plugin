@@ -13,4 +13,10 @@ plugins {
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
     alias(libs.plugins.backintimePublication) apply false
+    alias(libs.plugins.backintimeCompilerModule) apply false
+}
+
+allprojects {
+    group = "com.kitakkun.backintime"
+    version = rootProject.libs.versions.backintime.get()
 }
