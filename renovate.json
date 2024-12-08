@@ -5,7 +5,7 @@
   ],
   "ignoreDeps": [
     "kmp-lib",
-    "io.github.kitakkun.backintime:io.github.kitakkun.backintime.gradle.plugin",
+    "com.kitakkun.backintime:com.kitakkun.backintime.gradle.plugin",
     "backintime.lint:backintime.lint.gradle.plugin"
   ]
 }

@@ -42,7 +42,7 @@ pluginManagement {
         // ...
     }
     plugins {
-        id("io.github.kitakkun.backintime") version "1.0.0" apply false
+        id("com.kitakkun.backintime") version "1.0.0" apply false
         kotlin("plugin.serialization") version "2.0.0" apply false // required by the plugin
     }
 }
@@ -59,7 +59,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 plugins {
-    id("io.github.kitakkun.backintime") version "1.0.0"
+    id("com.kitakkun.backintime") version "1.0.0"
     kotlin("plugin.serialization")
     ...
 }

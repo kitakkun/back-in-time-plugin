@@ -51,5 +51,5 @@ dependencies {
 
 android {
     compileSdk = 34
-    namespace = "io.github.kitakkun.backintime.test"
+    namespace = "com.kitakkun.backintime.test"
 }

@@ -10,8 +10,8 @@ plugins {
 gradlePlugin {
     plugins {
         create("backInTime") {
-            id = "io.github.kitakkun.backintime"
-            implementationClass = "io.github.kitakkun.backintime.gradle.BackInTimeGradlePlugin"
+            id = "com.kitakkun.backintime"
+            implementationClass = "com.kitakkun.backintime.gradle.BackInTimeGradlePlugin"
         }
     }
 }
@@ -31,7 +31,7 @@ dependencies {
 
 buildConfig {
     buildConfigField("VERSION", libs.versions.backintime.get())
-    buildConfigField("COMPILER_PLUGIN_ID", "io.github.kitakkun.backintime.compiler")
+    buildConfigField("COMPILER_PLUGIN_ID", "com.kitakkun.backintime.compiler")
 }
 
 tasks.test {

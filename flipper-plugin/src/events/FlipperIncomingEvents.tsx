@@ -1,5 +1,5 @@
 import {io} from "backintime-websocket-event";
-import BackInTimeDebugServiceEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
+import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 
 export type IncomingEvents = {
   register: BackInTimeDebugServiceEvent.RegisterInstance;
