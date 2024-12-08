@@ -45,8 +45,8 @@ kotlin {
 }
 
 dependencies {
-    kotlinCompilerPluginClasspath(projects.compiler)
-    kotlinNativeCompilerPluginClasspath(projects.compiler)
+    kotlinCompilerPluginClasspath(projects.compiler.cli)
+    kotlinNativeCompilerPluginClasspath(projects.compiler.cli)
 }
 
 android {

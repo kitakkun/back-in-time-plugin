@@ -14,7 +14,10 @@ plugins {
 include(
     ":plugin-common",
     ":gradle-plugin",
-    ":compiler",
+    ":compiler:k2",
+    ":compiler:backend",
+    ":compiler:cli",
+    ":compiler:common",
     ":compiler-test",
     ":demo:app",
     ":core:runtime",
