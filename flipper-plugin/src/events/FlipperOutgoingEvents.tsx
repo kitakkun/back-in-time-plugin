@@ -1,4 +1,4 @@
-import {io} from "backintime-websocket-event";
+import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 

@@ -4,7 +4,7 @@ import {InstanceInfo} from "../data/InstanceInfo";
 import {AppState} from "../reducer/appReducer";
 import {ClassInfo} from "../data/ClassInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
-import {io} from "backintime-websocket-event";
+import {com} from "backintime-websocket-event";
 import NotifyMethodCall = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
 import NotifyValueChange = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
 

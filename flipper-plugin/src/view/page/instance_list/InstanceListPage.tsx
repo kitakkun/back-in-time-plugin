@@ -7,7 +7,7 @@ import {appActions} from "../../../reducer/appReducer";
 import {propertyInspectorActions} from "../../sidebar/property_inspector/propertyInspectorReducer";
 import {backInTimeActions} from "../backintime/BackInTimeReducer";
 import {BackInTimeModalPage} from "../backintime/BackInTimeModalPage";
-import {io} from "backintime-websocket-event";
+import {com} from "backintime-websocket-event";
 import createCheckInstanceAliveEvent = com.kitakkun.backintime.core.websocket.event.createCheckInstanceAliveEvent;
 
 export function InstanceListPage() {
