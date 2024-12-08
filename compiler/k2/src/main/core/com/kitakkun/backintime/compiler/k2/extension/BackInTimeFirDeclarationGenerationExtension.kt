@@ -2,21 +2,20 @@ package com.kitakkun.backintime.compiler.k2.extension
 
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.common.BackInTimePluginKey
-import com.kitakkun.backintime.compiler.k2.matcher.debuggableStateHolderPredicateMatcher
+import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
+import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
-import org.jetbrains.kotlin.fir.resolve.getSuperClassSymbolOrAny
-import org.jetbrains.kotlin.fir.resolve.getSuperTypes
+import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.classId
-import org.jetbrains.kotlin.fir.types.toRegularClassSymbol
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
@@ -76,13 +75,14 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         return when {
             classSymbol !is FirRegularClassSymbol -> emptySet()
 
-            classSymbol.getSuperClassSymbolOrAny(session).getSuperTypes(session).any { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } -> setOf(
-                BackInTimeConsts.serializeMethodName,
-                BackInTimeConsts.deserializeMethodName,
-                BackInTimeConsts.forceSetValueMethodName,
-            )
+            // FIXME: need this to support class inheritance but it causes FirResolvedType error on 2.1.0
+//            classSymbol.getSuperClassSymbolOrAny(session).getSuperTypes(session).any { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } -> setOf(
+//                BackInTimeConsts.serializeMethodName,
+//                BackInTimeConsts.deserializeMethodName,
+//                BackInTimeConsts.forceSetValueMethodName,
+//            )
 
-            session.debuggableStateHolderPredicateMatcher.isAnnotated(classSymbol) -> setOf(
+            session.predicateBasedProvider.matches(BackInTimePredicate, classSymbol) -> setOf(
                 // methods
                 BackInTimeConsts.serializeMethodName,
                 BackInTimeConsts.deserializeMethodName,

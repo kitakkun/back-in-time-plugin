@@ -6,7 +6,7 @@ import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.Resolved
 import com.kitakkun.backintime.compiler.common.BackInTimeCompilerConfiguration
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.jvm.ir.isReifiable
+import org.jetbrains.kotlin.backend.common.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.isVararg
