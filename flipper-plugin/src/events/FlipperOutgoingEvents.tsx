@@ -1,6 +1,6 @@
-import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
-import BackInTimeDebugServiceEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
+import {com} from "backintime-websocket-event";
+import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 
 export type OutgoingEvents = {
   forceSetPropertyValue(event: BackInTimeDebuggerEvent.ForceSetPropertyValue): Promise<any>;

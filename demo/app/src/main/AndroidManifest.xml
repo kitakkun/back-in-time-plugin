@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name="io.github.kitakkun.backintime.evaluation.MyApplication"
+        android:name="com.kitakkun.backintime.evaluation.MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -14,7 +14,7 @@
         android:theme="@style/Theme.BackintimeEvaluation"
         tools:targetApi="31">
         <activity
-            android:name="io.github.kitakkun.backintime.evaluation.MainActivity"
+            android:name="com.kitakkun.backintime.evaluation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.BackintimeEvaluation">
             <intent-filter>

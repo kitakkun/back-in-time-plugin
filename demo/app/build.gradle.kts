@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "io.github.kitakkun.backintime.evaluation"
+    namespace = "com.kitakkun.backintime.evaluation"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "io.github.kitakkun.backintime.evaluation"
+        applicationId = "com.kitakkun.backintime.evaluation"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

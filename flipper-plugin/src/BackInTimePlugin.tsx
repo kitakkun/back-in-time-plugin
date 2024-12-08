@@ -12,8 +12,8 @@ import {editAndEmitValueReducer} from "./view/page/edited_value_emitter/EditAndE
 import {AtomicPersistentState, initPersistentStateSlice, persistentStateReducer} from "./reducer/PersistentStateReducer";
 import {rawLogInspectorReducer} from "./view/sidebar/raw_log_inspector/RawLogInspectorReducer";
 import {backInTimeReducer} from "./view/page/backintime/BackInTimeReducer";
-import {io} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = io.github.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import {com} from "backintime-websocket-event";
+import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 
 export default (client: PluginClient<IncomingEvents, OutgoingEvents>) => {
   initPersistentStateSlice(generatePersistentStates());

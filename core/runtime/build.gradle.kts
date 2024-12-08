@@ -33,7 +33,7 @@ kotlin {
 
 android {
     compileSdk = 34
-    namespace = "io.github.kitakkun.backintime.core.runtime"
+    namespace = "com.kitakkun.backintime.core.runtime"
 }
 
 backintimePublication {

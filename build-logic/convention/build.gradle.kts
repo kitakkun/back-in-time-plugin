@@ -5,13 +5,13 @@ plugins {
 
 gradlePlugin {
     plugins {
-        register("io.github.kitakkun.backintime.conventions.ktlint") {
+        register("com.kitakkun.backintime.conventions.ktlint") {
             id = "backintime.lint"
-            implementationClass = "io.github.kitakkun.backintime.convention.LintConventionPlugin"
+            implementationClass = "com.kitakkun.backintime.convention.LintConventionPlugin"
         }
-        register("io.github.kitakkun.backintime.conventions.publication") {
+        register("com.kitakkun.backintime.conventions.publication") {
             id = "backintime.publication"
-            implementationClass = "io.github.kitakkun.backintime.convention.BackInTimePublicationPlugin"
+            implementationClass = "com.kitakkun.backintime.convention.BackInTimePublicationPlugin"
         }
     }
 }
