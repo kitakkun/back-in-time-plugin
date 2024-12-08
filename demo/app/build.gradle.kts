@@ -51,7 +51,7 @@ android {
 }
 
 dependencies {
-    kotlinCompilerPluginClasspath(projects.compiler)
+    kotlinCompilerPluginClasspath(projects.compiler.cli)
     implementation(projects.core.runtime)
     implementation(projects.core.annotations)
     implementation(projects.core.websocket.event)

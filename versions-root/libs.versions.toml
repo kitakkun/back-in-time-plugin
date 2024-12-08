@@ -3,16 +3,14 @@ backintime = "0.0.1-alpha01"
 flipper = "0.250.0"
 kotlinx-coroutines = "1.8.1"
 kotlinx-serialization-json = "1.7.1"
-auto-service = "1.1.1"
-auto-service-ksp = "1.2.0"
 androidx-core = "1.13.1"
 androidx-lifecycle = "2.8.3"
 androidx-compose = "1.6.8"
 robolectric = "4.12.2"
 mockk = "1.13.11"
-kotlin = "2.0.0"
+kotlin = "2.1.0"
 android-library = "8.5.0"
-ksp = "2.0.0-1.0.22"
+ksp = "2.1.0-1.0.29"
 
 core-ktx = "1.13.1"
 junit = "4.13.2"
@@ -48,8 +46,6 @@ kotlin-test-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit"
 
 flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
-auto-service = { group = "com.google.auto.service", name = "auto-service", version.ref = "auto-service" }
-auto-service-ksp = { group = "dev.zacsweers.autoservice", name = "auto-service-ksp", version.ref = "auto-service-ksp" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
@@ -104,6 +100,7 @@ maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version
 # convention
 backintimeLint = { id = "backintime-lint", version = "unspecified" }
 backintimePublication = { id = "backintime-publication", version = "unspecified" }
+backintimeCompilerModule = { id = "backintime-compiler-module", version = "unspecified" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
