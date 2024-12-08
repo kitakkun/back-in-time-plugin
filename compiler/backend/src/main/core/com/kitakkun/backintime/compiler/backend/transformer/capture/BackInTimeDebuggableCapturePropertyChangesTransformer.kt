@@ -1,6 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
+import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
 import com.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
@@ -32,7 +33,6 @@ import org.jetbrains.kotlin.ir.util.isPropertyAccessor
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.parentDeclarationsWithSelf
-import org.jetbrains.kotlin.ir.util.receiverAndArgs
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -133,7 +133,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     }
 
     private fun IrCall.isValueContainerRelevantCall(): Boolean {
-        return receiverAndArgs()
+        return VersionSpecificAPI.INSTANCE.getReceiverAndArgs(this)
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.isBackInTimeDebuggable == true &&
@@ -175,7 +175,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
         val parentClassSymbol = function?.parentClassOrNull?.symbol
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
-        val passedProperties = receiverAndArgs()
+        val passedProperties = VersionSpecificAPI.INSTANCE.getReceiverAndArgs(this)
             .mapNotNull { it.getCorrespondingProperty() }
             .filter { it.parentClassOrNull?.symbol == parentClassSymbol }
             .toSet()
