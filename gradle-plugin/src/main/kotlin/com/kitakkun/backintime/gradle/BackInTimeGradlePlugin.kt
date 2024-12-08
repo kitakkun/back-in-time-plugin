@@ -1,6 +1,6 @@
 package com.kitakkun.backintime.gradle
 
-import backintime.gradle_plugin.BuildConfig
+import com.kitakkun.backintime.gradle_plugin.BuildConfig
 import com.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
