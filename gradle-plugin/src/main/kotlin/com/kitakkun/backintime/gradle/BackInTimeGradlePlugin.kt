@@ -1,7 +1,6 @@
 package com.kitakkun.backintime.gradle
 
 import com.kitakkun.backintime.gradle_plugin.BuildConfig
-import com.kitakkun.backintime.plugin.BackInTimeCompilerOptionKey
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -58,7 +57,7 @@ class BackInTimeGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java) ?: BackInTimeExtension()
         return kotlinCompilation.target.project.provider {
-            listOf(SubpluginOption(key = BackInTimeCompilerOptionKey.ENABLED, value = extension.enabled.toString()))
+            listOf(SubpluginOption(key = "enabled", value = extension.enabled.toString()))
         }
     }
 
