@@ -1,21 +1,14 @@
 package com.kitakkun.backintime.core.websocket.server
 
+import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
+import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClientListener
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
-import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
-import io.ktor.client.plugins.websocket.WebSockets
-import io.ktor.client.plugins.websocket.webSocket
-import io.ktor.server.application.Application
-import io.ktor.server.engine.connector
-import io.ktor.server.testing.ApplicationTestBuilder
-import io.ktor.server.testing.testApplication
-import io.ktor.websocket.Frame
-import io.ktor.websocket.readText
-import io.ktor.websocket.send
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -27,126 +20,48 @@ class BackInTimeDebugServerTest {
         private const val TEST_PORT = 50026
     }
 
-    @Test
-    fun `test connect`() {
-        testApplication {
-            val connectedFlow = MutableSharedFlow<Boolean>(replay = 1)
+    private lateinit var server: BackInTimeWebSocketServer
+    private lateinit var client: BackInTimeWebSocketClient
 
-            environment {
-                connector {
-                    host = TEST_HOST
-                    port = TEST_PORT
-                }
-            }
-            application {
-                configureApplication(
-                    onConnect = {
-                        connectedFlow.emit(true)
-                    },
-                    onReceiveEvent = { _, _ ->
-                    },
-                )
-            }
+    @BeforeTest
+    fun setup() {
+        server = BackInTimeWebSocketServer()
+        client = BackInTimeWebSocketClient(TEST_HOST, TEST_PORT)
+        server.start(TEST_HOST, TEST_PORT)
+        assertTrue { server.isRunning }
+    }
 
-            startSession(
-                host = TEST_HOST,
-                port = TEST_PORT,
-            ) {
-                // Do nothing
-            }
-
-            assertTrue(connectedFlow.first())
-        }
+    @AfterTest
+    fun teardown() {
+        server.stop()
     }
 
     @Test
-    fun `test receive`() {
-        testApplication {
-            val connectedFlow = MutableSharedFlow<Boolean>(replay = 1)
-
-            environment {
-                connector {
-                    host = TEST_HOST
-                    port = TEST_PORT
-                }
-            }
-            application {
-                configureApplication(
-                    onConnect = {
-                        connectedFlow.emit(true)
-                    },
-                    onReceiveEvent = { _, _ ->
-                    },
-                )
-            }
-
-            startSession(
-                host = TEST_HOST,
-                port = TEST_PORT,
-            ) {
-                // Do nothing
-            }
-
-            assertTrue(connectedFlow.first())
+    fun `test send event from server`() = runTest {
+        launch {
+            val sessionId = server.connectionEstablishedFlow.first()
+            server.send(sessionId, BackInTimeDebuggerEvent.Ping)
         }
-    }
 
-    @Test
-    fun `test send`() {
-        testApplication {
-            environment {
-                connector {
-                    host = TEST_HOST
-                    port = TEST_PORT
+        client.openSession()
+
+        client.addListener(
+            object : BackInTimeWebSocketClientListener {
+                override fun onReceive(event: BackInTimeDebuggerEvent) {
+                    assertEquals(BackInTimeDebuggerEvent.Ping, event)
                 }
             }
-            application {
-                configureApplication(
-                    onConnect = {
-                        it.session.send(Json.Default.encodeToString(BackInTimeDebuggerEvent.Ping))
-                    },
-                    onReceiveEvent = { _, _ ->
-                    },
-                )
-            }
-
-            startSession(
-                host = TEST_HOST,
-                port = TEST_PORT,
-            ) {
-                // Do nothing
-                val receivedEvent = (incoming.receive() as? Frame.Text)?.let {
-                    Json.Default.decodeFromString<BackInTimeDebuggerEvent.Ping>(it.readText())
-                }
-                assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = receivedEvent)
-            }
-        }
-    }
-
-    private fun Application.configureApplication(
-        onConnect: suspend (Connection) -> Unit,
-        onReceiveEvent: suspend (Connection, BackInTimeDebugServiceEvent) -> Unit,
-    ) {
-        installWebSocket()
-        configureWebSocketRouting(
-            onConnect = onConnect,
-            onReceiveEvent = onReceiveEvent,
         )
     }
 
-    private suspend fun ApplicationTestBuilder.startSession(
-        host: String,
-        port: Int,
-        session: suspend DefaultClientWebSocketSession.() -> Unit,
-    ) {
-        createClient {
-            install(WebSockets.Plugin)
-        }.webSocket(
-            host = host,
-            port = port,
-            path = "/backintime",
-        ) {
-            session()
+    @Test
+    fun `test receive event from client`() = runTest {
+        launch {
+            val (_, event) = server.receivedEventFlow.first()
+            assertEquals(BackInTimeDebugServiceEvent.Ping, event)
         }
+
+        client.openSession()
+        client.queueEvent(BackInTimeDebugServiceEvent.Ping)
     }
 }
