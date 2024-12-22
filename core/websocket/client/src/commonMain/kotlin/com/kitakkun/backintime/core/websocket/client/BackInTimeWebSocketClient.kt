@@ -13,15 +13,17 @@ import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.websocket.close
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
-interface BackInTimeWebSocketClientListener {
-    fun onCloseByError(error: Throwable) {}
-    fun onClose() {}
-    fun onReceive(event: BackInTimeDebuggerEvent) {}
+sealed interface BackInTimeWebSocketClientEvent {
+    data class ReceiveDebuggerEvent(val debuggerEvent: BackInTimeDebuggerEvent) : BackInTimeWebSocketClientEvent
+    data object CloseSuccessfully : BackInTimeWebSocketClientEvent
+    data class CloseWithError(val error: Throwable) : BackInTimeWebSocketClientEvent
 }
 
 /**
@@ -35,7 +37,8 @@ class BackInTimeWebSocketClient(
 ) {
     private var session: DefaultClientWebSocketSession? = null
 
-    private val listeners = mutableSetOf<BackInTimeWebSocketClientListener>()
+    private val mutableClientEventFlow = MutableSharedFlow<BackInTimeWebSocketClientEvent>()
+    val clientEventFlow = mutableClientEventFlow.asSharedFlow()
 
     private val eventDispatchQueueMutex = Mutex()
     private val eventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
@@ -50,8 +53,8 @@ class BackInTimeWebSocketClient(
     private suspend fun DefaultClientWebSocketSession.handleSession() {
         val receiveJob = launch {
             while (true) {
-                val receivedEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
-                listeners.forEach { it.onReceive(receivedEvent) }
+                val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
+                mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
             }
         }
 
@@ -71,10 +74,12 @@ class BackInTimeWebSocketClient(
             receiveJob.cancel()
             sendJob.cancel()
 
-            if (error != null) {
-                listeners.forEach { it.onCloseByError(error) }
-            } else {
-                listeners.forEach { it.onClose() }
+            val event = error?.let {
+                BackInTimeWebSocketClientEvent.CloseWithError(it)
+            } ?: BackInTimeWebSocketClientEvent.CloseSuccessfully
+
+            launch {
+                mutableClientEventFlow.emit(event)
             }
         }
 
@@ -99,14 +104,6 @@ class BackInTimeWebSocketClient(
 
     fun queueEvent(event: BackInTimeDebugServiceEvent) {
         eventDispatchQueue.add(event)
-    }
-
-    fun addListener(listener: BackInTimeWebSocketClientListener) {
-        listeners.add(listener)
-    }
-
-    fun removeListener(listener: BackInTimeWebSocketClientListener) {
-        listeners.remove(listener)
     }
 
     suspend fun close() {

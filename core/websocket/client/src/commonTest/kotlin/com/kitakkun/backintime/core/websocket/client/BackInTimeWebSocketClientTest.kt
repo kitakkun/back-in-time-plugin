@@ -14,6 +14,10 @@ import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.close
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -111,8 +115,6 @@ class BackInTimeWebSocketClientTest {
 
     @Test
     fun `test success to receive event`() = testApplication {
-        var clientReceivedEvent: BackInTimeDebuggerEvent? = null
-
         configureServer(
             host = TEST_HOST,
             port = TEST_PORT,
@@ -129,15 +131,15 @@ class BackInTimeWebSocketClientTest {
             client = client,
         )
 
-        client.addListener(object : BackInTimeWebSocketClientListener {
-            override fun onReceive(event: BackInTimeDebuggerEvent) {
-                clientReceivedEvent = event
+        runTest {
+            launch {
+                assertEquals(
+                    expected = BackInTimeDebuggerEvent.Ping,
+                    actual = client.clientEventFlow.filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>().first().debuggerEvent
+                )
             }
-        })
 
-        client.openSession()
-        client.awaitClose()
-
-        assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = clientReceivedEvent)
+            client.openSession()
+        }
     }
 }
