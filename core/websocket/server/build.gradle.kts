@@ -24,9 +24,11 @@ kotlin {
             implementation(libs.uuid)
         }
         commonTest.dependencies {
+            implementation(projects.core.websocket.client)
             implementation(libs.kotlin.test)
             implementation(libs.ktor.server.test.host)
             implementation(libs.ktor.server.websockets)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
