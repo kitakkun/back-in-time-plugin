@@ -12,7 +12,6 @@ plugins {
 }
 
 include(
-    ":plugin-common",
     ":gradle-plugin",
     ":compiler:k2",
     ":compiler:backend",

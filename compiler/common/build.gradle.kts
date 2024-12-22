@@ -9,5 +9,4 @@ backintimePublication {
 
 dependencies {
     implementation(libs.kotlin.compiler.embeddable)
-    implementation(projects.pluginCommon)
 }
