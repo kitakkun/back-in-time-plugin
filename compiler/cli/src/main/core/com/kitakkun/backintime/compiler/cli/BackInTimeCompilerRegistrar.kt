@@ -22,6 +22,6 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
 
         MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar())
-        IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(config))
+        IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension())
     }
 }
