@@ -42,7 +42,17 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
         if (!parentClass.isBackInTimeDebuggable) return declaration
 
         val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
-        val registerCall = irBuilder.generateRegisterCall(parentClass)
+
+        val registerCall = with(irBuilder) {
+            /** see [com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
+            irCall(reportInstanceRegistrationFunctionSymbol).apply {
+                putValueArgument(0, irGet(parentClass.thisReceiver!!))
+                putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
+                putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
+                putValueArgument(3, generatePropertiesInfo(parentClass.properties))
+            }
+        }
+
         val propertyRelationshipResolveCalls = parentClass.properties
             .filter { it.isBackInTimeDebuggable && !it.isDelegated && !it.isVar }
             .mapNotNull { property ->
@@ -60,14 +70,6 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
         (declaration.body as IrBlockBody).statements += listOf(registerCall) + propertyRelationshipResolveCalls
 
         return declaration
-    }
-
-    /** see [com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
-    private fun IrBuilderWithScope.generateRegisterCall(parentClass: IrClass) = irCall(reportInstanceRegistrationFunctionSymbol).apply {
-        putValueArgument(0, irGet(parentClass.thisReceiver!!))
-        putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
-        putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
-        putValueArgument(3, generatePropertiesInfo(parentClass.properties))
     }
 
     private fun IrBuilderWithScope.generatePropertiesInfo(
