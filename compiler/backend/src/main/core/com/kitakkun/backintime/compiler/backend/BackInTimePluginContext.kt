@@ -4,19 +4,20 @@ import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContain
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.valuecontainer.ValueContainerBuiltIns
 import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
-import com.kitakkun.backintime.compiler.common.BackInTimeCompilerConfiguration
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.isVararg
+import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 class BackInTimePluginContext(
     baseContext: IrPluginContext,
-    config: BackInTimeCompilerConfiguration,
     moduleFragment: IrModuleFragment,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
@@ -28,39 +29,63 @@ class BackInTimePluginContext(
         resolvedValueContainer
     } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
-    private val internalCompilerApiPackageFqName = FqName("com.kitakkun.backintime.core.runtime.internal")
-
     // event report functions
-    val reportInstanceRegistrationFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportInstanceRegistration"))).first()
-    val reportMethodInvocationFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportMethodInvocation"))).first()
-    val reportPropertyValueChangeFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportPropertyValueChange"))).first()
-    val reportNewRelationshipFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("reportNewRelationship"))).first()
+    val reportInstanceRegistrationFunctionSymbol by lazy { backintimeNamedFunction(name = "reportInstanceRegistration", subpackage = "core.runtime.internal") }
+    val reportMethodInvocationFunctionSymbol by lazy { backintimeNamedFunction(name = "reportMethodInvocation", subpackage = "core.runtime.internal") }
+    val reportPropertyValueChangeFunctionSymbol by lazy { backintimeNamedFunction(name = "reportPropertyValueChange", subpackage = "core.runtime.internal") }
+    val reportNewRelationshipFunctionSymbol by lazy { backintimeNamedFunction(name = "reportNewRelationship", subpackage = "core.runtime.internal") }
 
     // error generation functions
-    val throwTypeMismatchExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwTypeMismatchException"))).first()
-    val throwNoSuchPropertyExceptionFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("throwNoSuchPropertyException"))).first()
+    val throwTypeMismatchExceptionFunctionSymbol by lazy { backintimeNamedFunction(name = "throwTypeMismatchException", subpackage = "core.runtime.internal") }
+    val throwNoSuchPropertyExceptionFunctionSymbol by lazy { backintimeNamedFunction(name = "throwNoSuchPropertyException", subpackage = "core.runtime.internal") }
 
     // capture utils
-    val captureThenReturnValueFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("captureThenReturnValue"))).first()
+    val captureThenReturnValueFunctionSymbol by lazy { backintimeNamedFunction(name = "captureThenReturnValue", subpackage = "core.runtime.internal") }
 
     /**
      * Used in [com.kitakkun.backintime.compiler.backend.transformer.BackInTimeDebuggableConstructorTransformer]
      */
-    val propertyInfoClass = referenceClass(BackInTimeConsts.propertyInfoClassId)!!
+    val propertyInfoClass by lazy { backintimeIrClassSymbol(name = "PropertyInfo", subpackage = "core.websocket.event.model") }
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
-    val listOfFunction = referenceFunctions(BackInTimeConsts.listOfFunctionId).first { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg }
+    val listOfFunction by lazy { namedFunction("kotlin.collections", "listOf") { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg } }
 
     // kotlinx-serialization
     val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
-    val encodeToStringFunction = referenceFunctions(BackInTimeConsts.kotlinxSerializationEncodeToStringCallableId).firstOrNull {
-        VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
-    } ?: error("${BackInTimeConsts.kotlinxSerializationEncodeToStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")
-    val decodeFromStringFunction = referenceFunctions(BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId).firstOrNull {
-        VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
-    } ?: error("${BackInTimeConsts.kotlinxSerializationDecodeFromStringCallableId} is not found. Make sure you have kotlinx-serialization runtime dependency.")
+    val encodeToStringFunction by lazy {
+        namedFunction("kotlinx.serialization", "encodeToString") {
+            VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+        }
+    }
+    val decodeFromStringFunction by lazy {
+        namedFunction("kotlinx.serialization", "decodeFromString") {
+            VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+        }
+    }
 
     // uuid
-    val uuidFunctionSymbol = referenceFunctions(CallableId(internalCompilerApiPackageFqName, Name.identifier("uuid"))).single()
+    val uuidFunctionSymbol by lazy { backintimeNamedFunction(name = "uuid", subpackage = "core.runtime.internal") }
 
-    val mutableMapOfFunction = referenceFunctions(CallableId(FqName("kotlin.collections"), Name.identifier("mutableMapOf"))).first { it.owner.isInline }
+    val mutableMapOfFunction by lazy { namedFunction("kotlin.collections", "mutableMapOf") }
+
+    private fun namedFunction(
+        packageName: String,
+        name: String,
+        filter: (IrSimpleFunctionSymbol) -> Boolean = { true },
+    ): IrSimpleFunctionSymbol {
+        val callableId = CallableId(FqName(packageName), Name.identifier(name))
+        return pluginContext.referenceFunctions(callableId).first(filter)
+    }
+
+    private fun backintimeNamedFunction(name: String, subpackage: String? = null): IrSimpleFunctionSymbol {
+        val suffix = subpackage?.let { ".$subpackage" } ?: ""
+        return namedFunction("com.kitakkun.backintime$suffix", name)
+    }
+
+    private fun backintimeIrClassSymbol(name: String, subpackage: String? = null): IrClassSymbol {
+        val suffix = subpackage?.let { ".$subpackage" } ?: ""
+        return getIrClassSymbol("com.kitakkun.backintime$suffix", name)
+    }
+
+    private fun getIrClassSymbol(packageName: String, name: String): IrClassSymbol = pluginContext.referenceClass(classId(packageName, name))
+        ?: error("Unable to find symbol. Package: $packageName, Name: $name")
 }
