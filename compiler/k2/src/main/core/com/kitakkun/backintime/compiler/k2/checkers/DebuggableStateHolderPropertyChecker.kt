@@ -2,8 +2,8 @@ package com.kitakkun.backintime.compiler.k2.checkers
 
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import com.kitakkun.backintime.compiler.k2.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.k2.matcher.valueContainerPredicateMatcher
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
+import com.kitakkun.backintime.compiler.k2.predicate.ValueContainerPredicate
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
@@ -139,7 +139,9 @@ object DebuggableStateHolderPropertyChecker : FirRegularClassChecker(MppCheckerK
     context(CheckerContext)
     private fun ConeKotlinType.isValueContainer(): Boolean {
 //        val predefinedInGradle = session.backInTimeCompilerConfigurationProvider.config.valueContainers.any { it.classId == this.classId }
-        val configuredViaAnnotation = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let { session.valueContainerPredicateMatcher.isAnnotated(it) } ?: false
+        val configuredViaAnnotation = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let {
+            session.predicateBasedProvider.matches(ValueContainerPredicate, it)
+        } ?: false
 //        return predefinedInGradle || configuredViaAnnotation
         return configuredViaAnnotation
     }
