@@ -1,10 +1,8 @@
 package com.kitakkun.backintime.compiler.backend.valuecontainer.match
 
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.builder.ValueParameterFilterBuilder
-import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.function.ExtensionReceiverFilter
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.function.IrFunctionFilter
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.function.NameFilter
-import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.type.TypeMatcher
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.Name
 
@@ -35,26 +33,10 @@ class FunctionPredicateBuilder private constructor(private val isLookupPredicate
     fun emptyValueParameters() {
         filters += ValueParameterFilterBuilder().build()
     }
-
-    fun extensionReceiver(typeMatcher: TypeMatcher) {
-        filters += ExtensionReceiverFilter(typeMatcher)
-    }
 }
 
 fun memberFunction(name: String, block: FunctionPredicateBuilder.() -> Unit = {}): FunctionPredicate {
     return FunctionPredicateBuilder(name)
-        .apply(block)
-        .build()
-}
-
-fun memberPropertyGetter(propertyName: String, block: FunctionPredicateBuilder.() -> Unit = {}): FunctionPredicate {
-    return FunctionPredicateBuilder("<get-$propertyName>")
-        .apply(block)
-        .build()
-}
-
-fun memberPropertySetter(propertyName: String, block: FunctionPredicateBuilder.() -> Unit = {}): FunctionPredicate {
-    return FunctionPredicateBuilder("<set-$propertyName>")
         .apply(block)
         .build()
 }

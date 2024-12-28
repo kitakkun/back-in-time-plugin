@@ -2,7 +2,6 @@ package com.kitakkun.backintime.compiler.backend.valuecontainer.filter.builder
 
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.function.ValueParameterFilter
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.type.GenericTypeMatcher
-import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.type.NormalTypeMatcher
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.type.TypeMatcher
 import com.kitakkun.backintime.compiler.backend.valuecontainer.filter.type.TypeParameterMatcher
 import org.jetbrains.kotlin.name.ClassId
@@ -12,10 +11,6 @@ class ValueParameterFilterBuilder {
 
     fun addTypeMatcher(matcher: TypeMatcher) {
         typeMatchers += matcher
-    }
-
-    fun normalParameter(classId: ClassId): NormalTypeMatcher {
-        return NormalTypeMatcher(classId = classId)
     }
 
     fun typeParameter(index: Int): TypeParameterMatcher {

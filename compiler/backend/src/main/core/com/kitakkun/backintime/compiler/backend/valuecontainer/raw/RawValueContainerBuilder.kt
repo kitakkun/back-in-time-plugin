@@ -34,13 +34,6 @@ class RawValueContainerBuilder(
     }
 }
 
-fun valueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer {
-    return RawValueContainerBuilder(
-        classId = classId,
-        isSelfContained = false,
-    ).apply(init).build()
-}
-
 fun selfContainedValueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer.SelfContained {
     return RawValueContainerBuilder(
         classId = classId,

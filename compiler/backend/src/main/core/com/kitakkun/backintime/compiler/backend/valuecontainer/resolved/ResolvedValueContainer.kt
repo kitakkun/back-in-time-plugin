@@ -167,8 +167,4 @@ sealed class ResolvedValueContainer {
             return (simpleFunctions() + getAllSuperclasses().flatMap { it.simpleFunctions() }).map { it.symbol }
         }
     }
-
-    fun shouldCapture(target: IrSimpleFunctionSymbol): Boolean {
-        return captureTargetSymbols.any { it.first == target }
-    }
 }
