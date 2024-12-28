@@ -41,9 +41,9 @@ fun valueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit =
     ).apply(init).build()
 }
 
-fun selfContainedValueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer {
+fun selfContainedValueContainer(classId: ClassId, init: RawValueContainerBuilder.() -> Unit = {}): RawValueContainer.SelfContained {
     return RawValueContainerBuilder(
         classId = classId,
         isSelfContained = true,
-    ).apply(init).build()
+    ).apply(init).build() as RawValueContainer.SelfContained
 }

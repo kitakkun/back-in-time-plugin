@@ -47,7 +47,7 @@ sealed class ResolvedValueContainer {
 
     companion object {
         context(IrPluginContext)
-        fun create(valueContainer: RawValueContainer): ResolvedValueContainer? {
+        fun create(valueContainer: RawValueContainer.SelfContained): ResolvedValueContainer? {
             val classId = valueContainer.classId
             val classSymbol = referenceClass(classId) ?: return null
 
@@ -72,41 +72,12 @@ sealed class ResolvedValueContainer {
                 return null
             }
 
-            when (valueContainer) {
-                is RawValueContainer.SelfContained -> {
-                    return SelfContained(
-                        classSymbol = classSymbol,
-                        setterSymbols = possibleSetterSymbols.map { it.single() },
-                        captureTargetSymbols = captureTargetSymbols,
-                        serializeAs = serializeClassSymbol,
-                    )
-                }
-
-                is RawValueContainer.Wrapper -> {
-                    val possibleGetterSymbols = valueContainer.getter.getMatchedSymbols(allPossibleMemberCallables)
-                    // if multiple possible getter symbols are found, report a warning
-                    if (possibleGetterSymbols.size > 1) {
-                        MessageCollectorHolder.reportWarning(
-                            "${classId.asString()} has multiple getter occurrences. Check if the matching filter is specific enough. matched getters: " +
-                                possibleGetterSymbols.joinToString(", ") { it.owner.kotlinFqName.asString() },
-                        )
-                        return null
-                    } else if (possibleGetterSymbols.isEmpty()) {
-                        MessageCollectorHolder.reportWarning(
-                            "${classId.asString()} has no getter. Check if the matching filter is specific enough.",
-                        )
-                        return null
-                    }
-
-                    return Wrapper(
-                        classSymbol = classSymbol,
-                        setterSymbols = possibleSetterSymbols.map { it.single() },
-                        captureTargetSymbols = captureTargetSymbols,
-                        getterSymbol = possibleGetterSymbols.single(),
-                        serializeAs = serializeClassSymbol,
-                    )
-                }
-            }
+            return SelfContained(
+                classSymbol = classSymbol,
+                setterSymbols = possibleSetterSymbols.map { it.single() },
+                captureTargetSymbols = captureTargetSymbols,
+                serializeAs = serializeClassSymbol,
+            )
         }
 
         context(IrPluginContext)
