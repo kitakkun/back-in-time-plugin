@@ -17,5 +17,6 @@ kotlin.compilerOptions {
 dependencies {
     implementation(libs.kotlin.compiler.embeddable)
     implementation(projects.compiler.common)
+    implementation(projects.compiler.yaml)
     implementation(projects.core.annotations)
 }

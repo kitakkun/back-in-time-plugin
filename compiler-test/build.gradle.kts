@@ -42,6 +42,10 @@ kotlin {
             }
         }
     }
+
+    compilerOptions {
+        freeCompilerArgs.addAll("-P", "plugin:com.kitakkun.backintime.compiler:config=${projectDir.absolutePath}/backintime-default-config.yaml")
+    }
 }
 
 dependencies {

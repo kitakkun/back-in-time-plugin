@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class TrackableStateHolder(
     val classId: String,
     val accessor: StateAccessor,
-    val captures: List<CaptureTarget>
+    val captures: List<CaptureTarget>,
+    val serializeAs: TypeSignature,
 )

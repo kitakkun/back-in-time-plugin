@@ -22,11 +22,7 @@ sealed interface CallableSignature {
     }
 
     @Serializable
-    data class NamedFunction(
-        val name: String,
-        val typeParameters: List<String>?,
-        val parameters: List<String>?,
-    ) : CallableSignature
+    data class NamedFunction(val name: String) : CallableSignature
 }
 
 private class CallableSignatureSerializer : KSerializer<CallableSignature> {
@@ -41,7 +37,7 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
             val propertyName = value.removePrefix("<set-").removeSuffix(">")
             CallableSignature.PropertyAccessor.Setter(propertyName)
         } else {
-            error("Unexpected pattern")
+            CallableSignature.NamedFunction(value)
         }
     }
 

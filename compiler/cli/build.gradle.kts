@@ -12,4 +12,5 @@ dependencies {
     implementation(projects.compiler.backend)
     implementation(projects.compiler.k2)
     implementation(projects.compiler.common)
+    implementation(projects.compiler.yaml)
 }

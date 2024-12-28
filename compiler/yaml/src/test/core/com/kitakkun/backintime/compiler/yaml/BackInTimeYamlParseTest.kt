@@ -8,15 +8,11 @@ class BackInTimeYamlParseTest {
     fun testEmpty() {
         val result = BackInTimeYamlConfigurationParser().parse(
             """
-            enabled: true
             trackableStateHolders: []
             """.trimIndent()
         )
         assertEquals(
-            expected = BackInTimeYamlConfiguration(
-                enabled = true,
-                trackableStateHolders = emptyList(),
-            ),
+            expected = BackInTimeYamlConfiguration(trackableStateHolders = emptyList()),
             actual = result,
         )
     }
@@ -25,20 +21,21 @@ class BackInTimeYamlParseTest {
     fun testWithTraceableStateHolders() {
         val result = BackInTimeYamlConfigurationParser().parse(
             """
-            enabled: true
             trackableStateHolders:
-              - classId: kotlinx/coroutines/flow/MutableStateFlow
+              - classId: "kotlinx/coroutines/flow/MutableStateFlow"
+                serializeAs: "0"
                 accessor:
-                  getter: <get-value>
-                  setter: <set-value>
+                  getter: "<get-value>"
+                  setter: "<set-value>"
                 captures:
-                  - signature: <set-value>
-                    strategy: arg0
+                  - signature: "<set-value>"
+                    strategy: "arg0"
+                  - signature: "update"
+                    strategy: "afterCall"
             """.trimIndent()
         )
         assertEquals(
             expected = BackInTimeYamlConfiguration(
-                enabled = true,
                 trackableStateHolders = listOf(
                     TrackableStateHolder(
                         classId = "kotlinx/coroutines/flow/MutableStateFlow",
@@ -46,10 +43,15 @@ class BackInTimeYamlParseTest {
                             getter = CallableSignature.PropertyAccessor.Getter("value"),
                             setter = CallableSignature.PropertyAccessor.Setter("value"),
                         ),
+                        serializeAs = TypeSignature.Generic(0),
                         captures = listOf(
                             CaptureTarget(
                                 signature = CallableSignature.PropertyAccessor.Setter("value"),
                                 strategy = CaptureStrategy.ValueArgument(0),
+                            ),
+                            CaptureTarget(
+                                signature = CallableSignature.NamedFunction("update"),
+                                strategy = CaptureStrategy.AfterCall,
                             )
                         )
                     )
@@ -57,5 +59,11 @@ class BackInTimeYamlParseTest {
             ),
             actual = result,
         )
+    }
+
+    @Test
+    fun builtInConfigFileParseTest() {
+        val text = javaClass.classLoader.getResource("backintime.yaml")?.readText()!!
+        BackInTimeYamlConfigurationParser().parse(text)
     }
 }

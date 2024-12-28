@@ -1,0 +1,86 @@
+trackableStateHolders:
+  # androidx.lifecycle
+  - classId: "androidx/lifecycle/MutableLiveData"
+    serializeAs: "0"
+    accessor:
+      getter: "getValue"
+      setter: "postValue"
+    captures:
+      - signature: "setValue"
+        strategy: "arg0"
+      - signature: "postValue"
+        strategy: "arg0"
+  # kotlinx.coroutines.flow
+  - classId: "kotlinx/coroutines/flow/MutableStateFlow"
+    serializeAs: "0"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+      - signature: "update"
+        strategy: "afterCall"
+      - signature: "updateAndGet"
+        strategy: "afterCall"
+      - signature: "getAndUpdate"
+        strategy: "afterCall"
+      - signature: "emit"
+        strategy: "arg0"
+      - signature: "tryEmit"
+        strategy: "arg0"
+  # androidx.compose.runtime
+  - classId: "androidx/compose/runtime/MutableState"
+    serializeAs: "0"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+  - classId: "androidx/compose/runtime/MutableIntState"
+    serializeAs: "kotlin/Int"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+      - signature: "<set-intValue>"
+        strategy: "arg0"
+  - classId: "androidx/compose/runtime/MutableLongState"
+    serializeAs: "kotlin/Long"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+      - signature: "<set-longValue>"
+        strategy: "arg0"
+  - classId: "androidx/compose/runtime/MutableFloatState"
+    serializeAs: "kotlin/Float"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+      - signature: "<set-floatValue>"
+        strategy: "arg0"
+  - classId: "androidx/compose/runtime/MutableDoubleState"
+    serializeAs: "kotlin/Float"
+    accessor:
+      getter: "<get-value>"
+      setter: "<set-value>"
+    captures:
+      - signature: "<set-value>"
+        strategy: "arg0"
+      - signature: "<set-doubleValue>"
+        strategy: "arg0"
+      # fix this. presetter function needed.
+      # - classId: "kotlin/collections/MutableList"
+      # accessor:
+      # getter: "<this>"
+      # setter: "addAll"
+

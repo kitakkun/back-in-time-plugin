@@ -5,6 +5,7 @@ import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.valuecontainer.ValueContainerBuiltIns
 import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
+import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -19,9 +20,12 @@ import org.jetbrains.kotlin.name.Name
 class BackInTimePluginContext(
     baseContext: IrPluginContext,
     moduleFragment: IrModuleFragment,
+    val yamlConfiguration: BackInTimeYamlConfiguration,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
-    val valueContainerClassInfoList: List<ResolvedValueContainer> = ValueContainerBuiltIns.mapNotNull {
+    val valueContainerClassInfoList: List<ResolvedValueContainer> = yamlConfiguration.trackableStateHolders.mapNotNull { trackableStateHolder ->
+        ResolvedValueContainer.create(trackableStateHolder)
+    } + ValueContainerBuiltIns.mapNotNull {
         val resolvedValueContainer = ResolvedValueContainer.create(it)
         if (resolvedValueContainer == null) {
             MessageCollectorHolder.reportWarning("Could not resolve value container: ${it.classId}")

@@ -2,39 +2,14 @@ package com.kitakkun.backintime.compiler.backend.valuecontainer
 
 import com.kitakkun.backintime.compiler.backend.valuecontainer.match.function
 import com.kitakkun.backintime.compiler.backend.valuecontainer.match.memberFunction
-import com.kitakkun.backintime.compiler.backend.valuecontainer.match.memberPropertyGetter
-import com.kitakkun.backintime.compiler.backend.valuecontainer.match.memberPropertySetter
 import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.CaptureStrategy
 import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.selfContainedValueContainer
-import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.valueContainer
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 val ValueContainerBuiltIns = listOf(
-    // androidx
-    valueContainer(classId("androidx.lifecycle", "MutableLiveData")) {
-        getter = memberFunction("getValue")
-        setter = listOf(memberFunction("postValue"))
-        captureTargets = listOf(
-            memberFunction("setValue") to CaptureStrategy.ValueArgument(),
-            memberFunction("postValue") to CaptureStrategy.ValueArgument(),
-        )
-    },
-    // kotlinx.coroutines.flow
-    valueContainer(classId("kotlinx.coroutines.flow", "MutableStateFlow")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("update"))) to CaptureStrategy.AfterCall,
-            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("updateAndGet"))) to CaptureStrategy.AfterCall,
-            function(CallableId(FqName("kotlinx.coroutines.flow"), Name.identifier("getAndUpdate"))) to CaptureStrategy.AfterCall,
-            memberFunction("emit") to CaptureStrategy.ValueArgument(),
-            memberFunction("tryEmit") to CaptureStrategy.ValueArgument(),
-        )
-    },
     // kotlin/collections
     selfContainedValueContainer(classId("kotlin.collections", "MutableList")) {
         setter = listOf(
@@ -97,50 +72,6 @@ val ValueContainerBuiltIns = listOf(
             memberFunction("replaceAll") to CaptureStrategy.AfterCall,
             function(CallableId(FqName("kotlin.collections"), Name.identifier("set"))) to CaptureStrategy.AfterCall,
         )
-    },
-    // androidx.compose.runtime
-    valueContainer(classId("androidx.compose.runtime", "MutableState")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-        )
-    },
-    valueContainer(classId("androidx.compose.runtime", "MutableIntState")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            memberPropertySetter("intValue") to CaptureStrategy.ValueArgument(),
-        )
-        serializeAs = classId("kotlin", "Int")
-    },
-    valueContainer(classId("androidx.compose.runtime", "MutableLongState")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            memberPropertySetter("longValue") to CaptureStrategy.ValueArgument(),
-        )
-        serializeAs = classId("kotlin", "Long")
-    },
-    valueContainer(classId("androidx.compose.runtime", "MutableFloatState")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            memberPropertySetter("floatValue") to CaptureStrategy.ValueArgument(),
-        )
-        serializeAs = classId("kotlin", "Float")
-    },
-    valueContainer(classId("androidx.compose.runtime", "MutableDoubleState")) {
-        getter = memberPropertyGetter("value")
-        setter = listOf(memberPropertySetter("value"))
-        captureTargets = listOf(
-            memberPropertySetter("value") to CaptureStrategy.ValueArgument(),
-            memberPropertySetter("doubleValue") to CaptureStrategy.ValueArgument(),
-        )
-        serializeAs = classId("kotlin", "Double")
     },
     selfContainedValueContainer(classId("androidx.compose.runtime.snapshots", "SnapshotStateList")) {
         setter = listOf(
