@@ -1,7 +1,6 @@
-package com.kitakkun.backintime.compiler.backend.valuecontainer.resolved
+package com.kitakkun.backintime.compiler.backend.valuecontainer
 
 import com.kitakkun.backintime.compiler.backend.MessageCollectorHolder
-import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.CaptureStrategy
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
 import com.kitakkun.backintime.compiler.yaml.TrackableStateHolder
 import com.kitakkun.backintime.compiler.yaml.TypeSignature

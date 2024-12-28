@@ -3,8 +3,8 @@ package com.kitakkun.backintime.compiler.backend.transformer.capture
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.kitakkun.backintime.compiler.backend.utils.receiver
-import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite

@@ -2,7 +2,7 @@ package com.kitakkun.backintime.compiler.backend
 
 import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

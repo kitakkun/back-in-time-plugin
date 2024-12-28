@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.analyzer
 
-import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.descriptors.runtime.structure.classId
