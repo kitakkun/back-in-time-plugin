@@ -99,7 +99,7 @@ trackableStateHolders:
         strategy: "afterCall"
       - signature: "replaceAll"
         strategy: "afterCall"
-      - signature: "kotlin.collections/set"
+      - signature: "set"
         strategy: "afterCall"
   - classId: "kotlin/collections/MutableSet"
     accessor:
@@ -167,6 +167,7 @@ trackableStateHolders:
       getter: "<this>"
       preSetter: "clear"
       setter: "putAll"
+    serializeAs: "kotlin/collections/Map"
     captures:
       - signature: "clear"
         strategy: "afterCall"

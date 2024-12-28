@@ -130,7 +130,7 @@ sealed class ResolvedValueContainer {
                     classSymbol = classSymbol,
                     setterSymbols = listOfNotNull(preSetterFunctionSymbol, setterFunctionSymbol),
                     captureTargetSymbols = captureTargetSymbols,
-                    serializeAs = null,
+                    serializeAs = serializeClassSymbol,
                 )
 
                 else -> null
