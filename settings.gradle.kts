@@ -16,6 +16,7 @@ include(
     ":compiler:k2",
     ":compiler:backend",
     ":compiler:cli",
+    ":compiler:yaml",
     ":compiler:common",
     ":compiler-test",
     ":demo:app",
