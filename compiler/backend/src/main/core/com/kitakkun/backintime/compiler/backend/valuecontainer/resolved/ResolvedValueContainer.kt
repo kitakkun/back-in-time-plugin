@@ -2,7 +2,6 @@ package com.kitakkun.backintime.compiler.backend.valuecontainer.resolved
 
 import com.kitakkun.backintime.compiler.backend.MessageCollectorHolder
 import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.raw.RawValueContainer
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
 import com.kitakkun.backintime.compiler.yaml.TrackableStateHolder
 import com.kitakkun.backintime.compiler.yaml.TypeSignature
@@ -13,7 +12,6 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
-import org.jetbrains.kotlin.ir.util.kotlinFqName
 import org.jetbrains.kotlin.ir.util.simpleFunctions
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
@@ -47,40 +45,6 @@ sealed class ResolvedValueContainer {
 
     companion object {
         context(IrPluginContext)
-        fun create(valueContainer: RawValueContainer.SelfContained): ResolvedValueContainer? {
-            val classId = valueContainer.classId
-            val classSymbol = referenceClass(classId) ?: return null
-
-            val allVisibleMemberCallables = classSymbol.owner.getAllMemberCallables().filter { it.owner.visibility.isVisibleOutside() }
-            val allOverriddenCallables = allVisibleMemberCallables.flatMap { it.owner.overriddenSymbols }.toSet()
-            val allPossibleMemberCallables = allVisibleMemberCallables - allOverriddenCallables
-
-            val possibleSetterSymbols = valueContainer.setter.map { it.getMatchedSymbols(allPossibleMemberCallables) }
-            val captureTargetSymbols = valueContainer.captureTargets.flatMap { (matcher, strategy) ->
-                // use visible one to avoid to accidentally ignore capture targets
-                matcher.getMatchedSymbols(allVisibleMemberCallables).map { it to strategy }
-            }
-
-            val serializeClassSymbol = valueContainer.serializeAs?.let { referenceClass(it) }
-
-            // if multiple possible setter functions are found, report a warning
-            if (possibleSetterSymbols.any { it.size > 1 }) {
-                MessageCollectorHolder.reportWarning(
-                    "${classId.asString()} has multiple setter occurrences. Check if the matching filter is specific enough. matched setters: " +
-                        possibleSetterSymbols.joinToString("\n") { "[" + it.joinToString(", ") { it.owner.kotlinFqName.asString() } + "]" },
-                )
-                return null
-            }
-
-            return SelfContained(
-                classSymbol = classSymbol,
-                setterSymbols = possibleSetterSymbols.map { it.single() },
-                captureTargetSymbols = captureTargetSymbols,
-                serializeAs = serializeClassSymbol,
-            )
-        }
-
-        context(IrPluginContext)
         fun create(trackableStateHolder: TrackableStateHolder): ResolvedValueContainer? {
             val classId = ClassId.fromString(trackableStateHolder.classId)
 
@@ -90,25 +54,21 @@ sealed class ResolvedValueContainer {
             val allOverriddenCallables = allVisibleMemberCallables.flatMap { it.owner.overriddenSymbols }.toSet()
             val allPossibleMemberCallables = allVisibleMemberCallables - allOverriddenCallables
 
+            val preSetterFunctionSymbol = when (val preSetter = trackableStateHolder.accessor.preSetter) {
+                is CallableSignature.NamedFunction -> {
+                    allVisibleMemberCallables.find { it.owner.name.asString() == preSetter.name }
+                }
+
+                else -> null
+            }
+
             val setterFunctionSymbol = when (val setter = trackableStateHolder.accessor.setter) {
                 is CallableSignature.PropertyAccessor.Setter -> allPossibleMemberCallables.find {
                     it.owner.name.asString() == "<set-${setter.propertyName}>" && it.owner.isSetter
                 }
 
                 is CallableSignature.NamedFunction -> allPossibleMemberCallables.find {
-                    it.owner.name.asString() == setter.name
-                }
-
-                else -> null
-            } ?: return null
-
-            val getterFunctionSymbol = when (val getter = trackableStateHolder.accessor.getter) {
-                is CallableSignature.PropertyAccessor.Getter -> allPossibleMemberCallables.find {
-                    it.owner.name.asString() == "<get-${getter.propertyName}>" && it.owner.isGetter
-                }
-
-                is CallableSignature.NamedFunction -> allPossibleMemberCallables.find {
-                    it.owner.name.asString() == getter.name
+                    it.owner.name.asString() == setter.name && it.owner.valueParameters.size == 1
                 }
 
                 else -> null
@@ -154,9 +114,37 @@ sealed class ResolvedValueContainer {
                 referenceClass(ClassId.fromString(it))
             }
 
+            if (classId.asString().contains("MutableList")) {
+                MessageCollectorHolder.reportWarning(
+                    """
+                    classId: $classId
+                    getter: ${trackableStateHolder.accessor.getter}
+                """.trimIndent()
+                )
+            }
+
+            val getterFunctionSymbol = when (val getter = trackableStateHolder.accessor.getter) {
+                is CallableSignature.PropertyAccessor.Getter -> allPossibleMemberCallables.find {
+                    it.owner.name.asString() == "<get-${getter.propertyName}>" && it.owner.isGetter
+                }
+
+                is CallableSignature.NamedFunction -> allPossibleMemberCallables.find {
+                    it.owner.name.asString() == getter.name
+                }
+
+                is CallableSignature.This -> return SelfContained(
+                    classSymbol = classSymbol,
+                    setterSymbols = listOfNotNull(preSetterFunctionSymbol, setterFunctionSymbol),
+                    captureTargetSymbols = captureTargetSymbols,
+                    serializeAs = null,
+                )
+
+                else -> null
+            } ?: return null
+
             return Wrapper(
                 classSymbol = classSymbol,
-                setterSymbols = listOf(setterFunctionSymbol),
+                setterSymbols = listOfNotNull(preSetterFunctionSymbol, setterFunctionSymbol),
                 captureTargetSymbols = captureTargetSymbols,
                 getterSymbol = getterFunctionSymbol,
                 serializeAs = serializeClassSymbol,

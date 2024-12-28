@@ -11,6 +11,9 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable(CallableSignatureSerializer::class)
 sealed interface CallableSignature {
     @Serializable
+    data object This : CallableSignature
+
+    @Serializable
     sealed interface PropertyAccessor : CallableSignature {
         val propertyName: String
 
@@ -36,6 +39,8 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
         } else if (value.startsWith("<set-") && value.endsWith(">")) {
             val propertyName = value.removePrefix("<set-").removeSuffix(">")
             CallableSignature.PropertyAccessor.Setter(propertyName)
+        } else if (value == "<this>") {
+            CallableSignature.This
         } else {
             CallableSignature.NamedFunction(value)
         }

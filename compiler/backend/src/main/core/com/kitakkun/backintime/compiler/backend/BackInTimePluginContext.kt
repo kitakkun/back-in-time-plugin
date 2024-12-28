@@ -2,7 +2,6 @@ package com.kitakkun.backintime.compiler.backend
 
 import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ValueContainerBuiltIns
 import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
@@ -25,12 +24,6 @@ class BackInTimePluginContext(
     val pluginContext: IrPluginContext = baseContext
     val valueContainerClassInfoList: List<ResolvedValueContainer> = yamlConfiguration.trackableStateHolders.mapNotNull { trackableStateHolder ->
         ResolvedValueContainer.create(trackableStateHolder)
-    } + ValueContainerBuiltIns.mapNotNull {
-        val resolvedValueContainer = ResolvedValueContainer.create(it)
-        if (resolvedValueContainer == null) {
-            MessageCollectorHolder.reportWarning("Could not resolve value container: ${it.classId}")
-        }
-        resolvedValueContainer
     } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
     // event report functions

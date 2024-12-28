@@ -6,4 +6,5 @@ import kotlinx.serialization.Serializable
 data class StateAccessor(
     val getter: CallableSignature,
     val setter: CallableSignature,
+    val preSetter: CallableSignature? = null,
 )
