@@ -30,7 +30,7 @@ class BackInTimeYamlParseTest {
                 captures:
                   - signature: "<set-value>"
                     strategy: "arg0"
-                  - signature: "update"
+                  - signature: "kotlinx/coroutines/flow/update"
                     strategy: "afterCall"
             """.trimIndent()
         )
@@ -50,7 +50,7 @@ class BackInTimeYamlParseTest {
                                 strategy = CaptureStrategy.ValueArgument(0),
                             ),
                             CaptureTarget(
-                                signature = CallableSignature.NamedFunction("update"),
+                                signature = CallableSignature.NamedFunction.TopLevel("kotlinx.coroutines.flow", "update"),
                                 strategy = CaptureStrategy.AfterCall,
                             )
                         )

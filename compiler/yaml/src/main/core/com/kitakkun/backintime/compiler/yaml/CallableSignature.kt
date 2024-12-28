@@ -25,7 +25,12 @@ sealed interface CallableSignature {
     }
 
     @Serializable
-    data class NamedFunction(val name: String) : CallableSignature
+    sealed interface NamedFunction : CallableSignature {
+        val name: String
+
+        data class Member(override val name: String) : NamedFunction
+        data class TopLevel(val packageFqName: String, override val name: String) : NamedFunction
+    }
 }
 
 private class CallableSignatureSerializer : KSerializer<CallableSignature> {
@@ -42,7 +47,14 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
         } else if (value == "<this>") {
             CallableSignature.This
         } else {
-            CallableSignature.NamedFunction(value)
+            if (value.contains("/")) {
+                CallableSignature.NamedFunction.TopLevel(
+                    packageFqName = value.split("/").dropLast(1).joinToString("."),
+                    name = value.split("/").lastOrNull() ?: "",
+                )
+            } else {
+                CallableSignature.NamedFunction.Member(name = value)
+            }
         }
     }
 

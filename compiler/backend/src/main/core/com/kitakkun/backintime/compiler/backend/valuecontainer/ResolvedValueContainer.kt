@@ -87,15 +87,13 @@ sealed class ResolvedValueContainer {
                         }
                     }
 
-                    is CallableSignature.NamedFunction -> {
-                        allVisibleMemberCallables.find { it.owner.name.asString() == signature.name } ?:
+                    is CallableSignature.NamedFunction.Member -> {
+                        allVisibleMemberCallables.find { it.owner.name.asString() == signature.name }
+                    }
+
+                    is CallableSignature.NamedFunction.TopLevel -> {
                         // FIXME: just for supporting extension functions. Not proper way. Need to be fixed later.
-                        referenceFunctions(
-                            CallableId(
-                                FqName(signature.name.split("/").dropLast(1).joinToString(".")),
-                                Name.identifier(signature.name.split("/").lastOrNull() ?: "")
-                            )
-                        ).firstOrNull()
+                        referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).firstOrNull()
                     }
 
                     else -> null
