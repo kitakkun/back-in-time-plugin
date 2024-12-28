@@ -35,9 +35,9 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         fun mutableMapTest() {
             mutableMap["Hello"] = "World"
             mutableMap["World"] = "!"
-            mutableMap.replace("World", "!")
-            mutableMap.replaceAll { _, value -> value }
-            mutableMap.remove("!")
+            mutableMap.replace("World", "!!")
+            mutableMap.replaceAll { _, value -> value + "replaceAll" }
+            mutableMap.remove("World")
             mutableMap.clear()
         }
     }
@@ -72,6 +72,7 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         holder.mutableMapTest()
         delay(100)
 
+        println(notifyValueChangeEvents.map { it.value })
         assertEquals(6, notifyValueChangeEvents.size)
     }
 }

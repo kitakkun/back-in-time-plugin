@@ -50,7 +50,12 @@ class BackInTimeYamlParseTest {
                                 strategy = CaptureStrategy.ValueArgument(0),
                             ),
                             CaptureTarget(
-                                signature = CallableSignature.NamedFunction.TopLevel("kotlinx.coroutines.flow", "update"),
+                                signature = CallableSignature.NamedFunction.TopLevel(
+                                    "",
+                                    "kotlinx.coroutines.flow",
+                                    "update",
+                                    valueParameters = ParametersSignature.Any,
+                                ),
                                 strategy = CaptureStrategy.AfterCall,
                             )
                         )
@@ -64,6 +69,6 @@ class BackInTimeYamlParseTest {
     @Test
     fun builtInConfigFileParseTest() {
         val text = javaClass.classLoader.getResource("backintime.yaml")?.readText()!!
-        BackInTimeYamlConfigurationParser().parse(text)
+        println(BackInTimeYamlConfigurationParser().parse(text))
     }
 }

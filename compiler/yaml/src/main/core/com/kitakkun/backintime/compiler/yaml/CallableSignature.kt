@@ -27,9 +27,19 @@ sealed interface CallableSignature {
     @Serializable
     sealed interface NamedFunction : CallableSignature {
         val name: String
+        val valueParameters: ParametersSignature
 
-        data class Member(override val name: String) : NamedFunction
-        data class TopLevel(val packageFqName: String, override val name: String) : NamedFunction
+        data class Member(
+            override val name: String,
+            override val valueParameters: ParametersSignature,
+        ) : NamedFunction
+
+        data class TopLevel(
+            val receiverClassId: String,
+            val packageFqName: String,
+            override val name: String,
+            override val valueParameters: ParametersSignature,
+        ) : NamedFunction
     }
 }
 
@@ -38,6 +48,7 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
 
     override fun deserialize(decoder: Decoder): CallableSignature {
         val value = decoder.decodeString()
+
         return if (value.startsWith("<get-") && value.endsWith(">")) {
             val propertyName = value.removePrefix("<get-").removeSuffix(">")
             CallableSignature.PropertyAccessor.Getter(propertyName)
@@ -47,13 +58,59 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
         } else if (value == "<this>") {
             CallableSignature.This
         } else {
-            if (value.contains("/")) {
-                CallableSignature.NamedFunction.TopLevel(
-                    packageFqName = value.split("/").dropLast(1).joinToString("."),
-                    name = value.split("/").lastOrNull() ?: "",
+            // com/example/ReceiverClass com/example/hoge(*, kotlin/Int)
+            // -> com/example/ReceiverClass com/example/hoge
+            val signature = value.takeWhile { it != '(' }
+            val receiverAndFunction = signature.split(" ")
+
+            val receiverPart: String
+            val functionPart: String
+            when (receiverAndFunction.size) {
+                1 -> {
+                    receiverPart = ""
+                    functionPart = receiverAndFunction.single()
+                }
+
+                2 -> {
+                    receiverPart = receiverAndFunction[0]
+                    functionPart = receiverAndFunction[1]
+                }
+
+                else -> error("Error!")
+            }
+
+            val functionName = functionPart.takeLastWhile { it != '.' && it != '/' }
+            val functionPackage = functionPart.removeSuffix(functionName)
+                .replace("/", ".")
+                .removeSuffix(".")
+
+            val parameters = if (!value.contains("(")) {
+                ParametersSignature.Any
+            } else {
+                ParametersSignature.Specified(
+                    value.dropWhile { it != '(' }.dropLastWhile { it != ')' }
+                        .split(",")
+                        .map { it.trim() }
+                        .map {
+                            if (it == "*") TypeSignature.Any
+                            else if (it.toIntOrNull() != null) TypeSignature.Generic(it.toInt())
+                            else TypeSignature.Class(it)
+                        }
+                )
+            }
+
+            if (receiverPart.isEmpty() && functionPackage.isEmpty()) {
+                CallableSignature.NamedFunction.Member(
+                    name = functionName,
+                    valueParameters = parameters,
                 )
             } else {
-                CallableSignature.NamedFunction.Member(name = value)
+                CallableSignature.NamedFunction.TopLevel(
+                    receiverClassId = receiverPart,
+                    packageFqName = functionPackage,
+                    name = functionName,
+                    valueParameters = parameters,
+                )
             }
         }
     }

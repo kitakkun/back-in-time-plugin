@@ -15,6 +15,9 @@ sealed interface TypeSignature {
 
     @Serializable(TypeSignatureClassSerializer::class)
     data class Class(val classId: String) : TypeSignature
+
+    @Serializable
+    data object Any : TypeSignature
 }
 
 private class TypeSignatureSerializer : KSerializer<TypeSignature> {

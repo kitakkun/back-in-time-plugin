@@ -1,13 +1,18 @@
 package com.kitakkun.backintime.compiler.backend.valuecontainer
 
-import com.kitakkun.backintime.compiler.backend.MessageCollectorHolder
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
+import com.kitakkun.backintime.compiler.yaml.ParametersSignature
 import com.kitakkun.backintime.compiler.yaml.TrackableStateHolder
 import com.kitakkun.backintime.compiler.yaml.TypeSignature
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
+import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.classifierOrNull
+import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
@@ -73,51 +78,43 @@ sealed class ResolvedValueContainer {
                 else -> null
             } ?: return null
 
-            val captureTargetSymbols = trackableStateHolder.captures.mapNotNull { captureTarget ->
-                val functionSymbol = when (val signature = captureTarget.signature) {
+            val captureTargetSymbols = trackableStateHolder.captures.flatMap { captureTarget ->
+                val functionSymbols = when (val signature = captureTarget.signature) {
                     is CallableSignature.PropertyAccessor.Getter -> {
-                        allVisibleMemberCallables.find {
+                        allVisibleMemberCallables.filter {
                             it.owner.name.asString() == "<get-${signature.propertyName}>"
                         }
                     }
 
                     is CallableSignature.PropertyAccessor.Setter -> {
-                        allVisibleMemberCallables.find {
+                        allVisibleMemberCallables.filter {
                             it.owner.name.asString() == "<set-${signature.propertyName}>"
                         }
                     }
 
                     is CallableSignature.NamedFunction.Member -> {
-                        allVisibleMemberCallables.find { it.owner.name.asString() == signature.name }
+                        allVisibleMemberCallables.filter { it.owner.matchesFunctionSignature(signature) }
                     }
 
                     is CallableSignature.NamedFunction.TopLevel -> {
-                        // FIXME: just for supporting extension functions. Not proper way. Need to be fixed later.
-                        referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).firstOrNull()
+                        referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).filter {
+                            it.owner.matchesFunctionSignature(signature)
+                        }
                     }
 
                     else -> null
-                } ?: return@mapNotNull null
+                } ?: return@flatMap emptyList()
 
                 val strategy = when (val strategy = captureTarget.strategy) {
                     is com.kitakkun.backintime.compiler.yaml.CaptureStrategy.ValueArgument -> CaptureStrategy.ValueArgument(strategy.index)
                     is com.kitakkun.backintime.compiler.yaml.CaptureStrategy.AfterCall -> CaptureStrategy.AfterCall
                 }
 
-                functionSymbol to strategy
+                functionSymbols.map { it to strategy }
             }
 
             val serializeClassSymbol = (trackableStateHolder.serializeAs as? TypeSignature.Class)?.classId?.let {
                 referenceClass(ClassId.fromString(it))
-            }
-
-            if (classId.asString().contains("MutableList")) {
-                MessageCollectorHolder.reportWarning(
-                    """
-                    classId: $classId
-                    getter: ${trackableStateHolder.accessor.getter}
-                """.trimIndent()
-                )
             }
 
             val getterFunctionSymbol = when (val getter = trackableStateHolder.accessor.getter) {
@@ -150,6 +147,28 @@ sealed class ResolvedValueContainer {
 
         private fun IrClass.getAllMemberCallables(): List<IrSimpleFunctionSymbol> {
             return (simpleFunctions() + getAllSuperclasses().flatMap { it.simpleFunctions() }).map { it.symbol }
+        }
+
+        private fun IrFunction.matchesFunctionSignature(signature: CallableSignature.NamedFunction): Boolean {
+            return when (val parametersSignature = signature.valueParameters) {
+                is ParametersSignature.Any -> this.name.asString() == signature.name
+                is ParametersSignature.Specified -> {
+                    parametersSignature.parameterTypes.size == this.valueParameters.size &&
+                        parametersSignature.parameterTypes.zip(this.valueParameters).all { (typeSignature, irValueParameter) ->
+                            when (typeSignature) {
+                                is TypeSignature.Any -> true
+
+                                is TypeSignature.Class -> {
+                                    irValueParameter.type.classOrNull?.owner?.classId == ClassId.fromString(typeSignature.classId)
+                                }
+
+                                is TypeSignature.Generic -> {
+                                    (irValueParameter.type.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index == typeSignature.index
+                                }
+                            }
+                        }
+                }
+            }
         }
     }
 }
