@@ -157,7 +157,7 @@ class BackInTimeWebSocketClientTest {
 
         runTest {
             launch {
-                clientReceivedEvent = (client.clientEventFlow.first() as BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent).debuggerEvent
+                clientReceivedEvent = client.receivedDebuggerEventFlow.first()
                 client.close()
             }
 

@@ -23,12 +23,6 @@ import kotlinx.serialization.json.Json
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-sealed interface BackInTimeWebSocketClientEvent {
-    data class ReceiveDebuggerEvent(val debuggerEvent: BackInTimeDebuggerEvent) : BackInTimeWebSocketClientEvent
-    data object CloseSuccessfully : BackInTimeWebSocketClientEvent
-    data class CloseWithError(val error: Throwable) : BackInTimeWebSocketClientEvent
-}
-
 /**
  * This class is responsible for connecting to the back-in-time debugger server
  */
@@ -42,8 +36,8 @@ class BackInTimeWebSocketClient(
 
     private var session: DefaultClientWebSocketSession? = null
 
-    private val mutableClientEventFlow = MutableSharedFlow<BackInTimeWebSocketClientEvent>()
-    val clientEventFlow = mutableClientEventFlow.asSharedFlow()
+    private val mutableReceivedDebuggerEventFlow = MutableSharedFlow<BackInTimeDebuggerEvent>()
+    val receivedDebuggerEventFlow = mutableReceivedDebuggerEventFlow.asSharedFlow()
 
     private val eventDispatchQueueMutex = Mutex()
     private val eventDispatchQueue = mutableListOf<BackInTimeDebugServiceEvent>()
@@ -77,7 +71,7 @@ class BackInTimeWebSocketClient(
                 val receiveJob = launch {
                     while (true) {
                         val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
-                        mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
+                        mutableReceivedDebuggerEventFlow.emit(debuggerEvent)
                     }
                 }
 

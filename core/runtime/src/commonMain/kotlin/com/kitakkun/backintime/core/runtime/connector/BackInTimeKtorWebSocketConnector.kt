@@ -1,12 +1,9 @@
 package com.kitakkun.backintime.core.runtime.connector
 
 import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
-import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClientEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flow
 
 /**
  * This class is responsible for sending and receiving events
@@ -22,12 +19,7 @@ class BackInTimeKtorWebSocketConnector(
 
     override suspend fun connect(): Flow<BackInTimeDebuggerEvent> {
         client.openSession()
-
-        return flow {
-            client.clientEventFlow.filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>().collect {
-                emit(it.debuggerEvent)
-            }
-        }
+        return client.receivedDebuggerEventFlow
     }
 
     override suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent) {

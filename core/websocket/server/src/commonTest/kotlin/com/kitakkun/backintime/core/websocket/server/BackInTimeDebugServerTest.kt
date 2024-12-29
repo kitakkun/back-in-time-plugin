@@ -1,10 +1,8 @@
 package com.kitakkun.backintime.core.websocket.server
 
 import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
-import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClientEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -47,9 +45,7 @@ class BackInTimeDebugServerTest {
         }
 
         val receiveServerEventJob = launch {
-            clientReceivedEvent = client.clientEventFlow
-                .filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>()
-                .first().debuggerEvent
+            clientReceivedEvent = client.receivedDebuggerEventFlow.first()
         }
 
         client.openSession()
