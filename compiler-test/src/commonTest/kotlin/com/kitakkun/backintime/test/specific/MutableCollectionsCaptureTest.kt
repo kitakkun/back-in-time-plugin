@@ -72,7 +72,6 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         holder.mutableMapTest()
         delay(100)
 
-        println(notifyValueChangeEvents.map { it.value })
         assertEquals(6, notifyValueChangeEvents.size)
     }
 }
