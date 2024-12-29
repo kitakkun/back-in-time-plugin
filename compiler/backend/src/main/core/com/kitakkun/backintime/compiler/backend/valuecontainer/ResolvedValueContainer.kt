@@ -98,7 +98,12 @@ sealed class ResolvedValueContainer {
 
                     is CallableSignature.NamedFunction.TopLevel -> {
                         referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).filter {
-                            it.owner.matchesFunctionSignature(signature)
+                            if (signature.receiverClassId.isNotEmpty()) {
+                                it.owner.matchesFunctionSignature(signature)
+                                    && it.owner.extensionReceiverParameter?.type?.classOrNull?.owner?.classId == ClassId.fromString(signature.receiverClassId)
+                            } else {
+                                it.owner.matchesFunctionSignature(signature)
+                            }
                         }
                     }
 
