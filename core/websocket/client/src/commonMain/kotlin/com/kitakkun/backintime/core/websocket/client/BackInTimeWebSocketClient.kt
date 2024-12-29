@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 sealed interface BackInTimeWebSocketClientEvent {
     data class ReceiveDebuggerEvent(val debuggerEvent: BackInTimeDebuggerEvent) : BackInTimeWebSocketClientEvent
@@ -52,44 +54,50 @@ class BackInTimeWebSocketClient(
         }
     }
 
-    private suspend fun DefaultClientWebSocketSession.handleSession() {
-        // sessionId negotiation
-        sendSerialized(BackInTimeDebugServiceEvent.RequestSession(sessionId))
-        sessionId = receiveDeserialized<BackInTimeDebuggerEvent.AcceptSession>().sessionId
+    private suspend fun DefaultClientWebSocketSession.setupSessionHandling() {
+        suspendCoroutine {
+            launch {
+                // sessionId negotiation
+                sendSerialized(BackInTimeDebugServiceEvent.RequestSession(sessionId))
+                sessionId = receiveDeserialized<BackInTimeDebuggerEvent.AcceptSession>().sessionId
 
-        clientLog("sessionId: $sessionId")
+                clientLog("sessionId: $sessionId")
 
-        val sendJob = launch {
-            while (true) {
-                delay(500)
-                eventDispatchQueueMutex.withLock {
-                    eventDispatchQueue.forEach { sendSerialized(it) }
-                    eventDispatchQueue.clear()
+                val sendJob = launch {
+                    while (true) {
+                        delay(500)
+                        eventDispatchQueueMutex.withLock {
+                            eventDispatchQueue.forEach { sendSerialized(it) }
+                            eventDispatchQueue.clear()
+                        }
+                    }
                 }
+
+                val receiveJob = launch {
+                    while (true) {
+                        val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
+                        mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
+                    }
+                }
+
+                closeReason.invokeOnCompletion { error ->
+                    if (error == null) {
+                        clientLog("session closed successfully")
+                    } else {
+                        clientLog("session closed with error: $error")
+                    }
+
+                    session = null
+
+                    sendJob.cancel()
+                    receiveJob.cancel()
+                }
+
+                println("client is ready")
+                it.resume(Unit) // setup completed: meaning that client is ready.
+                closeReason.await()
             }
         }
-
-        val receiveJob = launch {
-            while (true) {
-                val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
-                mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
-            }
-        }
-
-        closeReason.invokeOnCompletion { error ->
-            if (error == null) {
-                clientLog("session closed successfully")
-            } else {
-                clientLog("session closed with error: $error")
-            }
-
-            session = null
-
-            sendJob.cancel()
-            receiveJob.cancel()
-        }
-
-        closeReason.await()
     }
 
     suspend fun awaitClose() {
@@ -102,9 +110,7 @@ class BackInTimeWebSocketClient(
             port = port,
             path = "/backintime",
         ).also {
-            it.launch {
-                it.handleSession()
-            }
+            it.setupSessionHandling()
         }
     }
 

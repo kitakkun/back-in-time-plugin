@@ -39,23 +39,33 @@ class BackInTimeDebugServerTest {
 
     @Test
     fun `test send event from server`() = runTest {
-        launch {
-            val sessionId = server.connectionEstablishedFlow.first()
+        var clientReceivedEvent: BackInTimeDebuggerEvent? = null
+
+        val connectedThenSendEventJob = launch {
+            val sessionId = server.newSessionIdFlow.first()
             server.send(sessionId, BackInTimeDebuggerEvent.Ping)
         }
 
+        val receiveServerEventJob = launch {
+            clientReceivedEvent = client.clientEventFlow
+                .filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>()
+                .first().debuggerEvent
+        }
+
         client.openSession()
+        connectedThenSendEventJob.join()
+        receiveServerEventJob.join()
 
         assertEquals(
             expected = BackInTimeDebuggerEvent.Ping,
-            actual = client.clientEventFlow.filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>().first().debuggerEvent
+            actual = clientReceivedEvent,
         )
     }
 
     @Test
     fun `test receive event from client`() = runTest {
         launch {
-            val (_, event) = server.receivedEventFlow.first()
+            val (_, event) = server.eventFromClientFlow.first()
             assertEquals(BackInTimeDebugServiceEvent.Ping, event)
         }
 
