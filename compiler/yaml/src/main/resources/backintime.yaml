@@ -99,7 +99,7 @@ trackableStateHolders:
         strategy: "afterCall"
       - signature: "replaceAll"
         strategy: "afterCall"
-      - signature: "kotlin.collections/set"
+      - signature: "set"
         strategy: "afterCall"
   - classId: "kotlin/collections/MutableSet"
     accessor:
@@ -135,7 +135,7 @@ trackableStateHolders:
         strategy: "afterCall"
       - signature: "replaceAll"
         strategy: "afterCall"
-      - signature: "kotlin/collections/MutableMap kotlin/collections/set(0, 1)" # FIXME: not working properly
+      - signature: "kotlin/collections/MutableMap kotlin/collections/set"
         strategy: "afterCall"
   # androidx.compose.runtime.snapshots
   # FIXME: Not working properly
@@ -162,12 +162,12 @@ trackableStateHolders:
         strategy: "afterCall"
       - signature: "replaceAll"
         strategy: "afterCall"
-  # FIXME: Not working properly
   - classId: "androidx/compose/runtime/snapshots/SnapshotStateMap"
     accessor:
       getter: "<this>"
       preSetter: "clear"
       setter: "putAll"
+    serializeAs: "kotlin/collections/Map"
     captures:
       - signature: "clear"
         strategy: "afterCall"
@@ -177,5 +177,5 @@ trackableStateHolders:
         strategy: "afterCall"
       - signature: "remove"
         strategy: "afterCall"
-      - signature: "kotlin/collections/MutableMap kotlin/collections/set(0, 1)"
+      - signature: "kotlin/collections/MutableMap kotlin/collections/set"
         strategy: "afterCall"
