@@ -114,7 +114,6 @@ class BackInTimeDebugServiceImpl(
 
             is BackInTimeDebuggerEvent.Ping,
             is BackInTimeDebuggerEvent.Error,
-            is BackInTimeDebuggerEvent.AcceptSession,
                 -> null
         }
         if (resultEventForDebugger != null) {

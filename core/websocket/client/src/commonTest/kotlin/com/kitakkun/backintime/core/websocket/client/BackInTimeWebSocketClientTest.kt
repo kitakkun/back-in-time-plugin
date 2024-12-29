@@ -2,6 +2,7 @@ package com.kitakkun.backintime.core.websocket.client
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.install
 import io.ktor.server.engine.connector
@@ -54,7 +55,7 @@ class BackInTimeWebSocketClientTest {
                     println("New websocket session established!")
                     println("waiting sessionId negotiation request from the client...")
 
-                    val requestedSessionId = receiveDeserialized<BackInTimeDebugServiceEvent.RequestSession>().sessionId
+                    val requestedSessionId = receiveDeserialized<BackInTimeSessionNegotiationEvent.Request>().sessionId
                     println("starting sessionId negotiation...")
 
                     if (requestedSessionId == null) {
@@ -63,9 +64,9 @@ class BackInTimeWebSocketClientTest {
                         val sessionId = Uuid.random().toString()
                         println("generated new sessionId: $sessionId")
 
-                        sendSerialized(BackInTimeDebuggerEvent.AcceptSession(sessionId))
+                        sendSerialized(BackInTimeSessionNegotiationEvent.Accept(sessionId))
                     } else {
-                        sendSerialized(BackInTimeDebuggerEvent.AcceptSession(requestedSessionId))
+                        sendSerialized(BackInTimeSessionNegotiationEvent.Accept(requestedSessionId))
                     }
 
                     println("sessionId negotiation completed!")

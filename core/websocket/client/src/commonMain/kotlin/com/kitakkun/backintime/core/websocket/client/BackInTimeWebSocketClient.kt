@@ -2,6 +2,7 @@ package com.kitakkun.backintime.core.websocket.client
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
@@ -58,8 +59,8 @@ class BackInTimeWebSocketClient(
         suspendCoroutine {
             launch {
                 // sessionId negotiation
-                sendSerialized(BackInTimeDebugServiceEvent.RequestSession(sessionId))
-                sessionId = receiveDeserialized<BackInTimeDebuggerEvent.AcceptSession>().sessionId
+                sendSerialized(BackInTimeSessionNegotiationEvent.Request(sessionId))
+                sessionId = receiveDeserialized<BackInTimeSessionNegotiationEvent.Accept>().sessionId
 
                 clientLog("sessionId: $sessionId")
 

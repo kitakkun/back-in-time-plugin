@@ -2,6 +2,7 @@ package com.kitakkun.backintime.core.websocket.server
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
@@ -67,9 +68,9 @@ class BackInTimeWebSocketServer {
         routing {
             webSocket("/backintime") {
                 // sessionId negotiation
-                val requestedSessionId = receiveDeserialized<BackInTimeDebugServiceEvent.RequestSession>().sessionId
+                val requestedSessionId = receiveDeserialized<BackInTimeSessionNegotiationEvent.Request>().sessionId
                 val sessionId = requestedSessionId ?: Uuid.random().toString()
-                sendSerialized(BackInTimeDebuggerEvent.AcceptSession(sessionId))
+                sendSerialized(BackInTimeSessionNegotiationEvent.Accept(sessionId))
 
                 val sendEventJob = launch {
                     sendEventFlow.filter { it.sessionId == sessionId }.collect {

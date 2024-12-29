@@ -14,9 +14,6 @@ import kotlin.js.JsExport
 @Serializable
 sealed class BackInTimeDebugServiceEvent {
     @Serializable
-    data class RequestSession(val sessionId: String?) : BackInTimeDebugServiceEvent()
-
-    @Serializable
     data object Ping : BackInTimeDebugServiceEvent()
 
     @Serializable
