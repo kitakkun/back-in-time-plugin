@@ -1,6 +1,7 @@
 package com.kitakkun.backintime.compiler.yaml
 
 import com.charleskorn.kaml.Yaml
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import org.intellij.lang.annotations.Language
 import kotlin.test.Test
@@ -26,15 +27,18 @@ class BackInTimeYamlParseTest {
         val source = """
             trackableStateHolders:
               - classId: "kotlinx/coroutines/flow/MutableStateFlow"
-                serializeAs: "0"
                 accessor:
                   getter: "<get-value>"
                   setter: "<set-value>"
+                  preSetter: null
                 captures:
                   - signature: "<set-value>"
                     strategy: "arg0"
                   - signature: "kotlinx/coroutines/flow/update"
                     strategy: "afterCall"
+                  - signature: "myextension/Receiver myextension/coroutines/test(*, 0, kotlin/Int)"
+                    strategy: "arg0"
+                serializeAs: "0"
         """.trimIndent()
         val result = BackInTimeYamlConfigurationParser().parse(source)
         assertEquals(
@@ -60,6 +64,21 @@ class BackInTimeYamlParseTest {
                                     valueParameters = ParametersSignature.Any,
                                 ),
                                 strategy = CaptureStrategy.AfterCall,
+                            ),
+                            CaptureTarget(
+                                signature = CallableSignature.NamedFunction.TopLevel(
+                                    "myextension/Receiver",
+                                    "myextension.coroutines",
+                                    "test",
+                                    valueParameters = ParametersSignature.Specified(
+                                        parameterTypes = listOf(
+                                            TypeSignature.Any,
+                                            TypeSignature.Generic(0),
+                                            TypeSignature.Class("kotlin/Int")
+                                        )
+                                    ),
+                                ),
+                                strategy = CaptureStrategy.ValueArgument(0),
                             )
                         )
                     )
@@ -68,8 +87,8 @@ class BackInTimeYamlParseTest {
             actual = result,
         )
         assertEquals(
-            expected = source,
-            actual = Yaml.default.encodeToString(result),
+            expected = result,
+            actual = with(Yaml.default) { decodeFromString(encodeToString(result)) },
         )
     }
 

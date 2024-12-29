@@ -138,7 +138,6 @@ trackableStateHolders:
       - signature: "kotlin/collections/MutableMap kotlin/collections/set"
         strategy: "afterCall"
   # androidx.compose.runtime.snapshots
-  # FIXME: Not working properly
   - classId: "androidx/compose/runtime/snapshots/SnapshotStateList"
     accessor:
       getter: "<this>"

@@ -25,6 +25,7 @@ private class TypeSignatureSerializer : KSerializer<TypeSignature> {
 
     override fun deserialize(decoder: Decoder): TypeSignature {
         val value = decoder.decodeString()
+        if (value == "*") return TypeSignature.Any
         return value.toIntOrNull()?.let { TypeSignature.Generic(it) } ?: TypeSignature.Class(value)
     }
 

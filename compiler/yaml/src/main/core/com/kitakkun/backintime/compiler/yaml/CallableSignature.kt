@@ -5,10 +5,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
 
 @Serializable(CallableSignatureSerializer::class)
 sealed interface CallableSignature {
@@ -91,6 +89,8 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
             } else {
                 ParametersSignature.Specified(
                     value.dropWhile { it != '(' }.dropLastWhile { it != ')' }
+                        .removePrefix("(")
+                        .removeSuffix(")")
                         .split(",")
                         .map { it.trim() }
                         .map {
@@ -137,7 +137,13 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
                     is ParametersSignature.Any -> {} // do nothing
                     is ParametersSignature.Specified -> {
                         append("(")
-                        append(value.valueParameters.parameterTypes.joinToString(",") { typeSignature -> Json.encodeToString(typeSignature) })
+                        append(value.valueParameters.parameterTypes.joinToString(", ") { typeSignature ->
+                            when (typeSignature) {
+                                is TypeSignature.Any -> "*"
+                                is TypeSignature.Class -> typeSignature.classId
+                                is TypeSignature.Generic -> typeSignature.index.toString()
+                            }
+                        })
                         append(")")
                     }
                 }
