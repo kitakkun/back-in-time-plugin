@@ -57,7 +57,10 @@ class BackInTimeGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java) ?: BackInTimeExtension()
         return kotlinCompilation.target.project.provider {
-            listOf(SubpluginOption(key = "enabled", value = extension.enabled.toString()))
+            listOf(
+                SubpluginOption(key = "enabled", value = extension.enabled.toString()),
+                SubpluginOption(key = "config", value = extension.configFilePath),
+            )
         }
     }
 
