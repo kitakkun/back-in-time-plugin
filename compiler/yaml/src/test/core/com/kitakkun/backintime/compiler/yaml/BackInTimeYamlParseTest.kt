@@ -1,5 +1,8 @@
 package com.kitakkun.backintime.compiler.yaml
 
+import com.charleskorn.kaml.Yaml
+import kotlinx.serialization.encodeToString
+import org.intellij.lang.annotations.Language
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -19,8 +22,8 @@ class BackInTimeYamlParseTest {
 
     @Test
     fun testWithTraceableStateHolders() {
-        val result = BackInTimeYamlConfigurationParser().parse(
-            """
+        @Language("yaml")
+        val source = """
             trackableStateHolders:
               - classId: "kotlinx/coroutines/flow/MutableStateFlow"
                 serializeAs: "0"
@@ -32,8 +35,8 @@ class BackInTimeYamlParseTest {
                     strategy: "arg0"
                   - signature: "kotlinx/coroutines/flow/update"
                     strategy: "afterCall"
-            """.trimIndent()
-        )
+        """.trimIndent()
+        val result = BackInTimeYamlConfigurationParser().parse(source)
         assertEquals(
             expected = BackInTimeYamlConfiguration(
                 trackableStateHolders = listOf(
@@ -63,6 +66,10 @@ class BackInTimeYamlParseTest {
                 ),
             ),
             actual = result,
+        )
+        assertEquals(
+            expected = source,
+            actual = Yaml.default.encodeToString(result),
         )
     }
 

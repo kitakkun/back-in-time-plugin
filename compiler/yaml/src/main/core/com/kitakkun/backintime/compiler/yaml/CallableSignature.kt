@@ -5,8 +5,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 
 @Serializable(CallableSignatureSerializer::class)
 sealed interface CallableSignature {
@@ -116,5 +118,31 @@ private class CallableSignatureSerializer : KSerializer<CallableSignature> {
     }
 
     override fun serialize(encoder: Encoder, value: CallableSignature) {
+        val stringValue = when (value) {
+            is CallableSignature.This -> "<this>"
+            is CallableSignature.PropertyAccessor.Setter -> "<set-${value.propertyName}>"
+            is CallableSignature.PropertyAccessor.Getter -> "<get-${value.propertyName}>"
+            is CallableSignature.NamedFunction.Member -> value.name
+            is CallableSignature.NamedFunction.TopLevel -> StringBuilder().apply {
+                if (value.receiverClassId.isNotEmpty()) {
+                    append(value.receiverClassId)
+                    append(" ")
+                }
+                if (value.packageFqName.isNotEmpty()) {
+                    append(value.packageFqName.replace(".", "/"))
+                    append("/")
+                }
+                append(value.name)
+                when (value.valueParameters) {
+                    is ParametersSignature.Any -> {} // do nothing
+                    is ParametersSignature.Specified -> {
+                        append("(")
+                        append(value.valueParameters.parameterTypes.joinToString(",") { typeSignature -> Json.encodeToString(typeSignature) })
+                        append(")")
+                    }
+                }
+            }.toString()
+        }
+        encoder.encodeString(stringValue)
     }
 }

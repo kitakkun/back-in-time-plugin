@@ -13,7 +13,7 @@ sealed interface TypeSignature {
     @Serializable
     data class Generic(val index: Int) : TypeSignature
 
-    @Serializable(TypeSignatureClassSerializer::class)
+    @Serializable
     data class Class(val classId: String) : TypeSignature
 
     @Serializable
@@ -29,17 +29,11 @@ private class TypeSignatureSerializer : KSerializer<TypeSignature> {
     }
 
     override fun serialize(encoder: Encoder, value: TypeSignature) {
-    }
-}
-
-private class TypeSignatureClassSerializer : KSerializer<TypeSignature.Class> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(serialName = "TypeSignature.Class", kind = PrimitiveKind.STRING)
-
-    override fun deserialize(decoder: Decoder): TypeSignature.Class {
-        val value = decoder.decodeString()
-        return TypeSignature.Class(value)
-    }
-
-    override fun serialize(encoder: Encoder, value: TypeSignature.Class) {
+        val stringValue = when (value) {
+            is TypeSignature.Any -> "*"
+            is TypeSignature.Class -> value.classId
+            is TypeSignature.Generic -> value.index.toString()
+        }
+        encoder.encodeString(stringValue)
     }
 }
