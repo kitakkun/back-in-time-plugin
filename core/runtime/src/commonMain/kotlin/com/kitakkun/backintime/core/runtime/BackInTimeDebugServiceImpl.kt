@@ -4,7 +4,12 @@ import com.kitakkun.backintime.core.runtime.connector.BackInTimeWebSocketConnect
 import com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerializationException
 
@@ -109,6 +114,7 @@ class BackInTimeDebugServiceImpl(
 
             is BackInTimeDebuggerEvent.Ping,
             is BackInTimeDebuggerEvent.Error,
+            is BackInTimeDebuggerEvent.AcceptSession,
                 -> null
         }
         if (resultEventForDebugger != null) {

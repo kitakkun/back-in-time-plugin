@@ -13,8 +13,6 @@ import io.ktor.server.websocket.receiveDeserialized
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
 import io.ktor.websocket.close
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -22,6 +20,8 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 // FIXME: This test fails for native targets
 class BackInTimeWebSocketClientTest {
@@ -30,6 +30,7 @@ class BackInTimeWebSocketClientTest {
         private const val TEST_PORT = 50026
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private fun ApplicationTestBuilder.configureServer(
         host: String,
         port: Int,
@@ -49,7 +50,32 @@ class BackInTimeWebSocketClientTest {
         routing {
             webSocket(
                 path = "/backintime",
-                handler = serverSession,
+                handler = {
+                    println("New websocket session established!")
+                    println("waiting sessionId negotiation request from the client...")
+
+                    val requestedSessionId = receiveDeserialized<BackInTimeDebugServiceEvent.RequestSession>().sessionId
+                    println("starting sessionId negotiation...")
+
+                    if (requestedSessionId == null) {
+                        println("requested sessionId is null. generating new sessionId...")
+
+                        val sessionId = Uuid.random().toString()
+                        println("generated new sessionId: $sessionId")
+
+                        sendSerialized(BackInTimeDebuggerEvent.AcceptSession(sessionId))
+                    } else {
+                        sendSerialized(BackInTimeDebuggerEvent.AcceptSession(requestedSessionId))
+                    }
+
+                    println("sessionId negotiation completed!")
+                    println("start server session...")
+
+                    serverSession()
+
+                    println("keeping session active...")
+                    this.closeReason.await()
+                }
             )
         }
     }
@@ -64,7 +90,6 @@ class BackInTimeWebSocketClientTest {
 
         assertFailsWith(Throwable::class) {
             client.openSession()
-            client.awaitClose()
         }
     }
 
@@ -73,7 +98,7 @@ class BackInTimeWebSocketClientTest {
         configureServer(
             host = TEST_HOST,
             port = TEST_PORT,
-            serverSession = { /* Do nothing */ },
+            serverSession = { close() },
         )
 
         val client = BackInTimeWebSocketClient(
@@ -83,7 +108,7 @@ class BackInTimeWebSocketClientTest {
         )
 
         client.openSession()
-        client.awaitClose()
+        client.close()
     }
 
     @Test
@@ -94,7 +119,7 @@ class BackInTimeWebSocketClientTest {
             host = TEST_HOST,
             port = TEST_PORT,
             serverSession = {
-                serverReceivedEvent = receiveDeserialized<BackInTimeDebugServiceEvent>()
+                serverReceivedEvent = receiveDeserialized()
                 close()
             },
         )
@@ -115,14 +140,12 @@ class BackInTimeWebSocketClientTest {
 
     @Test
     fun `test success to receive event`() = testApplication {
+        var clientReceivedEvent: BackInTimeDebuggerEvent? = null
+
         configureServer(
             host = TEST_HOST,
             port = TEST_PORT,
-            serverSession = {
-                sendSerialized<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping)
-                delay(100) // need this to pass the test
-                close()
-            },
+            serverSession = { sendSerialized<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping) },
         )
 
         val client = BackInTimeWebSocketClient(
@@ -133,13 +156,14 @@ class BackInTimeWebSocketClientTest {
 
         runTest {
             launch {
-                assertEquals(
-                    expected = BackInTimeDebuggerEvent.Ping,
-                    actual = client.clientEventFlow.filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>().first().debuggerEvent
-                )
+                clientReceivedEvent = (client.clientEventFlow.first() as BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent).debuggerEvent
+                client.close()
             }
 
             client.openSession()
+            client.awaitClose()
+
+            assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = clientReceivedEvent)
         }
     }
 }

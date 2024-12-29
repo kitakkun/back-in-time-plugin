@@ -35,6 +35,8 @@ class BackInTimeWebSocketClient(
     engine: HttpClientEngine = CIO.create(),
     client: HttpClient? = null,
 ) {
+    private var sessionId: String? = null
+
     private var session: DefaultClientWebSocketSession? = null
 
     private val mutableClientEventFlow = MutableSharedFlow<BackInTimeWebSocketClientEvent>()
@@ -51,12 +53,11 @@ class BackInTimeWebSocketClient(
     }
 
     private suspend fun DefaultClientWebSocketSession.handleSession() {
-        val receiveJob = launch {
-            while (true) {
-                val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
-                mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
-            }
-        }
+        // sessionId negotiation
+        sendSerialized(BackInTimeDebugServiceEvent.RequestSession(sessionId))
+        sessionId = receiveDeserialized<BackInTimeDebuggerEvent.AcceptSession>().sessionId
+
+        clientLog("sessionId: $sessionId")
 
         val sendJob = launch {
             while (true) {
@@ -68,19 +69,24 @@ class BackInTimeWebSocketClient(
             }
         }
 
+        val receiveJob = launch {
+            while (true) {
+                val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
+                mutableClientEventFlow.emit(BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent(debuggerEvent))
+            }
+        }
+
         closeReason.invokeOnCompletion { error ->
+            if (error == null) {
+                clientLog("session closed successfully")
+            } else {
+                clientLog("session closed with error: $error")
+            }
+
             session = null
 
-            receiveJob.cancel()
             sendJob.cancel()
-
-            val event = error?.let {
-                BackInTimeWebSocketClientEvent.CloseWithError(it)
-            } ?: BackInTimeWebSocketClientEvent.CloseSuccessfully
-
-            launch {
-                mutableClientEventFlow.emit(event)
-            }
+            receiveJob.cancel()
         }
 
         closeReason.await()
@@ -95,10 +101,10 @@ class BackInTimeWebSocketClient(
             host = host,
             port = port,
             path = "/backintime",
-        )
-
-        session?.launch {
-            session?.handleSession()
+        ).also {
+            it.launch {
+                it.handleSession()
+            }
         }
     }
 
@@ -109,5 +115,9 @@ class BackInTimeWebSocketClient(
     suspend fun close() {
         session?.close()
         session = null
+    }
+
+    private fun clientLog(message: String) {
+        println("[${this::class.simpleName}] $message")
     }
 }
