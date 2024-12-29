@@ -1,50 +1,49 @@
 package com.kitakkun.backintime.core.websocket.server
 
-import com.benasher44.uuid.uuid4
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.origin
 import io.ktor.server.routing.routing
-import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.receiveDeserialized
+import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
-import io.ktor.websocket.send
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
-import kotlinx.serialization.encodeToString
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-
-data class Connection(
-    val session: DefaultWebSocketServerSession,
-    val id: String = uuid4().toString(),
-)
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
-
     val isRunning: Boolean get() = server?.application?.isActive == true
-    private val connections = mutableListOf<Connection>()
 
-    private val mutableConnectionEstablishedFlow = MutableSharedFlow<String>()
-    val connectionEstablishedFlow = mutableConnectionEstablishedFlow.asSharedFlow()
+    private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
+    val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()
 
-    private val mutableReceivedEventFlow = MutableSharedFlow<Pair<String, BackInTimeDebugServiceEvent>>()
-    val receivedEventFlow = mutableReceivedEventFlow.asSharedFlow()
+    private val mutableNewSessionFlow = MutableSharedFlow<SessionInfo>()
+    val newSessionFlow = mutableNewSessionFlow.asSharedFlow()
+
+    private val mutableSessionClosedFlow = MutableSharedFlow<SessionInfo>()
+    val sessionClosedFlow = mutableSessionClosedFlow.asSharedFlow()
+
+    private val mutableEventFromClientFlow = MutableSharedFlow<EventFromClient>()
+    val eventFromClientFlow = mutableEventFromClientFlow.asSharedFlow()
+
+    private val sendEventFlow = MutableSharedFlow<EventToClient>()
 
     fun start(host: String, port: Int) {
         server = configureServer(host, port)
         server?.start()
-    }
-
-    suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
-        val session = connections.find { it.id == sessionId }?.session ?: return
-        session.send(Json.encodeToString(event))
     }
 
     fun stop() {
@@ -52,6 +51,11 @@ class BackInTimeWebSocketServer {
         server = null
     }
 
+    suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
+        sendEventFlow.emit(EventToClient(sessionId, event))
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
     private fun configureServer(host: String, port: Int) = embeddedServer(
         factory = CIO,
         port = port,
@@ -64,14 +68,46 @@ class BackInTimeWebSocketServer {
 
         routing {
             webSocket("/backintime") {
-                val connection = Connection(this)
-                connections.add(connection)
-                mutableConnectionEstablishedFlow.emit(connection.id)
+                // sessionId negotiation
+                val requestedSessionId = receiveDeserialized<BackInTimeSessionNegotiationEvent.Request>().sessionId
+                val sessionId = requestedSessionId ?: Uuid.random().toString()
+                sendSerialized(BackInTimeSessionNegotiationEvent.Accept(sessionId))
 
-                while (true) {
-                    val event = receiveDeserialized<BackInTimeDebugServiceEvent>()
-                    mutableReceivedEventFlow.emit(connection.id to event)
+                val sendEventJob = launch {
+                    sendEventFlow.filter { it.sessionId == sessionId }.collect {
+                        sendSerialized(it.event)
+                    }
                 }
+
+                val receiveEventJob = launch {
+                    while (true) {
+                        val event = receiveDeserialized<BackInTimeDebugServiceEvent>()
+                        mutableEventFromClientFlow.emit(EventFromClient(sessionId, event))
+                    }
+                }
+
+                val sessionInfo = SessionInfo(
+                    id = sessionId,
+                    host = this.call.request.origin.remoteHost,
+                    port = this.call.request.origin.remotePort,
+                    address = this.call.request.origin.remoteAddress,
+                )
+
+                closeReason.invokeOnCompletion {
+                    mutableSessionInfoList.remove(sessionInfo)
+
+                    sendEventJob.cancel()
+                    receiveEventJob.cancel()
+
+                    launch {
+                        mutableSessionClosedFlow.emit(sessionInfo)
+                    }
+                }
+
+                mutableSessionInfoList += sessionInfo
+                mutableNewSessionFlow.emit(sessionInfo)
+
+                closeReason.await()
             }
         }
     }

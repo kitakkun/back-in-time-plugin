@@ -1,10 +1,8 @@
 package com.kitakkun.backintime.core.websocket.server
 
 import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
-import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClientEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -39,23 +37,31 @@ class BackInTimeDebugServerTest {
 
     @Test
     fun `test send event from server`() = runTest {
-        launch {
-            val sessionId = server.connectionEstablishedFlow.first()
-            server.send(sessionId, BackInTimeDebuggerEvent.Ping)
+        var clientReceivedEvent: BackInTimeDebuggerEvent? = null
+
+        val connectedThenSendEventJob = launch {
+            val sessionInfo = server.newSessionFlow.first()
+            server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping)
+        }
+
+        val receiveServerEventJob = launch {
+            clientReceivedEvent = client.receivedDebuggerEventFlow.first()
         }
 
         client.openSession()
+        connectedThenSendEventJob.join()
+        receiveServerEventJob.join()
 
         assertEquals(
             expected = BackInTimeDebuggerEvent.Ping,
-            actual = client.clientEventFlow.filterIsInstance<BackInTimeWebSocketClientEvent.ReceiveDebuggerEvent>().first().debuggerEvent
+            actual = clientReceivedEvent,
         )
     }
 
     @Test
     fun `test receive event from client`() = runTest {
         launch {
-            val (_, event) = server.receivedEventFlow.first()
+            val (_, event) = server.eventFromClientFlow.first()
             assertEquals(BackInTimeDebugServiceEvent.Ping, event)
         }
 
