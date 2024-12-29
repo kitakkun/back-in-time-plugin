@@ -8,6 +8,7 @@ import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.plugins.origin
 import io.ktor.server.routing.routing
 import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.receiveDeserialized
@@ -26,13 +27,13 @@ class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
     val isRunning: Boolean get() = server?.application?.isActive == true
 
-    private val mutableSessionIds = mutableSetOf<String>()
-    val sessionIds: List<String> get() = mutableSessionIds.toList()
+    private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
+    val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()
 
-    private val mutableNewSessionIdFlow = MutableSharedFlow<String>()
-    val newSessionIdFlow = mutableNewSessionIdFlow.asSharedFlow()
+    private val mutableNewSessionFlow = MutableSharedFlow<SessionInfo>()
+    val newSessionFlow = mutableNewSessionFlow.asSharedFlow()
 
-    private val mutableSessionClosedFlow = MutableSharedFlow<String>()
+    private val mutableSessionClosedFlow = MutableSharedFlow<SessionInfo>()
     val sessionClosedFlow = mutableSessionClosedFlow.asSharedFlow()
 
     private val mutableEventFromClientFlow = MutableSharedFlow<EventFromClient>()
@@ -85,19 +86,26 @@ class BackInTimeWebSocketServer {
                     }
                 }
 
+                val sessionInfo = SessionInfo(
+                    id = sessionId,
+                    host = this.call.request.origin.remoteHost,
+                    port = this.call.request.origin.remotePort,
+                    address = this.call.request.origin.remoteAddress,
+                )
+
                 closeReason.invokeOnCompletion {
-                    mutableSessionIds.remove(sessionId)
+                    mutableSessionInfoList.remove(sessionInfo)
 
                     sendEventJob.cancel()
                     receiveEventJob.cancel()
 
                     launch {
-                        mutableSessionClosedFlow.emit(sessionId)
+                        mutableSessionClosedFlow.emit(sessionInfo)
                     }
                 }
 
-                mutableSessionIds += sessionId
-                mutableNewSessionIdFlow.emit(sessionId)
+                mutableSessionInfoList += sessionInfo
+                mutableNewSessionFlow.emit(sessionInfo)
 
                 closeReason.await()
             }

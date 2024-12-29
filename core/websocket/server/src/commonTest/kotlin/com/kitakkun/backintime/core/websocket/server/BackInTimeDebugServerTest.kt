@@ -42,8 +42,8 @@ class BackInTimeDebugServerTest {
         var clientReceivedEvent: BackInTimeDebuggerEvent? = null
 
         val connectedThenSendEventJob = launch {
-            val sessionId = server.newSessionIdFlow.first()
-            server.send(sessionId, BackInTimeDebuggerEvent.Ping)
+            val sessionInfo = server.newSessionFlow.first()
+            server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping)
         }
 
         val receiveServerEventJob = launch {
