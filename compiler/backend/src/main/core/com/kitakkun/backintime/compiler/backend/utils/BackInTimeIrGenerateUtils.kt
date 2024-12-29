@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet

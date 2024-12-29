@@ -5,7 +5,7 @@ import com.kitakkun.backintime.compiler.backend.utils.irPropertySetterCall
 import com.kitakkun.backintime.compiler.backend.utils.irValueContainerPropertySetterCall
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
-import com.kitakkun.backintime.compiler.backend.valuecontainer.resolved.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement

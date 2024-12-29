@@ -1,4 +1,4 @@
-package com.kitakkun.backintime.compiler.backend.valuecontainer.raw
+package com.kitakkun.backintime.compiler.backend.valuecontainer
 
 sealed class CaptureStrategy {
     data object AfterCall : CaptureStrategy()

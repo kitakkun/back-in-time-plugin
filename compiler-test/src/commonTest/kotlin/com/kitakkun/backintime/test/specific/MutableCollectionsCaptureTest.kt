@@ -35,9 +35,9 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         fun mutableMapTest() {
             mutableMap["Hello"] = "World"
             mutableMap["World"] = "!"
-            mutableMap.replace("World", "!")
-            mutableMap.replaceAll { _, value -> value }
-            mutableMap.remove("!")
+            mutableMap.replace("World", "!!")
+            mutableMap.replaceAll { _, value -> value + "replaceAll" }
+            mutableMap.remove("World")
             mutableMap.clear()
         }
     }
