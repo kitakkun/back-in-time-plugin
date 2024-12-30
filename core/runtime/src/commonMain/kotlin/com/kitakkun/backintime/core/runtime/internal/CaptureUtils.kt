@@ -5,7 +5,7 @@ package com.kitakkun.backintime.core.runtime.internal
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 
 @BackInTimeCompilerInternalApi
-internal fun <T : Any> captureThenReturnValue(
+internal fun <T : Any?> captureThenReturnValue(
     instance: BackInTimeDebuggable,
     ownerClassFqName: String,
     methodInvocationId: String,
