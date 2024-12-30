@@ -50,6 +50,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-P", "plugin:com.kitakkun.backintime.compiler:config=$projectDir/backintime-default-config.yaml")
+    }
+}
+
 dependencies {
     kotlinCompilerPluginClasspath(projects.compiler.cli)
     implementation(projects.core.runtime)
