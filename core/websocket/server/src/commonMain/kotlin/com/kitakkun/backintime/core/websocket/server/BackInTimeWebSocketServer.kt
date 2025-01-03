@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.core.websocket.server
 
+import com.benasher44.uuid.uuid4
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
@@ -20,8 +21,6 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
@@ -55,7 +54,6 @@ class BackInTimeWebSocketServer {
         sendEventFlow.emit(EventToClient(sessionId, event))
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     private fun configureServer(host: String, port: Int) = embeddedServer(
         factory = CIO,
         port = port,
@@ -70,7 +68,7 @@ class BackInTimeWebSocketServer {
             webSocket("/backintime") {
                 // sessionId negotiation
                 val requestedSessionId = receiveDeserialized<BackInTimeSessionNegotiationEvent.Request>().sessionId
-                val sessionId = requestedSessionId ?: Uuid.random().toString()
+                val sessionId = requestedSessionId ?: uuid4().toString()
                 sendSerialized(BackInTimeSessionNegotiationEvent.Accept(sessionId))
 
                 val sendEventJob = launch {

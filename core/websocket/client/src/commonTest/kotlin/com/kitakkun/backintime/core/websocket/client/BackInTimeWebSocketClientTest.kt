@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.core.websocket.client
 
+import com.benasher44.uuid.uuid4
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
@@ -21,8 +22,6 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 // FIXME: This test fails for native targets
 class BackInTimeWebSocketClientTest {
@@ -31,7 +30,6 @@ class BackInTimeWebSocketClientTest {
         private const val TEST_PORT = 50026
     }
 
-    @OptIn(ExperimentalUuidApi::class)
     private fun ApplicationTestBuilder.configureServer(
         host: String,
         port: Int,
@@ -61,7 +59,7 @@ class BackInTimeWebSocketClientTest {
                     if (requestedSessionId == null) {
                         println("requested sessionId is null. generating new sessionId...")
 
-                        val sessionId = Uuid.random().toString()
+                        val sessionId = uuid4().toString()
                         println("generated new sessionId: $sessionId")
 
                         sendSerialized(BackInTimeSessionNegotiationEvent.Accept(sessionId))

@@ -27,6 +27,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.server.test.host)
             implementation(libs.ktor.server.websockets)
+            implementation(libs.uuid)
         }
     }
 }
