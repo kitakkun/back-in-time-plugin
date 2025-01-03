@@ -33,7 +33,6 @@ class BackInTimePluginContext(
     val reportNewRelationshipFunctionSymbol by lazy { backintimeNamedFunction(name = "reportNewRelationship", subpackage = "core.runtime.internal") }
 
     // error generation functions
-    val throwTypeMismatchExceptionFunctionSymbol by lazy { backintimeNamedFunction(name = "throwTypeMismatchException", subpackage = "core.runtime.internal") }
     val throwNoSuchPropertyExceptionFunctionSymbol by lazy { backintimeNamedFunction(name = "throwNoSuchPropertyException", subpackage = "core.runtime.internal") }
 
     // capture utils

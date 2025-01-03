@@ -54,20 +54,11 @@ class AnnotationConfiguredValueContainerTest : BackInTimeDebugServiceTest() {
     }
 
     @Test
-    fun serializeTest() {
-        val holder = ValueContainerHolder()
-        assertIs<BackInTimeDebuggable>(holder)
-
-        assertEquals("10", holder.serializeValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = CONTAINER_NAME, value = 10))
-        assertEquals(10, holder.deserializeValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = CONTAINER_NAME, value = "10"))
-    }
-
-    @Test
     fun forceSetTest() {
         val holder = ValueContainerHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = CONTAINER_NAME, value = 10)
+        holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = CONTAINER_NAME, value = "10")
         assertEquals(10, holder.container.value)
     }
 }
