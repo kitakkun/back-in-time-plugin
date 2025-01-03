@@ -11,7 +11,6 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.serialization.SerializationException
 
 /**
  * Singleton service for back-in-time debugger
@@ -150,22 +149,13 @@ class BackInTimeDebugServiceImpl(
     )
 
     private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent {
-        try {
-            val serializedValue = event.instance.serializeValue(
-                propertyOwnerClassFqName = event.ownerClassFqName,
-                propertyName = event.propertyName,
-                value = event.propertyValue,
-            )
-            return BackInTimeDebugServiceEvent.NotifyValueChange(
-                instanceUUID = event.instance.backInTimeInstanceUUID,
-                propertyName = event.propertyName,
-                ownerClassFqName = event.ownerClassFqName,
-                value = serializedValue,
-                methodCallUUID = event.methodCallId,
-            )
-        } catch (e: SerializationException) {
-            return BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error")
-        }
+        return BackInTimeDebugServiceEvent.NotifyValueChange(
+            instanceUUID = event.instance.backInTimeInstanceUUID,
+            propertyName = event.propertyName,
+            ownerClassFqName = event.ownerClassFqName,
+            value = event.propertyValue,
+            methodCallUUID = event.methodCallId,
+        )
     }
 
     /**
@@ -182,19 +172,10 @@ class BackInTimeDebugServiceImpl(
         value: String,
     ) {
         val targetInstance = instanceManager.getInstanceById(instanceId) ?: return
-        try {
-            val deserializedValue = targetInstance.deserializeValue(
-                propertyOwnerClassFqName = propertyOwnerClassName,
-                propertyName = propertyName,
-                value = value,
-            )
-            targetInstance.forceSetValue(
-                propertyOwnerClassFqName = propertyOwnerClassName,
-                propertyName = propertyName,
-                value = deserializedValue,
-            )
-        } catch (e: SerializationException) {
-            sendOrQueueEvent(BackInTimeDebugServiceEvent.Error(e.message ?: "Unknown error"))
-        }
+        targetInstance.forceSetValue(
+            propertyOwnerClassFqName = propertyOwnerClassName,
+            propertyName = propertyName,
+            value = value,
+        )
     }
 }

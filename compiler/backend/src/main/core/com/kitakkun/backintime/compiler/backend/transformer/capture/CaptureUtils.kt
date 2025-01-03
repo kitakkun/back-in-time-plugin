@@ -2,6 +2,7 @@ package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
+import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
 import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
@@ -93,6 +94,10 @@ private fun IrCall.captureAfterCall(
                     }
                 },
             )
+            putTypeArgument(
+                index = 0,
+                type = propertyGetter.owner.returnType.getSerializerType(),
+            )
         }
     }
 }
@@ -117,6 +122,9 @@ private fun IrCall.captureValueArgument(
                 putValueArgument(2, irGet(uuidVariable))
                 putValueArgument(3, irString(propertyName))
                 putValueArgument(4, originalValueArgument)
+                originalValueArgument?.type?.getSerializerType()?.let {
+                    putTypeArgument(0, it)
+                }
             }
         },
     )
