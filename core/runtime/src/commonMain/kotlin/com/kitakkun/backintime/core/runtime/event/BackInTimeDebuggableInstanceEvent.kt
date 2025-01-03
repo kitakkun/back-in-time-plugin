@@ -50,13 +50,17 @@ sealed interface BackInTimeDebuggableInstanceEvent {
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
      * @param propertyName the name of the property.
-     * @param propertyValue the value of the property
+     * @param propertyValue the serialized value of the property
      */
     data class PropertyValueChange(
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
         val ownerClassFqName: String,
         val propertyName: String,
-        val propertyValue: Any?,
+        val propertyValue: String,
+    ) : BackInTimeDebuggableInstanceEvent
+
+    data class Error(
+        val exception: Throwable
     ) : BackInTimeDebuggableInstanceEvent
 }

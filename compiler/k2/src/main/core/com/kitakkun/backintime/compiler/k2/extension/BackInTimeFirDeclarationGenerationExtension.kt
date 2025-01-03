@@ -88,8 +88,6 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         if (!session.predicateBasedProvider.matches(BackInTimePredicate, classSymbol)) return emptySet()
         return setOf(
             // methods
-            BackInTimeConsts.serializeMethodName,
-            BackInTimeConsts.deserializeMethodName,
             BackInTimeConsts.forceSetValueMethodName,
             // properties
             BackInTimeConsts.backInTimeInstanceUUIDName,

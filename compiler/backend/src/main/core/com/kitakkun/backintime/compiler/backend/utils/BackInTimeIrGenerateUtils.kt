@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
@@ -22,12 +23,14 @@ fun irCapturePropertyValue(
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
+    propertyType: IrType,
 ) = irCall(reportPropertyValueChangeFunctionSymbol).apply {
     putValueArgument(0, irGet(instanceParameter))
     putValueArgument(1, irString(ownerClassName))
     putValueArgument(2, irGet(uuidVariable))
     putValueArgument(3, irString(propertyFqName))
     putValueArgument(4, getValueCall)
+    putTypeArgument(0, propertyType.getSerializerType())
 }
 
 context(IrBuilderWithScope, BackInTimePluginContext)
@@ -53,6 +56,7 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
         },
         instanceParameter = instanceParameter,
         uuidVariable = uuidVariable,
+        propertyType = getter.returnType,
     )
 }
 

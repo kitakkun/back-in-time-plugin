@@ -3,9 +3,11 @@
 package com.kitakkun.backintime.core.runtime.internal
 
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
+import com.kitakkun.backintime.core.runtime.backInTimeJson
 import com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.kitakkun.backintime.core.runtime.getBackInTimeDebugService
 import com.kitakkun.backintime.core.websocket.event.model.PropertyInfo
+import kotlinx.serialization.encodeToString
 
 @BackInTimeCompilerInternalApi
 internal fun reportInstanceRegistration(
@@ -38,21 +40,28 @@ internal fun reportMethodInvocation(
 )
 
 @BackInTimeCompilerInternalApi
-internal fun reportPropertyValueChange(
+internal inline fun <reified T> reportPropertyValueChange(
     instance: BackInTimeDebuggable,
     ownerClassFqName: String,
     methodInvocationId: String,
     propertyFqName: String,
-    propertyValue: Any?,
-) = getBackInTimeDebugService().processInstanceEvent(
-    BackInTimeDebuggableInstanceEvent.PropertyValueChange(
-        instance = instance,
-        methodCallId = methodInvocationId,
-        propertyName = propertyFqName,
-        propertyValue = propertyValue,
-        ownerClassFqName = ownerClassFqName,
-    ),
-)
+    propertyValue: T,
+) {
+    val service = getBackInTimeDebugService()
+    try {
+        service.processInstanceEvent(
+            BackInTimeDebuggableInstanceEvent.PropertyValueChange(
+                instance = instance,
+                methodCallId = methodInvocationId,
+                propertyName = propertyFqName,
+                propertyValue = backInTimeJson.encodeToString(propertyValue),
+                ownerClassFqName = ownerClassFqName,
+            ),
+        )
+    } catch (e: Throwable) {
+        service.processInstanceEvent(BackInTimeDebuggableInstanceEvent.Error(e))
+    }
+}
 
 @BackInTimeCompilerInternalApi
 internal fun reportNewRelationship(

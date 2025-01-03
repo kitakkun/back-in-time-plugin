@@ -8,8 +8,6 @@ import org.jetbrains.kotlin.name.Name
 object BackInTimeConsts {
     val backInTimeDebuggableInterfaceClassId = classId("com.kitakkun.backintime.core.runtime", "BackInTimeDebuggable")
 
-    val serializeMethodName = Name.identifier("serializeValue")
-    val deserializeMethodName = Name.identifier("deserializeValue")
     val forceSetValueMethodName = Name.identifier("forceSetValue")
     val backInTimeInstanceUUIDName = Name.identifier("backInTimeInstanceUUID")
     val backInTimeInitializedPropertyMapName = Name.identifier("backInTimeInitializedPropertyMap")

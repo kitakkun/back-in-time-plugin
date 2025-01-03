@@ -5,17 +5,6 @@ package com.kitakkun.backintime.core.runtime.internal
 import com.kitakkun.backintime.core.runtime.exception.BackInTimeRuntimeException
 
 @BackInTimeCompilerInternalApi
-internal fun throwTypeMismatchException(
-    propertyName: String,
-    expectedType: String,
-) {
-    throw BackInTimeRuntimeException.TypeMismatchException(
-        propertyName = propertyName,
-        expectedType = expectedType,
-    )
-}
-
-@BackInTimeCompilerInternalApi
 internal fun throwNoSuchPropertyException(
     propertyName: String,
     parentClassFqName: String,

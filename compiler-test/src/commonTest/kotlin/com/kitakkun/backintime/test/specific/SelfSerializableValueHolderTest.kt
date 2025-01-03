@@ -18,32 +18,11 @@ class SelfSerializableValueHolderTest {
     }
 
     @Test
-    fun serializeTest() {
-        val holder = TestStateHolder()
-        assertIs<BackInTimeDebuggable>(holder)
-
-        val input = listOf("Hello")
-        val serializedValue = holder.serializeValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
-        assertEquals("[\"Hello\"]", serializedValue)
-    }
-
-    @Test
-    fun deserializeTest() {
-        val holder = TestStateHolder()
-        assertIs<BackInTimeDebuggable>(holder)
-
-        val input = "[\"Hello\"]"
-        val deserializedValue = holder.deserializeValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
-        assertEquals(listOf("Hello"), deserializedValue)
-    }
-
-    @Test
     fun forceSetTest() {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        val input = listOf("Hello")
-        holder.forceSetValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, input)
+        holder.forceSetValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, "[\"Hello\"]")
         assertEquals(listOf("Hello"), holder.mutableList)
     }
 }
