@@ -46,15 +46,22 @@ internal inline fun <reified T> reportPropertyValueChange(
     methodInvocationId: String,
     propertyFqName: String,
     propertyValue: T,
-) = getBackInTimeDebugService().processInstanceEvent(
-    BackInTimeDebuggableInstanceEvent.PropertyValueChange(
-        instance = instance,
-        methodCallId = methodInvocationId,
-        propertyName = propertyFqName,
-        propertyValue = backInTimeJson.encodeToString(propertyValue),
-        ownerClassFqName = ownerClassFqName,
-    ),
-)
+) {
+    val service = getBackInTimeDebugService()
+    try {
+        service.processInstanceEvent(
+            BackInTimeDebuggableInstanceEvent.PropertyValueChange(
+                instance = instance,
+                methodCallId = methodInvocationId,
+                propertyName = propertyFqName,
+                propertyValue = backInTimeJson.encodeToString(propertyValue),
+                ownerClassFqName = ownerClassFqName,
+            ),
+        )
+    } catch (e: Throwable) {
+        service.processInstanceEvent(BackInTimeDebuggableInstanceEvent.Error(e))
+    }
+}
 
 @BackInTimeCompilerInternalApi
 internal fun reportNewRelationship(

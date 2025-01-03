@@ -78,6 +78,7 @@ class BackInTimeDebugServiceImpl(
             is BackInTimeDebuggableInstanceEvent.RegisterRelationShip -> registerRelationship(event)
             is BackInTimeDebuggableInstanceEvent.MethodCall -> notifyMethodCall(event)
             is BackInTimeDebuggableInstanceEvent.PropertyValueChange -> notifyPropertyChanged(event)
+            is BackInTimeDebuggableInstanceEvent.Error -> error(event)
         }
         sendOrQueueEvent(resultEventForDebugger)
     }
@@ -177,5 +178,9 @@ class BackInTimeDebugServiceImpl(
             propertyName = propertyName,
             value = value,
         )
+    }
+
+    private fun error(event: BackInTimeDebuggableInstanceEvent.Error): BackInTimeDebugServiceEvent {
+        return BackInTimeDebugServiceEvent.Error(event.exception.message ?: "Unknown error")
     }
 }

@@ -59,4 +59,8 @@ sealed interface BackInTimeDebuggableInstanceEvent {
         val propertyName: String,
         val propertyValue: String,
     ) : BackInTimeDebuggableInstanceEvent
+
+    data class Error(
+        val exception: Throwable
+    ) : BackInTimeDebuggableInstanceEvent
 }
