@@ -162,7 +162,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                 +setterCall
             }
         } else if (property.isVar) {
-            irCall(property.getter!!).apply {
+            irCall(property.setter!!).apply {
                 this.dispatchReceiver = irGet(parentClassReceiver)
                 putValueArgument(0, deserializedValue)
             }
