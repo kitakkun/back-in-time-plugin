@@ -6,6 +6,7 @@ import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallFo
 import com.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
+import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
@@ -109,6 +110,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
                     putValueArgument(2, irGet(uuidVariable))
                     putValueArgument(3, irString(property.name.asString()))
                     putValueArgument(4, value)
+                    putTypeArgument(0, property.getter!!.returnType.getSerializerType())
                 }
             },
         )
