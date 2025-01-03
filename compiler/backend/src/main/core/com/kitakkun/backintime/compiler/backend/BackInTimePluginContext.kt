@@ -47,11 +47,6 @@ class BackInTimePluginContext(
 
     // kotlinx-serialization
     val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
-    val encodeToStringFunction by lazy {
-        namedFunction("kotlinx.serialization", "encodeToString") {
-            VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
-        }
-    }
     val decodeFromStringFunction by lazy {
         namedFunction("kotlinx.serialization", "decodeFromString") {
             VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
