@@ -3,6 +3,6 @@ import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.Propert
 
 export interface ClassInfo {
   classSignature: string;
-  superClassName: string;
+  superClassSignature: string;
   properties: PropertyInfo[];
 }

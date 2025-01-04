@@ -7,7 +7,7 @@ import {InstanceTreeView} from "./InstanceTreeView";
 export interface InstanceItem {
   name: string;
   uuid: string;
-  superClassName: string;
+  superClassSignature: string;
   properties: PropertyItem[];
   superInstanceItem?: InstanceItem;
 }

@@ -56,7 +56,7 @@ const appSlice = createSlice({
       if (existingClassInfo) return;
       state.classInfoList.push({
         classSignature: event.classSignature,
-        superClassName: event.superClassSignature,
+        superClassSignature: event.superClassSignature,
         // need to map value to avoid object freezing restrictions
         // FYI: https://stackoverflow.com/questions/75148897/get-on-proxy-property-items-is-a-read-only-and-non-configurable-data-proper
         properties: event.properties.asJsReadonlyArrayView().map((value) => value) as PropertyInfo[],

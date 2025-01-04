@@ -29,8 +29,8 @@ export function ValueEmitModalPage() {
           onValueEmit={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
             const valueType = state.classInfo?.properties.find((property) => property.signature == propertySignature)?.valueType;
-            const className = state.classInfo?.classSignature
-            if (!instanceUUID || !valueType || !className) {
+            const classSignature = state.classInfo?.classSignature
+            if (!instanceUUID || !valueType || !classSignature) {
               return;
             }
             const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);

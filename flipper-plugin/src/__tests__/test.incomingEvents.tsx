@@ -47,7 +47,7 @@ test(`register event`, () => {
 
   expect(state.classInfoList[0]).toEqual({
     classSignature: "com/example/DummyViewModel",
-    superClassName: "unknown",
+    superClassSignature: "unknown",
     properties: [
       {
         signature: "com/example/DummyViewModel.hoge",

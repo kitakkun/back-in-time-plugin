@@ -152,7 +152,7 @@ function instanceItemToTreeDataNode(
     instance.superInstanceItem,
     StateHolderType.SUPERCLASS,
     showNonDebuggableProperty,
-    `${key}/${instance.superClassName}`,
+    `${key}/${instance.superClassSignature}`,
   ) : undefined;
 
   const children = [...stateHolderPropertyNodes, ...normalPropertyNodes];

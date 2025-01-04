@@ -33,11 +33,11 @@ export const propertyInspectorStateSelector = createSelector(
   }
 );
 
-function getPropertiesRecursively(classInfoList: ClassInfo[], className: string): PropertyInfo[] {
-  const classInfo = classInfoList.find((info) => info.classSignature == className);
+function getPropertiesRecursively(classInfoList: ClassInfo[], classSignature: string): PropertyInfo[] {
+  const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return [];
   return [
     ...classInfo.properties,
-    ...getPropertiesRecursively(classInfoList, classInfo.superClassName)
+    ...getPropertiesRecursively(classInfoList, classInfo.superClassSignature)
   ];
 }

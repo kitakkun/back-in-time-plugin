@@ -35,16 +35,16 @@ function resolveInstanceInfo(
   classInfoList: ClassInfo[],
   instanceInfoList: InstanceInfo[],
   dependencyInfoList: DependencyInfo[],
-  className: string,
+  classSignature: string,
   instanceUUID: string,
   allValueChangeEvents: ValueChangeInfo[],
 ): InstanceItem | undefined {
-  const classInfo = classInfoList.find((info) => info.classSignature == className);
+  const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return;
-  const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassName, instanceUUID, allValueChangeEvents);
+  const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassSignature, instanceUUID, allValueChangeEvents);
   return {
     name: classInfo.classSignature,
-    superClassName: classInfo.superClassName,
+    superClassSignature: classInfo.superClassSignature,
     uuid: instanceUUID,
     properties: classInfo.properties.map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
