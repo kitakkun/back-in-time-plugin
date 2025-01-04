@@ -7,6 +7,7 @@ import {MethodCallInfo} from "../data/MethodCallInfo";
 import {com} from "backintime-websocket-event";
 import NotifyMethodCall = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
 import NotifyValueChange = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
+import RegisterInstance = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.RegisterInstance;
 
 test(`register event`, () => {
   const {instance, sendEvent} = TestUtils.startPlugin(Plugin);
@@ -14,22 +15,23 @@ test(`register event`, () => {
 
   sendEvent("register", {
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
-    className: "com.example.DummyViewModel",
+    classSignature: "com/example/DummyViewModel",
+    superClassSignature: "unknown",
     // @ts-ignore
     properties: [
       {
-        name: "hoge",
+        signature: "com/example/DummyViewModel.hoge",
         debuggable: true,
         isDebuggableStateHolder: false,
-        propertyType: "java.lang.String",
-        valueType: "java.lang.String"
+        propertyType: "kotlin/String",
+        valueType: "kotlin/String"
       },
       {
-        name: "fuga",
+        signature: "com/example/DummyViewModel.fuga",
         debuggable: false,
         isDebuggableStateHolder: false,
-        propertyType: "java.lang.String",
-        valueType: "java.lang.String"
+        propertyType: "kotlin/String",
+        valueType: "kotlin/String"
       }
     ],
     registeredAt: 1619813420,
@@ -39,27 +41,28 @@ test(`register event`, () => {
 
   expect(state.instanceInfoList[0]).toEqual({
     uuid: "7fd43b42-f951-4307-a997-85f6074c17c9",
-    classSignature: "com.example.DummyViewModel",
+    classSignature: "com/example/DummyViewModel",
     alive: true,
     registeredAt: 1619813420,
   } as InstanceInfo);
 
   expect(state.classInfoList[0]).toEqual({
-    classSignature: "com.example.DummyViewModel",
+    classSignature: "com/example/DummyViewModel",
+    superClassName: "unknown",
     properties: [
       {
-        signature: "hoge",
+        signature: "com/example/DummyViewModel.hoge",
         debuggable: true,
         isDebuggableStateHolder: false,
-        type: "java.lang.String",
-        valueType: "java.lang.String"
+        propertyType: "kotlin/String",
+        valueType: "kotlin/String"
       },
       {
-        signature: "fuga",
+        signature: "com/example/DummyViewModel.fuga",
         debuggable: false,
         isDebuggableStateHolder: false,
-        type: "java.lang.String",
-        valueType: "java.lang.String"
+        propertyType: "kotlin/String",
+        valueType: "kotlin/String"
       }
     ]
   } as ClassInfo);
@@ -70,8 +73,7 @@ test(`notifyMethodCall event`, () => {
   const store = instance.store;
 
   sendEvent("notifyMethodCall", {
-    methodName: "hoge",
-    ownerClassFqName: "com.example.MyClass",
+    methodSignature: "com/example/MyClass.hoge():kotlin/Unit",
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
     methodCallUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
@@ -81,8 +83,7 @@ test(`notifyMethodCall event`, () => {
 
   expect(state.methodCallInfoList[0]).toEqual({
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
-    ownerClassFqName: "com.example.MyClass",
-    methodSignature: "hoge",
+    methodSignature: "com/example/MyClass.hoge():kotlin/Unit",
     callUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
     valueChanges: [],
@@ -98,8 +99,7 @@ test(`notifyValueChange event`, () => {
   const calledAt = 1619813420;
 
   sendEvent("notifyMethodCall", {
-    methodName: "hoge",
-    ownerClassFqName: "com.example.MyClass",
+    methodSignature: "com/example/MyClass.hoge():kotlin/Unit",
     instanceUUID: instanceUUID,
     methodCallUUID: methodCallUUID,
     calledAt: calledAt,
@@ -107,22 +107,19 @@ test(`notifyValueChange event`, () => {
 
   sendEvent("notifyValueChange", {
     instanceUUID: instanceUUID,
-    ownerClassFqName: "com.example.MyClass",
-    propertyName: "hoge",
+    propertySignature: "com/example/MyClass.hoge",
     value: "fuga",
     methodCallUUID: methodCallUUID,
   } as NotifyValueChange);
 
   expect(store.getState().app.methodCallInfoList[0]).toEqual({
-    ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
-    methodSignature: "hoge",
+    methodSignature: "com/example/MyClass.hoge():kotlin/Unit",
     callUUID: methodCallUUID,
     calledAt: calledAt,
     valueChanges: [
       {
-        ownerClassFqName: "com.example.MyClass",
-        propertySignature: "hoge",
+        propertySignature: "com/example/MyClass.hoge",
         value: "fuga",
       }
     ],
