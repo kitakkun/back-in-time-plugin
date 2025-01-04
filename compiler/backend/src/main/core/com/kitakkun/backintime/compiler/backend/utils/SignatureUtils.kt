@@ -5,8 +5,10 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classifierOrNull
+import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 
@@ -104,9 +106,22 @@ fun IrClass.signatureForBackInTimeDebugger(): String {
 }
 
 fun IrType.signatureForBackInTimeDebugger(): String {
-    return when (val classifierOrNull = this.classifierOrNull) {
-        is IrTypeParameterSymbol -> classifierOrNull.owner.name.asString()
-        is IrClassSymbol -> classifierOrNull.owner.signatureForBackInTimeDebugger()
-        else -> "unknown"
+    val typeArguments = (this as? IrSimpleType)?.arguments.orEmpty().mapNotNull {
+        it.typeOrNull?.signatureForBackInTimeDebugger()
     }
+
+    return StringBuilder().apply {
+        append(
+            when (val classifierOrNull = classifierOrNull) {
+                is IrTypeParameterSymbol -> classifierOrNull.owner.name.asString()
+                is IrClassSymbol -> classifierOrNull.owner.signatureForBackInTimeDebugger()
+                else -> "unknown"
+            }
+        )
+        if (typeArguments.isNotEmpty()) {
+            append("<")
+            append(typeArguments.joinToString(","))
+            append(">")
+        }
+    }.toString()
 }

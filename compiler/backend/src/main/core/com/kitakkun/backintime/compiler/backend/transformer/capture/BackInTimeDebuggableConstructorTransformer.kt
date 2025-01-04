@@ -1,7 +1,6 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
@@ -82,8 +81,8 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                     .filter { !it.isBackInTimeGenerated }
                     .map { irProperty ->
                         val propertyType = irProperty.getter?.returnType as? IrSimpleType
-                        val propertyTypeName = propertyType?.classOrNull?.owner?.signatureForBackInTimeDebugger() ?: "unknown"
-                        val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
+                        val propertyTypeName = propertyType?.signatureForBackInTimeDebugger() ?: "unknown"
+                        val genericTypeCompletedName = propertyType?.getGenericTypes()?.firstOrNull()?.signatureForBackInTimeDebugger() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
                         val isDebuggable = irProperty.isVar || propertyType?.classOrNull in valueContainerClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
