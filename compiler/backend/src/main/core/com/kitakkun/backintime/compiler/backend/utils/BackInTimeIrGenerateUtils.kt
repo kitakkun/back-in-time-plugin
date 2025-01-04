@@ -16,7 +16,7 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 
 context(IrBuilderWithScope, BackInTimePluginContext)
 private fun irCapturePropertyValue(
-    propertyFqName: String,
+    propertySignature: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
@@ -24,7 +24,7 @@ private fun irCapturePropertyValue(
 ) = irCall(reportPropertyValueChangeFunctionSymbol).apply {
     putValueArgument(0, irGet(instanceParameter))
     putValueArgument(1, irGet(uuidVariable))
-    putValueArgument(2, irString(propertyFqName))
+    putValueArgument(2, irString(propertySignature))
     putValueArgument(3, getValueCall)
     putTypeArgument(0, propertyType.getSerializerType())
 }
@@ -37,7 +37,7 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     val getter = getter ?: return null
     val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
     return irCapturePropertyValue(
-        propertyFqName = signatureForBackInTimeDebugger(),
+        propertySignature = signatureForBackInTimeDebugger(),
         getValueCall = if (valueGetterSymbol == getter.symbol) {
             irCall(getter.symbol).apply {
                 dispatchReceiver = irGet(instanceParameter)

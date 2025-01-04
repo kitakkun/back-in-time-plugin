@@ -19,8 +19,8 @@ sealed class BackInTimeDebugServiceEvent {
     @Serializable
     data class RegisterInstance(
         val instanceUUID: String,
-        val className: String,
-        val superClassName: String,
+        val classSignature: String,
+        val superClassSignature: String,
         val properties: List<PropertyInfo>,
         val registeredAt: Long,
     ) : BackInTimeDebugServiceEvent()

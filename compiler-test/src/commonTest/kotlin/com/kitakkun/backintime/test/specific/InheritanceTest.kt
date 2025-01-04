@@ -38,9 +38,9 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
 
         assertEquals(2, registerInstanceEvents.size)
         assertEquals(instance.backInTimeInstanceUUID, registerInstanceEvents[0].instanceUUID) // super class
-        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass", registerInstanceEvents[0].className) // super class
+        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass", registerInstanceEvents[0].classSignature) // super class
         assertEquals(instance.backInTimeInstanceUUID, registerInstanceEvents[1].instanceUUID) // sub class
-        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SubClass", registerInstanceEvents[1].className) // super class
+        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SubClass", registerInstanceEvents[1].classSignature) // super class
     }
 
     @Test

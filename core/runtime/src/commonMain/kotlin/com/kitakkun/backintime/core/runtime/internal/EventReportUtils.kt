@@ -12,14 +12,14 @@ import kotlinx.serialization.encodeToString
 @BackInTimeCompilerInternalApi
 internal fun reportInstanceRegistration(
     instance: BackInTimeDebuggable,
-    className: String,
-    superClassName: String,
+    classSignature: String,
+    superClassSignature: String,
     properties: List<PropertyInfo>,
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
-        classSignature = className,
-        superClassSignature = superClassName,
+        classSignature = classSignature,
+        superClassSignature = superClassSignature,
         properties = properties,
     ),
 )
@@ -28,12 +28,12 @@ internal fun reportInstanceRegistration(
 internal fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
-    methodName: String,
+    methodSignature: String,
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
-        methodSignature = methodName,
+        methodSignature = methodSignature,
     ),
 )
 
@@ -41,7 +41,7 @@ internal fun reportMethodInvocation(
 internal inline fun <reified T> reportPropertyValueChange(
     instance: BackInTimeDebuggable,
     methodInvocationId: String,
-    propertyFqName: String,
+    propertySignature: String,
     propertyValue: T,
 ) {
     val service = getBackInTimeDebugService()
@@ -50,7 +50,7 @@ internal inline fun <reified T> reportPropertyValueChange(
             BackInTimeDebuggableInstanceEvent.PropertyValueChange(
                 instance = instance,
                 methodCallId = methodInvocationId,
-                propertySignature = propertyFqName,
+                propertySignature = propertySignature,
                 propertyValue = backInTimeJson.encodeToString(propertyValue),
             ),
         )
