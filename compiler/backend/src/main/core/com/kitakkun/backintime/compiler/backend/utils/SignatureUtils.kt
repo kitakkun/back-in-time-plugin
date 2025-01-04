@@ -3,7 +3,10 @@ package com.kitakkun.backintime.compiler.backend.utils
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 
@@ -21,7 +24,7 @@ import org.jetbrains.kotlin.ir.util.parentClassOrNull
  */
 fun IrProperty.signatureForBackInTimeDebugger(): String {
     return StringBuilder().apply {
-        parentClassOrNull?.classId?.asString()?.let {
+        parentClassOrNull?.signatureForBackInTimeDebugger()?.let {
             this.append(it)
             this.append(".")
         }
@@ -60,12 +63,12 @@ fun IrProperty.signatureForBackInTimeDebugger(): String {
  * The signature for `member` will be: "com/example/B com/example/A.member(kotlin/Int):kotlin/String"
  */
 fun IrFunction.signatureForBackInTimeDebugger(): String {
-    val extensionReceiverSignature = extensionReceiverParameter?.type?.classOrNull?.owner?.signatureForBackInTimeDebugger()
-    val dispatchReceiverSignature = dispatchReceiverParameter?.type?.classOrNull?.owner?.signatureForBackInTimeDebugger()
+    val extensionReceiverSignature = extensionReceiverParameter?.type?.signatureForBackInTimeDebugger()
+    val dispatchReceiverSignature = dispatchReceiverParameter?.type?.signatureForBackInTimeDebugger()
     val valueParametersSignature = valueParameters
-        .map { it.type.classOrNull?.owner?.signatureForBackInTimeDebugger()!! }
+        .map { it.type.signatureForBackInTimeDebugger() }
         .joinToString(",")
-    val returnTypeSignature = returnType.classOrNull?.owner?.signatureForBackInTimeDebugger()!!
+    val returnTypeSignature = returnType.signatureForBackInTimeDebugger()
 
     return StringBuilder().apply {
         extensionReceiverSignature?.let {
@@ -98,4 +101,12 @@ fun IrFunction.signatureForBackInTimeDebugger(): String {
  */
 fun IrClass.signatureForBackInTimeDebugger(): String {
     return classId?.asString() ?: "unknown"
+}
+
+fun IrType.signatureForBackInTimeDebugger(): String {
+    return when (val classifierOrNull = this.classifierOrNull) {
+        is IrTypeParameterSymbol -> classifierOrNull.owner.name.asString()
+        is IrClassSymbol -> classifierOrNull.owner.signatureForBackInTimeDebugger()
+        else -> "unknown"
+    }
 }

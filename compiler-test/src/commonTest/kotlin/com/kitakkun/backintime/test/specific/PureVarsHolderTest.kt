@@ -8,7 +8,7 @@ import kotlin.test.assertIs
 
 class PureVarsHolderTest {
     companion object {
-        private const val HOLDER_CLASS_FQ_NAME = "com.kitakkun.backintime.test.specific.PureVarsHolderTest.PureVarsHolder"
+        private const val HOLDER_CLASS_FQ_NAME = "com/kitakkun/backintime/test/specific/PureVarsHolderTest.PureVarsHolder"
     }
 
     @BackInTime
@@ -44,41 +44,41 @@ class PureVarsHolderTest {
         val holder = PureVarsHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "string", "\"hogehoge\"")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.string", "\"hogehoge\"")
         assertEquals("hogehoge", holder.string)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "int", "0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.int", "0")
         assertEquals(0, holder.int)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "long", "0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.long", "0")
         assertEquals(0L, holder.long)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "float", "0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.float", "0")
         assertEquals(0f, holder.float)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "double", "0.0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.double", "0.0")
         assertEquals(0.0, holder.double)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "boolean", "false")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.boolean", "false")
         assertEquals(false, holder.boolean)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "char", "a")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.char", "a")
         assertEquals('a', holder.char)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "short", "0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.short", "0")
         assertEquals(0.toShort(), holder.short)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "byte", "0")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.byte", "0")
         assertEquals(0.toByte(), holder.byte)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableString", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableString", "null")
         assertEquals(null, holder.nullableString)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableInt", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableInt", "null")
         assertEquals(null, holder.nullableInt)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableLong", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableLong", "null")
         assertEquals(null, holder.nullableLong)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableFloat", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableFloat", "null")
         assertEquals(null, holder.nullableFloat)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableDouble", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableDouble", "null")
         assertEquals(null, holder.nullableDouble)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableBoolean", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableBoolean", "null")
         assertEquals(null, holder.nullableBoolean)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableChar", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableChar", "null")
         assertEquals(null, holder.nullableChar)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableShort", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableShort", "null")
         assertEquals(null, holder.nullableShort)
-        holder.forceSetValue(HOLDER_CLASS_FQ_NAME, "nullableByte", "null")
+        holder.forceSetValue("$HOLDER_CLASS_FQ_NAME.nullableByte", "null")
         assertEquals(null, holder.nullableByte)
     }
 }

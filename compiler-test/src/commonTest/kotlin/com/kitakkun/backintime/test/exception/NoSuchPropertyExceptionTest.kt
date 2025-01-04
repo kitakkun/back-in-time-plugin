@@ -18,7 +18,7 @@ class NoSuchPropertyExceptionTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
         assertFailsWith(BackInTimeRuntimeException.NoSuchPropertyException::class) {
-            holder.forceSetValue("", "property2", "test")
+            holder.forceSetValue("com/kitakkun/backintime/test/exception/NoSuchPropertyExceptionTest/TestStateHolder.property2", "test")
         }
     }
 }

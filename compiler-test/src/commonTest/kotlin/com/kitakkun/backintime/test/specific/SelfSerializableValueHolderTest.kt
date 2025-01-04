@@ -7,11 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class SelfSerializableValueHolderTest {
-    companion object {
-        private const val CLASS_FQ_NAME = "com.kitakkun.backintime.test.specific.SelfSerializableValueHolderTest.TestStateHolder"
-        private const val MUTABLE_LIST_PROPERTY_NAME = "mutableList"
-    }
-
     @BackInTime
     private class TestStateHolder {
         val mutableList = mutableListOf<String>()
@@ -22,7 +17,7 @@ class SelfSerializableValueHolderTest {
         val holder = TestStateHolder()
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue(CLASS_FQ_NAME, MUTABLE_LIST_PROPERTY_NAME, "[\"Hello\"]")
+        holder.forceSetValue("com/kitakkun/backintime/test/specific/SelfSerializableValueHolderTest.TestStateHolder.mutableList", "[\"Hello\"]")
         assertEquals(listOf("Hello"), holder.mutableList)
     }
 }

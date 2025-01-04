@@ -36,27 +36,25 @@ sealed interface BackInTimeDebuggableInstanceEvent {
      * Notify that a method is called
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
-     * @param methodName the name of the method
+     * @param methodSignature the signature of the method. See [com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger] for details.
      */
     data class MethodCall(
         val instance: BackInTimeDebuggable,
-        val ownerClassFqName: String,
         val methodCallId: String,
-        val methodName: String,
+        val methodSignature: String,
     ) : BackInTimeDebuggableInstanceEvent
 
     /**
      * Notify that a property value is changed
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
-     * @param propertyName the name of the property.
+     * @param propertySignature the signature of the property. See [com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger] for details.
      * @param propertyValue the serialized value of the property
      */
     data class PropertyValueChange(
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
-        val ownerClassFqName: String,
-        val propertyName: String,
+        val propertySignature: String,
         val propertyValue: String,
     ) : BackInTimeDebuggableInstanceEvent
 

@@ -8,11 +8,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class MethodGenerationTest : BackInTimeDebugServiceTest() {
-    companion object {
-        private const val CLASS_FQ_NAME = "com.kitakkun.backintime.test.basic.MethodGenerationTest.TestStateHolder"
-        private const val PROPERTY_NAME = "property"
-    }
-
     @BackInTime
     private class TestStateHolder {
         var property: Int = 0
@@ -24,7 +19,7 @@ class MethodGenerationTest : BackInTimeDebugServiceTest() {
 
         assertIs<BackInTimeDebuggable>(holder)
 
-        holder.forceSetValue(propertyOwnerClassFqName = CLASS_FQ_NAME, propertyName = PROPERTY_NAME, value = "10")
+        holder.forceSetValue(propertySignature = "com/kitakkun/backintime/test/basic/MethodGenerationTest.TestStateHolder.property", jsonValue = "10")
         assertEquals(10, holder.property)
     }
 }

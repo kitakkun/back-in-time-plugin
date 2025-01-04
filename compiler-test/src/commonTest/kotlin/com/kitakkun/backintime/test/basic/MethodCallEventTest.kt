@@ -31,8 +31,12 @@ class MethodCallEventTest : BackInTimeDebugServiceTest() {
 
         assertEquals(expected = 3, actual = notifyMethodCallEvents.size)
         assertContentEquals(
-            expected = listOf("method1", "method2", "method3"),
-            actual = notifyMethodCallEvents.map { it.methodName },
+            expected = listOf(
+                "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method1():kotlin/Unit",
+                "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method2():kotlin/Unit",
+                "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method3():kotlin/Unit",
+            ),
+            actual = notifyMethodCallEvents.map { it.methodSignature },
         )
     }
 }

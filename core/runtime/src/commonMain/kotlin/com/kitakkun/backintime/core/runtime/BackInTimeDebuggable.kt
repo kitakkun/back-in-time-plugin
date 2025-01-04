@@ -4,5 +4,5 @@ interface BackInTimeDebuggable {
     val backInTimeInstanceUUID: String
     val backInTimeInitializedPropertyMap: MutableMap<String, Boolean>
 
-    fun forceSetValue(propertyOwnerClassFqName: String, propertyName: String, value: String)
+    fun forceSetValue(propertySignature: String, jsonValue: String)
 }

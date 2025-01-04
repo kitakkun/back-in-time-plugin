@@ -104,10 +104,9 @@ class BackInTimeDebugServiceImpl(
 
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
                 forceSetValue(
-                    instanceId = event.instanceUUID,
-                    propertyOwnerClassName = event.ownerClassFqName,
-                    propertyName = event.propertyName,
-                    value = event.value,
+                    instanceId = event.targetInstanceId,
+                    propertySignature = event.propertySignature,
+                    jsonValue = event.jsonValue,
                 )
                 null
             }
@@ -143,18 +142,16 @@ class BackInTimeDebugServiceImpl(
 
     private fun notifyMethodCall(event: BackInTimeDebuggableInstanceEvent.MethodCall): BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.NotifyMethodCall(
         instanceUUID = event.instance.backInTimeInstanceUUID,
-        methodName = event.methodName,
+        methodSignature = event.methodSignature,
         methodCallUUID = event.methodCallId,
         calledAt = Clock.System.now().epochSeconds,
-        ownerClassFqName = event.ownerClassFqName,
     )
 
     private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent {
         return BackInTimeDebugServiceEvent.NotifyValueChange(
             instanceUUID = event.instance.backInTimeInstanceUUID,
-            propertyName = event.propertyName,
-            ownerClassFqName = event.ownerClassFqName,
             value = event.propertyValue,
+            propertySignature = event.propertySignature,
             methodCallUUID = event.methodCallId,
         )
     }
@@ -162,22 +159,16 @@ class BackInTimeDebugServiceImpl(
     /**
      * force update the state of a property. This method can be used for back-in-time debugging.
      * @param instanceId the identifier for the property owner class
-     * @param propertyOwnerClassName the full-qualified class name of the property owner class.
-     * @param propertyName the name of the target property.
-     * @param value Json-encoded value which will be assigned to the property.
+     * @param propertySignature the signature of the target property.
+     * @param jsonValue Json-encoded value which will be assigned to the property.
      */
     private fun forceSetValue(
         instanceId: String,
-        propertyOwnerClassName: String,
-        propertyName: String,
-        value: String,
+        propertySignature: String,
+        jsonValue: String,
     ) {
         val targetInstance = instanceManager.getInstanceById(instanceId) ?: return
-        targetInstance.forceSetValue(
-            propertyOwnerClassFqName = propertyOwnerClassName,
-            propertyName = propertyName,
-            value = value,
-        )
+        targetInstance.forceSetValue(propertySignature = propertySignature, jsonValue = jsonValue)
     }
 
     private fun error(event: BackInTimeDebuggableInstanceEvent.Error): BackInTimeDebugServiceEvent {

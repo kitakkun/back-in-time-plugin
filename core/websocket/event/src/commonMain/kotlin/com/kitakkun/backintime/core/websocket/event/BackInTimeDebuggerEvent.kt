@@ -22,10 +22,9 @@ sealed class BackInTimeDebuggerEvent {
 
     @Serializable
     data class ForceSetPropertyValue(
-        val instanceUUID: String,
-        val ownerClassFqName: String,
-        val propertyName: String,
-        val value: String,
+        val targetInstanceId: String,
+        val propertySignature: String,
+        val jsonValue: String,
     ) : BackInTimeDebuggerEvent()
 
     @Serializable

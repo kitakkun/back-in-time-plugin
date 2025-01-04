@@ -4,6 +4,7 @@ import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
+import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
@@ -17,7 +18,6 @@ import org.jetbrains.kotlin.ir.builders.irElseBranch
 import org.jetbrains.kotlin.ir.builders.irEquals
 import org.jetbrains.kotlin.ir.builders.irExprBody
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irIfThenElse
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irWhen
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -75,54 +75,44 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
-        val (ownerClassFqNameParameter, propertyNameParameter, valueParameter) = declaration.valueParameters
-
+        val (propertySignature, valueParameter) = declaration.valueParameters
         val superClassSymbol = parentClass.superClass?.symbol
 
         return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
-            +irIfThenElse(
+            +irWhen(
                 type = irBuiltIns.unitType,
-                condition = irEquals(irGet(ownerClassFqNameParameter), irString(parentClass.kotlinFqName.asString())),
-                thenPart = irWhen(
-                    type = irBuiltIns.unitType,
-                    branches = parentClass.properties
-                        .mapNotNull { property ->
-                            irBranch(
-                                condition = irEquals(
-                                    arg1 = irGet(propertyNameParameter),
-                                    arg2 = irString(property.name.asString()),
-                                ),
-                                result = irSetPropertyValue(
-                                    parentClassReceiver,
-                                    property,
-                                    valueParameter,
-                                ) ?: return@mapNotNull null,
-                            )
-                        }.plus(
-                            irElseBranch(
-                                irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                                    putValueArgument(0, irGet(propertyNameParameter))
-                                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                                },
+                branches = parentClass.properties
+                    .mapNotNull { property ->
+                        irBranch(
+                            condition = irEquals(
+                                arg1 = irGet(propertySignature),
+                                arg2 = irString(property.signatureForBackInTimeDebugger()),
                             ),
-                        ).toList(),
-                ),
-                elsePart = if (superClassSymbol != null && superClassSymbol.owner.isBackInTimeDebuggable) {
-                    irCall(
-                        callee = declaration,
-                        superQualifierSymbol = superClassSymbol,
-                    ).apply {
-                        dispatchReceiver = irGet(parentClassReceiver)
-                        putValueArgument(0, irGet(ownerClassFqNameParameter))
-                        putValueArgument(1, irGet(propertyNameParameter))
-                        putValueArgument(2, irGet(valueParameter))
-                    }
-                } else {
-                    irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                        putValueArgument(0, irGet(propertyNameParameter))
-                        putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
-                    }
-                },
+                            result = irSetPropertyValue(
+                                parentClassReceiver,
+                                property,
+                                valueParameter,
+                            ) ?: return@mapNotNull null,
+                        )
+                    }.plus(
+                        irElseBranch(
+                            if (superClassSymbol != null && superClassSymbol.owner.isBackInTimeDebuggable) {
+                                irCall(
+                                    callee = declaration,
+                                    superQualifierSymbol = superClassSymbol,
+                                ).apply {
+                                    dispatchReceiver = irGet(parentClassReceiver)
+                                    putValueArgument(0, irGet(propertySignature))
+                                    putValueArgument(1, irGet(valueParameter))
+                                }
+                            } else {
+                                irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                    putValueArgument(0, irGet(propertySignature))
+                                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                                }
+                            },
+                        ),
+                    ).toList(),
             )
         }
     }

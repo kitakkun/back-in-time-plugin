@@ -28,8 +28,7 @@ sealed class BackInTimeDebugServiceEvent {
     @Serializable
     data class NotifyValueChange(
         val instanceUUID: String,
-        val ownerClassFqName: String,
-        val propertyName: String,
+        val propertySignature: String,
         val value: String,
         val methodCallUUID: String,
     ) : BackInTimeDebugServiceEvent()
@@ -37,8 +36,7 @@ sealed class BackInTimeDebugServiceEvent {
     @Serializable
     data class NotifyMethodCall(
         val instanceUUID: String,
-        val ownerClassFqName: String,
-        val methodName: String,
+        val methodSignature: String,
         val methodCallUUID: String,
         val calledAt: Long,
     ) : BackInTimeDebugServiceEvent()
