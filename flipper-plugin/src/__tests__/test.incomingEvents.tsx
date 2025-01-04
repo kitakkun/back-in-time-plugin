@@ -39,23 +39,23 @@ test(`register event`, () => {
 
   expect(state.instanceInfoList[0]).toEqual({
     uuid: "7fd43b42-f951-4307-a997-85f6074c17c9",
-    className: "com.example.DummyViewModel",
+    classSignature: "com.example.DummyViewModel",
     alive: true,
     registeredAt: 1619813420,
   } as InstanceInfo);
 
   expect(state.classInfoList[0]).toEqual({
-    name: "com.example.DummyViewModel",
+    classSignature: "com.example.DummyViewModel",
     properties: [
       {
-        name: "hoge",
+        signature: "hoge",
         debuggable: true,
         isDebuggableStateHolder: false,
         type: "java.lang.String",
         valueType: "java.lang.String"
       },
       {
-        name: "fuga",
+        signature: "fuga",
         debuggable: false,
         isDebuggableStateHolder: false,
         type: "java.lang.String",
@@ -82,7 +82,7 @@ test(`notifyMethodCall event`, () => {
   expect(state.methodCallInfoList[0]).toEqual({
     instanceUUID: "7fd43b42-f951-4307-a997-85f6074c17c9",
     ownerClassFqName: "com.example.MyClass",
-    methodName: "hoge",
+    methodSignature: "hoge",
     callUUID: "jf245181-8d9f-4d9e-9a7b-1a7f4b6f0b3e",
     calledAt: 1619813420,
     valueChanges: [],
@@ -116,13 +116,13 @@ test(`notifyValueChange event`, () => {
   expect(store.getState().app.methodCallInfoList[0]).toEqual({
     ownerClassFqName: "com.example.MyClass",
     instanceUUID: instanceUUID,
-    methodName: "hoge",
+    methodSignature: "hoge",
     callUUID: methodCallUUID,
     calledAt: calledAt,
     valueChanges: [
       {
         ownerClassFqName: "com.example.MyClass",
-        propertyName: "hoge",
+        propertySignature: "hoge",
         value: "fuga",
       }
     ],

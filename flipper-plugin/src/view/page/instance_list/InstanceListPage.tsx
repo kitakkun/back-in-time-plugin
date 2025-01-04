@@ -18,10 +18,10 @@ export function InstanceListPage() {
     <BackInTimeModalPage/>
     <InstanceListView
       state={state}
-      onSelectProperty={(instanceUUID, propertyName) => {
+      onSelectProperty={(instanceUUID, propertySignature) => {
         dispatch(propertyInspectorActions.openPropertyInspector({
           instanceUUID: instanceUUID,
-          propertyName: propertyName,
+          propertySignature: propertySignature,
         }))
       }}
       onClickRefresh={() => {

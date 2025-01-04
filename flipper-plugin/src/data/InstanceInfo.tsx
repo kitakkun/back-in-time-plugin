@@ -1,6 +1,6 @@
 export interface InstanceInfo {
   uuid: string;
-  className: string;
+  classSignature: string;
   alive: boolean;
   registeredAt: number;
 }

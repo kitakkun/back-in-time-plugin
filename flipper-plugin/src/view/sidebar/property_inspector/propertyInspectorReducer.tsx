@@ -2,17 +2,17 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface PropertyInspectorReducerState {
   instanceUUID: string;
-  propertyName: string;
+  propertySignature: string;
 }
 
 const initialState: PropertyInspectorReducerState = {
   instanceUUID: "",
-  propertyName: "",
+  propertySignature: "",
 }
 
 export interface PropertyInspectorNavArguments {
   instanceUUID: string;
-  propertyName: string;
+  propertySignature: string;
 }
 
 const propertyInspectorSlice = createSlice({
@@ -21,7 +21,7 @@ const propertyInspectorSlice = createSlice({
   reducers: {
     openPropertyInspector: (state, action: PayloadAction<PropertyInspectorNavArguments>) => {
       state.instanceUUID = action.payload.instanceUUID;
-      state.propertyName = action.payload.propertyName;
+      state.propertySignature = action.payload.propertySignature;
     }
   }
 });

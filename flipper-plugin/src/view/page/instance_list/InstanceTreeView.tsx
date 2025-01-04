@@ -138,7 +138,7 @@ function instanceItemToTreeDataNode(
         property.stateHolderInstance!,
         StateHolderType.EXTERNAL,
         showNonDebuggableProperty,
-        `${key}/${property.name}`,
+        `${key}/${property.signature}`,
         property,
       )
     );
@@ -185,7 +185,7 @@ function instanceItemToTreeDataNode(
     children: children,
     uuid: instance.uuid,
     name: instance.name,
-    nameAsProperty: instanceAsProperty?.name,
+    nameAsProperty: instanceAsProperty?.signature,
     stateHolderType: stateHolderType,
   }
 }
@@ -226,9 +226,9 @@ function instanceNodeTitle(name: string, uuid: string, stateHolderType: StateHol
 function normalPropertyTreeNode(property: PropertyItem, key: string, instanceUUID: string): PropertyTreeDataNode {
   return {
     nodeType: "property",
-    key: `${key}/${property.name}`,
+    key: `${key}/${property.signature}`,
     instanceUUID: instanceUUID,
-    name: property.name,
+    name: property.signature,
     type: property.type,
     eventCount: property.eventCount,
     debuggable: property.debuggable,

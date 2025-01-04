@@ -1,14 +1,12 @@
 export interface MethodCallInfo {
-  ownerClassFqName: string;
   callUUID: string;
   instanceUUID: string;
-  methodName: string;
+  methodSignature: string;
   calledAt: number;
   valueChanges: ValueChangeInfo[];
 }
 
 export interface ValueChangeInfo {
-  ownerClassFqName: string;
-  propertyName: string;
+  propertySignature: string;
   value: string;
 }

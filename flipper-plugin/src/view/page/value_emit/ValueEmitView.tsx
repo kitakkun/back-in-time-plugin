@@ -30,7 +30,7 @@ export function ValueEmitView({state, onValueEmit, onEditAndEmitValue}: ValueEmi
         methodCallUUID={state.methodCallInfo?.callUUID}
         instanceUUID={state.instanceInfo.uuid}
         calledAt={state.methodCallInfo.calledAt}
-        methodName={state.methodCallInfo.methodName}
+        methodName={state.methodCallInfo.methodSignature}
       />
       <ChangedPropertiesView
         classInfo={state.classInfo}

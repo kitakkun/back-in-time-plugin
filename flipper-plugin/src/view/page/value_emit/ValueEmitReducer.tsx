@@ -45,7 +45,7 @@ export const valueEmitStateSelector = createSelector(
   (state, classInfoList, instanceInfoList, methodCallInfoList) => {
     const instanceInfo = instanceInfoList.find((info) => info.uuid == state.instanceUUID);
     const methodCallInfo = methodCallInfoList.find((info) => info.callUUID == state.methodCallUUID);
-    const classInfo = classInfoList.find((info) => info.name == instanceInfo?.className);
+    const classInfo = classInfoList.find((info) => info.classSignature == instanceInfo?.classSignature);
 
     return {
       open: state.open,

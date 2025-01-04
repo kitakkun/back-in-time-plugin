@@ -1,11 +1,11 @@
 export interface ClassInfo {
-  name: string;
+  classSignature: string;
   superClassName: string;
   properties: PropertyInfo[];
 }
 
 export interface PropertyInfo {
-  name: string;
+  signature: string;
   type: string;
   valueType: string;
   debuggable: boolean;

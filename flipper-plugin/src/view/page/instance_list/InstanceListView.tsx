@@ -13,7 +13,7 @@ export interface InstanceItem {
 }
 
 export interface PropertyItem {
-  name: string;
+  signature: string;
   type: string;
   debuggable: boolean;
   eventCount: number;

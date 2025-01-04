@@ -22,14 +22,14 @@ type ValueChangeItem = {
 export function ChangedPropertiesView({classInfo, methodCallInfo, onClickEmitValue, onClickEditAndEmitValue}: ChangedPropertiesViewProps) {
   const dataSource: ValueChangeItem[] = methodCallInfo.valueChanges.map((valueChange) => {
     // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
-    const property = classInfo.properties.find((property) => property.name === valueChange.propertyName)!;
+    const property = classInfo.properties.find((property) => property.signature === valueChange.propertySignature)!;
     const jsonValue = JSON.parse(valueChange.value);
     return {
       action: <EmitButton
-        onClickEmitValue={() => onClickEmitValue(property.name, valueChange.value)}
-        onClickEditValue={() => onClickEditAndEmitValue(property.name, valueChange.value)}
+        onClickEmitValue={() => onClickEmitValue(property.signature, valueChange.value)}
+        onClickEditValue={() => onClickEditAndEmitValue(property.signature, valueChange.value)}
       />,
-      name: property.name,
+      name: property.signature,
       value: <MyJsonView initialValue={jsonValue} onEdit={null}/>
     };
   });

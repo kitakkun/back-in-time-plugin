@@ -17,7 +17,7 @@ export const selectInstanceList = createSelector(
         classInfoList,
         instanceInfoList,
         dependencyInfoList,
-        instance.className,
+        instance.classSignature,
         instance.uuid,
         methodCallInfoList.filter((info) => info.instanceUUID == instance.uuid).flatMap((info) => info.valueChanges)),
     ).filter((instance) => instance != null) as InstanceItem[];
@@ -37,24 +37,24 @@ function resolveInstanceInfo(
   instanceUUID: string,
   allValueChangeEvents: ValueChangeInfo[],
 ): InstanceItem | undefined {
-  const classInfo = classInfoList.find((info) => info.name == className);
+  const classInfo = classInfoList.find((info) => info.classSignature == className);
   if (!classInfo) return;
   const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassName, instanceUUID, allValueChangeEvents);
   return {
-    name: classInfo.name,
+    name: classInfo.classSignature,
     superClassName: classInfo.superClassName,
     uuid: instanceUUID,
     properties: classInfo.properties.map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
       const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)
-      )?.find((info) => info?.className == property.type);
+      )?.find((info) => info?.classSignature == property.type);
 
       return {
-        name: property.name,
+        signature: property.signature,
         type: property.type,
         debuggable: property.debuggable,
-        eventCount: allValueChangeEvents.filter((event) => event.propertyName == property.name && classInfo.name == event.ownerClassFqName).length,
+        eventCount: allValueChangeEvents.filter((event) => event.propertySignature == property.signature).length,
         stateHolderInstance: propertyInstanceInfo && resolveInstanceInfo(
           classInfoList,
           instanceInfoList,

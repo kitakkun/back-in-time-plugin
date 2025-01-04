@@ -26,19 +26,19 @@ export function ValueEmitModalPage() {
       >
         <ValueEmitView
           state={state}
-          onValueEmit={(propertyName: string, value: string) => {
+          onValueEmit={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
-            const valueType = state.classInfo?.properties.find((property) => property.name == propertyName)?.valueType;
-            const className = state.classInfo?.name
+            const valueType = state.classInfo?.properties.find((property) => property.signature == propertySignature)?.valueType;
+            const className = state.classInfo?.classSignature
             if (!instanceUUID || !valueType || !className) {
               return;
             }
-            const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, className, propertyName, value);
+            const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);
             dispatch(appActions.forceSetPropertyValue(event));
           }}
-          onEditAndEmitValue={(propertyName: string, value: string) => {
+          onEditAndEmitValue={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
-            const valueType = state.classInfo?.properties.find((property) => property.name == propertyName)?.valueType;
+            const valueType = state.classInfo?.properties.find((property) => property.signature == propertySignature)?.valueType;
             if (!instanceUUID || !valueType) {
               return;
             }
@@ -46,7 +46,7 @@ export function ValueEmitModalPage() {
             dispatch(
               editAndEmitValueActions.open({
                 instanceUUID: instanceUUID,
-                propertyName: propertyName,
+                propertySignature: propertySignature,
                 initialValue: parsedValue,
               })
             );
