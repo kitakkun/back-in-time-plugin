@@ -58,16 +58,12 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     /**
      * generate body for [com.kitakkun.backintime.core.runtime.BackInTimeDebuggable.forceSetValue]:
      * ```kotlin
-     * fun forceSetValue(propertyOwnerClassFqName: String, propertyName: String, value: Any?) {
-     *     if (ownerClassFqName == "com.example.MyClass") {
-     *         when (propertyName) {
-     *             "prop1" -> prop1 = value
-     *             "prop2" -> prop3 = value
-     *             ...
-     *             else -> throw NoSuchPropertyException(...)
-     *         }
-     *     } else {
-     *         super.forceSetValue(ownerClassFqName, propertyName, value)
+     * // assume that this function is generated for the class com/example/MyClass
+     * fun forceSetValue(propertySignature: String, jsonValue: String) {
+     *     when (propertySignature) {
+     *         "com/example/MyClass.prop1" -> prop1 = backInTimeJson.decodeFromString(jsonValue)
+     *         "com/example/MyClass.prop2" -> prop2 = backInTimeJson.decodeFromString(jsonValue)
+     *         else -> super.forceSetValue(propertySignature, jsonValue) // if there's no super class, `throw NoSuchPropertyException(...)`
      *     }
      * }
      * ```
