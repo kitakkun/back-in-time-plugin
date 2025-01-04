@@ -18,8 +18,8 @@ internal fun reportInstanceRegistration(
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
-        className = className,
-        superClassName = superClassName,
+        classSignature = className,
+        superClassSignature = superClassName,
         properties = properties,
     ),
 )

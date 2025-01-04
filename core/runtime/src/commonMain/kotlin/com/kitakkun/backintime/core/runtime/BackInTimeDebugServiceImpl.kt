@@ -129,8 +129,8 @@ class BackInTimeDebugServiceImpl(
         instanceManager.register(event.instance)
         return BackInTimeDebugServiceEvent.RegisterInstance(
             instanceUUID = event.instance.backInTimeInstanceUUID,
-            className = event.className,
-            superClassName = event.superClassName,
+            className = event.classSignature,
+            superClassName = event.superClassSignature,
             properties = event.properties,
             registeredAt = Clock.System.now().epochSeconds,
         )

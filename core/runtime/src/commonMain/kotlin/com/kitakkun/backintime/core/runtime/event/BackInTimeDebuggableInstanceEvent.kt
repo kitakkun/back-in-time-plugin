@@ -10,14 +10,14 @@ sealed interface BackInTimeDebuggableInstanceEvent {
     /**
      * Register an instance to the debugService
      * @param instance the reference to the instance
-     * @param className the FqName of the class
-     * @param superClassName the FqName of the super class
+     * @param classSignature the signature of the class (same as classId)
+     * @param superClassSignature the signature of the super class (same as classId)
      * @param properties the list of property info
      */
     data class RegisterTarget(
         val instance: BackInTimeDebuggable,
-        val className: String,
-        val superClassName: String,
+        val classSignature: String,
+        val superClassSignature: String,
         val properties: List<PropertyInfo>,
     ) : BackInTimeDebuggableInstanceEvent
 
