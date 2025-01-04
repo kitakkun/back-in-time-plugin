@@ -13,6 +13,7 @@ export interface InstanceItem {
 }
 
 export interface PropertyItem {
+  name: string;
   signature: string;
   type: string;
   debuggable: boolean;
@@ -27,7 +28,7 @@ export interface InstanceListState {
 
 type InstanceListProps = {
   state: InstanceListState;
-  onSelectProperty: (instanceUUID: string, propertyName: string) => void;
+  onSelectProperty: (instanceUUID: string, propertySignature: string) => void;
   onClickRefresh: () => void;
   onChangeNonDebuggablePropertyVisible: (visible: boolean) => void;
   onClickHistory: (instanceUUID: string) => void;

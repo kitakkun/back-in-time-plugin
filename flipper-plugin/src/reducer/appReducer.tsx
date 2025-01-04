@@ -6,6 +6,7 @@ import {DependencyInfo} from "../data/DependencyInfo";
 import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export interface AppState {
   activeTabIndex: string;
@@ -56,8 +57,9 @@ const appSlice = createSlice({
       state.classInfoList.push({
         classSignature: event.classSignature,
         superClassName: event.superClassSignature,
-        // @ts-ignore
-        properties: event.properties,
+        // need to map value to avoid object freezing restrictions
+        // FYI: https://stackoverflow.com/questions/75148897/get-on-proxy-property-items-is-a-read-only-and-non-configurable-data-proper
+        properties: event.properties.asJsReadonlyArrayView().map((value) => value) as PropertyInfo[],
       });
     },
     registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {

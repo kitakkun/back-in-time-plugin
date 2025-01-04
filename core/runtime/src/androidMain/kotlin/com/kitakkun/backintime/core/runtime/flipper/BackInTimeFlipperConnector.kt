@@ -17,16 +17,9 @@ class BackInTimeFlipperConnector(
     private val connection: FlipperConnection,
 ) : BackInTimeWebSocketConnector {
     override suspend fun connect(): Flow<BackInTimeDebuggerEvent> = channelFlow {
-        connection.receive("forceSetPropertyValue") { params, responder ->
-            val event = backInTimeJson.decodeFromString<BackInTimeDebuggerEvent.ForceSetPropertyValue>(params.toJsonString())
-            launch {
-                send(event)
-            }
-            responder.success()
-        }
-
-        connection.receive("refreshInstanceAliveStatus") { params, responder ->
-            val event = backInTimeJson.decodeFromString<BackInTimeDebuggerEvent.CheckInstanceAlive>(params.toJsonString())
+        connection.receive("debuggerEvent") { params, responder ->
+            val jsonEventValue = params.getString("payload")
+            val event = backInTimeJson.decodeFromString<BackInTimeDebuggerEvent>(jsonEventValue)
             launch {
                 send(event)
             }
@@ -37,15 +30,10 @@ class BackInTimeFlipperConnector(
     }
 
     override suspend fun sendEventToDebugger(event: BackInTimeDebugServiceEvent) {
-        val eventKey = when (event) {
-            is BackInTimeDebugServiceEvent.RegisterInstance -> "register"
-            is BackInTimeDebugServiceEvent.RegisterRelationship -> "registerRelationship"
-            is BackInTimeDebugServiceEvent.NotifyMethodCall -> "notifyMethodCall"
-            is BackInTimeDebugServiceEvent.NotifyValueChange -> "notifyValueChange"
-            is BackInTimeDebugServiceEvent.CheckInstanceAliveResult -> "checkInstanceAliveResult"
-            else -> null
-        } ?: return
-        connection.send(eventKey, FlipperObject(Json.encodeToString(event)))
+        connection.send(
+            "appEvent",
+            FlipperObject.Builder().apply { this.put("payload", Json.encodeToString(event)) }.build()
+        )
     }
 
     override suspend fun close() {

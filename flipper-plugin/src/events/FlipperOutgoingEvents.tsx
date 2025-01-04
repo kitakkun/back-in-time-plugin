@@ -2,16 +2,10 @@ import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 
+interface DebuggerAction {
+  payload: string;
+}
+
 export type OutgoingEvents = {
-  forceSetPropertyValue(event: BackInTimeDebuggerEvent.ForceSetPropertyValue): Promise<any>;
-  refreshInstanceAliveStatus(event: BackInTimeDebuggerEvent.CheckInstanceAlive): Promise<BackInTimeDebugServiceEvent.CheckInstanceAliveResult>;
-}
-
-// FYI https://timmousk.com/blog/typescript-instanceof-interface/
-export const isForceSetPropertyValue = (event: BackInTimeDebuggerEvent): event is BackInTimeDebuggerEvent.ForceSetPropertyValue => {
-  return event.constructor.name == "ForceSetPropertyValue"
-}
-
-export const isCheckInstanceAlive = (event: BackInTimeDebuggerEvent): event is BackInTimeDebuggerEvent.CheckInstanceAlive => {
-  return event.constructor.name == "CheckInstanceAlive"
+  debuggerEvent(action: DebuggerAction): Promise<any>;
 }

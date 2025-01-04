@@ -4,6 +4,8 @@
 package com.kitakkun.backintime.core.websocket.event
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
@@ -31,4 +33,16 @@ sealed class BackInTimeDebuggerEvent {
     data class Error(
         val message: String,
     ) : BackInTimeDebuggerEvent()
+
+    companion object {
+        // fixme: same as backInTimeJson defined in the runtime library.
+        private val backInTimeJson = Json {
+            encodeDefaults = true
+            explicitNulls = true
+        }
+
+        fun toJsonString(event: BackInTimeDebuggerEvent): String {
+            return backInTimeJson.encodeToString(event)
+        }
+    }
 }

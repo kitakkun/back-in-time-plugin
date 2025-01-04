@@ -11,7 +11,7 @@ import {History} from "@mui/icons-material";
 interface InstanceTreeViewProps {
   instances: InstanceItem[];
   showNonDebuggableProperty: boolean;
-  onSelectProperty: (instanceUUID: string, propertyName: string) => void;
+  onSelectProperty: (instanceUUID: string, propertySignature: string) => void;
   onClickHistory: (instanceUUID: string) => void;
 }
 
@@ -53,6 +53,7 @@ interface PropertyTreeDataNode extends MyTreeDataNode {
   nodeType: "property";
   instanceUUID: string;
   name: string;
+  signature: string;
   type: string;
   eventCount: number;
   debuggable: boolean;
@@ -78,7 +79,7 @@ export function InstanceTreeView({instances, showNonDebuggableProperty, onSelect
       if (isInstanceTreeDataNode(info.node)) {
         onClickHistory(info.node.uuid);
       } else if (isPropertyTreeDataNode(info.node)) {
-        onSelectProperty(info.node.instanceUUID, info.node.name);
+        onSelectProperty(info.node.instanceUUID, info.node.signature);
       }
     }}
     blockNode
@@ -228,7 +229,8 @@ function normalPropertyTreeNode(property: PropertyItem, key: string, instanceUUI
     nodeType: "property",
     key: `${key}/${property.signature}`,
     instanceUUID: instanceUUID,
-    name: property.signature,
+    signature: property.signature,
+    name: property.name,
     type: property.type,
     eventCount: property.eventCount,
     debuggable: property.debuggable,

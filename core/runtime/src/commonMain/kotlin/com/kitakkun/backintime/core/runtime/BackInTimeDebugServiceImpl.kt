@@ -131,7 +131,7 @@ class BackInTimeDebugServiceImpl(
             classSignature = event.classSignature,
             superClassSignature = event.superClassSignature,
             properties = event.properties,
-            registeredAt = Clock.System.now().epochSeconds,
+            registeredAt = Clock.System.now().epochSeconds.toInt(),
         )
     }
 
@@ -144,7 +144,7 @@ class BackInTimeDebugServiceImpl(
         instanceUUID = event.instance.backInTimeInstanceUUID,
         methodSignature = event.methodSignature,
         methodCallUUID = event.methodCallId,
-        calledAt = Clock.System.now().epochSeconds,
+        calledAt = Clock.System.now().epochSeconds.toInt(),
     )
 
     private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent {

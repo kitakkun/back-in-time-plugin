@@ -6,6 +6,8 @@ import {ClassInfo} from "../../../data/ClassInfo";
 import {ValueChangeInfo} from "../../../data/MethodCallInfo";
 import {InstanceInfo} from "../../../data/InstanceInfo";
 import {DependencyInfo} from "../../../data/DependencyInfo";
+import {com} from "backintime-websocket-event";
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -25,7 +27,7 @@ export const selectInstanceList = createSelector(
     return {
       instances: instances,
       showNonDebuggableProperty: persistentState.showNonDebuggableProperty,
-    } as InstanceListState;
+    };
   }
 );
 
@@ -51,6 +53,8 @@ function resolveInstanceInfo(
       )?.find((info) => info?.classSignature == property.propertyType);
 
       return {
+        // @ts-ignore
+        name: property.signature.split(".").at(-1).toString(),
         signature: property.signature,
         type: property.propertyType,
         debuggable: property.debuggable,
@@ -63,7 +67,7 @@ function resolveInstanceInfo(
           propertyInstanceInfo?.uuid,
           allValueChangeEvents,
         ),
-      } as PropertyItem;
+      };
     }),
     superInstanceItem: superTypeInfo,
   };
