@@ -7,7 +7,7 @@ interface EditAndEmitReducerState {
   editingValue: any;
   open: boolean;
   instanceUUID: string;
-  propertyName: string;
+  propertySignature: string;
 }
 
 const initialState: EditAndEmitReducerState = {
@@ -15,13 +15,13 @@ const initialState: EditAndEmitReducerState = {
   editingValue: undefined,
   open: false,
   instanceUUID: "",
-  propertyName: "",
+  propertySignature: "",
 };
 
 interface EditAndEmitValueNavArgument {
   initialValue: any;
   instanceUUID: string;
-  propertyName: string;
+  propertySignature: string;
 }
 
 const editAndEmitValueSlice = createSlice({
@@ -32,7 +32,7 @@ const editAndEmitValueSlice = createSlice({
       state.initialValue = action.payload.initialValue;
       state.editingValue = action.payload.initialValue;
       state.instanceUUID = action.payload.instanceUUID;
-      state.propertyName = action.payload.propertyName;
+      state.propertySignature = action.payload.propertySignature;
       state.open = true;
     },
     close: (state) => {
@@ -52,13 +52,12 @@ export const editAndEmitValueStateSelector = createSelector(
   [editAndEmitValueReducerStateSelector, classInfoListSelector, instanceInfoListSelector],
   (state, classInfoList, instanceInfoList) => {
     const instanceInfo = instanceInfoList.find((info) => info.uuid == state.instanceUUID);
-    const classInfo = classInfoList.find((info) => info.name == instanceInfo?.className);
-    const valueType = classInfo?.properties.find((property) => property.name == state.propertyName)?.valueType;
+    const classInfo = classInfoList.find((info) => info.classSignature == instanceInfo?.classSignature);
+    const valueType = classInfo?.properties.find((property) => property.signature == state.propertySignature)?.valueType;
 
     return {
       ...state,
       valueType: valueType,
-      ownerClassFqName: classInfo?.name,
     } as EditAndEmitState;
   }
 );

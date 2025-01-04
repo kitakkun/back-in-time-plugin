@@ -6,6 +6,7 @@ import {DependencyInfo} from "../data/DependencyInfo";
 import {com} from "backintime-websocket-event";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export interface AppState {
   activeTabIndex: string;
@@ -41,31 +42,24 @@ const appSlice = createSlice({
         // if new instance is registered, add it to instance list
         state.instanceInfoList.push({
           uuid: event.instanceUUID,
-          className: event.className,
+          classSignature: event.classSignature,
           alive: true,
           registeredAt: event.registeredAt,
         });
-      } else if (existingInstanceInfo.className == event.superClassName) {
+      } else if (existingInstanceInfo.classSignature == event.superClassSignature) {
         // if instance is already registered, update its class name
         // because subclass is registered after superclass
-        existingInstanceInfo.className = event.className
+        existingInstanceInfo.classSignature = event.classSignature
       }
       // classInfo registration
-      const existingClassInfo = state.classInfoList.find((info) => info.name == event.className);
+      const existingClassInfo = state.classInfoList.find((info) => info.classSignature == event.classSignature);
       if (existingClassInfo) return;
       state.classInfoList.push({
-        name: event.className,
-        superClassName: event.superClassName,
-        // @ts-ignore
-        properties: event.properties.map(property => (
-          {
-            name: property.name,
-            type: property.propertyType,
-            valueType: property.valueType,
-            debuggable: property.debuggable,
-            isDebuggableStateHolder: property.isDebuggableStateHolder,
-          }
-        )),
+        classSignature: event.classSignature,
+        superClassSignature: event.superClassSignature,
+        // need to map value to avoid object freezing restrictions
+        // FYI: https://stackoverflow.com/questions/75148897/get-on-proxy-property-items-is-a-read-only-and-non-configurable-data-proper
+        properties: event.properties.asJsReadonlyArrayView().map((value) => value) as PropertyInfo[],
       });
     },
     registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {
@@ -85,10 +79,9 @@ const appSlice = createSlice({
     registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {
       const event = action.payload;
       state.methodCallInfoList.push({
-        ownerClassFqName: event.ownerClassFqName,
         callUUID: event.methodCallUUID,
         instanceUUID: event.instanceUUID,
-        methodName: event.methodName,
+        methodSignature: event.methodSignature,
         calledAt: event.calledAt,
         valueChanges: [],
       });
@@ -98,8 +91,7 @@ const appSlice = createSlice({
       const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
       if (!methodCallInfo) return;
       methodCallInfo.valueChanges.push({
-        ownerClassFqName: event.ownerClassFqName,
-        propertyName: event.propertyName,
+        propertySignature: event.propertySignature,
         value: event.value,
       });
     },

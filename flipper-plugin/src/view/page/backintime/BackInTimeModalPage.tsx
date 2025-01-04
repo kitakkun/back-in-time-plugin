@@ -34,12 +34,11 @@ export function BackInTimeModalPage() {
                   .filter((history) => history.title == "methodCall")
                   .map((history) => history as MethodCallHistoryInfo);
                 const allValueChanges = methodCallHistories.flatMap((history) => history.valueChanges);
-                const propertyValueChanges = distinctBy(allValueChanges.reverse(), (valueChange) => valueChange.ownerClassFqName + valueChange.propertyName);
+                const propertyValueChanges = distinctBy(allValueChanges.reverse(), (valueChange) => valueChange.propertySignature);
                 propertyValueChanges.forEach((info) => {
                   const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
                     state.instanceUUID,
-                    info.ownerClassFqName,
-                    info.propertyName,
+                    info.propertySignature,
                     info.value,
                   );
                   dispatch(appActions.forceSetPropertyValue(event));

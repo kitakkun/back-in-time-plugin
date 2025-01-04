@@ -18,11 +18,10 @@ export function EditAndEmitValueModalPage() {
     cancelText={"Cancel"}
     okText={"Emit Edited Value"}
     onOk={() => {
-      if (!state.instanceUUID || !state.propertyName || !state.valueType || !state.ownerClassFqName) return;
+      if (!state.instanceUUID || !state.propertySignature || !state.valueType) return;
       const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
         state.instanceUUID,
-        state.ownerClassFqName,
-        state.propertyName,
+        state.propertySignature,
         JSON.stringify(state.editingValue),
       );
       dispatch(appActions.forceSetPropertyValue(event));

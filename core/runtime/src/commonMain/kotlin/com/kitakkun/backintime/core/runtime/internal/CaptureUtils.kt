@@ -7,17 +7,15 @@ import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 @BackInTimeCompilerInternalApi
 internal inline fun <reified T : Any?> captureThenReturnValue(
     instance: BackInTimeDebuggable,
-    ownerClassFqName: String,
     methodInvocationId: String,
-    propertyFqName: String,
+    propertySignature: String,
     propertyValue: T,
 ): T {
     reportPropertyValueChange(
         instance = instance,
         methodInvocationId = methodInvocationId,
-        propertyFqName = propertyFqName,
+        propertySignature = propertySignature,
         propertyValue = propertyValue,
-        ownerClassFqName = ownerClassFqName,
     )
     return propertyValue
 }

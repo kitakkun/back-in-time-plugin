@@ -10,21 +10,21 @@ class WeirdCodeStyleViewModelTest : BackInTimeDebugServiceTest() {
     fun mutateLiveData() {
         viewModel.mutateLiveData()
 
-        assertEquals(7, propertyValueChangeEvents.filter { it.propertyName == "mutableLiveData1" }.size)
-        assertEquals(1, propertyValueChangeEvents.filter { it.propertyName == "mutableLiveData2" }.size)
+        assertEquals(7, propertyValueChangeEvents.filter { it.propertySignature == "com/kitakkun/backintime/test/WeirdCodeStyleViewModel.mutableLiveData1" }.size)
+        assertEquals(1, propertyValueChangeEvents.filter { it.propertySignature == "com/kitakkun/backintime/test/WeirdCodeStyleViewModel.mutableLiveData2" }.size)
     }
 
     @Test
     fun mutateStateFlow() {
         viewModel.mutateStateFlow()
 
-        assertEquals(2, propertyValueChangeEvents.filter { it.propertyName == "mutableStateFlow" }.size)
+        assertEquals(2, propertyValueChangeEvents.filter { it.propertySignature == "com/kitakkun/backintime/test/WeirdCodeStyleViewModel.mutableStateFlow" }.size)
     }
 
     @Test
     fun mutateState() {
         viewModel.mutateState()
 
-        assertEquals(1, propertyValueChangeEvents.filter { it.propertyName == "mutableState" }.size)
+        assertEquals(1, propertyValueChangeEvents.filter { it.propertySignature == "com/kitakkun/backintime/test/WeirdCodeStyleViewModel.mutableState" }.size)
     }
 }

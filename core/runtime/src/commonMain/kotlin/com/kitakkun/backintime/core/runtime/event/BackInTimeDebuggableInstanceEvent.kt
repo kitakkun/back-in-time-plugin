@@ -10,14 +10,14 @@ sealed interface BackInTimeDebuggableInstanceEvent {
     /**
      * Register an instance to the debugService
      * @param instance the reference to the instance
-     * @param className the FqName of the class
-     * @param superClassName the FqName of the super class
+     * @param classSignature the signature of the class (same as classId)
+     * @param superClassSignature the signature of the super class (same as classId)
      * @param properties the list of property info
      */
     data class RegisterTarget(
         val instance: BackInTimeDebuggable,
-        val className: String,
-        val superClassName: String,
+        val classSignature: String,
+        val superClassSignature: String,
         val properties: List<PropertyInfo>,
     ) : BackInTimeDebuggableInstanceEvent
 
@@ -36,27 +36,25 @@ sealed interface BackInTimeDebuggableInstanceEvent {
      * Notify that a method is called
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
-     * @param methodName the name of the method
+     * @param methodSignature the signature of the method. See [com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger] for details.
      */
     data class MethodCall(
         val instance: BackInTimeDebuggable,
-        val ownerClassFqName: String,
         val methodCallId: String,
-        val methodName: String,
+        val methodSignature: String,
     ) : BackInTimeDebuggableInstanceEvent
 
     /**
      * Notify that a property value is changed
      * @param instance the reference to the instance
      * @param methodCallId the unique id of the method call
-     * @param propertyName the name of the property.
+     * @param propertySignature the signature of the property. See [com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger] for details.
      * @param propertyValue the serialized value of the property
      */
     data class PropertyValueChange(
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
-        val ownerClassFqName: String,
-        val propertyName: String,
+        val propertySignature: String,
         val propertyValue: String,
     ) : BackInTimeDebuggableInstanceEvent
 

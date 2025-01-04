@@ -12,7 +12,7 @@ import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
 import com.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import com.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
-import com.kitakkun.backintime.compiler.backend.utils.receiver
+import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isLocal
 import org.jetbrains.kotlin.ir.util.isPropertyAccessor
 import org.jetbrains.kotlin.ir.util.isSetter
@@ -53,7 +52,6 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
         val parentClass = declaration.parentClassOrNull ?: return
         if (!parentClass.isBackInTimeDebuggable) return
-        val parentClassFqName = parentClass.fqNameWhenAvailable?.asString() ?: return
 
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return
 
@@ -62,9 +60,8 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
             val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClassDispatchReceiver))
-                putValueArgument(1, irString(parentClassFqName))
-                putValueArgument(2, irGet(uuidVariable))
-                putValueArgument(3, irString(declaration.name.asString()))
+                putValueArgument(1, irGet(uuidVariable))
+                putValueArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
@@ -97,7 +94,6 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
         val function = currentClosestBackInTimeDebuggableOwnerFunction() ?: return
         val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return
-        val parentClassFqName = property.parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return
         val classDispatchReceiverParameter = function.dispatchReceiverParameter ?: return
         val value = this.valueArguments.first()
 
@@ -106,10 +102,9 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
             valueArgument = with(irBuiltIns.createIrBuilder(symbol)) {
                 irCall(captureThenReturnValueFunctionSymbol).apply {
                     putValueArgument(0, irGet(classDispatchReceiverParameter))
-                    putValueArgument(1, irString(parentClassFqName))
-                    putValueArgument(2, irGet(uuidVariable))
-                    putValueArgument(3, irString(property.name.asString()))
-                    putValueArgument(4, value)
+                    putValueArgument(1, irGet(uuidVariable))
+                    putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
+                    putValueArgument(3, value)
                     putTypeArgument(0, property.getter!!.returnType.getSerializerType())
                 }
             },
@@ -153,10 +148,8 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
             val uuidVariable = function?.getLocalMethodInvocationIdVariable()
             val classDispatchReceiverParameter = function?.dispatchReceiverParameter
-            val parentClassSymbol = this.receiver?.getCorrespondingProperty()?.parentClassOrNull?.symbol
 
             return captureIfNeeded(
-                parentClassSymbol = parentClassSymbol ?: return this,
                 classDispatchReceiverParameter = classDispatchReceiverParameter ?: return this,
                 uuidVariable = uuidVariable ?: return this,
             ) ?: this

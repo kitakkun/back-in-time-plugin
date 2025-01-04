@@ -5,6 +5,7 @@ package com.kitakkun.backintime.core.websocket.event
 
 import com.kitakkun.backintime.core.websocket.event.model.PropertyInfo
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
@@ -19,17 +20,16 @@ sealed class BackInTimeDebugServiceEvent {
     @Serializable
     data class RegisterInstance(
         val instanceUUID: String,
-        val className: String,
-        val superClassName: String,
+        val classSignature: String,
+        val superClassSignature: String,
         val properties: List<PropertyInfo>,
-        val registeredAt: Long,
+        val registeredAt: Int,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class NotifyValueChange(
         val instanceUUID: String,
-        val ownerClassFqName: String,
-        val propertyName: String,
+        val propertySignature: String,
         val value: String,
         val methodCallUUID: String,
     ) : BackInTimeDebugServiceEvent()
@@ -37,10 +37,9 @@ sealed class BackInTimeDebugServiceEvent {
     @Serializable
     data class NotifyMethodCall(
         val instanceUUID: String,
-        val ownerClassFqName: String,
-        val methodName: String,
+        val methodSignature: String,
         val methodCallUUID: String,
-        val calledAt: Long,
+        val calledAt: Int,
     ) : BackInTimeDebugServiceEvent()
 
     data class RegisterRelationship(
@@ -57,4 +56,16 @@ sealed class BackInTimeDebugServiceEvent {
     data class Error(
         val message: String,
     ) : BackInTimeDebugServiceEvent()
+
+    companion object {
+        // fixme: same as backInTimeJson defined in the runtime library.
+        private val backInTimeJson = Json {
+            encodeDefaults = true
+            explicitNulls = true
+        }
+
+        fun fromJsonString(jsonString: String): BackInTimeDebugServiceEvent {
+            return backInTimeJson.decodeFromString<BackInTimeDebugServiceEvent>(jsonString)
+        }
+    }
 }

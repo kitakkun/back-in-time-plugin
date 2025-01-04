@@ -8,8 +8,7 @@ export interface EditAndEmitState {
   editingValue: any;
   open: boolean;
   instanceUUID: string;
-  ownerClassFqName: string;
-  propertyName: string;
+  propertySignature: string;
   valueType: string | undefined;
 }
 
@@ -28,7 +27,7 @@ export function EditAndEmitValueView({state, onEdit}: EditAndEmitValueViewProps)
       <Layout.Container>
         <Typography.Title level={5}>Property Info</Typography.Title>
         <Typography.Text>Instance UUID: {state.instanceUUID}</Typography.Text>
-        <Typography.Text>Property Name: {state.propertyName}</Typography.Text>
+        <Typography.Text>Property Name: {state.propertySignature}</Typography.Text>
         <Typography.Text>Value Type: {state.valueType}</Typography.Text>
 
         Note that the value type can not be edited.

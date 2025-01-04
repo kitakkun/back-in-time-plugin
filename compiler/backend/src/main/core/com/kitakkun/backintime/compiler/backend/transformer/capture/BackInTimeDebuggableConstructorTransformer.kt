@@ -1,11 +1,11 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.utils.getCompletedName
 import com.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
+import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
+import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
-import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -21,10 +21,8 @@ import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
@@ -47,8 +45,8 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
             /** see [com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
             irCall(reportInstanceRegistrationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClass.thisReceiver!!))
-                putValueArgument(1, irString(parentClass.fqNameWhenAvailable?.asString() ?: "unknown"))
-                putValueArgument(2, irString(parentClass.superClass?.fqNameWhenAvailable?.asString() ?: "unknown"))
+                putValueArgument(1, irString(parentClass.signatureForBackInTimeDebugger()))
+                putValueArgument(2, irString(parentClass.superClass?.signatureForBackInTimeDebugger() ?: "unknown"))
                 putValueArgument(3, generatePropertiesInfo(parentClass.properties))
             }
         }
@@ -80,16 +78,16 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
             irVararg(
                 propertyInfoClass.defaultType,
                 properties
-                    .filter { it.name != BackInTimeConsts.backInTimeInstanceUUIDName && it.name != BackInTimeConsts.backInTimeInitializedPropertyMapName }
+                    .filter { !it.isBackInTimeGenerated }
                     .map { irProperty ->
                         val propertyType = irProperty.getter?.returnType as? IrSimpleType
-                        val propertyTypeName = propertyType?.classFqName?.asString() ?: "unknown"
-                        val genericTypeCompletedName = (propertyType?.getGenericTypes()?.firstOrNull() as? IrSimpleType)?.getCompletedName() ?: propertyTypeName
+                        val propertyTypeName = propertyType?.signatureForBackInTimeDebugger() ?: "unknown"
+                        val genericTypeCompletedName = propertyType?.getGenericTypes()?.firstOrNull()?.signatureForBackInTimeDebugger() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
                         val isDebuggable = irProperty.isVar || propertyType?.classOrNull in valueContainerClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
-                            putValueArgument(0, irString(irProperty.name.asString()))
+                            putValueArgument(0, irString(irProperty.signatureForBackInTimeDebugger()))
                             putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))
                             putValueArgument(2, irBoolean(isDebuggableStateHolder))
                             putValueArgument(3, irString(propertyTypeName))

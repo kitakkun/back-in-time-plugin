@@ -11,7 +11,7 @@ import {History} from "@mui/icons-material";
 interface InstanceTreeViewProps {
   instances: InstanceItem[];
   showNonDebuggableProperty: boolean;
-  onSelectProperty: (instanceUUID: string, propertyName: string) => void;
+  onSelectProperty: (instanceUUID: string, propertySignature: string) => void;
   onClickHistory: (instanceUUID: string) => void;
 }
 
@@ -53,6 +53,7 @@ interface PropertyTreeDataNode extends MyTreeDataNode {
   nodeType: "property";
   instanceUUID: string;
   name: string;
+  signature: string;
   type: string;
   eventCount: number;
   debuggable: boolean;
@@ -78,7 +79,7 @@ export function InstanceTreeView({instances, showNonDebuggableProperty, onSelect
       if (isInstanceTreeDataNode(info.node)) {
         onClickHistory(info.node.uuid);
       } else if (isPropertyTreeDataNode(info.node)) {
-        onSelectProperty(info.node.instanceUUID, info.node.name);
+        onSelectProperty(info.node.instanceUUID, info.node.signature);
       }
     }}
     blockNode
@@ -138,7 +139,7 @@ function instanceItemToTreeDataNode(
         property.stateHolderInstance!,
         StateHolderType.EXTERNAL,
         showNonDebuggableProperty,
-        `${key}/${property.name}`,
+        `${key}/${property.signature}`,
         property,
       )
     );
@@ -151,7 +152,7 @@ function instanceItemToTreeDataNode(
     instance.superInstanceItem,
     StateHolderType.SUPERCLASS,
     showNonDebuggableProperty,
-    `${key}/${instance.superClassName}`,
+    `${key}/${instance.superClassSignature}`,
   ) : undefined;
 
   const children = [...stateHolderPropertyNodes, ...normalPropertyNodes];
@@ -185,7 +186,7 @@ function instanceItemToTreeDataNode(
     children: children,
     uuid: instance.uuid,
     name: instance.name,
-    nameAsProperty: instanceAsProperty?.name,
+    nameAsProperty: instanceAsProperty?.signature,
     stateHolderType: stateHolderType,
   }
 }
@@ -226,8 +227,9 @@ function instanceNodeTitle(name: string, uuid: string, stateHolderType: StateHol
 function normalPropertyTreeNode(property: PropertyItem, key: string, instanceUUID: string): PropertyTreeDataNode {
   return {
     nodeType: "property",
-    key: `${key}/${property.name}`,
+    key: `${key}/${property.signature}`,
     instanceUUID: instanceUUID,
+    signature: property.signature,
     name: property.name,
     type: property.type,
     eventCount: property.eventCount,

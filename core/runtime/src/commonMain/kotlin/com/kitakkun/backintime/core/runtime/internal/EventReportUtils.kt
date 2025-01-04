@@ -12,14 +12,14 @@ import kotlinx.serialization.encodeToString
 @BackInTimeCompilerInternalApi
 internal fun reportInstanceRegistration(
     instance: BackInTimeDebuggable,
-    className: String,
-    superClassName: String,
+    classSignature: String,
+    superClassSignature: String,
     properties: List<PropertyInfo>,
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,
-        className = className,
-        superClassName = superClassName,
+        classSignature = classSignature,
+        superClassSignature = superClassSignature,
         properties = properties,
     ),
 )
@@ -27,24 +27,21 @@ internal fun reportInstanceRegistration(
 @BackInTimeCompilerInternalApi
 internal fun reportMethodInvocation(
     instance: BackInTimeDebuggable,
-    ownerClassFqName: String,
     methodInvocationId: String,
-    methodName: String,
+    methodSignature: String,
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.MethodCall(
         instance = instance,
         methodCallId = methodInvocationId,
-        methodName = methodName,
-        ownerClassFqName = ownerClassFqName,
+        methodSignature = methodSignature,
     ),
 )
 
 @BackInTimeCompilerInternalApi
 internal inline fun <reified T> reportPropertyValueChange(
     instance: BackInTimeDebuggable,
-    ownerClassFqName: String,
     methodInvocationId: String,
-    propertyFqName: String,
+    propertySignature: String,
     propertyValue: T,
 ) {
     val service = getBackInTimeDebugService()
@@ -53,9 +50,8 @@ internal inline fun <reified T> reportPropertyValueChange(
             BackInTimeDebuggableInstanceEvent.PropertyValueChange(
                 instance = instance,
                 methodCallId = methodInvocationId,
-                propertyName = propertyFqName,
+                propertySignature = propertySignature,
                 propertyValue = backInTimeJson.encodeToString(propertyValue),
-                ownerClassFqName = ownerClassFqName,
             ),
         )
     } catch (e: Throwable) {

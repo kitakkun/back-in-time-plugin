@@ -21,7 +21,7 @@ export const backInTimeStateSelector = createSelector(
       title: "register",
       timestamp: instanceInfo?.registeredAt ?? 0,
       subtitle: "uuid: " + instanceInfo?.uuid,
-      description: instanceInfo?.className ?? "",
+      description: instanceInfo?.classSignature ?? "",
     };
 
     const methodCallEvents: HistoryInfo[] = methodCallInfoList
@@ -30,8 +30,8 @@ export const backInTimeStateSelector = createSelector(
         return {
           title: "methodCall",
           timestamp: info.calledAt,
-          subtitle: info.methodName,
-          description: info.valueChanges.map((change) => `${change.propertyName} = ${change.value}`).join(", "),
+          subtitle: info.methodSignature,
+          description: info.valueChanges.map((change) => `${change.propertySignature} = ${change.value}`).join(", "),
           valueChanges: info.valueChanges,
         } as HistoryInfo;
       });

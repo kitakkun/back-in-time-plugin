@@ -6,6 +6,8 @@ import {ClassInfo} from "../../../data/ClassInfo";
 import {ValueChangeInfo} from "../../../data/MethodCallInfo";
 import {InstanceInfo} from "../../../data/InstanceInfo";
 import {DependencyInfo} from "../../../data/DependencyInfo";
+import {com} from "backintime-websocket-event";
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -17,7 +19,7 @@ export const selectInstanceList = createSelector(
         classInfoList,
         instanceInfoList,
         dependencyInfoList,
-        instance.className,
+        instance.classSignature,
         instance.uuid,
         methodCallInfoList.filter((info) => info.instanceUUID == instance.uuid).flatMap((info) => info.valueChanges)),
     ).filter((instance) => instance != null) as InstanceItem[];
@@ -25,7 +27,7 @@ export const selectInstanceList = createSelector(
     return {
       instances: instances,
       showNonDebuggableProperty: persistentState.showNonDebuggableProperty,
-    } as InstanceListState;
+    };
   }
 );
 
@@ -33,37 +35,39 @@ function resolveInstanceInfo(
   classInfoList: ClassInfo[],
   instanceInfoList: InstanceInfo[],
   dependencyInfoList: DependencyInfo[],
-  className: string,
+  classSignature: string,
   instanceUUID: string,
   allValueChangeEvents: ValueChangeInfo[],
 ): InstanceItem | undefined {
-  const classInfo = classInfoList.find((info) => info.name == className);
+  const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return;
-  const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassName, instanceUUID, allValueChangeEvents);
+  const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassSignature, instanceUUID, allValueChangeEvents);
   return {
-    name: classInfo.name,
-    superClassName: classInfo.superClassName,
+    name: classInfo.classSignature,
+    superClassSignature: classInfo.superClassSignature,
     uuid: instanceUUID,
     properties: classInfo.properties.map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
       const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)
-      )?.find((info) => info?.className == property.type);
+      )?.find((info) => info?.classSignature == property.propertyType);
 
       return {
-        name: property.name,
-        type: property.type,
+        // @ts-ignore
+        name: property.signature.split(".").at(-1).toString(),
+        signature: property.signature,
+        type: property.propertyType,
         debuggable: property.debuggable,
-        eventCount: allValueChangeEvents.filter((event) => event.propertyName == property.name && classInfo.name == event.ownerClassFqName).length,
+        eventCount: allValueChangeEvents.filter((event) => event.propertySignature == property.signature).length,
         stateHolderInstance: propertyInstanceInfo && resolveInstanceInfo(
           classInfoList,
           instanceInfoList,
           dependencyInfoList,
-          property.type,
+          property.propertyType,
           propertyInstanceInfo?.uuid,
           allValueChangeEvents,
         ),
-      } as PropertyItem;
+      };
     }),
     superInstanceItem: superTypeInfo,
   };

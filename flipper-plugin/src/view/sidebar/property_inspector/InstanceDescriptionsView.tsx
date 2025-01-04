@@ -15,7 +15,7 @@ export function InstanceDescriptionsView({instanceInfo}: InstanceInfoProps) {
     layout={"horizontal"}
   >
     <Descriptions.Item label={"id"}>{instanceInfo.uuid}</Descriptions.Item>
-    <Descriptions.Item label={"type"}>{instanceInfo.className}</Descriptions.Item>
+    <Descriptions.Item label={"type"}>{instanceInfo.classSignature}</Descriptions.Item>
     <Descriptions.Item label={"registeredAt"}>{instanceInfo.registeredAt}</Descriptions.Item>
     <Descriptions.Item label={"alive"}>{instanceInfo.alive ? "true" : "false"}</Descriptions.Item>
   </Descriptions>;

@@ -4,6 +4,7 @@ import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.receiver
+import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
 import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -15,23 +16,18 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 
 context(BackInTimePluginContext)
 fun IrCall.captureIfNeeded(
-    parentClassSymbol: IrClassSymbol,
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
 ): IrExpression? {
     val property = receiver?.getCorrespondingProperty() ?: return null
     val valueContainer = valueContainerClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
     val captureStrategy = valueContainer.captureTargetSymbols.firstOrNull { it.first == this.symbol }?.second ?: return null
-
-    val ownerClassName = parentClassSymbol.owner.fqNameWhenAvailable?.asString() ?: return null
-    val propertyName = property.name.asString()
+    val propertySignature = property.signatureForBackInTimeDebugger()
 
     val propertyGetterSymbol = property.getter?.symbol ?: return null
 
@@ -41,8 +37,7 @@ fun IrCall.captureIfNeeded(
                 propertyGetter = propertyGetterSymbol,
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
-                ownerClassName = ownerClassName,
-                propertyName = propertyName,
+                propertySignature = propertySignature,
                 valueContainer = valueContainer,
             )
         }
@@ -51,8 +46,7 @@ fun IrCall.captureIfNeeded(
             captureValueArgument(
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
-                ownerClassName = ownerClassName,
-                propertyName = propertyName,
+                propertySignature = propertySignature,
                 index = captureStrategy.index,
             )
         }
@@ -62,9 +56,8 @@ fun IrCall.captureIfNeeded(
 context(BackInTimePluginContext)
 private fun IrCall.captureAfterCall(
     classDispatchReceiverParameter: IrValueParameter,
-    ownerClassName: String,
     uuidVariable: IrVariable,
-    propertyName: String,
+    propertySignature: String,
     valueContainer: ResolvedValueContainer,
     propertyGetter: IrSimpleFunctionSymbol,
 ): IrExpression {
@@ -73,11 +66,10 @@ private fun IrCall.captureAfterCall(
         +this@captureAfterCall
         +irCall(reportPropertyValueChangeFunctionSymbol).apply {
             putValueArgument(0, irGet(classDispatchReceiverParameter))
-            putValueArgument(1, irString(ownerClassName))
-            putValueArgument(2, irGet(uuidVariable))
-            putValueArgument(3, irString(propertyName))
+            putValueArgument(1, irGet(uuidVariable))
+            putValueArgument(2, irString(propertySignature))
             putValueArgument(
-                index = 4,
+                index = 3,
                 valueArgument = when (valueContainer) {
                     is ResolvedValueContainer.Wrapper -> {
                         irCall(valueContainer.getterSymbol).apply {
@@ -106,9 +98,8 @@ context(BackInTimePluginContext)
 private fun IrCall.captureValueArgument(
     index: Int,
     classDispatchReceiverParameter: IrValueParameter,
-    ownerClassName: String,
     uuidVariable: IrVariable,
-    propertyName: String,
+    propertySignature: String,
 ): IrExpression {
     val irBuilder = irBuiltIns.createIrBuilder(symbol)
     val originalValueArgument = getValueArgument(index)
@@ -118,10 +109,9 @@ private fun IrCall.captureValueArgument(
         valueArgument = with(irBuilder) {
             irCall(captureThenReturnValueFunctionSymbol).apply {
                 putValueArgument(0, irGet(classDispatchReceiverParameter))
-                putValueArgument(1, irString(ownerClassName))
-                putValueArgument(2, irGet(uuidVariable))
-                putValueArgument(3, irString(propertyName))
-                putValueArgument(4, originalValueArgument)
+                putValueArgument(1, irGet(uuidVariable))
+                putValueArgument(2, irString(propertySignature))
+                putValueArgument(3, originalValueArgument)
                 originalValueArgument?.type?.getSerializerType()?.let {
                     putTypeArgument(0, it)
                 }

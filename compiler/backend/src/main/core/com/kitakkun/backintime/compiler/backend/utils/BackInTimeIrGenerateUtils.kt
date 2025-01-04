@@ -13,23 +13,19 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.parentClassOrNull
 
 context(IrBuilderWithScope, BackInTimePluginContext)
-fun irCapturePropertyValue(
-    ownerClassName: String,
-    propertyFqName: String,
+private fun irCapturePropertyValue(
+    propertySignature: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertyType: IrType,
 ) = irCall(reportPropertyValueChangeFunctionSymbol).apply {
     putValueArgument(0, irGet(instanceParameter))
-    putValueArgument(1, irString(ownerClassName))
-    putValueArgument(2, irGet(uuidVariable))
-    putValueArgument(3, irString(propertyFqName))
-    putValueArgument(4, getValueCall)
+    putValueArgument(1, irGet(uuidVariable))
+    putValueArgument(2, irString(propertySignature))
+    putValueArgument(3, getValueCall)
     putTypeArgument(0, propertyType.getSerializerType())
 }
 
@@ -41,8 +37,7 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     val getter = getter ?: return null
     val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
     return irCapturePropertyValue(
-        ownerClassName = parentClassOrNull?.fqNameWhenAvailable?.asString() ?: return null,
-        propertyFqName = name.asString(),
+        propertySignature = signatureForBackInTimeDebugger(),
         getValueCall = if (valueGetterSymbol == getter.symbol) {
             irCall(getter.symbol).apply {
                 dispatchReceiver = irGet(instanceParameter)

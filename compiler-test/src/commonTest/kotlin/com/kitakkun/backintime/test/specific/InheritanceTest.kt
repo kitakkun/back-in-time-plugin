@@ -10,17 +10,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class InheritanceTest : BackInTimeDebugServiceTest() {
-    companion object {
-        private const val SUPER_CLASS_FQ_NAME = "com.kitakkun.backintime.test.specific.InheritanceTest.SuperClass"
-        private const val SUPER_PROPERTY_NAME = "superProperty"
-        private const val OVERRIDABLE_PROPERTY_NAME = "overridableProperty"
-        private const val PRIVATE_SUPER_PROPERTY_NAME = "privateSuperProperty"
-        private const val SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME = "conflictedPrivateProperty"
-        private const val SUB_CLASS_FQ_NAME = "com.kitakkun.backintime.test.specific.InheritanceTest.SubClass"
-        private const val SUB_PROPERTY_NAME = "subProperty"
-        private const val SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME = "conflictedPrivateProperty"
-    }
-
     @BackInTime
     private open class SuperClass {
         var superProperty: String = "super"
@@ -49,9 +38,9 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
 
         assertEquals(2, registerInstanceEvents.size)
         assertEquals(instance.backInTimeInstanceUUID, registerInstanceEvents[0].instanceUUID) // super class
-        assertEquals("com.kitakkun.backintime.test.specific.InheritanceTest.SuperClass", registerInstanceEvents[0].className) // super class
+        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass", registerInstanceEvents[0].classSignature) // super class
         assertEquals(instance.backInTimeInstanceUUID, registerInstanceEvents[1].instanceUUID) // sub class
-        assertEquals("com.kitakkun.backintime.test.specific.InheritanceTest.SubClass", registerInstanceEvents[1].className) // super class
+        assertEquals("com/kitakkun/backintime/test/specific/InheritanceTest.SubClass", registerInstanceEvents[1].classSignature) // super class
     }
 
     @Test
@@ -60,19 +49,19 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         assertIs<BackInTimeDebuggable>(instance)
 
         // super class
-        instance.forceSetValue(SUPER_CLASS_FQ_NAME, SUPER_PROPERTY_NAME, "\"super(modified)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass.superProperty", "\"super(modified)\"")
         assertEquals("super(modified)", instance.superProperty)
 
         // overriding property
-        instance.forceSetValue(SUPER_CLASS_FQ_NAME, OVERRIDABLE_PROPERTY_NAME, "\"overridable(modified)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass.overridableProperty", "\"overridable(modified)\"")
         assertEquals("overridable(modified)", instance.overridableProperty)
 
         // sub class
-        instance.forceSetValue(SUB_CLASS_FQ_NAME, SUB_PROPERTY_NAME, "\"sub(modified)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SubClass.subProperty", "\"sub(modified)\"")
         assertEquals("sub(modified)", instance.subProperty)
 
         // private property of super class
-        instance.forceSetValue(SUPER_CLASS_FQ_NAME, PRIVATE_SUPER_PROPERTY_NAME, "\"private-super(modified)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass.privateSuperProperty", "\"private-super(modified)\"")
         assertEquals("private-super(modified)", instance.getPrivateSuperProperty())
     }
 
@@ -81,11 +70,11 @@ class InheritanceTest : BackInTimeDebugServiceTest() {
         val instance = SubClass()
         assertIs<BackInTimeDebuggable>(instance)
 
-        instance.forceSetValue(SUB_CLASS_FQ_NAME, SUB_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME, "\"conflict(update-sub)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SubClass.conflictedPrivateProperty", "\"conflict(update-sub)\"")
         assertEquals(expected = "conflict(update-sub)", actual = instance.getSubPrivateConflictedProperty())
         assertEquals(expected = "conflict", actual = instance.getSuperPrivateConflictedProperty())
 
-        instance.forceSetValue(SUPER_CLASS_FQ_NAME, SUPER_CLASS_CONFLICTED_PRIVATE_PROPERTY_NAME, "\"conflict(update-super)\"")
+        instance.forceSetValue("com/kitakkun/backintime/test/specific/InheritanceTest.SuperClass.conflictedPrivateProperty", "\"conflict(update-super)\"")
         assertEquals(expected = "conflict(update-sub)", actual = instance.getSubPrivateConflictedProperty())
         assertEquals(expected = "conflict(update-super)", actual = instance.getSuperPrivateConflictedProperty())
     }

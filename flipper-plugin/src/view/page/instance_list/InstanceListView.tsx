@@ -7,13 +7,14 @@ import {InstanceTreeView} from "./InstanceTreeView";
 export interface InstanceItem {
   name: string;
   uuid: string;
-  superClassName: string;
+  superClassSignature: string;
   properties: PropertyItem[];
   superInstanceItem?: InstanceItem;
 }
 
 export interface PropertyItem {
   name: string;
+  signature: string;
   type: string;
   debuggable: boolean;
   eventCount: number;
@@ -27,7 +28,7 @@ export interface InstanceListState {
 
 type InstanceListProps = {
   state: InstanceListState;
-  onSelectProperty: (instanceUUID: string, propertyName: string) => void;
+  onSelectProperty: (instanceUUID: string, propertySignature: string) => void;
   onClickRefresh: () => void;
   onChangeNonDebuggablePropertyVisible: (visible: boolean) => void;
   onClickHistory: (instanceUUID: string) => void;

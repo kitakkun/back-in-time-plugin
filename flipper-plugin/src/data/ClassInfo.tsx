@@ -1,13 +1,8 @@
-export interface ClassInfo {
-  name: string;
-  superClassName: string;
-  properties: PropertyInfo[];
-}
+import {com} from "backintime-websocket-event";
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
-export interface PropertyInfo {
-  name: string;
-  type: string;
-  valueType: string;
-  debuggable: boolean;
-  isDebuggableStateHolder: boolean;
+export interface ClassInfo {
+  classSignature: string;
+  superClassSignature: string;
+  properties: PropertyInfo[];
 }
