@@ -2,7 +2,9 @@ import {createSelector} from "@reduxjs/toolkit";
 import {classInfoListSelector, instanceInfoListSelector, methodCallInfoListSelector} from "../../../reducer/appReducer";
 import {PropertyInspectorState} from "./PropertyInspectorView";
 import {propertyInspectorReducerStateSelector} from "./propertyInspectorReducer";
-import {ClassInfo, PropertyInfo} from "../../../data/ClassInfo";
+import {ClassInfo} from "../../../data/ClassInfo";
+import {com} from "backintime-websocket-event";
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export const propertyInspectorStateSelector = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, propertyInspectorReducerStateSelector],

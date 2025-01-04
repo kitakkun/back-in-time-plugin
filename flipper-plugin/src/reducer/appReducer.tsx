@@ -57,15 +57,7 @@ const appSlice = createSlice({
         classSignature: event.classSignature,
         superClassName: event.superClassSignature,
         // @ts-ignore
-        properties: event.properties.map(property => (
-          {
-            signature: property.signature,
-            type: property.propertyType,
-            valueType: property.valueType,
-            debuggable: property.debuggable,
-            isDebuggableStateHolder: property.isDebuggableStateHolder,
-          }
-        )),
+        properties: event.properties,
       });
     },
     registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {

@@ -4,7 +4,8 @@ import {PropertyDescriptionsView} from "./PropertyDescriptionsView";
 import {PropertyValueChangesView} from "./PropertyValueChangesView";
 import {Layout, theme} from "flipper-plugin";
 import {InstanceInfo} from "../../../data/InstanceInfo";
-import {PropertyInfo} from "../../../data/ClassInfo";
+import {com} from "backintime-websocket-event";
+import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export interface ValueChangeInfo {
   methodCallUUID: string;

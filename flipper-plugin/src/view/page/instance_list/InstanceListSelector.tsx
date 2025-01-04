@@ -48,18 +48,18 @@ function resolveInstanceInfo(
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
       const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)
-      )?.find((info) => info?.classSignature == property.type);
+      )?.find((info) => info?.classSignature == property.propertyType);
 
       return {
         signature: property.signature,
-        type: property.type,
+        type: property.propertyType,
         debuggable: property.debuggable,
         eventCount: allValueChangeEvents.filter((event) => event.propertySignature == property.signature).length,
         stateHolderInstance: propertyInstanceInfo && resolveInstanceInfo(
           classInfoList,
           instanceInfoList,
           dependencyInfoList,
-          property.type,
+          property.propertyType,
           propertyInstanceInfo?.uuid,
           allValueChangeEvents,
         ),
