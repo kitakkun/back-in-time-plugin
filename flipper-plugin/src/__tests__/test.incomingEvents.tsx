@@ -7,7 +7,6 @@ import {MethodCallInfo} from "../data/MethodCallInfo";
 import {com} from "backintime-websocket-event";
 import NotifyMethodCall = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyMethodCall;
 import NotifyValueChange = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.NotifyValueChange;
-import RegisterInstance = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent.RegisterInstance;
 
 test(`register event`, () => {
   const {instance, sendEvent} = TestUtils.startPlugin(Plugin);
