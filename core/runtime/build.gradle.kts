@@ -19,6 +19,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.websocket.client)
             implementation(projects.core.websocket.event)
+            implementation(projects.tooling.model)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)

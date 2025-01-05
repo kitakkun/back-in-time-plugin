@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.core.runtime.event
 
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
-import com.kitakkun.backintime.core.websocket.event.model.PropertyInfo
+import com.kitakkun.backintime.tooling.model.PropertyInfo
 
 /**
  * events inside the BackInTimeDebuggable instance

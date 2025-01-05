@@ -25,4 +25,5 @@ include(
     ":core:websocket:server",
     ":core:websocket:client",
     ":core:websocket:event",
+    ":tooling:model",
 )

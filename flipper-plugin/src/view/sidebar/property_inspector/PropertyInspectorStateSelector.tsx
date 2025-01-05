@@ -2,9 +2,9 @@ import {createSelector} from "@reduxjs/toolkit";
 import {classInfoListSelector, instanceInfoListSelector, methodCallInfoListSelector} from "../../../reducer/appReducer";
 import {PropertyInspectorState} from "./PropertyInspectorView";
 import {propertyInspectorReducerStateSelector} from "./propertyInspectorReducer";
-import {ClassInfo} from "../../../data/ClassInfo";
-import {com} from "backintime-websocket-event";
-import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import * as model from "backintime-tooling-model";
+import PropertyInfo = model.com.kitakkun.backintime.tooling.model.PropertyInfo;
+import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 
 export const propertyInspectorStateSelector = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, propertyInspectorReducerStateSelector],
@@ -37,7 +37,7 @@ function getPropertiesRecursively(classInfoList: ClassInfo[], classSignature: st
   const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return [];
   return [
-    ...classInfo.properties,
+    ...classInfo.properties.asJsReadonlyArrayView(),
     ...getPropertiesRecursively(classInfoList, classInfo.superClassSignature)
   ];
 }

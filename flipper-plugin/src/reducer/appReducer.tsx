@@ -1,13 +1,13 @@
 import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {ClassInfo} from "../data/ClassInfo";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
 import {DependencyInfo} from "../data/DependencyInfo";
 import * as event from "backintime-websocket-event";
+import * as model from "backintime-tooling-model";
 import BackInTimeDebuggerEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 import BackInTimeWebSocketEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent;
-import PropertyInfo = event.com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 
 export interface AppState {
   activeTabIndex: string;
@@ -61,13 +61,12 @@ const appSlice = createSlice({
       // classInfo registration
       const existingClassInfo = state.classInfoList.find((info) => info.classSignature == event.classSignature);
       if (existingClassInfo) return;
-      state.classInfoList.push({
-        classSignature: event.classSignature,
-        superClassSignature: event.superClassSignature,
-        // need to map value to avoid object freezing restrictions
-        // FYI: https://stackoverflow.com/questions/75148897/get-on-proxy-property-items-is-a-read-only-and-non-configurable-data-proper
-        properties: event.properties.asJsReadonlyArrayView().map((value) => value) as PropertyInfo[],
-      });
+      state.classInfoList.push(new ClassInfo(
+        event.classSignature,
+        event.superClassSignature,
+        // @ts-ignore
+        event.properties,
+      ));
     },
     registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {
       const existingDependencyInfo = state.dependencyInfoList.find((info) => info.uuid == action.payload.parentUUID);

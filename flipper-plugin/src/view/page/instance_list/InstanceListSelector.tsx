@@ -1,13 +1,12 @@
 import {classInfoListSelector, dependencyInfoListSelector, instanceInfoListSelector, methodCallInfoListSelector} from "../../../reducer/appReducer";
 import {createSelector} from "@reduxjs/toolkit";
 import {persistentStateSelector} from "../../../reducer/PersistentStateReducer";
-import {InstanceItem, InstanceListState, PropertyItem} from "./InstanceListView";
-import {ClassInfo} from "../../../data/ClassInfo";
+import {InstanceItem, InstanceListState} from "./InstanceListView";
 import {ValueChangeInfo} from "../../../data/MethodCallInfo";
 import {InstanceInfo} from "../../../data/InstanceInfo";
 import {DependencyInfo} from "../../../data/DependencyInfo";
-import {com} from "backintime-websocket-event";
-import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import {com} from "backintime-tooling-model";
+import ClassInfo = com.kitakkun.backintime.tooling.model.ClassInfo;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -46,7 +45,7 @@ function resolveInstanceInfo(
     name: classInfo.classSignature,
     superClassSignature: classInfo.superClassSignature,
     uuid: instanceUUID,
-    properties: classInfo.properties.map((property) => {
+    properties: classInfo.properties.asJsReadonlyArrayView().map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
       const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)

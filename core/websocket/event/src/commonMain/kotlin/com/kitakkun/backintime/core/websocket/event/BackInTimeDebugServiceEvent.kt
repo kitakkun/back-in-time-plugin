@@ -3,7 +3,7 @@
 
 package com.kitakkun.backintime.core.websocket.event
 
-import com.kitakkun.backintime.core.websocket.event.model.PropertyInfo
+import com.kitakkun.backintime.tooling.model.PropertyInfo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport

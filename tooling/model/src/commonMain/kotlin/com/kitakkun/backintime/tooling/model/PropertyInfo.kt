@@ -1,4 +1,4 @@
-package com.kitakkun.backintime.core.websocket.event.model
+package com.kitakkun.backintime.tooling.model
 
 import kotlinx.serialization.Serializable
 import kotlin.js.ExperimentalJsExport
