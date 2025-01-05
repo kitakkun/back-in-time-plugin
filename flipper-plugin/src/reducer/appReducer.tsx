@@ -3,13 +3,16 @@ import {ClassInfo} from "../data/ClassInfo";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
 import {DependencyInfo} from "../data/DependencyInfo";
-import {com} from "backintime-websocket-event";
-import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
-import BackInTimeDebugServiceEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
-import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import * as event from "backintime-websocket-event";
+import BackInTimeDebuggerEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import BackInTimeDebugServiceEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
+import BackInTimeWebSocketEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent;
+import PropertyInfo = event.com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
 
 export interface AppState {
   activeTabIndex: string;
+
+  events: BackInTimeWebSocketEvent[];
 
   // low level data obtains from flipper connection
   classInfoList: ClassInfo[];
@@ -23,6 +26,7 @@ export interface AppState {
 
 const initialState: AppState = {
   activeTabIndex: '1',
+  events: [],
   classInfoList: [],
   instanceInfoList: [],
   methodCallInfoList: [],
@@ -34,6 +38,9 @@ const appSlice = createSlice({
   name: "app",
   initialState: initialState,
   reducers: {
+    saveEvent: (state, action: PayloadAction<BackInTimeWebSocketEvent>) => {
+      state.events.push(action.payload)
+    },
     register: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterInstance>) => {
       const event = action.payload;
       const existingInstanceInfo = state.instanceInfoList.find((info) => info.uuid == event.instanceUUID);

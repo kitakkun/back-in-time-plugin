@@ -24,6 +24,7 @@ export default (client: PluginClient<IncomingEvents, OutgoingEvents>) => {
 
   client.onMessage("appEvent", (appEvent) => {
     const eventPayload: BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.Companion.fromJsonString(appEvent.payload)
+    dispatch(appActions.saveEvent(eventPayload))
 
     if (eventPayload instanceof BackInTimeDebugServiceEvent.RegisterInstance) {
       dispatch(appActions.register(eventPayload))
@@ -73,6 +74,7 @@ function configurePluginStore(): Store {
             "app/forceSetPropertyValue",
             "app/refreshInstanceAliveStatuses",
             "app/updateInstanceAliveStatuses",
+            "app/saveEvent", 
             "rawLogInspector/open",
           ],
           ignoreState: true,
