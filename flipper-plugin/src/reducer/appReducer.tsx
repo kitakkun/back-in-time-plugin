@@ -1,13 +1,15 @@
 import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {InstanceInfo} from "../data/InstanceInfo";
 import {MethodCallInfo} from "../data/MethodCallInfo";
-import {DependencyInfo} from "../data/DependencyInfo";
 import * as event from "backintime-websocket-event";
 import * as model from "backintime-tooling-model";
 import BackInTimeDebuggerEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import BackInTimeDebugServiceEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent;
 import BackInTimeWebSocketEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent;
 import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
+import DependencyInfo = model.com.kitakkun.backintime.tooling.model.DependencyInfo;
+import {kotlin} from "backintime-tooling-model";
+import KtList = kotlin.collections.KtList;
 
 export interface AppState {
   activeTabIndex: string;
@@ -71,15 +73,13 @@ const appSlice = createSlice({
     registerRelationship: (state, action: PayloadAction<BackInTimeDebugServiceEvent.RegisterRelationship>) => {
       const existingDependencyInfo = state.dependencyInfoList.find((info) => info.uuid == action.payload.parentUUID);
       if (!existingDependencyInfo) {
-        state.dependencyInfoList.push({
-          uuid: action.payload.parentUUID,
-          dependsOn: [action.payload.childUUID],
-        });
+        state.dependencyInfoList.push(
+          new DependencyInfo(action.payload.parentUUID, KtList.fromJsArray([action.payload.childUUID]))
+        )
       } else {
-        state.dependencyInfoList.push({
-          uuid: action.payload.parentUUID,
-          dependsOn: [action.payload.childUUID, ...existingDependencyInfo.dependsOn],
-        });
+        state.dependencyInfoList.push(
+          new DependencyInfo(action.payload.parentUUID, KtList.fromJsArray([action.payload.childUUID, ...existingDependencyInfo.dependsOn.asJsReadonlyArrayView()]))
+        );
       }
     },
     registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {

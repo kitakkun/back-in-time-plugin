@@ -4,9 +4,9 @@ import {persistentStateSelector} from "../../../reducer/PersistentStateReducer";
 import {InstanceItem, InstanceListState} from "./InstanceListView";
 import {ValueChangeInfo} from "../../../data/MethodCallInfo";
 import {InstanceInfo} from "../../../data/InstanceInfo";
-import {DependencyInfo} from "../../../data/DependencyInfo";
-import {com} from "backintime-tooling-model";
-import ClassInfo = com.kitakkun.backintime.tooling.model.ClassInfo;
+import * as model from "backintime-tooling-model";
+import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
+import DependencyInfo = model.com.kitakkun.backintime.tooling.model.DependencyInfo;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -47,7 +47,7 @@ function resolveInstanceInfo(
     uuid: instanceUUID,
     properties: classInfo.properties.asJsReadonlyArrayView().map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
-      const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.map((dependingInstanceUUID) =>
+      const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.asJsReadonlyArrayView().map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)
       )?.find((info) => info?.classSignature == property.propertyType);
 
