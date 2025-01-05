@@ -53,8 +53,7 @@ function resolveInstanceInfo(
       )?.find((info) => info?.classSignature == property.propertyType);
 
       return {
-        // @ts-ignore
-        name: property.signature.split(".").at(-1).toString(),
+        name: property.name,
         signature: property.signature,
         type: property.propertyType,
         debuggable: property.debuggable,

@@ -13,4 +13,6 @@ data class PropertyInfo(
     val isDebuggableStateHolder: Boolean,
     val propertyType: String,
     val valueType: String,
-)
+) {
+    val name: String get() = signature.split(".").last()
+}
