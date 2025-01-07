@@ -1,6 +1,7 @@
 import React, {useEffect, useMemo} from "react";
-import {RawEventLog} from "../../../data/RawEventLog";
 import {createDataSource, DataSource, DataTable, DataTableColumn, Layout, theme} from "flipper-plugin";
+import {com} from "backintime-tooling-model";
+import RawEventLog = com.kitakkun.backintime.tooling.model.RawEventLog;
 
 export interface RawEventLogState {
   logs: RawEventLog[];

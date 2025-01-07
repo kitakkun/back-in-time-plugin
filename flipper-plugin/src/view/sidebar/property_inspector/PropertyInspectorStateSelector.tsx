@@ -15,13 +15,13 @@ export const propertyInspectorStateSelector = createSelector(
 
     const valueChanges = methodCallInfoList.filter((info) =>
       // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
-      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertySignature == state.propertySignature)
+      info.instanceUUID == state.instanceUUID && info.valueChanges.asJsReadonlyArrayView().some((change) => change.propertySignature == state.propertySignature)
     ).map((info) => {
       return {
         methodCallUUID: info.callUUID,
         time: info.calledAt,
         // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
-        value: [...info.valueChanges].reverse().find((change) => change.propertySignature == state.propertySignature)?.value ?? "",
+        value: [...info.valueChanges.asJsReadonlyArrayView()].reverse().find((change) => change.propertySignature == state.propertySignature)?.value ?? "",
       }
     });
 

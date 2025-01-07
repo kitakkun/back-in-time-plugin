@@ -2,11 +2,12 @@ import {classInfoListSelector, dependencyInfoListSelector, instanceInfoListSelec
 import {createSelector} from "@reduxjs/toolkit";
 import {persistentStateSelector} from "../../../reducer/PersistentStateReducer";
 import {InstanceItem, InstanceListState} from "./InstanceListView";
-import {ValueChangeInfo} from "../../../data/MethodCallInfo";
-import {InstanceInfo} from "../../../data/InstanceInfo";
 import * as model from "backintime-tooling-model";
 import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 import DependencyInfo = model.com.kitakkun.backintime.tooling.model.DependencyInfo;
+import {com} from "backintime-tooling-model";
+import InstanceInfo = com.kitakkun.backintime.tooling.model.InstanceInfo;
+import ValueChangeInfo = com.kitakkun.backintime.tooling.model.ValueChangeInfo;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -20,7 +21,7 @@ export const selectInstanceList = createSelector(
         dependencyInfoList,
         instance.classSignature,
         instance.uuid,
-        methodCallInfoList.filter((info) => info.instanceUUID == instance.uuid).flatMap((info) => info.valueChanges)),
+        methodCallInfoList.filter((info) => info.instanceUUID == instance.uuid).flatMap((info) => info.valueChanges.asJsReadonlyArrayView())),
     ).filter((instance) => instance != null) as InstanceItem[];
 
     return {

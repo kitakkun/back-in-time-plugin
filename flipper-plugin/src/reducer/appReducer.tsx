@@ -1,6 +1,4 @@
 import {createSelector, createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {InstanceInfo} from "../data/InstanceInfo";
-import {MethodCallInfo} from "../data/MethodCallInfo";
 import * as event from "backintime-websocket-event";
 import * as model from "backintime-tooling-model";
 import BackInTimeDebuggerEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
@@ -8,8 +6,11 @@ import BackInTimeDebugServiceEvent = event.com.kitakkun.backintime.core.websocke
 import BackInTimeWebSocketEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent;
 import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 import DependencyInfo = model.com.kitakkun.backintime.tooling.model.DependencyInfo;
-import {kotlin} from "backintime-tooling-model";
+import {com, kotlin} from "backintime-tooling-model";
 import KtList = kotlin.collections.KtList;
+import InstanceInfo = com.kitakkun.backintime.tooling.model.InstanceInfo;
+import MethodCallInfo = com.kitakkun.backintime.tooling.model.MethodCallInfo;
+import ValueChangeInfo = com.kitakkun.backintime.tooling.model.ValueChangeInfo;
 
 export interface AppState {
   activeTabIndex: string;
@@ -49,16 +50,12 @@ const appSlice = createSlice({
       // instance registration
       if (!existingInstanceInfo) {
         // if new instance is registered, add it to instance list
-        state.instanceInfoList.push({
-          uuid: event.instanceUUID,
-          classSignature: event.classSignature,
-          alive: true,
-          registeredAt: event.registeredAt,
-        });
+        state.instanceInfoList.push(new InstanceInfo(event.instanceUUID, event.classSignature, true, event.registeredAt));
       } else if (existingInstanceInfo.classSignature == event.superClassSignature) {
         // if instance is already registered, update its class name
         // because subclass is registered after superclass
-        existingInstanceInfo.classSignature = event.classSignature
+        const index = state.instanceInfoList.findIndex((instanceInfo) => instanceInfo == existingInstanceInfo)
+        state.instanceInfoList[index] = existingInstanceInfo.copy(undefined, event.classSignature)
       }
       // classInfo registration
       const existingClassInfo = state.classInfoList.find((info) => info.classSignature == event.classSignature);
@@ -84,22 +81,23 @@ const appSlice = createSlice({
     },
     registerMethodCall: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyMethodCall>) => {
       const event = action.payload;
-      state.methodCallInfoList.push({
-        callUUID: event.methodCallUUID,
-        instanceUUID: event.instanceUUID,
-        methodSignature: event.methodSignature,
-        calledAt: event.calledAt,
-        valueChanges: [],
-      });
+      state.methodCallInfoList.push(new MethodCallInfo(event.methodCallUUID, event.instanceUUID, event.methodSignature, event.calledAt, KtList.fromJsArray<ValueChangeInfo>([])));
     },
     registerValueChange: (state, action: PayloadAction<BackInTimeDebugServiceEvent.NotifyValueChange>) => {
       const event = action.payload;
-      const methodCallInfo = state.methodCallInfoList.find((info) => info.callUUID == event.methodCallUUID);
-      if (!methodCallInfo) return;
-      methodCallInfo.valueChanges.push({
-        propertySignature: event.propertySignature,
-        value: event.value,
-      });
+      const methodCallInfoIndex = state.methodCallInfoList.findIndex((info) => info.callUUID == event.methodCallUUID);
+      if (methodCallInfoIndex == -1) return;
+      state.methodCallInfoList[methodCallInfoIndex] = state.methodCallInfoList[methodCallInfoIndex].copy(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        KtList.fromJsArray<ValueChangeInfo>(
+          [...state.methodCallInfoList[methodCallInfoIndex].valueChanges.asJsReadonlyArrayView(),
+            new ValueChangeInfo(event.propertySignature, event.value)
+          ]
+        )
+      )
     },
     forceSetPropertyValue: (state, action: PayloadAction<BackInTimeDebuggerEvent.ForceSetPropertyValue>) => {
       state.pendingFlipperEventQueue.push(action.payload);
@@ -112,9 +110,9 @@ const appSlice = createSlice({
     },
     updateInstanceAliveStatuses: (state, action: PayloadAction<BackInTimeDebugServiceEvent.CheckInstanceAliveResult>) => {
       Object.entries(action.payload.isAlive).forEach(([instanceUUID, alive]) => {
-        const instanceInfo = state.instanceInfoList.find((info) => info.uuid == instanceUUID);
-        if (!instanceInfo) return;
-        instanceInfo.alive = alive;
+        const instanceInfoIndex = state.instanceInfoList.findIndex((info) => info.uuid == instanceUUID);
+        if (instanceInfoIndex == -1) return;
+        state.instanceInfoList[instanceInfoIndex] = state.instanceInfoList[instanceInfoIndex].copy(undefined, undefined, alive)
       });
     },
     updateActiveTabIndex: (state, action) => {

@@ -1,11 +1,11 @@
 import React from "react";
 import {Table, Typography} from "antd";
 import {EmitButton} from "./EmitButton";
-import {MethodCallInfo} from "../../../data/MethodCallInfo";
 import {ColumnsType} from "antd/lib/table";
 import {MyJsonView} from "../../component/MyJsonView";
 import {com} from "backintime-tooling-model";
 import ClassInfo = com.kitakkun.backintime.tooling.model.ClassInfo;
+import MethodCallInfo = com.kitakkun.backintime.tooling.model.MethodCallInfo;
 
 type ChangedPropertiesViewProps = {
   classInfo: ClassInfo;
@@ -21,7 +21,7 @@ type ValueChangeItem = {
 }
 
 export function ChangedPropertiesView({classInfo, methodCallInfo, onClickEmitValue, onClickEditAndEmitValue}: ChangedPropertiesViewProps) {
-  const dataSource: ValueChangeItem[] = methodCallInfo.valueChanges.map((valueChange) => {
+  const dataSource: ValueChangeItem[] = methodCallInfo.valueChanges.asJsReadonlyArrayView().map((valueChange) => {
     // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
     const property = classInfo.properties.asJsReadonlyArrayView().find((property) => property.signature === valueChange.propertySignature)!;
     const jsonValue = JSON.parse(valueChange.value);

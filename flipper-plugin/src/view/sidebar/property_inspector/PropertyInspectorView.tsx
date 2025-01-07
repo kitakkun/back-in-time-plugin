@@ -3,9 +3,9 @@ import {InstanceDescriptionsView} from "./InstanceDescriptionsView";
 import {PropertyDescriptionsView} from "./PropertyDescriptionsView";
 import {PropertyValueChangesView} from "./PropertyValueChangesView";
 import {Layout, theme} from "flipper-plugin";
-import {InstanceInfo} from "../../../data/InstanceInfo";
 import {com} from "backintime-tooling-model";
 import PropertyInfo = com.kitakkun.backintime.tooling.model.PropertyInfo;
+import InstanceInfo = com.kitakkun.backintime.tooling.model.InstanceInfo;
 
 export interface ValueChangeInfo {
   methodCallUUID: string;

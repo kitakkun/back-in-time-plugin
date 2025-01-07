@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RawLogInspectorState} from "./RawLogInspectorView";
-import {RawEventLog} from "../../../data/RawEventLog";
+import {com} from "backintime-tooling-model";
+import RawEventLog = com.kitakkun.backintime.tooling.model.RawEventLog;
 
 const initialState: RawLogInspectorState = {
   selectedLog: null,

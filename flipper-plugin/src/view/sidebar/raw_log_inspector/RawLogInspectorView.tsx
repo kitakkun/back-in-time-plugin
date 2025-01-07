@@ -1,7 +1,8 @@
 import React from "react";
-import {RawEventLog} from "../../../data/RawEventLog";
 import {Typography} from "antd";
 import {DataInspector, Layout, theme} from "flipper-plugin";
+import {com} from "backintime-tooling-model";
+import RawEventLog = com.kitakkun.backintime.tooling.model.RawEventLog;
 
 export interface RawLogInspectorState {
   selectedLog: RawEventLog | null;
