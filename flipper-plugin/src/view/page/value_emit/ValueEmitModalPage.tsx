@@ -34,7 +34,7 @@ export function ValueEmitModalPage() {
               return;
             }
             const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);
-            dispatch(appActions.forceSetPropertyValue(event));
+            dispatch(appActions.processEvent(event));
           }}
           onEditAndEmitValue={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;

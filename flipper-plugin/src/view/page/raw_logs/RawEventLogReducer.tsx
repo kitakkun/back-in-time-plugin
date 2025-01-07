@@ -14,20 +14,8 @@ const rawEventLogSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(appActions.register, (state, action) => {
+      .addCase(appActions.processEvent, (state, action) => {
         state.logs.push(new RawEventLog(crypto.randomUUID().toString(), new Date().toUTCString(), "register", action.payload));
-      })
-      .addCase(appActions.registerRelationship, (state, action) => {
-        state.logs.push(new RawEventLog(crypto.randomUUID().toString(), new Date().toUTCString(), "registerRelationship", action.payload));
-      })
-      .addCase(appActions.updateInstanceAliveStatuses, (state, action) => {
-        state.logs.push(new RawEventLog(crypto.randomUUID().toString(), new Date().toUTCString(), "updateInstanceAliveStatus", action.payload));
-      })
-      .addCase(appActions.registerValueChange, (state, action) => {
-        state.logs.push(new RawEventLog(crypto.randomUUID().toString(), new Date().toUTCString(), "notifyValueChange", action.payload));
-      })
-      .addCase(appActions.registerMethodCall, (state, action) => {
-        state.logs.push(new RawEventLog(crypto.randomUUID().toString(), new Date().toUTCString(), "notifyMethodCall", action.payload));
       });
   }
 });
