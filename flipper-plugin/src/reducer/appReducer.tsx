@@ -55,7 +55,7 @@ const appSlice = createSlice({
         // if instance is already registered, update its class name
         // because subclass is registered after superclass
         const index = state.instanceInfoList.findIndex((instanceInfo) => instanceInfo == existingInstanceInfo)
-        state.instanceInfoList[index] = existingInstanceInfo.copy(undefined, event.classSignature)
+        state.instanceInfoList[index] = existingInstanceInfo.copyWithUpdatingClassSignature(event.classSignature)
       }
       // classInfo registration
       const existingClassInfo = state.classInfoList.find((info) => info.classSignature == event.classSignature);
@@ -87,17 +87,7 @@ const appSlice = createSlice({
       const event = action.payload;
       const methodCallInfoIndex = state.methodCallInfoList.findIndex((info) => info.callUUID == event.methodCallUUID);
       if (methodCallInfoIndex == -1) return;
-      state.methodCallInfoList[methodCallInfoIndex] = state.methodCallInfoList[methodCallInfoIndex].copy(
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        KtList.fromJsArray<ValueChangeInfo>(
-          [...state.methodCallInfoList[methodCallInfoIndex].valueChanges.asJsReadonlyArrayView(),
-            new ValueChangeInfo(event.propertySignature, event.value)
-          ]
-        )
-      )
+      state.methodCallInfoList[methodCallInfoIndex] = state.methodCallInfoList[methodCallInfoIndex].copyWithAppendingNewValueChangeInfo(new ValueChangeInfo(event.propertySignature, event.value))
     },
     forceSetPropertyValue: (state, action: PayloadAction<BackInTimeDebuggerEvent.ForceSetPropertyValue>) => {
       state.pendingFlipperEventQueue.push(action.payload);
@@ -112,7 +102,7 @@ const appSlice = createSlice({
       Object.entries(action.payload.isAlive).forEach(([instanceUUID, alive]) => {
         const instanceInfoIndex = state.instanceInfoList.findIndex((info) => info.uuid == instanceUUID);
         if (instanceInfoIndex == -1) return;
-        state.instanceInfoList[instanceInfoIndex] = state.instanceInfoList[instanceInfoIndex].copy(undefined, undefined, alive)
+        state.instanceInfoList[instanceInfoIndex] = state.instanceInfoList[instanceInfoIndex].copyWithUpdatingAlive(alive)
       });
     },
     updateActiveTabIndex: (state, action) => {

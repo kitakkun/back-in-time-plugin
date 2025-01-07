@@ -11,7 +11,10 @@ data class MethodCallInfo(
     val methodSignature: String,
     val calledAt: Int,
     val valueChanges: List<ValueChangeInfo>,
-)
+) {
+    @Suppress("UNUSED")
+    fun copyWithAppendingNewValueChangeInfo(valueChangeInfo: ValueChangeInfo) = copy(valueChanges = this.valueChanges + valueChangeInfo)
+}
 
 @OptIn(ExperimentalJsExport::class)
 @JsExport
