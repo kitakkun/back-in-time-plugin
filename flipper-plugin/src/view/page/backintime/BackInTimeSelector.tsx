@@ -32,7 +32,7 @@ export const backInTimeStateSelector = createSelector(
           timestamp: info.calledAt,
           subtitle: info.methodSignature,
           description: info.valueChanges.asJsReadonlyArrayView().map((change) => `${change.propertySignature} = ${change.value}`).join(", "),
-          valueChanges: info.valueChanges,
+          valueChanges: info.valueChanges.asJsReadonlyArrayView(),
         } as HistoryInfo;
       });
 
