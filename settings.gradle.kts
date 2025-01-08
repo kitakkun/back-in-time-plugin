@@ -27,4 +27,5 @@ include(
     ":core:websocket:event",
     ":tooling:model",
     ":tooling:flipper-lib",
+    ":tooling:idea-plugin",
 )

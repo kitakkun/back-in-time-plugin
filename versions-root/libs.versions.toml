@@ -36,6 +36,7 @@ maven-publish = "0.30.0"
 
 kaml = "0.67.0"
 kotlin-react = "2025.1.2-19.0.0"
+intelliJPlatform = "2.2.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -120,3 +121,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 javaGradlePlugin = { id = "java-gradle-plugin" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
