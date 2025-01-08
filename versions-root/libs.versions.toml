@@ -37,6 +37,8 @@ maven-publish = "0.30.0"
 kaml = "0.67.0"
 kotlin-react = "2025.1.2-19.0.0"
 intelliJPlatform = "2.2.0"
+jetbrainsCompose = "1.7.3"
+jewel = "0.27.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -103,6 +105,8 @@ maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-react" }
 
+jewel = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-243", version.ref = "jewel" }
+
 [plugins]
 # convention
 backintimeLint = { id = "backintime-lint", version = "unspecified" }
@@ -122,3 +126,4 @@ javaGradlePlugin = { id = "java-gradle-plugin" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
