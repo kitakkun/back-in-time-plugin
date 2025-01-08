@@ -1,0 +1,7 @@
+<idea-plugin>
+    <id>com.kitakkun.backintime.tooling.idea</id>
+    <name>Back-in-Time</name>
+    <vendor>kitakkun</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+</idea-plugin>
