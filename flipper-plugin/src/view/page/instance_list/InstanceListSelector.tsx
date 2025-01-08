@@ -1,13 +1,16 @@
 import {classInfoListSelector, dependencyInfoListSelector, instanceInfoListSelector, methodCallInfoListSelector} from "../../../reducer/appReducer";
 import {createSelector} from "@reduxjs/toolkit";
 import {persistentStateSelector} from "../../../reducer/PersistentStateReducer";
-import {InstanceItem, InstanceListState} from "./InstanceListView";
 import * as model from "backintime-tooling-model";
 import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 import DependencyInfo = model.com.kitakkun.backintime.tooling.model.DependencyInfo;
-import {com} from "backintime-tooling-model";
+import {com, kotlin} from "backintime-tooling-model";
 import InstanceInfo = com.kitakkun.backintime.tooling.model.InstanceInfo;
 import ValueChangeInfo = com.kitakkun.backintime.tooling.model.ValueChangeInfo;
+import InstanceItem = com.kitakkun.backintime.tooling.model.ui.InstanceItem;
+import InstanceListState = com.kitakkun.backintime.tooling.model.ui.InstanceListState;
+import KtList = kotlin.collections.KtList;
+import PropertyItem = com.kitakkun.backintime.tooling.model.ui.PropertyItem;
 
 export const selectInstanceList = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, persistentStateSelector, dependencyInfoListSelector],
@@ -24,10 +27,7 @@ export const selectInstanceList = createSelector(
         methodCallInfoList.filter((info) => info.instanceUUID == instance.uuid).flatMap((info) => info.valueChanges.asJsReadonlyArrayView())),
     ).filter((instance) => instance != null) as InstanceItem[];
 
-    return {
-      instances: instances,
-      showNonDebuggableProperty: persistentState.showNonDebuggableProperty,
-    };
+    return new InstanceListState(KtList.fromJsArray(instances), persistentState.showNonDebuggableProperty);
   }
 );
 
@@ -42,23 +42,23 @@ function resolveInstanceInfo(
   const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return;
   const superTypeInfo = resolveInstanceInfo(classInfoList, instanceInfoList, dependencyInfoList, classInfo.superClassSignature, instanceUUID, allValueChangeEvents);
-  return {
-    name: classInfo.classSignature,
-    superClassSignature: classInfo.superClassSignature,
-    uuid: instanceUUID,
-    properties: classInfo.properties.asJsReadonlyArrayView().map((property) => {
+  return new InstanceItem( 
+    classInfo.classSignature,
+    classInfo.superClassSignature,
+    instanceUUID,
+    KtList.fromJsArray(classInfo.properties.asJsReadonlyArrayView().map((property) => {
       const dependingInstanceUUIDs = dependencyInfoList.find((info) => info.uuid == instanceUUID);
       const propertyInstanceInfo = dependingInstanceUUIDs?.dependsOn?.asJsReadonlyArrayView().map((dependingInstanceUUID) =>
         instanceInfoList.find((info) => info.uuid == dependingInstanceUUID)
       )?.find((info) => info?.classSignature == property.propertyType);
 
-      return {
-        name: property.name,
-        signature: property.signature,
-        type: property.propertyType,
-        debuggable: property.debuggable,
-        eventCount: allValueChangeEvents.filter((event) => event.propertySignature == property.signature).length,
-        stateHolderInstance: propertyInstanceInfo && resolveInstanceInfo(
+      return new PropertyItem(
+        property.name,
+        property.signature,
+        property.propertyType,
+        property.debuggable,
+        allValueChangeEvents.filter((event) => event.propertySignature == property.signature).length,
+        propertyInstanceInfo && resolveInstanceInfo(
           classInfoList,
           instanceInfoList,
           dependencyInfoList,
@@ -66,8 +66,8 @@ function resolveInstanceInfo(
           propertyInstanceInfo?.uuid,
           allValueChangeEvents,
         ),
-      };
-    }),
-    superInstanceItem: superTypeInfo,
-  };
+      )
+    })),
+    superTypeInfo,
+  )
 }

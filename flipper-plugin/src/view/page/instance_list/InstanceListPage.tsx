@@ -25,7 +25,7 @@ export function InstanceListPage() {
         }))
       }}
       onClickRefresh={() => {
-        const uuids = state.instances.map((info) => info.uuid);
+        const uuids = state.instances.asJsReadonlyArrayView().map((info) => info.uuid);
         if (uuids.length == 0) return;
         dispatch(appActions.processEvent(createCheckInstanceAliveEvent(uuids)));
       }}

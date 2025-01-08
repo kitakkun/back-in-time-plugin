@@ -3,13 +3,15 @@ import React, {useMemo} from "react";
 import {styled, theme} from "flipper-plugin";
 import {Badge, Button, Col, Row, Tree, TreeDataNode, Typography} from "antd";
 import {StateHolderType} from "./StateHolderType";
-import {InstanceItem, PropertyItem} from "./InstanceListView";
 import {RiInstanceFill, RiInstanceLine} from "react-icons/ri";
 import {Box} from "@mui/material";
 import {History} from "@mui/icons-material";
+import {com} from "backintime-tooling-model";
+import InstanceItem = com.kitakkun.backintime.tooling.model.ui.InstanceItem;
+import PropertyItem = com.kitakkun.backintime.tooling.model.ui.PropertyItem;
 
 interface InstanceTreeViewProps {
-  instances: InstanceItem[];
+  instances: readonly InstanceItem[];
   showNonDebuggableProperty: boolean;
   onSelectProperty: (instanceUUID: string, propertySignature: string) => void;
   onClickHistory: (instanceUUID: string) => void;
@@ -130,7 +132,7 @@ function instanceItemToTreeDataNode(
   key: string = instance.uuid,
   instanceAsProperty?: PropertyItem,
 ): InstanceTreeDataNode {
-  const filteredProperties = instance.properties.filter((property) => showNonDebuggableProperty || property.debuggable);
+  const filteredProperties = instance.properties.asJsReadonlyArrayView().filter((property) => showNonDebuggableProperty || property.debuggable);
 
   const stateHolderPropertyNodes = filteredProperties
     .filter((property) => property.stateHolderInstance)
