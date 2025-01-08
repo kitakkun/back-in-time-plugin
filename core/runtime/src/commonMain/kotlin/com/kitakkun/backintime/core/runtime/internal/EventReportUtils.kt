@@ -6,7 +6,7 @@ import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 import com.kitakkun.backintime.core.runtime.backInTimeJson
 import com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.kitakkun.backintime.core.runtime.getBackInTimeDebugService
-import com.kitakkun.backintime.core.websocket.event.model.PropertyInfo
+import com.kitakkun.backintime.tooling.model.PropertyInfo
 import kotlinx.serialization.encodeToString
 
 @BackInTimeCompilerInternalApi

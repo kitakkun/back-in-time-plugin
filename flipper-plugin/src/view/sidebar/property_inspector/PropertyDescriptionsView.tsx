@@ -1,7 +1,7 @@
 import {Descriptions, Table, Typography} from "antd";
 import React from "react";
-import {com} from "backintime-websocket-event";
-import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import {com} from "backintime-tooling-model";
+import PropertyInfo = com.kitakkun.backintime.tooling.model.PropertyInfo;
 
 type PropertyInfoTableProps = {
   propertyInfo: PropertyInfo;

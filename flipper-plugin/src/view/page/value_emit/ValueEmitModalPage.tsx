@@ -28,17 +28,17 @@ export function ValueEmitModalPage() {
           state={state}
           onValueEmit={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
-            const valueType = state.classInfo?.properties.find((property) => property.signature == propertySignature)?.valueType;
+            const valueType = state.classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == propertySignature)?.valueType;
             const classSignature = state.classInfo?.classSignature
             if (!instanceUUID || !valueType || !classSignature) {
               return;
             }
             const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);
-            dispatch(appActions.forceSetPropertyValue(event));
+            dispatch(appActions.processEvent(event));
           }}
           onEditAndEmitValue={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
-            const valueType = state.classInfo?.properties.find((property) => property.signature == propertySignature)?.valueType;
+            const valueType = state.classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == propertySignature)?.valueType;
             if (!instanceUUID || !valueType) {
               return;
             }

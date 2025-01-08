@@ -24,7 +24,7 @@ export function EditAndEmitValueModalPage() {
         state.propertySignature,
         JSON.stringify(state.editingValue),
       );
-      dispatch(appActions.forceSetPropertyValue(event));
+      dispatch(appActions.processEvent(event));
       dispatch(editAndEmitValueActions.close());
     }}
     onCancel={() => dispatch(editAndEmitValueActions.close())}

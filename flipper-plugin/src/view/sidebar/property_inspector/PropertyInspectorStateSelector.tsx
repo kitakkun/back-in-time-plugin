@@ -2,9 +2,9 @@ import {createSelector} from "@reduxjs/toolkit";
 import {classInfoListSelector, instanceInfoListSelector, methodCallInfoListSelector} from "../../../reducer/appReducer";
 import {PropertyInspectorState} from "./PropertyInspectorView";
 import {propertyInspectorReducerStateSelector} from "./propertyInspectorReducer";
-import {ClassInfo} from "../../../data/ClassInfo";
-import {com} from "backintime-websocket-event";
-import PropertyInfo = com.kitakkun.backintime.core.websocket.event.model.PropertyInfo;
+import * as model from "backintime-tooling-model";
+import PropertyInfo = model.com.kitakkun.backintime.tooling.model.PropertyInfo;
+import ClassInfo = model.com.kitakkun.backintime.tooling.model.ClassInfo;
 
 export const propertyInspectorStateSelector = createSelector(
   [instanceInfoListSelector, classInfoListSelector, methodCallInfoListSelector, propertyInspectorReducerStateSelector],
@@ -15,13 +15,13 @@ export const propertyInspectorStateSelector = createSelector(
 
     const valueChanges = methodCallInfoList.filter((info) =>
       // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
-      info.instanceUUID == state.instanceUUID && info.valueChanges.some((change) => change.propertySignature == state.propertySignature)
+      info.instanceUUID == state.instanceUUID && info.valueChanges.asJsReadonlyArrayView().some((change) => change.propertySignature == state.propertySignature)
     ).map((info) => {
       return {
         methodCallUUID: info.callUUID,
         time: info.calledAt,
         // FIXME: will not work correctly for the class which has a back-in-time debuggable class as a super class.
-        value: [...info.valueChanges].reverse().find((change) => change.propertySignature == state.propertySignature)?.value ?? "",
+        value: [...info.valueChanges.asJsReadonlyArrayView()].reverse().find((change) => change.propertySignature == state.propertySignature)?.value ?? "",
       }
     });
 
@@ -37,7 +37,7 @@ function getPropertiesRecursively(classInfoList: ClassInfo[], classSignature: st
   const classInfo = classInfoList.find((info) => info.classSignature == classSignature);
   if (!classInfo) return [];
   return [
-    ...classInfo.properties,
+    ...classInfo.properties.asJsReadonlyArrayView(),
     ...getPropertiesRecursively(classInfoList, classInfo.superClassSignature)
   ];
 }

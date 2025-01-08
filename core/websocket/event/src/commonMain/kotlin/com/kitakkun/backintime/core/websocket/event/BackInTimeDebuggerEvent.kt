@@ -13,7 +13,7 @@ import kotlin.js.JsExport
  * events from debugger to debugService
  */
 @Serializable
-sealed class BackInTimeDebuggerEvent {
+sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
     @Serializable
     data object Ping : BackInTimeDebuggerEvent()
 

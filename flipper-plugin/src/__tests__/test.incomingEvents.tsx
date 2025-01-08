@@ -2,7 +2,6 @@ import {TestUtils} from 'flipper-plugin';
 import * as Plugin from '..';
 import {InstanceInfo} from "../data/InstanceInfo";
 import {AppState} from "../reducer/appReducer";
-import {ClassInfo} from "../data/ClassInfo";
 
 test(`register event`, () => {
   const {instance, sendEvent} = TestUtils.startPlugin(Plugin);
@@ -45,24 +44,18 @@ test(`register event`, () => {
     registeredAt: 1619813420,
   } as InstanceInfo);
 
-  expect(state.classInfoList[0]).toEqual({
-    classSignature: "com/example/DummyViewModel",
-    superClassSignature: "unknown",
-    properties: [
-      {
-        signature: "com/example/DummyViewModel.hoge",
-        debuggable: true,
-        isDebuggableStateHolder: false,
-        propertyType: "kotlin/String",
-        valueType: "kotlin/String"
-      },
-      {
-        signature: "com/example/DummyViewModel.fuga",
-        debuggable: false,
-        isDebuggableStateHolder: false,
-        propertyType: "kotlin/String",
-        valueType: "kotlin/String"
-      }
-    ]
-  } as ClassInfo);
+  expect(state.classInfoList[0].classSignature).toEqual("com/example/DummyViewModel")
+  expect(state.classInfoList[0].superClassSignature).toEqual("unknown")
+  const firstProp = state.classInfoList[0].properties.asJsReadonlyArrayView()[0]
+  const secondProp = state.classInfoList[0].properties.asJsReadonlyArrayView()[1]
+  expect(firstProp.signature).toEqual("com/example/DummyViewModel.hoge")
+  expect(firstProp.debuggable).toEqual(true)
+  expect(firstProp.isDebuggableStateHolder).toEqual(false)
+  expect(firstProp.propertyType).toEqual("kotlin/String")
+  expect(firstProp.valueType).toEqual("kotlin/String")
+  expect(secondProp.signature).toEqual("com/example/DummyViewModel.fuga")
+  expect(secondProp.debuggable).toEqual(false)
+  expect(secondProp.isDebuggableStateHolder).toEqual(false)
+  expect(secondProp.propertyType).toEqual("kotlin/String")
+  expect(secondProp.valueType).toEqual("kotlin/String")
 });

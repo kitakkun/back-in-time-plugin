@@ -24,18 +24,7 @@ export default (client: PluginClient<IncomingEvents, OutgoingEvents>) => {
 
   client.onMessage("appEvent", (appEvent) => {
     const eventPayload: BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.Companion.fromJsonString(appEvent.payload)
-
-    if (eventPayload instanceof BackInTimeDebugServiceEvent.RegisterInstance) {
-      dispatch(appActions.register(eventPayload))
-    } else if (eventPayload instanceof BackInTimeDebugServiceEvent.NotifyMethodCall) {
-      dispatch(appActions.registerMethodCall(eventPayload))
-    } else if (eventPayload instanceof BackInTimeDebugServiceEvent.NotifyValueChange) {
-      dispatch(appActions.registerValueChange(eventPayload))
-    } else if (eventPayload instanceof BackInTimeDebugServiceEvent.RegisterRelationship) {
-      dispatch(appActions.registerRelationship(eventPayload))
-    } else if (eventPayload instanceof BackInTimeDebugServiceEvent.CheckInstanceAliveResult) {
-      dispatch(appActions.updateInstanceAliveStatuses(eventPayload))
-    }
+    dispatch(appActions.processEvent(eventPayload))
   })
 
   store.subscribe(() => {
@@ -66,13 +55,7 @@ function configurePluginStore(): Store {
       getDefaultMiddleware({
         serializableCheck: {
           ignoredActions: [
-            "app/register",
-            "app/registerRelationship",
-            "app/registerMethodCall",
-            "app/registerValueChange",
-            "app/forceSetPropertyValue",
-            "app/refreshInstanceAliveStatuses",
-            "app/updateInstanceAliveStatuses",
+            "app/processEvent", 
             "rawLogInspector/open",
           ],
           ignoreState: true,

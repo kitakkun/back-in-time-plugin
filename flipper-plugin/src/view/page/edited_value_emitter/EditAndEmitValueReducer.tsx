@@ -53,7 +53,7 @@ export const editAndEmitValueStateSelector = createSelector(
   (state, classInfoList, instanceInfoList) => {
     const instanceInfo = instanceInfoList.find((info) => info.uuid == state.instanceUUID);
     const classInfo = classInfoList.find((info) => info.classSignature == instanceInfo?.classSignature);
-    const valueType = classInfo?.properties.find((property) => property.signature == state.propertySignature)?.valueType;
+    const valueType = classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == state.propertySignature)?.valueType;
 
     return {
       ...state,

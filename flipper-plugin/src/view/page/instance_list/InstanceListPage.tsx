@@ -27,7 +27,7 @@ export function InstanceListPage() {
       onClickRefresh={() => {
         const uuids = state.instances.map((info) => info.uuid);
         if (uuids.length == 0) return;
-        dispatch(appActions.refreshInstanceAliveStatuses(createCheckInstanceAliveEvent(uuids)));
+        dispatch(appActions.processEvent(createCheckInstanceAliveEvent(uuids)));
       }}
       onChangeNonDebuggablePropertyVisible={(visible) => {
         dispatch(persistentStateActions().updateNonDebuggablePropertyVisibility(visible));

@@ -16,6 +16,7 @@ kotlin {
                 implementation(projects.core.annotations)
                 implementation(projects.core.websocket.server)
                 implementation(projects.core.websocket.event)
+                implementation(projects.tooling.model)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
             }

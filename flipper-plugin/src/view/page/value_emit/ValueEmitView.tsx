@@ -2,9 +2,10 @@ import {ChangedPropertiesView} from "./ChangedPropertiesView";
 import React from "react";
 import {Layout, theme} from "flipper-plugin";
 import {MethodCallInfoView} from "./MethodCallInfoView";
-import {InstanceInfo} from "../../../data/InstanceInfo";
-import {MethodCallInfo} from "../../../data/MethodCallInfo";
-import {ClassInfo} from "../../../data/ClassInfo";
+import {com} from "backintime-tooling-model";
+import ClassInfo = com.kitakkun.backintime.tooling.model.ClassInfo;
+import InstanceInfo = com.kitakkun.backintime.tooling.model.InstanceInfo;
+import MethodCallInfo = com.kitakkun.backintime.tooling.model.MethodCallInfo;
 
 type ValueEmitViewProps = {
   state: ValueEmitState,

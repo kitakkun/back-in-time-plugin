@@ -41,7 +41,7 @@ class BackInTimePluginContext(
     /**
      * Used in [com.kitakkun.backintime.compiler.backend.transformer.BackInTimeDebuggableConstructorTransformer]
      */
-    val propertyInfoClass by lazy { backintimeIrClassSymbol(name = "PropertyInfo", subpackage = "core.websocket.event.model") }
+    val propertyInfoClass by lazy { backintimeIrClassSymbol(name = "PropertyInfo", subpackage = "tooling.model") }
     val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction by lazy { namedFunction("kotlin.collections", "listOf") { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg } }
 

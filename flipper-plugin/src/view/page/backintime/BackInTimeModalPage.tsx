@@ -41,7 +41,7 @@ export function BackInTimeModalPage() {
                     info.propertySignature,
                     info.value,
                   );
-                  dispatch(appActions.forceSetPropertyValue(event));
+                  dispatch(appActions.processEvent(event));
                 });
               },
             })
