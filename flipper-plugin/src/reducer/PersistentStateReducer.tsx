@@ -1,9 +1,7 @@
 import {createSlice, PayloadAction, Slice} from "@reduxjs/toolkit";
 import {Atom} from "flipper-plugin";
-
-interface PersistentState {
-  showNonDebuggableProperty: boolean;
-}
+import {com} from "backintime-tooling-model";
+import PersistentState = com.kitakkun.backintime.tooling.model.ui.PersistentState;
 
 export interface AtomicPersistentState {
   showNonDebuggableProperty: Atom<boolean>;
@@ -16,9 +14,7 @@ export function initPersistentStateSlice(initialState: AtomicPersistentState) {
   persistentState = initialState;
   sliceInstance = createSlice({
     name: "persistentState",
-    initialState: {
-      showNonDebuggableProperty: persistentState.showNonDebuggableProperty.get(),
-    },
+    initialState: new PersistentState(persistentState.showNonDebuggableProperty.get()),
     reducers: {
       updateNonDebuggablePropertyVisibility: (state, action: PayloadAction<boolean>) => {
         state.showNonDebuggableProperty = action.payload;
