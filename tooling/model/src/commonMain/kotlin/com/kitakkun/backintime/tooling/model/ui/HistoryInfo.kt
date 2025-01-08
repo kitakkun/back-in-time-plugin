@@ -1,10 +1,8 @@
-@file:OptIn(ExperimentalJsExport::class)
 @file:JsExport
 
 package com.kitakkun.backintime.tooling.model.ui
 
 import com.kitakkun.backintime.tooling.model.ValueChangeInfo
-import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
 sealed class HistoryInfo {

@@ -23,6 +23,10 @@ kotlin {
     sourceSets.commonMain.dependencies {
         implementation(libs.kotlinx.serialization.json)
     }
+
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.js.ExperimentalJsExport")
+    }
 }
 
 backintimePublication {
