@@ -5,6 +5,7 @@ package com.kitakkun.backintime.tooling.model.ui
 import com.kitakkun.backintime.tooling.model.ValueChangeInfo
 import kotlin.js.JsExport
 
+@JsExport
 sealed class HistoryInfo {
     abstract val title: String
     abstract val subtitle: String

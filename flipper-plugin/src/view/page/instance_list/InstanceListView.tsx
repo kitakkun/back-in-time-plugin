@@ -3,7 +3,7 @@ import {Button, Switch} from "antd";
 import {ReloadOutlined} from "@ant-design/icons";
 import {Layout, theme} from "flipper-plugin";
 import {InstanceTreeView} from "./InstanceTreeView";
-import {com} from "backintime-tooling-model";
+import {com} from "backintime-flipper-lib";
 import InstanceListState = com.kitakkun.backintime.tooling.model.ui.InstanceListState;
 
 type InstanceListProps = {

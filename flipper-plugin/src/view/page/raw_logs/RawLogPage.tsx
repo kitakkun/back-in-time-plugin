@@ -1,15 +1,15 @@
 import React from "react";
-import {useDispatch, useSelector} from "react-redux";
 import {RawLogView} from "./RawLogView";
-import {rawEventLogStateSelector} from "./RawEventLogReducer";
-import {rawLogInspectorActions} from "../../sidebar/raw_log_inspector/RawLogInspectorReducer";
+import {com} from "backintime-flipper-lib";
+import selectRawLogState = com.kitakkun.backintime.tooling.flipper.selector.selectRawLogState;
 
 export default function RawLogPage() {
-  const state = useSelector(rawEventLogStateSelector);
-  const dispatch = useDispatch();
+  const state = selectRawLogState()
 
   return <RawLogView
     state={state}
-    onSelectLog={(log) => dispatch(rawLogInspectorActions.open(log))}
+    onSelectLog={() => {
+    }}
+    // onSelectLog={(log) => dispatch(rawLogInspectorActions.open(log))}
   />;
 }

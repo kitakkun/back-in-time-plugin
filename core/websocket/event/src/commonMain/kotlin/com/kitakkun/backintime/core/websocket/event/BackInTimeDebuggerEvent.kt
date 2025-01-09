@@ -12,6 +12,7 @@ import kotlin.js.JsExport
 /**
  * events from debugger to debugService
  */
+@JsExport
 @Serializable
 sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
     @Serializable

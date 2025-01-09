@@ -3,7 +3,7 @@ import {Table, Typography} from "antd";
 import {EmitButton} from "./EmitButton";
 import {ColumnsType} from "antd/lib/table";
 import {MyJsonView} from "../../component/MyJsonView";
-import {com} from "backintime-tooling-model";
+import {com} from "backintime-flipper-lib";
 import ClassInfo = com.kitakkun.backintime.tooling.model.ClassInfo;
 import MethodCallInfo = com.kitakkun.backintime.tooling.model.MethodCallInfo;
 

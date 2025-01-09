@@ -1,4 +1,4 @@
-import {Descriptions, Table, Typography} from "antd";
+import {Descriptions} from "antd";
 import React from "react";
 import {com} from "backintime-tooling-model";
 import PropertyInfo = com.kitakkun.backintime.tooling.model.PropertyInfo;

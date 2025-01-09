@@ -1,9 +1,10 @@
 import {Table, Typography} from "antd";
 import React from "react";
-import {ValueChangeInfo} from "./PropertyInspectorView";
+import {com} from "backintime-flipper-lib";
+import ValueChangeInfo = com.kitakkun.backintime.tooling.model.ui.ValueChangeInfo;
 
 type PropertyValueChangeTableProps = {
-  valueChanges: ValueChangeInfo[];
+  valueChanges: readonly ValueChangeInfo[];
   onClickRow: (methodCallUUID: string) => void;
 }
 

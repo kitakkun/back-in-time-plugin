@@ -1,27 +1,29 @@
 import {Modal} from "antd";
 import React from "react";
-import {useDispatch, useSelector} from "react-redux";
 import {BackInTimeView} from "./BackInTimeView";
-import {backInTimeStateSelector} from "./BackInTimeSelector";
-import {appActions} from "../../../reducer/appReducer";
-import {backInTimeActions} from "./BackInTimeReducer";
-import * as event from "backintime-websocket-event";
 import * as model from "backintime-tooling-model";
-import BackInTimeDebuggerEvent = event.com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import MethodCallHistoryInfo = model.com.kitakkun.backintime.tooling.model.ui.HistoryInfo.MethodCallHistoryInfo;
+import {com} from "backintime-flipper-lib";
+import selectBackInTimeState = com.kitakkun.backintime.tooling.flipper.selector.selectBackInTimeState;
+import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
 
-export function BackInTimeModalPage() {
-  const state = useSelector(backInTimeStateSelector);
-  const dispatch = useDispatch();
+interface BackInTimeModalPageProps {
+  instanceId: string
+  onDismissRequest: () => void
+}
+
+export function BackInTimeModalPage(props: BackInTimeModalPageProps) {
+  const state = selectBackInTimeState(true, props.instanceId)
 
   return (
     <>
       <Modal
-        open={state.open}
+        open={true}
         centered={true}
         title={"History Viewer"}
         width={"80%"}
-        onCancel={() => dispatch(backInTimeActions.close())}
+        onCancel={props.onDismissRequest}
         footer={null}
       >
         <BackInTimeView
@@ -31,7 +33,7 @@ export function BackInTimeModalPage() {
               centered: true,
               content: "Are you sure to go back in time here?",
               onOk: () => {
-                const methodCallHistories = state.histories.slice(0, index + 1)
+                const methodCallHistories = state.histories.asJsReadonlyArrayView().slice(0, index + 1)
                   .filter((history) => history instanceof MethodCallHistoryInfo)
                   .map((history) => history as MethodCallHistoryInfo);
                 const allValueChanges = methodCallHistories.flatMap((history) => history.valueChanges.asJsReadonlyArrayView());
@@ -42,7 +44,7 @@ export function BackInTimeModalPage() {
                     info.propertySignature,
                     info.value,
                   );
-                  dispatch(appActions.processEvent(event));
+                  FlipperAppStateOwner.postDebuggerEvent(event)
                 });
               },
             })

@@ -6,7 +6,7 @@ import {StateHolderType} from "./StateHolderType";
 import {RiInstanceFill, RiInstanceLine} from "react-icons/ri";
 import {Box} from "@mui/material";
 import {History} from "@mui/icons-material";
-import {com} from "backintime-tooling-model";
+import {com} from "backintime-flipper-lib";
 import InstanceItem = com.kitakkun.backintime.tooling.model.ui.InstanceItem;
 import PropertyItem = com.kitakkun.backintime.tooling.model.ui.PropertyItem;
 

@@ -1,17 +1,26 @@
 import {DetailSidebar} from "flipper-plugin";
 import React from "react";
-import {useSelector} from "react-redux";
 import {PropertyInspectorPage} from "./property_inspector/PropertyInspectorPage";
 import {RawLogInspectorPage} from "./raw_log_inspector/RawLogInspectorPage";
-import {appStateSelector} from "../../reducer/appReducer";
+import {com} from "backintime-flipper-lib";
+import selectInstanceTabState = com.kitakkun.backintime.tooling.flipper.selector.selectInstanceTabState;
+import selectLogTabState = com.kitakkun.backintime.tooling.flipper.selector.selectLogTabState;
 
 export function BackInTimeSideBar() {
-  const appState = useSelector(appStateSelector);
-
+  const instanceTabState = selectInstanceTabState()
+  const logTabState = selectLogTabState()
+  
   return (
     <DetailSidebar>
-      {appState.activeTabIndex == '1' && <PropertyInspectorPage/>}
-      {appState.activeTabIndex == '2' && <RawLogInspectorPage/>}
+      {instanceTabState &&
+          instanceTabState.selectedInstanceId &&
+          instanceTabState.selectedPropertyId &&
+          <PropertyInspectorPage
+              instanceId={instanceTabState.selectedInstanceId}
+              propertySignature={instanceTabState.selectedPropertyId}
+          />
+      }
+      {logTabState && <RawLogInspectorPage />}
     </DetailSidebar>
   );
 }

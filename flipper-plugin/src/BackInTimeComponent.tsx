@@ -4,19 +4,23 @@ import {Layout} from "flipper-plugin";
 import React from "react";
 import {BackInTimeSideBar} from "./view/sidebar/BackInTimeSideBar";
 import {TabbedContent} from "./view/component/TabbedContent";
-import {useDispatch, useSelector} from "react-redux";
-import {appActions, selectActiveTabIndex} from "./reducer/appReducer";
+import {com} from "backintime-flipper-lib";
+import useStateFlow = com.kitakkun.backintime.tooling.flipper.useStateFlow;
+import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
+import FlipperAppState = com.kitakkun.backintime.tooling.flipper.FlipperAppState;
+import FlipperTab = com.kitakkun.backintime.tooling.flipper.FlipperTab;
 
 export default () => {
-  const activeKey = useSelector(selectActiveTabIndex);
-  const dispatch = useDispatch();
+  const state: FlipperAppState = useStateFlow(FlipperAppStateOwner.stateFlow)
 
   return (
     <>
       <Layout.Container grow={true}>
         <TabbedContent
-          activeKey={activeKey}
-          onChange={(key) => dispatch(appActions.updateActiveTabIndex(key))}
+          activeKey={state.activeTabIndex}
+          onChange={
+            (key) => FlipperAppStateOwner.updateTab(FlipperTab.values()[Number(key)])
+          }
         />
       </Layout.Container>
       <BackInTimeSideBar/>
