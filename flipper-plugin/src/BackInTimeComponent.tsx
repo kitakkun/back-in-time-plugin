@@ -5,13 +5,13 @@ import React from "react";
 import {BackInTimeSideBar} from "./view/sidebar/BackInTimeSideBar";
 import {TabbedContent} from "./view/component/TabbedContent";
 import {com} from "backintime-flipper-lib";
-import useStateFlow = com.kitakkun.backintime.tooling.flipper.useStateFlow;
-import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
-import FlipperAppState = com.kitakkun.backintime.tooling.flipper.FlipperAppState;
 import FlipperTab = com.kitakkun.backintime.tooling.flipper.FlipperTab;
+import {useAppState} from "./context/LocalAppState";
+import {useStateOwner} from "./context/StateOwnerContext";
 
 export default () => {
-  const state: FlipperAppState = useStateFlow(FlipperAppStateOwner.stateFlow)
+  const state = useAppState()
+  const owner = useStateOwner()
 
   return (
     <>
@@ -19,7 +19,7 @@ export default () => {
         <TabbedContent
           activeKey={state.activeTabIndex}
           onChange={
-            (key) => FlipperAppStateOwner.updateTab(FlipperTab.values()[Number(key)])
+            (key) => owner.updateTab(FlipperTab.values()[Number(key)])
           }
         />
       </Layout.Container>

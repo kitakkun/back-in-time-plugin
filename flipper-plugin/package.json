@@ -64,12 +64,10 @@
     "@microlink/react-json-view": "^1.23.0",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
-    "@reduxjs/toolkit": "^1.9.7",
     "@textea/json-viewer": "^3.2.3",
     "backintime-websocket-event": "file:../core/websocket/event/build/dist/js/productionLibrary",
     "backintime-tooling-model": "file:../tooling/model/build/dist/js/productionLibrary",
     "backintime-flipper-lib": "file:../tooling/flipper-lib/build/dist/js/productionLibrary",
-    "react-icons": "^5.0.1",
-    "react-redux": "^8.1.3"
+    "react-icons": "^5.0.1"
   }
 }

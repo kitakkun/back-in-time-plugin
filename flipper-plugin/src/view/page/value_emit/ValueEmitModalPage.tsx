@@ -3,9 +3,10 @@ import {ValueEmitView} from "./ValueEmitView";
 import {Modal} from "antd";
 import {EditAndEmitValueModalPage, EditAndEmitValueModalPageProps} from "../edited_value_emitter/EditAndEmitValueModalPage";
 import {com} from "backintime-flipper-lib";
-import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import selectValueEmitModalPageState = com.kitakkun.backintime.tooling.flipper.selector.selectValueEmitModalPageState;
+import {useAppState} from "../../../context/LocalAppState";
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
 interface ValueEmitModalPageProps {
   instanceId: string
@@ -14,7 +15,9 @@ interface ValueEmitModalPageProps {
 }
 
 export function ValueEmitModalPage(props: ValueEmitModalPageProps) {
-  const state = selectValueEmitModalPageState(props.instanceId, props.methodCallId)
+  const appState = useAppState()
+  const owner = useStateOwner()
+  const state = selectValueEmitModalPageState(appState, props.instanceId, props.methodCallId)
 
   const [editAndEmitState, setEditAndEmitState] = useState<EditAndEmitValueModalPageProps | null>(null)
 
@@ -50,7 +53,7 @@ export function ValueEmitModalPage(props: ValueEmitModalPageProps) {
               return;
             }
             const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);
-            FlipperAppStateOwner.postDebuggerEvent(event)
+            owner.postDebuggerEvent(event)
           }}
           onEditAndEmitValue={(propertySignature: string, value: string) => {
             const valueType = state.classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == propertySignature)?.valueType;

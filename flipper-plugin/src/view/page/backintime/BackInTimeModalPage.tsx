@@ -1,12 +1,12 @@
 import {Modal} from "antd";
 import React from "react";
 import {BackInTimeView} from "./BackInTimeView";
-import * as model from "backintime-tooling-model";
-import MethodCallHistoryInfo = model.com.kitakkun.backintime.tooling.model.ui.HistoryInfo.MethodCallHistoryInfo;
 import {com} from "backintime-flipper-lib";
 import selectBackInTimeState = com.kitakkun.backintime.tooling.flipper.selector.selectBackInTimeState;
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
-import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
+import {useAppState} from "../../../context/LocalAppState";
+import {useStateOwner} from "../../../context/StateOwnerContext";
+import selectBackInTimeValues = com.kitakkun.backintime.tooling.flipper.selector.selectBackInTimeValues;
 
 interface BackInTimeModalPageProps {
   instanceId: string
@@ -14,7 +14,9 @@ interface BackInTimeModalPageProps {
 }
 
 export function BackInTimeModalPage(props: BackInTimeModalPageProps) {
-  const state = selectBackInTimeState(true, props.instanceId)
+  const appState = useAppState()
+  const owner = useStateOwner()
+  const state = selectBackInTimeState(appState, true, props.instanceId)
 
   return (
     <>
@@ -33,18 +35,13 @@ export function BackInTimeModalPage(props: BackInTimeModalPageProps) {
               centered: true,
               content: "Are you sure to go back in time here?",
               onOk: () => {
-                const methodCallHistories = state.histories.asJsReadonlyArrayView().slice(0, index + 1)
-                  .filter((history) => history instanceof MethodCallHistoryInfo)
-                  .map((history) => history as MethodCallHistoryInfo);
-                const allValueChanges = methodCallHistories.flatMap((history) => history.valueChanges.asJsReadonlyArrayView());
-                const propertyValueChanges = distinctBy(allValueChanges.reverse(), (valueChange) => valueChange.propertySignature);
-                propertyValueChanges.forEach((info) => {
+                selectBackInTimeValues(state.histories, index).asJsReadonlyArrayView().forEach((info) => {
                   const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
                     state.instanceUUID,
-                    info.propertySignature,
-                    info.value,
+                    info.signature,
+                    info.jsonValue,
                   );
-                  FlipperAppStateOwner.postDebuggerEvent(event)
+                  owner.postDebuggerEvent(event)
                 });
               },
             })
@@ -53,16 +50,4 @@ export function BackInTimeModalPage(props: BackInTimeModalPageProps) {
       </Modal>
     </>
   );
-}
-
-function distinctBy<T, K>(array: T[], keySelector: (item: T) => K): T[] {
-  const seen = new Set<K>();
-  return array.filter(item => {
-    const key = keySelector(item);
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
 }

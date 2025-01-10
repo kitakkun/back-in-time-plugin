@@ -1,9 +1,9 @@
-import {useDispatch} from "react-redux";
 import React, {useState} from "react";
 import PropertyInspectorView from "./PropertyInspectorView";
 import {ValueEmitModalPage} from "../../page/value_emit/ValueEmitModalPage";
 import {com} from "backintime-flipper-lib";
 import selectPropertyInspectorState = com.kitakkun.backintime.tooling.flipper.selector.selectPropertyInspectorState;
+import {useAppState} from "../../../context/LocalAppState";
 
 interface PropertyInspectorPageProps {
   instanceId: string
@@ -11,7 +11,8 @@ interface PropertyInspectorPageProps {
 }
 
 export function PropertyInspectorPage(props: PropertyInspectorPageProps) {
-  const state = selectPropertyInspectorState(props.instanceId, props.propertySignature) // FIXME
+  const appState = useAppState()
+  const state = selectPropertyInspectorState(appState, props.instanceId, props.propertySignature)
 
   if (!state) return
 

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {InstanceListView} from "./InstanceListView";
 import {com, kotlin} from "backintime-flipper-lib";
 import selectInstanceListState = com.kitakkun.backintime.tooling.flipper.selector.selectInstanceListState;
@@ -7,9 +7,14 @@ import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperApp
 import TabState = com.kitakkun.backintime.tooling.flipper.TabState;
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
 import KtList = kotlin.collections.KtList;
+import {useAppState} from "../../../context/LocalAppState";
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
 export function InstanceListPage() {
-  const instanceListState = selectInstanceListState()
+  const appState = useAppState()
+  const owner = useStateOwner()
+  const instanceListState = selectInstanceListState(appState)
+
   const [backInTimeTargetInstanceId, setBackInTimeTargetInstanceId] = useState<string | null>(null)
 
   return <>
@@ -23,17 +28,17 @@ export function InstanceListPage() {
     <InstanceListView
       state={instanceListState}
       onSelectProperty={(instanceUUID, propertySignature) => {
-        FlipperAppStateOwner.updateTabState(new TabState.InstanceTabState(instanceUUID, propertySignature))
+        owner.updateTabState(new TabState.InstanceTabState(instanceUUID, propertySignature))
       }}
       onClickRefresh={() => {
         const uuids = instanceListState.instances.asJsReadonlyArrayView().map((info) => info.uuid);
         if (uuids.length == 0) return;
-        FlipperAppStateOwner.postDebuggerEvent(
+        owner.postDebuggerEvent(
           new BackInTimeDebuggerEvent.CheckInstanceAlive(KtList.fromJsArray(instanceListState.instances.asJsReadonlyArrayView().map((item) => item.uuid)))
         )
       }}
       onChangeNonDebuggablePropertyVisible={(visible) => {
-        // TODO:
+        owner.toggleNonDebuggablePropertyVisibility(visible)
       }}
       onClickHistory={(instanceUUID) => {
         setBackInTimeTargetInstanceId(instanceUUID)

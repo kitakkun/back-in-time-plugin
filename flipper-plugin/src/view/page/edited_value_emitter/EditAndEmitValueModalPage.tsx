@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {Modal} from "antd";
 import {com} from "backintime-flipper-lib";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
-import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
 export interface EditAndEmitValueModalPageProps {
   instanceId: string
@@ -15,6 +15,7 @@ export interface EditAndEmitValueModalPageProps {
 }
 
 export function EditAndEmitValueModalPage(props: EditAndEmitValueModalPageProps) {
+  const owner = useStateOwner()
   const [editingValue, setEditingValue] = useState()
 
   return <Modal
@@ -30,7 +31,7 @@ export function EditAndEmitValueModalPage(props: EditAndEmitValueModalPageProps)
         props.propertySignature,
         JSON.stringify(editingValue),
       );
-      FlipperAppStateOwner.postDebuggerEvent(event)
+      owner.postDebuggerEvent(event)
       props.onDismissRequest()
     }}
     onCancel={props.onDismissRequest}

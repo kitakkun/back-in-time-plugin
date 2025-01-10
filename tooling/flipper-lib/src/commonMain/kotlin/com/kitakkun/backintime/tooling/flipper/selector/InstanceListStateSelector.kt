@@ -1,6 +1,6 @@
 package com.kitakkun.backintime.tooling.flipper.selector
 
-import com.kitakkun.backintime.tooling.flipper.useAppState
+import com.kitakkun.backintime.tooling.flipper.FlipperAppState
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
 import com.kitakkun.backintime.tooling.model.InstanceInfo
@@ -12,9 +12,7 @@ import com.kitakkun.backintime.tooling.model.ui.PersistentState
 import com.kitakkun.backintime.tooling.model.ui.PropertyItem
 
 @JsExport
-fun selectInstanceListState(): InstanceListState {
-    val appState = useAppState()
-
+fun selectInstanceListState(appState: FlipperAppState): InstanceListState {
     return instanceListStateProducer(
         instanceInfoList = appState.instanceInfoList,
         persistentState = appState.persistentState,

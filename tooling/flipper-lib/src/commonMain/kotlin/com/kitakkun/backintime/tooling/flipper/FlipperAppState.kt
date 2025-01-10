@@ -1,6 +1,5 @@
 package com.kitakkun.backintime.tooling.flipper
 
-import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
@@ -17,7 +16,6 @@ data class FlipperAppState(
     val methodCallInfoList: List<MethodCallInfo>,
     val dependencyInfoList: List<DependencyInfo>,
     val persistentState: PersistentState,
-    val pendingFlipperEventQueue: List<BackInTimeDebuggerEvent>,
     val tabState: TabState,
 ) {
     companion object {
@@ -29,7 +27,6 @@ data class FlipperAppState(
             methodCallInfoList = emptyList(),
             dependencyInfoList = emptyList(),
             persistentState = PersistentState.Default,
-            pendingFlipperEventQueue = emptyList(),
             tabState = TabState.None,
         )
     }

@@ -20,6 +20,7 @@ kotlin {
 
         jsMain.dependencies {
             implementation(libs.kotlin.react)
+            implementation(npm("flipper-plugin", "latest"))
         }
     }
 

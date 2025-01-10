@@ -1,13 +1,15 @@
 package com.kitakkun.backintime.tooling.flipper.selector
 
-import com.kitakkun.backintime.tooling.flipper.useAppState
+import com.kitakkun.backintime.tooling.flipper.FlipperAppState
 import com.kitakkun.backintime.tooling.model.ui.BackInTimeState
 import com.kitakkun.backintime.tooling.model.ui.HistoryInfo
 
 @JsExport
-fun selectBackInTimeState(open: Boolean, instanceUUID: String): BackInTimeState {
-    val appState = useAppState()
-
+fun selectBackInTimeState(
+    appState: FlipperAppState,
+    open: Boolean,
+    instanceUUID: String,
+): BackInTimeState {
     val instanceInfo = appState.instanceInfoList.find { it.uuid == instanceUUID }
 
     val registerEvent = HistoryInfo.RegisterHistoryInfo(

@@ -28,6 +28,3 @@ fun <T> useStateFlow(flow: StateFlow<T>): T {
 
     return state
 }
-
-@JsExport
-fun useAppState(): FlipperAppState = useStateFlow(FlipperAppStateOwner.stateFlow)

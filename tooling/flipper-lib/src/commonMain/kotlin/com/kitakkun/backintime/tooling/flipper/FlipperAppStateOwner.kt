@@ -14,12 +14,36 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 @JsExport
-object FlipperAppStateOwner {
+interface FlipperAppStateOwner {
+    fun processEvent(jsonAppEvent: String)
+    fun postDebuggerEvent(event: BackInTimeDebuggerEvent)
+    fun updateTab(tab: FlipperTab)
+    fun updateTabState(tabState: TabState)
+    fun toggleNonDebuggablePropertyVisibility(visible: Boolean)
+}
+
+@JsExport
+class FlipperAppStateOwnerImpl(
+    @Suppress("NON_EXPORTABLE_TYPE")
+    private val flipperClient: PluginClient<IncomingEvents, OutgoingEvents>,
+    private val showNonDebuggableProperty: Atom<Boolean>,
+) : FlipperAppStateOwner {
     private val mutableStateFlow = MutableStateFlow(FlipperAppState.Default)
+
+    @Suppress("NON_EXPORTABLE_TYPE")
     val stateFlow = mutableStateFlow.asStateFlow()
 
+
+    init {
+        mutableStateFlow.update { it.copy(persistentState = it.persistentState.copy(showNonDebuggableProperty = showNonDebuggableProperty.get())) }
+
+        flipperClient.onMessage("appEvent") {
+            processEvent(it.payload)
+        }
+    }
+
     // Do not pass instances of event generated in the js-side! Type matching in when expressions for Js-generated events is not available.
-    fun processEvent(jsonAppEvent: String) {
+    override fun processEvent(jsonAppEvent: String) {
         val event = BackInTimeDebugServiceEvent.fromJsonString(jsonAppEvent)
         mutableStateFlow.update { it.copy(events = it.events + event) }
         when (event) {
@@ -111,27 +135,26 @@ object FlipperAppStateOwner {
         }
     }
 
-    fun postDebuggerEvent(event: BackInTimeDebuggerEvent) {
-        mutableStateFlow.update { appState ->
-            appState.copy(pendingFlipperEventQueue = appState.pendingFlipperEventQueue + event)
-        }
+    override fun postDebuggerEvent(event: BackInTimeDebuggerEvent) {
+        // DON'T RENAME THIS VARIABLE!! It is referenced from the following js() call.
+        val payload = BackInTimeDebuggerEvent.toJsonString(event)
+        flipperClient.send("debuggerEvent", js("{payload: payload}"))
     }
 
-    fun updateTab(tab: FlipperTab) {
+    override fun updateTab(tab: FlipperTab) {
         mutableStateFlow.update { it.copy(activeTabIndex = tab) }
     }
 
-    fun consumePendingEvents(): List<BackInTimeDebuggerEvent> {
-        val pendingEvents = mutableStateFlow.value.pendingFlipperEventQueue
-        mutableStateFlow.update { appState ->
-            appState.copy(pendingFlipperEventQueue = emptyList())
-        }
-        return pendingEvents
-    }
-
-    fun updateTabState(tabState: TabState) {
+    override fun updateTabState(tabState: TabState) {
         mutableStateFlow.update {
             it.copy(tabState = tabState)
+        }
+    }
+
+    override fun toggleNonDebuggablePropertyVisibility(visible: Boolean) {
+        showNonDebuggableProperty.set(visible)
+        mutableStateFlow.update {
+            it.copy(persistentState = it.persistentState.copy(showNonDebuggableProperty = showNonDebuggableProperty.get()))
         }
     }
 }

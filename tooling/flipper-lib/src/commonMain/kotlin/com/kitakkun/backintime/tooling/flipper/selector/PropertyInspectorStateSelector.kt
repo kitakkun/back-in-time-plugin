@@ -1,6 +1,6 @@
 package com.kitakkun.backintime.tooling.flipper.selector
 
-import com.kitakkun.backintime.tooling.flipper.useAppState
+import com.kitakkun.backintime.tooling.flipper.FlipperAppState
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.PropertyInfo
 import com.kitakkun.backintime.tooling.model.ui.PropertyInspectorState
@@ -8,11 +8,10 @@ import com.kitakkun.backintime.tooling.model.ui.ValueChangeInfo
 
 @JsExport
 fun selectPropertyInspectorState(
+    appState: FlipperAppState,
     instanceUUID: String,
     propertySignature: String,
 ): PropertyInspectorState? {
-    val appState = useAppState()
-
     val instanceInfo = appState.instanceInfoList.find { it.uuid == instanceUUID } ?: return null
     val propertyInfo = getPropertyInfoRecursively(classInfoList = appState.classInfoList, instanceInfo.classSignature)
         .find { it.signature == propertySignature } ?: return null
