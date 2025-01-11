@@ -45,7 +45,7 @@ class FlipperAppStateOwnerImpl(
     // Do not pass instances of event generated in the js-side! Type matching in when expressions for Js-generated events is not available.
     override fun processEvent(jsonAppEvent: String) {
         val event = BackInTimeDebugServiceEvent.fromJsonString(jsonAppEvent)
-        mutableStateFlow.update { it.copy(events = it.events + event) }
+        mutableStateFlow.update { it.copy(events = it.events + BackInTimeEventData(payload = event)) }
         when (event) {
             is BackInTimeDebugServiceEvent.RegisterInstance -> {
                 mutableStateFlow.update { appState ->

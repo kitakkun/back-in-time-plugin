@@ -1,6 +1,5 @@
 package com.kitakkun.backintime.tooling.flipper
 
-import com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
 import com.kitakkun.backintime.tooling.model.InstanceInfo
@@ -10,7 +9,7 @@ import com.kitakkun.backintime.tooling.model.ui.PersistentState
 @JsExport
 data class FlipperAppState(
     val activeTabIndex: FlipperTab,
-    val events: List<BackInTimeWebSocketEvent>,
+    val events: List<BackInTimeEventData>,
     val classInfoList: List<ClassInfo>,
     val instanceInfoList: List<InstanceInfo>,
     val methodCallInfoList: List<MethodCallInfo>,
