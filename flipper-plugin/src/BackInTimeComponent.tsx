@@ -15,7 +15,7 @@ export default () => {
     <>
       <Layout.Container grow={true}>
         <TabbedContent
-          activeTab={state.activeTabIndex}
+          activeTab={state.activeTab}
           onChange={(selectedTab) => owner.updateTab(selectedTab)}
         />
       </Layout.Container>

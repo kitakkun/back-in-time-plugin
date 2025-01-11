@@ -16,7 +16,7 @@ export function BackInTimeSideBar() {
   return (
     <DetailSidebar>
       {
-        appState.activeTabIndex == FlipperTab.Instances &&
+        appState.activeTab == FlipperTab.Instances &&
         instanceTabState &&
         (
           (instanceTabState.selectedInstanceId && instanceTabState.selectedPropertyId) ?
@@ -27,7 +27,7 @@ export function BackInTimeSideBar() {
         )
       }
       {
-        appState.activeTabIndex == FlipperTab.Logs &&
+        appState.activeTab == FlipperTab.Logs &&
         (
           logTabState?.selectedEvent ? <RawLogInspectorPage selectedEventId={logTabState.selectedEvent}/> : <>No event selected.</>
         )

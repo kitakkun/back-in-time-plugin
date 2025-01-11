@@ -143,7 +143,7 @@ class FlipperAppStateOwnerImpl(
     }
 
     override fun updateTab(tab: FlipperTab) {
-        mutableStateFlow.update { it.copy(activeTabIndex = tab) }
+        mutableStateFlow.update { it.copy(activeTab = tab) }
     }
 
     override fun updateTabState(tabState: TabState) {

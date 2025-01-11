@@ -8,7 +8,7 @@ import com.kitakkun.backintime.tooling.model.ui.PersistentState
 
 @JsExport
 data class FlipperAppState(
-    val activeTabIndex: FlipperTab,
+    val activeTab: FlipperTab,
     val events: List<BackInTimeEventData>,
     val classInfoList: List<ClassInfo>,
     val instanceInfoList: List<InstanceInfo>,
@@ -19,7 +19,7 @@ data class FlipperAppState(
 ) {
     companion object {
         val Default = FlipperAppState(
-            activeTabIndex = FlipperTab.Instances,
+            activeTab = FlipperTab.Instances,
             events = emptyList(),
             classInfoList = emptyList(),
             instanceInfoList = emptyList(),
