@@ -4,8 +4,6 @@ import {Layout} from "flipper-plugin";
 import React from "react";
 import {BackInTimeSideBar} from "./view/sidebar/BackInTimeSideBar";
 import {TabbedContent} from "./view/component/TabbedContent";
-import {com} from "backintime-flipper-lib";
-import FlipperTab = com.kitakkun.backintime.tooling.flipper.FlipperTab;
 import {useAppState} from "./context/LocalAppState";
 import {useStateOwner} from "./context/StateOwnerContext";
 
@@ -17,10 +15,8 @@ export default () => {
     <>
       <Layout.Container grow={true}>
         <TabbedContent
-          activeKey={state.activeTabIndex}
-          onChange={
-            (key) => owner.updateTab(FlipperTab.values()[Number(key)])
-          }
+          activeTab={state.activeTabIndex}
+          onChange={(selectedTab) => owner.updateTab(selectedTab)}
         />
       </Layout.Container>
       <BackInTimeSideBar/>
