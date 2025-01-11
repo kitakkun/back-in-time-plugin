@@ -5,7 +5,7 @@ import {com} from "backintime-tooling-model";
 import RawEventLog = com.kitakkun.backintime.tooling.model.RawEventLog;
 
 export interface RawLogInspectorViewProps {
-  selectedLog: RawEventLog | null;
+  selectedLog?: RawEventLog
 }
 
 export function RawLogInspectorView(props: RawLogInspectorViewProps) {

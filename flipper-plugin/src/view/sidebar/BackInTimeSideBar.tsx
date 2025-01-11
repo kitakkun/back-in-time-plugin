@@ -29,7 +29,7 @@ export function BackInTimeSideBar() {
       {
         appState.activeTabIndex == FlipperTab.Logs &&
         (
-          logTabState?.selectedEvent ? <RawLogInspectorPage/> : <>No event selected.</>
+          logTabState?.selectedEvent ? <RawLogInspectorPage selectedEventId={logTabState.selectedEvent}/> : <>No event selected.</>
         )
       }
     </DetailSidebar>
