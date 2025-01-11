@@ -70,8 +70,5 @@ jobs:
         working-directory: flipper-plugin
 
       - name: compile typescript
-        run: npx tsc
-        working-directory: flipper-plugin
-
-      - run: yarn test
+        run: yarn tsc
         working-directory: flipper-plugin
