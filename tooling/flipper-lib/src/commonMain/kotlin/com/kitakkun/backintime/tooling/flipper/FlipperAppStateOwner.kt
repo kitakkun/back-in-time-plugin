@@ -139,6 +139,7 @@ class FlipperAppStateOwnerImpl(
         // DON'T RENAME THIS VARIABLE!! It is referenced from the following js() call.
         val payload = BackInTimeDebuggerEvent.toJsonString(event)
         flipperClient.send("debuggerEvent", js("{payload: payload}"))
+        mutableStateFlow.update { it.copy(events = it.events + BackInTimeEventData(payload = event)) }
     }
 
     override fun updateTab(tab: FlipperTab) {
