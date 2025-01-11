@@ -4,14 +4,9 @@
 
 package com.kitakkun.backintime.tooling.flipper
 
-import js.objects.Record
 import kotlin.js.Promise
 
-external interface EventsContract : Record<String, Any>
-
-external interface MethodsContract : Record<String, (Any) -> Promise<Any>>
-
-external interface PluginClient<Events : EventsContract, Methods : MethodsContract> {
+external interface PluginClient<Events, Methods> {
     val appId: String
     val appName: String
     val isConnected: Boolean

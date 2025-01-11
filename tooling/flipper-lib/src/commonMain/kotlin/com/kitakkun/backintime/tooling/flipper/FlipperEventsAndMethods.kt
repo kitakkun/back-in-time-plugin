@@ -1,3 +1,4 @@
+@file:Suppress("UNUSED")
 @file:JsExport
 
 package com.kitakkun.backintime.tooling.flipper
@@ -8,7 +9,7 @@ interface AppEvent {
     val payload: String
 }
 
-interface IncomingEvents : EventsContract {
+interface IncomingEvents {
     val appEvent: AppEvent
 }
 
@@ -16,6 +17,6 @@ interface DebuggerAction {
     val payload: String
 }
 
-interface OutgoingEvents : MethodsContract {
+interface OutgoingEvents {
     fun debuggerEvent(action: DebuggerAction): Promise<Any>
 }
