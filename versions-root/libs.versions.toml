@@ -31,7 +31,7 @@ ktlint = "1.2.1"
 kotlinx-datetime = "0.6.1"
 
 buildconfig = "5.5.1"
-junit-jupiter = "5.10.3"
+junit-jupiter = "5.11.4"
 maven-publish = "0.29.0"
 
 kaml = "0.67.0"
