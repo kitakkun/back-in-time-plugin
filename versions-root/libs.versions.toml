@@ -21,7 +21,7 @@ activity-compose = "1.9.3"
 compose-bom = "2024.12.01"
 room-runtime = "2.6.1"
 koin-bom = "4.0.1"
-soloader = "0.11.0"
+soloader = "0.12.1"
 
 ktor = "2.3.13"
 uuid = "0.8.4"
