@@ -20,7 +20,7 @@ lifecycle-runtime-ktx = "2.8.7"
 activity-compose = "1.9.3"
 compose-bom = "2024.12.01"
 room-runtime = "2.6.1"
-koin-bom = "3.5.6"
+koin-bom = "4.0.1"
 soloader = "0.11.0"
 
 ktor = "2.3.13"
