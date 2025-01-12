@@ -1,0 +1,44 @@
+# reference: https://zenn.dev/azrsh/articles/renovate-dry-run-ci
+name: Test renovate.json
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - renovate.json
+      - .github/workflows/renovate_test.yaml
+  pull_request:
+    paths:
+      - renovate.json
+      - .github/workflows/renovate_test.yaml
+
+jobs:
+  renovate_test:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install Renovate CLI
+        run: npm install renovate
+
+      - name: Dry-run Renovate
+        run: |
+          npx renovate '${{ github.repository }}' \
+            --dry-run=full \
+            --use-base-branch-config=merge
+        env:
+          # Use the GitHub user of Mend-hosted Renovate
+          RENOVATE_USERNAME: renovate[bot]
+          RENOVATE_GIT_AUTHOR: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>
+          RENOVATE_TOKEN: ${{ github.token }}
+          # Use renovate.json in the commit `github.sha`.
+          RENOVATE_BASE_BRANCHES: ${{ github.sha }}
+          LOG_LEVEL: debug
