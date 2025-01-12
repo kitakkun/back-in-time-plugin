@@ -3,28 +3,8 @@ import {Button, Switch} from "antd";
 import {ReloadOutlined} from "@ant-design/icons";
 import {Layout, theme} from "flipper-plugin";
 import {InstanceTreeView} from "./InstanceTreeView";
-
-export interface InstanceItem {
-  name: string;
-  uuid: string;
-  superClassSignature: string;
-  properties: PropertyItem[];
-  superInstanceItem?: InstanceItem;
-}
-
-export interface PropertyItem {
-  name: string;
-  signature: string;
-  type: string;
-  debuggable: boolean;
-  eventCount: number;
-  stateHolderInstance?: InstanceItem;
-}
-
-export interface InstanceListState {
-  instances: InstanceItem[];
-  showNonDebuggableProperty: boolean;
-}
+import {com} from "backintime-flipper-lib";
+import InstanceListState = com.kitakkun.backintime.tooling.model.ui.InstanceListState;
 
 type InstanceListProps = {
   state: InstanceListState;
@@ -48,7 +28,7 @@ export function InstanceListView({state, onSelectProperty, onClickRefresh, onCha
     </Layout.Horizontal>
     <Layout.ScrollContainer>
       <InstanceTreeView
-        instances={state.instances}
+        instances={state.instances.asJsReadonlyArrayView()}
         onSelectProperty={onSelectProperty}
         onClickHistory={onClickHistory}
         showNonDebuggableProperty={state.showNonDebuggableProperty}

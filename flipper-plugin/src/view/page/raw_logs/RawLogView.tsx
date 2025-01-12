@@ -1,14 +1,11 @@
 import React, {useEffect, useMemo} from "react";
 import {createDataSource, DataSource, DataTable, DataTableColumn, Layout, theme} from "flipper-plugin";
-import {com} from "backintime-tooling-model";
+import {com} from "backintime-flipper-lib";
+import RawLogState = com.kitakkun.backintime.tooling.model.ui.RawLogState;
 import RawEventLog = com.kitakkun.backintime.tooling.model.RawEventLog;
 
-export interface RawEventLogState {
-  logs: RawEventLog[];
-}
-
 type RawLogPageProps = {
-  state: RawEventLogState;
+  state: RawLogState;
   onSelectLog: (log: RawEventLog) => void;
 }
 
@@ -16,7 +13,7 @@ export function RawLogView({state, onSelectLog}: RawLogPageProps) {
   const dataSource: DataSource<RawEventLog, string> = useMemo(() => createDataSource<RawEventLog, 'eventId'>([], {key: 'eventId'}), []);
 
   useEffect(() => {
-    state.logs.forEach(log => dataSource.upsert(log));
+    state.logs.asJsReadonlyArrayView().forEach(log => dataSource.upsert(log));
   }, [state.logs]);
 
   const onSelect = useMemo(() => (record: RawEventLog) => {

@@ -4,19 +4,19 @@ import {Layout} from "flipper-plugin";
 import React from "react";
 import {BackInTimeSideBar} from "./view/sidebar/BackInTimeSideBar";
 import {TabbedContent} from "./view/component/TabbedContent";
-import {useDispatch, useSelector} from "react-redux";
-import {appActions, selectActiveTabIndex} from "./reducer/appReducer";
+import {useAppState} from "./context/LocalAppState";
+import {useStateOwner} from "./context/StateOwnerContext";
 
 export default () => {
-  const activeKey = useSelector(selectActiveTabIndex);
-  const dispatch = useDispatch();
+  const state = useAppState()
+  const owner = useStateOwner()
 
   return (
     <>
       <Layout.Container grow={true}>
         <TabbedContent
-          activeKey={activeKey}
-          onChange={(key) => dispatch(appActions.updateActiveTabIndex(key))}
+          activeTab={state.activeTab}
+          onChange={(selectedTab) => owner.updateTab(selectedTab)}
         />
       </Layout.Container>
       <BackInTimeSideBar/>

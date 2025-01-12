@@ -1,31 +1,50 @@
-import {useDispatch, useSelector} from "react-redux";
-import React from "react";
+import React, {useState} from "react";
 import {ValueEmitView} from "./ValueEmitView";
-import {valueEmitActions, valueEmitStateSelector} from "./ValueEmitReducer";
 import {Modal} from "antd";
-import {editAndEmitValueActions} from "../edited_value_emitter/EditAndEmitValueReducer";
-import {appActions} from "../../../reducer/appReducer";
-import {EditAndEmitValueModalPage} from "../edited_value_emitter/EditAndEmitValueModalPage";
-import {com} from "backintime-websocket-event";
+import {EditAndEmitValueModalPage, EditAndEmitValueModalPageProps} from "../edited_value_emitter/EditAndEmitValueModalPage";
+import {com} from "backintime-flipper-lib";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import selectValueEmitModalPageState = com.kitakkun.backintime.tooling.flipper.selector.selectValueEmitModalPageState;
+import {useAppState} from "../../../context/LocalAppState";
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
-export function ValueEmitModalPage() {
-  const state = useSelector(valueEmitStateSelector);
-  const dispatch = useDispatch();
+interface ValueEmitModalPageProps {
+  instanceId: string
+  methodCallId: string
+  onDismissRequest: () => void
+}
+
+export function ValueEmitModalPage(props: ValueEmitModalPageProps) {
+  const appState = useAppState()
+  const owner = useStateOwner()
+  const state = selectValueEmitModalPageState(appState, props.instanceId, props.methodCallId)
+
+  const [editAndEmitState, setEditAndEmitState] = useState<EditAndEmitValueModalPageProps | null>(null)
 
   return (
     <>
-      <EditAndEmitValueModalPage/>
+      {editAndEmitState &&
+          <EditAndEmitValueModalPage
+              initialValue={editAndEmitState.initialValue}
+              instanceId={editAndEmitState.instanceId}
+              callId={editAndEmitState.callId}
+              valueType={editAndEmitState.valueType}
+              propertySignature={editAndEmitState.propertySignature}
+              onDismissRequest={editAndEmitState.onDismissRequest}
+          />
+      }
       <Modal
         centered={true}
-        open={state.open}
+        open={true}
         title={"Value Emitter"}
         footer={null}
         width={"80%"}
-        onCancel={() => dispatch(valueEmitActions.close())}
+        onCancel={props.onDismissRequest}
       >
         <ValueEmitView
-          state={state}
+          instanceInfo={state.instanceInfo}
+          methodCallInfo={state.methodCallInfo}
+          classInfo={state.classInfo}
           onValueEmit={(propertySignature: string, value: string) => {
             const instanceUUID = state.instanceInfo?.uuid;
             const valueType = state.classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == propertySignature)?.valueType;
@@ -34,22 +53,22 @@ export function ValueEmitModalPage() {
               return;
             }
             const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(instanceUUID, propertySignature, value);
-            dispatch(appActions.processEvent(event));
+            owner.postDebuggerEvent(event)
           }}
           onEditAndEmitValue={(propertySignature: string, value: string) => {
-            const instanceUUID = state.instanceInfo?.uuid;
             const valueType = state.classInfo?.properties.asJsReadonlyArrayView().find((property) => property.signature == propertySignature)?.valueType;
-            if (!instanceUUID || !valueType) {
+            if (!valueType) {
               return;
             }
             const parsedValue = JSON.parse(value);
-            dispatch(
-              editAndEmitValueActions.open({
-                instanceUUID: instanceUUID,
-                propertySignature: propertySignature,
-                initialValue: parsedValue,
-              })
-            );
+            setEditAndEmitState({
+              instanceId: props.instanceId,
+              propertySignature: propertySignature,
+              initialValue: parsedValue,
+              valueType: valueType,
+              callId: props.methodCallId,
+              onDismissRequest: () => setEditAndEmitState(null)
+            })
           }}
         />
       </Modal>

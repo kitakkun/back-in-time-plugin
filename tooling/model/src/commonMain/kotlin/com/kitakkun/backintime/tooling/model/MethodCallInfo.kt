@@ -1,9 +1,7 @@
 package com.kitakkun.backintime.tooling.model
 
-import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 
-@OptIn(ExperimentalJsExport::class)
 @JsExport
 data class MethodCallInfo(
     val callUUID: String,
@@ -16,7 +14,6 @@ data class MethodCallInfo(
     fun copyWithAppendingNewValueChangeInfo(valueChangeInfo: ValueChangeInfo) = copy(valueChanges = this.valueChanges + valueChangeInfo)
 }
 
-@OptIn(ExperimentalJsExport::class)
 @JsExport
 data class ValueChangeInfo(
     val propertySignature: String,

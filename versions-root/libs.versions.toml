@@ -35,6 +35,7 @@ junit-jupiter = "5.10.3"
 maven-publish = "0.29.0"
 
 kaml = "0.67.0"
+kotlin-react = "2025.1.1-19.0.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -99,6 +100,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "maven-publish" }
 
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-react" }
 
 [plugins]
 # convention

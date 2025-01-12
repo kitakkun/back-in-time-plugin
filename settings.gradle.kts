@@ -26,4 +26,5 @@ include(
     ":core:websocket:client",
     ":core:websocket:event",
     ":tooling:model",
+    ":tooling:flipper-lib",
 )

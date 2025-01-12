@@ -1,21 +1,37 @@
-import {useDispatch, useSelector} from "react-redux";
-import React from "react";
+import React, {useState} from "react";
 import PropertyInspectorView from "./PropertyInspectorView";
 import {ValueEmitModalPage} from "../../page/value_emit/ValueEmitModalPage";
-import {valueEmitActions} from "../../page/value_emit/ValueEmitReducer";
-import {propertyInspectorStateSelector} from "./PropertyInspectorStateSelector";
+import {com} from "backintime-flipper-lib";
+import selectPropertyInspectorState = com.kitakkun.backintime.tooling.flipper.selector.selectPropertyInspectorState;
+import {useAppState} from "../../../context/LocalAppState";
 
-export function PropertyInspectorPage() {
-  const state = useSelector(propertyInspectorStateSelector);
-  const dispatch = useDispatch();
+interface PropertyInspectorPageProps {
+  instanceId: string
+  propertySignature: string
+}
+
+export function PropertyInspectorPage(props: PropertyInspectorPageProps) {
+  const appState = useAppState()
+  const state = selectPropertyInspectorState(appState, props.instanceId, props.propertySignature)
+
+  if (!state) return
+
+  const [valueEmitTargetMethodCallId, setValueEmitTargetMethodCallId] = useState<string | null>(null)
 
   return <>
-    <ValueEmitModalPage/>
+    {
+      valueEmitTargetMethodCallId &&
+        <ValueEmitModalPage
+            instanceId={props.instanceId}
+            methodCallId={valueEmitTargetMethodCallId}
+            onDismissRequest={() => setValueEmitTargetMethodCallId(null)}
+        />
+    }
     <PropertyInspectorView
       state={state}
       onClickValueChangeInfo={(methodCallUUID) => {
         if (!state.instanceInfo) return;
-        dispatch(valueEmitActions.open({instanceUUID: state.instanceInfo.uuid, methodCallUUID: methodCallUUID}));
+        setValueEmitTargetMethodCallId(methodCallUUID)
       }}
     />
   </>;

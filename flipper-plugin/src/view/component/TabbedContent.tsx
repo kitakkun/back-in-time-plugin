@@ -3,31 +3,33 @@ import {InstanceListPage} from "../page/instance_list/InstanceListPage";
 import RawLogPage from "../page/raw_logs/RawLogPage";
 import {Tabs} from "flipper-plugin";
 import {TabsProps} from "antd";
+import {com} from "backintime-flipper-lib";
+import FlipperTab = com.kitakkun.backintime.tooling.flipper.FlipperTab;
 
 type TabMenuProps = {
-  activeKey: string;
-  onChange: (key: string) => void;
+  activeTab: FlipperTab;
+  onChange: (selectedTab: FlipperTab) => void;
 };
 
-export function TabbedContent({activeKey, onChange}: TabMenuProps) {
+export function TabbedContent({activeTab, onChange}: TabMenuProps) {
   const items: TabsProps["items"] = [
     {
-      key: '1',
+      key: FlipperTab.Instances.name.toString(),
       label: 'Registered instances',
       children: <InstanceListPage/>
     },
     {
-      key: '2',
+      key: FlipperTab.Logs.name.toString(),
       label: 'Raw event log',
       children: <RawLogPage/>
     },
   ];
   return (
     <Tabs
-      activeKey={activeKey}
-      defaultActiveKey={'1'}
+      activeKey={activeTab.name.toString()}
+      defaultActiveKey={FlipperTab.Instances.name.toString()}
       items={items}
-      onChange={onChange}
+      onChange={(key) => onChange(FlipperTab.valueOf(key))}
       type={'card'}
       grow={true}
     />

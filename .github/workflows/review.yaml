@@ -61,14 +61,14 @@ jobs:
           node-version: "21.x"
 
       - name: generate js library for flipper
-        run: ./gradlew core:websocket:event:jsNodeProductionLibraryDistribution tooling:model:jsNodeProductionLibraryDistribution
+        run: |
+          ./gradlew core:websocket:event:jsNodeProductionLibraryDistribution \
+          tooling:model:jsNodeProductionLibraryDistribution \
+          tooling:flipper-lib:jsNodeProductionLibraryDistribution
 
       - run: yarn install
         working-directory: flipper-plugin
 
       - name: compile typescript
-        run: npx tsc
-        working-directory: flipper-plugin
-
-      - run: yarn test
+        run: yarn tsc
         working-directory: flipper-plugin

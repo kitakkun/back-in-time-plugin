@@ -1,37 +1,48 @@
-import {useDispatch, useSelector} from "react-redux";
-import {editAndEmitValueActions, editAndEmitValueStateSelector} from "./EditAndEmitValueReducer";
 import {EditAndEmitValueView} from "./EditAndEmitValueView";
-import React from "react";
+import React, {useState} from "react";
 import {Modal} from "antd";
-import {appActions} from "../../../reducer/appReducer";
-import {com} from "backintime-websocket-event";
+import {com} from "backintime-flipper-lib";
 import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
-export function EditAndEmitValueModalPage() {
-  const state = useSelector(editAndEmitValueStateSelector);
-  const dispatch = useDispatch();
+export interface EditAndEmitValueModalPageProps {
+  instanceId: string
+  callId: string
+  propertySignature: string
+  valueType: string
+  initialValue: any
+  onDismissRequest: () => void
+}
+
+export function EditAndEmitValueModalPage(props: EditAndEmitValueModalPageProps) {
+  const owner = useStateOwner()
+  const [editingValue, setEditingValue] = useState()
+
   return <Modal
     centered={true}
-    open={state.open}
+    open={true}
     title={"Edit and Emit Value"}
     width={"80%"}
     cancelText={"Cancel"}
     okText={"Emit Edited Value"}
     onOk={() => {
-      if (!state.instanceUUID || !state.propertySignature || !state.valueType) return;
       const event = new BackInTimeDebuggerEvent.ForceSetPropertyValue(
-        state.instanceUUID,
-        state.propertySignature,
-        JSON.stringify(state.editingValue),
+        props.instanceId,
+        props.propertySignature,
+        JSON.stringify(editingValue),
       );
-      dispatch(appActions.processEvent(event));
-      dispatch(editAndEmitValueActions.close());
+      owner.postDebuggerEvent(event)
+      props.onDismissRequest()
     }}
-    onCancel={() => dispatch(editAndEmitValueActions.close())}
+    onCancel={props.onDismissRequest}
   >
     <EditAndEmitValueView
-      state={state}
-      onEdit={(edit) => dispatch(editAndEmitValueActions.updateEditingValue(edit))}
+      initialValue={props.initialValue}
+      editingValue={editingValue}
+      instanceUUID={props.instanceId}
+      valueType={props.valueType}
+      propertySignature={props.propertySignature}
+      onEdit={(edit) => setEditingValue(edit)}
     />
-  </Modal>;
+  </Modal>
 }

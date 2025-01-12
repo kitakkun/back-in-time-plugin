@@ -1,39 +1,47 @@
-import {useDispatch, useSelector} from "react-redux";
-import React from "react";
+import React, {useContext, useState} from "react";
 import {InstanceListView} from "./InstanceListView";
-import {persistentStateActions} from "../../../reducer/PersistentStateReducer";
-import {selectInstanceList} from "./InstanceListSelector";
-import {appActions} from "../../../reducer/appReducer";
-import {propertyInspectorActions} from "../../sidebar/property_inspector/propertyInspectorReducer";
-import {backInTimeActions} from "../backintime/BackInTimeReducer";
+import {com, kotlin} from "backintime-flipper-lib";
+import selectInstanceListState = com.kitakkun.backintime.tooling.flipper.selector.selectInstanceListState;
 import {BackInTimeModalPage} from "../backintime/BackInTimeModalPage";
-import {com} from "backintime-websocket-event";
-import createCheckInstanceAliveEvent = com.kitakkun.backintime.core.websocket.event.createCheckInstanceAliveEvent;
+import FlipperAppStateOwner = com.kitakkun.backintime.tooling.flipper.FlipperAppStateOwner;
+import TabState = com.kitakkun.backintime.tooling.flipper.TabState;
+import BackInTimeDebuggerEvent = com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent;
+import KtList = kotlin.collections.KtList;
+import {useAppState} from "../../../context/LocalAppState";
+import {useStateOwner} from "../../../context/StateOwnerContext";
 
 export function InstanceListPage() {
-  const state = useSelector(selectInstanceList);
-  const dispatch = useDispatch();
+  const appState = useAppState()
+  const owner = useStateOwner()
+  const instanceListState = selectInstanceListState(appState)
+
+  const [backInTimeTargetInstanceId, setBackInTimeTargetInstanceId] = useState<string | null>(null)
 
   return <>
-    <BackInTimeModalPage/>
+    {
+      backInTimeTargetInstanceId ?
+        <BackInTimeModalPage
+          instanceId={backInTimeTargetInstanceId}
+          onDismissRequest={() => setBackInTimeTargetInstanceId(null)}
+        /> : <></>
+    }
     <InstanceListView
-      state={state}
+      state={instanceListState}
       onSelectProperty={(instanceUUID, propertySignature) => {
-        dispatch(propertyInspectorActions.openPropertyInspector({
-          instanceUUID: instanceUUID,
-          propertySignature: propertySignature,
-        }))
+        owner.updateTabState(new TabState.InstanceTabState(instanceUUID, propertySignature))
       }}
       onClickRefresh={() => {
-        const uuids = state.instances.map((info) => info.uuid);
+        const uuids = instanceListState.instances.asJsReadonlyArrayView().map((info) => info.uuid);
         if (uuids.length == 0) return;
-        dispatch(appActions.processEvent(createCheckInstanceAliveEvent(uuids)));
+        owner.postDebuggerEvent(
+          new BackInTimeDebuggerEvent.CheckInstanceAlive(KtList.fromJsArray(instanceListState.instances.asJsReadonlyArrayView().map((item) => item.uuid)))
+        )
       }}
       onChangeNonDebuggablePropertyVisible={(visible) => {
-        dispatch(persistentStateActions().updateNonDebuggablePropertyVisibility(visible));
+        owner.toggleNonDebuggablePropertyVisibility(visible)
       }}
       onClickHistory={(instanceUUID) => {
-        dispatch(backInTimeActions.open({instanceUUID: instanceUUID}));
+        setBackInTimeTargetInstanceId(instanceUUID)
       }}
     />
   </>
