@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@emotion/styled": "latest",
     "antd": "latest",
-    "flipper-plugin": "^0.212.0",
+    "flipper-plugin": "^0.212.0 || ^0.273.0",
     "react": "latest",
     "react-dom": "latest"
   },
