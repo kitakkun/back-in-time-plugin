@@ -4,6 +4,7 @@
     <vendor>kitakkun</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.kitakkun.backintime.tooling.idea.BackInTimeToolWindowFactory" id="BackInTime" />

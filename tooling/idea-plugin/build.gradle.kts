@@ -21,8 +21,10 @@ repositories {
 dependencies {
     intellijPlatform {
         create("IC", "2024.3.1")
+        bundledPlugin("com.intellij.java")
     }
 
+    implementation(projects.tooling.shared)
     implementation(libs.jewel)
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
