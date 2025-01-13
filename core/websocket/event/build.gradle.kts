@@ -23,7 +23,6 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.tooling.model)
             implementation(libs.kotlinx.serialization.json)
         }
     }

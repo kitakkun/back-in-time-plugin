@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
+import org.jetbrains.kotlin.ir.builders.irConcat
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irString
@@ -20,9 +20,9 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.expressions.addArgument
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
@@ -76,7 +76,7 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
         putValueArgument(
             0,
             irVararg(
-                propertyInfoClass.defaultType,
+                irBuiltIns.stringType,
                 properties
                     .filter { !it.isBackInTimeGenerated }
                     .map { irProperty ->
@@ -86,16 +86,20 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                         // FIXME: 必ずしも正確な判定ではない
                         val isDebuggable = irProperty.isVar || propertyType?.classOrNull in valueContainerClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
-                        irCallConstructor(propertyInfoClassConstructor, emptyList()).apply {
-                            putValueArgument(0, irString(irProperty.signatureForBackInTimeDebugger()))
-                            putValueArgument(1, irBoolean(isDebuggable || isDebuggableStateHolder))
-                            putValueArgument(2, irBoolean(isDebuggableStateHolder))
-                            putValueArgument(3, irString(propertyTypeName))
-                            putValueArgument(4, irString(genericTypeCompletedName))
+                        irConcat().apply {
+                            addArgument(irString(irProperty.signatureForBackInTimeDebugger()))
+                            addArgument(irString(","))
+                            addArgument(irBoolean(isDebuggable || isDebuggableStateHolder))
+                            addArgument(irString(","))
+                            addArgument(irBoolean(isDebuggableStateHolder))
+                            addArgument(irString(","))
+                            addArgument(irString(propertyTypeName))
+                            addArgument(irString(","))
+                            addArgument(irString(genericTypeCompletedName))
                         }
                     }.toList(),
             ),
         )
-        putTypeArgument(0, propertyInfoClass.defaultType)
+        putTypeArgument(0, irBuiltIns.stringType)
     }
 }

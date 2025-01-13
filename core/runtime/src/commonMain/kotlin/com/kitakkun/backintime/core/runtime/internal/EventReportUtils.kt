@@ -6,15 +6,13 @@ import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 import com.kitakkun.backintime.core.runtime.backInTimeJson
 import com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent
 import com.kitakkun.backintime.core.runtime.getBackInTimeDebugService
-import com.kitakkun.backintime.tooling.model.PropertyInfo
-import kotlinx.serialization.encodeToString
 
 @BackInTimeCompilerInternalApi
 internal fun reportInstanceRegistration(
     instance: BackInTimeDebuggable,
     classSignature: String,
     superClassSignature: String,
-    properties: List<PropertyInfo>,
+    properties: List<String>,
 ) = getBackInTimeDebugService().processInstanceEvent(
     BackInTimeDebuggableInstanceEvent.RegisterTarget(
         instance = instance,

@@ -3,7 +3,6 @@
 
 package com.kitakkun.backintime.core.websocket.event
 
-import com.kitakkun.backintime.tooling.model.PropertyInfo
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -22,7 +21,7 @@ sealed class BackInTimeDebugServiceEvent : BackInTimeWebSocketEvent {
         val instanceUUID: String,
         val classSignature: String,
         val superClassSignature: String,
-        val properties: List<PropertyInfo>,
+        val properties: List<String>,
         val registeredAt: Int,
     ) : BackInTimeDebugServiceEvent()
 

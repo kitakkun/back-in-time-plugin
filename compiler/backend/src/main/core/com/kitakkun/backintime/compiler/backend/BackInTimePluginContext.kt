@@ -9,7 +9,6 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.javac.resolve.classId
 import org.jetbrains.kotlin.name.CallableId
@@ -38,11 +37,6 @@ class BackInTimePluginContext(
     // capture utils
     val captureThenReturnValueFunctionSymbol by lazy { backintimeNamedFunction(name = "captureThenReturnValue", subpackage = "core.runtime.internal") }
 
-    /**
-     * Used in [com.kitakkun.backintime.compiler.backend.transformer.BackInTimeDebuggableConstructorTransformer]
-     */
-    val propertyInfoClass by lazy { backintimeIrClassSymbol(name = "PropertyInfo", subpackage = "tooling.model") }
-    val propertyInfoClassConstructor = propertyInfoClass.constructors.first { it.owner.isPrimary }
     val listOfFunction by lazy { namedFunction("kotlin.collections", "listOf") { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg } }
 
     // kotlinx-serialization
