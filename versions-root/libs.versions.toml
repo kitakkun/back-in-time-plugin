@@ -39,6 +39,7 @@ kotlin-react = "2025.1.2-19.0.0"
 intelliJPlatform = "2.2.0"
 jetbrainsCompose = "1.7.3"
 jewel = "0.27.0"
+sqldelight = "2.0.2"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -106,6 +107,8 @@ kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-react" }
 
 jewel = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-243", version.ref = "jewel" }
+sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
+sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
 
 [plugins]
 # convention
@@ -127,3 +130,4 @@ buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
+sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
