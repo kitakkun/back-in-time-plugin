@@ -23,7 +23,7 @@ room-runtime = "2.6.1"
 koin-bom = "4.0.1"
 soloader = "0.12.1"
 
-ktor = "2.3.13"
+ktor = "3.0.3"
 uuid = "0.8.4"
 
 ktlint-gradle = "12.1.2"
