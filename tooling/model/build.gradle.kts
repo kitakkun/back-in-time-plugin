@@ -21,7 +21,10 @@ kotlin {
     iosSimulatorArm64()
 
     sourceSets.commonMain.dependencies {
+        implementation(projects.core.websocket.event)
         implementation(libs.kotlinx.serialization.json)
+        implementation(libs.kotlinx.datetime)
+        implementation(libs.uuid)
     }
 
     compilerOptions {
