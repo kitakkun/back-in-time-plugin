@@ -9,6 +9,7 @@ import kotlin.js.JsExport
 
 @JsExport
 data class BackInTimeEventData(
+    val sessionId: String,
     val uuid: String = uuid4().toString(),
     val time: Int = Clock.System.now().epochSeconds.toInt(),
     val payload: BackInTimeWebSocketEvent,
