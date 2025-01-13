@@ -1,7 +1,6 @@
 package com.kitakkun.backintime.core.runtime.event
 
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
-import com.kitakkun.backintime.tooling.model.PropertyInfo
 
 /**
  * events inside the BackInTimeDebuggable instance
@@ -18,7 +17,7 @@ sealed interface BackInTimeDebuggableInstanceEvent {
         val instance: BackInTimeDebuggable,
         val classSignature: String,
         val superClassSignature: String,
-        val properties: List<PropertyInfo>,
+        val properties: List<String>,
     ) : BackInTimeDebuggableInstanceEvent
 
     /**

@@ -8,6 +8,7 @@ import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
 import com.kitakkun.backintime.tooling.model.InstanceInfo
 import com.kitakkun.backintime.tooling.model.MethodCallInfo
+import com.kitakkun.backintime.tooling.model.PropertyInfo
 import com.kitakkun.backintime.tooling.model.ValueChangeInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,7 +61,23 @@ class FlipperAppStateOwnerImpl(
                     }
 
                     val newClassInfoList = if (appState.classInfoList.none { it.classSignature == event.classSignature }) {
-                        appState.classInfoList + ClassInfo(classSignature = event.classSignature, superClassSignature = event.superClassSignature, properties = event.properties)
+                        appState.classInfoList + ClassInfo(
+                            classSignature = event.classSignature,
+                            superClassSignature = event.superClassSignature,
+                            properties = event.properties.map {
+                                /**
+                                 * see [com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer] for details.
+                                 */
+                                val info = it.split(",")
+                                PropertyInfo(
+                                    signature = info[0],
+                                    debuggable = info[1].toBoolean(),
+                                    isDebuggableStateHolder = info[2].toBoolean(),
+                                    propertyType = info[3],
+                                    valueType = info[4],
+                                )
+                            }
+                        )
                     } else {
                         appState.classInfoList
                     }
