@@ -3302,6 +3302,9 @@ babel-preset-jest@^29.6.3:
 
 "backintime-tooling-model@file:../tooling/model/build/dist/js/productionLibrary":
   version "0.0.1-alpha01"
+  dependencies:
+    "@js-joda/core" "3.2.0"
+    format-util "^1.0.5"
 
 "backintime-websocket-event@file:../core/websocket/event/build/dist/js/productionLibrary":
   version "0.0.1-alpha01"

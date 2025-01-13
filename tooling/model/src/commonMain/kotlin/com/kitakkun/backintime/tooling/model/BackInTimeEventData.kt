@@ -1,10 +1,11 @@
-package com.kitakkun.backintime.tooling.flipper
+package com.kitakkun.backintime.tooling.model
 
 import com.benasher44.uuid.uuid4
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeWebSocketEvent
 import kotlinx.datetime.Clock
+import kotlin.js.JsExport
 
 @JsExport
 data class BackInTimeEventData(
