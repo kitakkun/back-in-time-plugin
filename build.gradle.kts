@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.buildconfig) apply false
     alias(libs.plugins.maven.publish) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
+    alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.intelliJPlatform) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false

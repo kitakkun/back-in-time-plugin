@@ -28,5 +28,6 @@ include(
     ":tooling:model",
     ":tooling:flipper-lib",
     ":tooling:idea-plugin",
+    ":tooling:database",
     ":tooling:shared",
 )

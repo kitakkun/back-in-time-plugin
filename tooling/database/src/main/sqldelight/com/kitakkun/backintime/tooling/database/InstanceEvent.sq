@@ -1,0 +1,26 @@
+import com.kitakkun.backintime.tooling.model.InstanceEventData;
+
+CREATE TABLE IF NOT EXISTS instanceEvent (
+  id TEXT PRIMARY KEY NOT NULL,
+  sessionId TEXT NOT NULL,
+  instanceId TEXT NOT NULL,
+  event TEXT AS InstanceEventData
+);
+
+insert:
+INSERT OR IGNORE INTO instanceEvent(id, sessionId, instanceId, event) VALUES (?, ?, ?, ?);
+
+selectByInstanceId:
+SELECT * FROM instanceEvent WHERE instanceId == ?;
+
+selectAll:
+SELECT * FROM instanceEvent;
+
+selectBySessionId:
+SELECT * FROM instanceEvent WHERE sessionId == ?;
+
+selectAllInstanceId:
+SELECT DISTINCT instanceId FROM instanceEvent WHERE sessionId == ?;
+
+selectAllForInstance:
+SELECT * FROM instanceEvent WHERE sessionId == ? AND instanceId == ?;
