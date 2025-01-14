@@ -24,7 +24,10 @@ dependencies {
         bundledPlugin("com.intellij.java")
     }
 
+    implementation(projects.core.websocket.server)
+    implementation(projects.core.websocket.event)
     implementation(projects.tooling.shared)
+    implementation(projects.tooling.model)
     implementation(projects.tooling.database)
     implementation(libs.jewel)
     implementation(compose.desktop.currentOs) {
