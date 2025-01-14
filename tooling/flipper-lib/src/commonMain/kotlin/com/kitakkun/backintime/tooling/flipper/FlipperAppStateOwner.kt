@@ -66,19 +66,7 @@ class FlipperAppStateOwnerImpl(
                         appState.classInfoList + ClassInfo(
                             classSignature = event.classSignature,
                             superClassSignature = event.superClassSignature,
-                            properties = event.properties.map {
-                                /**
-                                 * see [com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer] for details.
-                                 */
-                                val info = it.split(",")
-                                PropertyInfo(
-                                    signature = info[0],
-                                    debuggable = info[1].toBoolean(),
-                                    isDebuggableStateHolder = info[2].toBoolean(),
-                                    propertyType = info[3],
-                                    valueType = info[4],
-                                )
-                            }
+                            properties = event.properties.map(PropertyInfo::fromString),
                         )
                     } else {
                         appState.classInfoList
