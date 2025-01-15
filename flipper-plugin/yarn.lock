@@ -3300,7 +3300,7 @@ babel-preset-jest@^29.6.3:
     format-util "^1.0.5"
     react "^19.0.0"
 
-"backintime-tooling-model@file:../tooling/model/build/dist/js/productionLibrary":
+"backintime-tooling-model@file:../tooling/core/model/build/dist/js/productionLibrary":
   version "0.0.1-alpha01"
   dependencies:
     "@js-joda/core" "3.2.0"
