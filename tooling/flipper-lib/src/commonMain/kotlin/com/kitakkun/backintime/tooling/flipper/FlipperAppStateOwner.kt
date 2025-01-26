@@ -4,6 +4,7 @@ package com.kitakkun.backintime.tooling.flipper
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import com.kitakkun.backintime.tooling.model.BackInTimeEventData
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
 import com.kitakkun.backintime.tooling.model.InstanceInfo
@@ -34,6 +35,7 @@ class FlipperAppStateOwnerImpl(
     @Suppress("NON_EXPORTABLE_TYPE")
     val stateFlow = mutableStateFlow.asStateFlow()
 
+    private val sessionId: String get() = "${flipperClient.appId}:${flipperClient.appName}"
 
     init {
         mutableStateFlow.update { it.copy(persistentState = it.persistentState.copy(showNonDebuggableProperty = showNonDebuggableProperty.get())) }
@@ -46,7 +48,7 @@ class FlipperAppStateOwnerImpl(
     // Do not pass instances of event generated in the js-side! Type matching in when expressions for Js-generated events is not available.
     override fun processEvent(jsonAppEvent: String) {
         val event = BackInTimeDebugServiceEvent.fromJsonString(jsonAppEvent)
-        mutableStateFlow.update { it.copy(events = it.events + BackInTimeEventData(payload = event)) }
+        mutableStateFlow.update { it.copy(events = it.events + BackInTimeEventData(sessionId = sessionId, payload = event)) }
         when (event) {
             is BackInTimeDebugServiceEvent.RegisterInstance -> {
                 mutableStateFlow.update { appState ->
@@ -64,19 +66,7 @@ class FlipperAppStateOwnerImpl(
                         appState.classInfoList + ClassInfo(
                             classSignature = event.classSignature,
                             superClassSignature = event.superClassSignature,
-                            properties = event.properties.map {
-                                /**
-                                 * see [com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer] for details.
-                                 */
-                                val info = it.split(",")
-                                PropertyInfo(
-                                    signature = info[0],
-                                    debuggable = info[1].toBoolean(),
-                                    isDebuggableStateHolder = info[2].toBoolean(),
-                                    propertyType = info[3],
-                                    valueType = info[4],
-                                )
-                            }
+                            properties = event.properties.map(PropertyInfo::fromString),
                         )
                     } else {
                         appState.classInfoList
@@ -156,7 +146,9 @@ class FlipperAppStateOwnerImpl(
         // DON'T RENAME THIS VARIABLE!! It is referenced from the following js() call.
         val payload = BackInTimeDebuggerEvent.toJsonString(event)
         flipperClient.send("debuggerEvent", js("{payload: payload}"))
-        mutableStateFlow.update { it.copy(events = it.events + BackInTimeEventData(payload = event)) }
+        mutableStateFlow.update {
+            it.copy(events = it.events + BackInTimeEventData(sessionId = sessionId, payload = event))
+        }
     }
 
     override fun updateTab(tab: FlipperTab) {
