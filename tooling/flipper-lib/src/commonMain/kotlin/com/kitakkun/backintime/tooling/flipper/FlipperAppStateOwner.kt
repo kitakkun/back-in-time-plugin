@@ -57,7 +57,7 @@ class FlipperAppStateOwnerImpl(
                             else instanceInfo
                         }
                     } else {
-                        appState.instanceInfoList + InstanceInfo(event.instanceUUID, event.classSignature, true, event.registeredAt)
+                        appState.instanceInfoList + InstanceInfo(event.instanceUUID, event.classSignature, true, event.time)
                     }
 
                     val newClassInfoList = if (appState.classInfoList.none { it.classSignature == event.classSignature }) {
@@ -115,7 +115,7 @@ class FlipperAppStateOwnerImpl(
                                 callUUID = event.methodCallUUID,
                                 instanceUUID = event.instanceUUID,
                                 methodSignature = event.methodSignature,
-                                calledAt = event.calledAt,
+                                calledAt = event.time,
                                 valueChanges = emptyList()
                             )
                     )

@@ -1,11 +1,14 @@
 package com.kitakkun.backintime.core.runtime.event
 
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
+import kotlinx.datetime.Clock
 
 /**
  * events inside the BackInTimeDebuggable instance
  */
-sealed interface BackInTimeDebuggableInstanceEvent {
+sealed class BackInTimeDebuggableInstanceEvent {
+    val time: Int = Clock.System.now().epochSeconds.toInt()
+
     /**
      * Register an instance to the debugService
      * @param instance the reference to the instance
@@ -18,7 +21,7 @@ sealed interface BackInTimeDebuggableInstanceEvent {
         val classSignature: String,
         val superClassSignature: String,
         val properties: List<String>,
-    ) : BackInTimeDebuggableInstanceEvent
+    ) : BackInTimeDebuggableInstanceEvent()
 
     /**
      * Register a relationship between parent and child
@@ -29,7 +32,7 @@ sealed interface BackInTimeDebuggableInstanceEvent {
     data class RegisterRelationShip(
         val parentInstance: BackInTimeDebuggable,
         val childInstance: BackInTimeDebuggable,
-    ) : BackInTimeDebuggableInstanceEvent
+    ) : BackInTimeDebuggableInstanceEvent()
 
     /**
      * Notify that a method is called
@@ -41,7 +44,7 @@ sealed interface BackInTimeDebuggableInstanceEvent {
         val instance: BackInTimeDebuggable,
         val methodCallId: String,
         val methodSignature: String,
-    ) : BackInTimeDebuggableInstanceEvent
+    ) : BackInTimeDebuggableInstanceEvent()
 
     /**
      * Notify that a property value is changed
@@ -55,9 +58,9 @@ sealed interface BackInTimeDebuggableInstanceEvent {
         val methodCallId: String,
         val propertySignature: String,
         val propertyValue: String,
-    ) : BackInTimeDebuggableInstanceEvent
+    ) : BackInTimeDebuggableInstanceEvent()
 
     data class Error(
         val exception: Throwable
-    ) : BackInTimeDebuggableInstanceEvent
+    ) : BackInTimeDebuggableInstanceEvent()
 }

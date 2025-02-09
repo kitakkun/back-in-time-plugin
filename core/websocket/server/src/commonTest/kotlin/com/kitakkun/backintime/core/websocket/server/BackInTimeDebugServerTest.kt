@@ -41,7 +41,7 @@ class BackInTimeDebugServerTest {
 
         val connectedThenSendEventJob = launch {
             val sessionInfo = server.newSessionFlow.first()
-            server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping)
+            server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping(0))
         }
 
         val receiveServerEventJob = launch {
@@ -53,7 +53,7 @@ class BackInTimeDebugServerTest {
         receiveServerEventJob.join()
 
         assertEquals(
-            expected = BackInTimeDebuggerEvent.Ping,
+            expected = BackInTimeDebuggerEvent.Ping(0),
             actual = clientReceivedEvent,
         )
     }
@@ -62,10 +62,10 @@ class BackInTimeDebugServerTest {
     fun `test receive event from client`() = runTest {
         launch {
             val (_, event) = server.eventFromClientFlow.first()
-            assertEquals(BackInTimeDebugServiceEvent.Ping, event)
+            assertEquals(BackInTimeDebugServiceEvent.Ping(0), event)
         }
 
         client.openSession()
-        client.queueEvent(BackInTimeDebugServiceEvent.Ping)
+        client.queueEvent(BackInTimeDebugServiceEvent.Ping(0))
     }
 }

@@ -10,7 +10,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 
 /**
  * Singleton service for back-in-time debugger
@@ -99,7 +98,7 @@ class BackInTimeDebugServiceImpl(
         val resultEventForDebugger = when (event) {
             is BackInTimeDebuggerEvent.CheckInstanceAlive -> {
                 val result = event.instanceUUIDs.associateWith { uuid -> instanceManager.getInstanceById(uuid) != null }
-                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(result)
+                BackInTimeDebugServiceEvent.CheckInstanceAliveResult(isAlive = result, time = event.time)
             }
 
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> {
@@ -131,20 +130,21 @@ class BackInTimeDebugServiceImpl(
             classSignature = event.classSignature,
             superClassSignature = event.superClassSignature,
             properties = event.properties,
-            registeredAt = Clock.System.now().epochSeconds.toInt(),
+            time = event.time,
         )
     }
 
     private fun registerRelationship(event: BackInTimeDebuggableInstanceEvent.RegisterRelationShip): BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.RegisterRelationship(
         parentUUID = event.parentInstance.backInTimeInstanceUUID,
         childUUID = event.childInstance.backInTimeInstanceUUID,
+        time = event.time,
     )
 
     private fun notifyMethodCall(event: BackInTimeDebuggableInstanceEvent.MethodCall): BackInTimeDebugServiceEvent = BackInTimeDebugServiceEvent.NotifyMethodCall(
         instanceUUID = event.instance.backInTimeInstanceUUID,
         methodSignature = event.methodSignature,
         methodCallUUID = event.methodCallId,
-        calledAt = Clock.System.now().epochSeconds.toInt(),
+        time = event.time,
     )
 
     private fun notifyPropertyChanged(event: BackInTimeDebuggableInstanceEvent.PropertyValueChange): BackInTimeDebugServiceEvent {
@@ -153,6 +153,7 @@ class BackInTimeDebugServiceImpl(
             value = event.propertyValue,
             propertySignature = event.propertySignature,
             methodCallUUID = event.methodCallId,
+            time = event.time,
         )
     }
 
@@ -172,6 +173,9 @@ class BackInTimeDebugServiceImpl(
     }
 
     private fun error(event: BackInTimeDebuggableInstanceEvent.Error): BackInTimeDebugServiceEvent {
-        return BackInTimeDebugServiceEvent.Error(event.exception.message ?: "Unknown error")
+        return BackInTimeDebugServiceEvent.Error(
+            message = event.exception.message ?: "Unknown error",
+            time = event.time,
+        )
     }
 }
