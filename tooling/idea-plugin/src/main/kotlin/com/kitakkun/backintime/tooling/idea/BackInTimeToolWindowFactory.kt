@@ -8,7 +8,7 @@ import com.intellij.ui.content.ContentFactory
 class BackInTimeToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val content = ContentFactory.getInstance().createContent(
-            BackInTimeToolComposePanel().panel, null, false
+            BackInTimeToolComposePanel(project).panel, null, false
         )
         toolWindow.contentManager.addContent(content)
     }

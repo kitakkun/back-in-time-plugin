@@ -9,7 +9,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.util.PropertyUtil
-import com.kitakkun.backintime.tooling.shared.IDENavigator
+import com.kitakkun.backintime.tooling.core.shared.IDENavigator
 
 @Service(Service.Level.PROJECT)
 class IDENavigatorImpl(project: Project) : IDENavigator {

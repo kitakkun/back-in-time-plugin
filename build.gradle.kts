@@ -17,6 +17,7 @@ plugins {
     alias(libs.plugins.backintimeLint) apply false
     alias(libs.plugins.backintimePublication) apply false
     alias(libs.plugins.backintimeCompilerModule) apply false
+    alias(libs.plugins.intelliJComposeFeature) apply false
 }
 
 allprojects {

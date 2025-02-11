@@ -12,9 +12,11 @@ kotlin {
 repositories {
     intellijPlatform {
         defaultRepositories()
+        intellijDependencies()
     }
     mavenCentral()
     google()
+    maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/")
     maven("https://packages.jetbrains.team/maven/p/kpm/public/")
 }
 
@@ -26,9 +28,12 @@ dependencies {
 
     implementation(projects.core.websocket.server)
     implementation(projects.core.websocket.event)
-    implementation(projects.tooling.shared)
-    implementation(projects.tooling.model)
-    implementation(projects.tooling.database)
+    implementation(projects.tooling.app)
+    implementation(projects.tooling.core.ui)
+    implementation(projects.tooling.core.shared)
+    implementation(projects.tooling.core.model)
+    implementation(projects.tooling.core.database)
+    implementation(projects.tooling.core.usecase)
     implementation(libs.jewel)
     implementation(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")

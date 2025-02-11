@@ -26,6 +26,8 @@ class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
     val isRunning: Boolean get() = server?.application?.isActive == true
 
+    val runningPort: Int? get() = server?.environment?.connectors?.firstOrNull()?.port
+
     private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
     val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()
 
