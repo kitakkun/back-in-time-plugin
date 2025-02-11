@@ -24,6 +24,6 @@ data class BackInTimeEventData(
             is BackInTimeDebuggerEvent.CheckInstanceAlive -> "CheckInstanceAlive"
             is BackInTimeDebuggerEvent.Error -> "Error(from Debugger)"
             is BackInTimeDebuggerEvent.ForceSetPropertyValue -> "ForceSetPropertyValue"
-            BackInTimeDebuggerEvent.Ping -> "Ping(from Debugger)"
+            is BackInTimeDebuggerEvent.Ping -> "Ping(from Debugger)"
         }
 }

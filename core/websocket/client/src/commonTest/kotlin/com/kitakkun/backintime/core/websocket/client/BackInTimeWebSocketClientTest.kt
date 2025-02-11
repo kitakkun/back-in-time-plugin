@@ -130,10 +130,10 @@ class BackInTimeWebSocketClientTest {
         )
 
         client.openSession()
-        client.queueEvent(BackInTimeDebugServiceEvent.Ping)
+        client.queueEvent(BackInTimeDebugServiceEvent.Ping(0))
         client.awaitClose()
 
-        assertEquals(expected = BackInTimeDebugServiceEvent.Ping, actual = serverReceivedEvent)
+        assertEquals(expected = BackInTimeDebugServiceEvent.Ping(0), actual = serverReceivedEvent)
     }
 
 
@@ -144,7 +144,7 @@ class BackInTimeWebSocketClientTest {
         configureServer(
             host = TEST_HOST,
             port = TEST_PORT,
-            serverSession = { sendSerialized<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping) },
+            serverSession = { sendSerialized<BackInTimeDebuggerEvent>(BackInTimeDebuggerEvent.Ping(0)) },
         )
 
         val client = BackInTimeWebSocketClient(
@@ -162,7 +162,7 @@ class BackInTimeWebSocketClientTest {
             client.openSession()
             client.awaitClose()
 
-            assertEquals(expected = BackInTimeDebuggerEvent.Ping, actual = clientReceivedEvent)
+            assertEquals(expected = BackInTimeDebuggerEvent.Ping(0), actual = clientReceivedEvent)
         }
     }
 }

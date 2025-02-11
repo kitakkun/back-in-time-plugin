@@ -7,4 +7,6 @@ import kotlin.js.JsExport
 @OptIn(ExperimentalJsExport::class)
 @JsExport
 @Serializable
-sealed interface BackInTimeWebSocketEvent
+sealed interface BackInTimeWebSocketEvent {
+    val time: Int
+}

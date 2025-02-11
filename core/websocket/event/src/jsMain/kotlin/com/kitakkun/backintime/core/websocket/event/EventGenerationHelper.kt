@@ -3,5 +3,9 @@
 
 package com.kitakkun.backintime.core.websocket.event
 
+import kotlinx.datetime.Clock
+
 @JsExport
-fun createCheckInstanceAliveEvent(instanceUUIDs: Array<String>) = BackInTimeDebuggerEvent.CheckInstanceAlive(instanceUUIDs = instanceUUIDs.toList())
+fun createCheckInstanceAliveEvent(instanceUUIDs: Array<String>): BackInTimeDebuggerEvent.CheckInstanceAlive {
+    return BackInTimeDebuggerEvent.CheckInstanceAlive(instanceUUIDs = instanceUUIDs.toList(), time = Clock.System.now().epochSeconds.toInt())
+}
