@@ -34,10 +34,10 @@ fun SettingsScreen(
     var showServerRestartConfirmationDialog by remember { mutableStateOf(false) }
     var showDatabaseFileChangeWarningDialog by remember { mutableStateOf(false) }
 
-    val fileChooserLauncher = rememberFileChooserResultLauncher(
-        onPicked = { eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it.absolutePath)) },
-        onCanceled = { /* do nothing */ },
-    )
+    val fileChooserLauncher = rememberFileChooserResultLauncher {
+        it ?: return@rememberFileChooserResultLauncher
+        eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it.absolutePath))
+    }
 
     if (showDatabaseRestartConfirmationDialog) {
         DatabaseRecreationConfirmDialog(

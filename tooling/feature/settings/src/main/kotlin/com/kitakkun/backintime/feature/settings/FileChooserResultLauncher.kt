@@ -7,8 +7,7 @@ import javax.swing.JFileChooser
 
 @Composable
 fun rememberFileChooserResultLauncher(
-    onPicked: (File) -> Unit,
-    onCanceled: () -> Unit,
+    resultHandler: (File?) -> Unit,
 ): FileChooserResultLauncher {
     return remember {
         object : FileChooserResultLauncher {
@@ -18,9 +17,9 @@ fun rememberFileChooserResultLauncher(
                 }
                 val result = fileChooser.showSaveDialog(null)
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    onPicked(fileChooser.selectedFile.absoluteFile)
+                    resultHandler(fileChooser.selectedFile.absoluteFile)
                 } else {
-                    onCanceled()
+                    resultHandler(null)
                 }
             }
         }
