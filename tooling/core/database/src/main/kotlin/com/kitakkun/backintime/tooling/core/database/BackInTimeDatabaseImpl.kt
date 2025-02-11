@@ -29,6 +29,7 @@ class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
                     id = it.id,
                     sessionId = it.sessionId,
                     instanceId = it.instanceId,
+                    time = it.time,
                     event = it.event,
                 )
             }
@@ -41,6 +42,7 @@ class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
             id = eventEntity.eventId,
             sessionId = eventEntity.sessionId,
             instanceId = eventEntity.instanceId,
+            time = eventEntity.time,
             event = eventEntity,
         )
     }

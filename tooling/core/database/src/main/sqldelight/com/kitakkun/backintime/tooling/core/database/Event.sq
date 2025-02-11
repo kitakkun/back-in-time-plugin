@@ -4,11 +4,12 @@ CREATE TABLE IF NOT EXISTS event (
   id TEXT PRIMARY KEY NOT NULL,
   sessionId TEXT NOT NULL,
   instanceId TEXT,
+  time INTEGER NOT NULL,
   event TEXT AS EventEntity NOT NULL
 );
 
 insert:
-INSERT OR IGNORE INTO event(id, sessionId, instanceId, event) VALUES (?, ?, ?, ?);
+INSERT OR IGNORE INTO event(id, sessionId, instanceId, time, event) VALUES (?, ?, ?, ?, ?);
 
 selectByInstanceId:
 SELECT * FROM event WHERE instanceId == ? AND sessionId == ?;
