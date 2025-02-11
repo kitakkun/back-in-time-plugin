@@ -15,6 +15,7 @@ import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.receiveDeserialized
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filter
@@ -25,6 +26,8 @@ import kotlinx.serialization.json.Json
 class BackInTimeWebSocketServer {
     private var server: ApplicationEngine? = null
     val isRunning: Boolean get() = server?.application?.isActive == true
+
+    val runningPort: Int? get() = server?.environment?.connectors?.firstOrNull()?.port
 
     private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
     val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()
@@ -78,9 +81,14 @@ class BackInTimeWebSocketServer {
                 }
 
                 val receiveEventJob = launch {
-                    while (true) {
-                        val event = receiveDeserialized<BackInTimeDebugServiceEvent>()
-                        mutableEventFromClientFlow.emit(EventFromClient(sessionId, event))
+                    try {
+                        while (true) {
+                            val event = receiveDeserialized<BackInTimeDebugServiceEvent>()
+                            mutableEventFromClientFlow.emit(EventFromClient(sessionId, event))
+                        }
+                    } catch (e: ClosedReceiveChannelException) {
+                        // Prevent the parent coroutine scope from terminating
+                        // and ensure that the code following closeReason.await() gets executed.
                     }
                 }
 
@@ -91,21 +99,19 @@ class BackInTimeWebSocketServer {
                     address = this.call.request.origin.remoteAddress,
                 )
 
-                closeReason.invokeOnCompletion {
-                    mutableSessionInfoList.remove(sessionInfo)
-
-                    sendEventJob.cancel()
-                    receiveEventJob.cancel()
-
-                    launch {
-                        mutableSessionClosedFlow.emit(sessionInfo)
-                    }
-                }
-
                 mutableSessionInfoList += sessionInfo
                 mutableNewSessionFlow.emit(sessionInfo)
 
                 closeReason.await()
+
+                mutableSessionInfoList.remove(sessionInfo)
+
+                sendEventJob.cancel()
+                receiveEventJob.cancel()
+
+                launch {
+                    mutableSessionClosedFlow.emit(sessionInfo)
+                }
             }
         }
     }
