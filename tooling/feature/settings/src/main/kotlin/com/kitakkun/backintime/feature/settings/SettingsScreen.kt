@@ -12,8 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.feature.settings.component.DatabaseFileChangeWarningDialog
-import com.kitakkun.backintime.feature.settings.component.DatabaseRecreationConfirmDialog
+import com.kitakkun.backintime.feature.settings.component.RestartDatabaseInMemoryConfirmationDialog
+import com.kitakkun.backintime.feature.settings.component.RestartDatabaseWithFileConfirmationDialog
 import com.kitakkun.backintime.feature.settings.component.ServerRestartConfirmationDialog
 import com.kitakkun.backintime.feature.settings.section.DataBaseSettingsSection
 import com.kitakkun.backintime.feature.settings.section.InspectorSettingsSection
@@ -22,37 +22,16 @@ import com.kitakkun.backintime.tooling.core.ui.component.HorizontalDivider
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
-import java.io.File
-import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
 fun SettingsScreen(
     eventEmitter: EventEmitter<SettingsScreenEvent> = rememberEventEmitter(),
     uiState: SettingsScreenUiState = settingsScreenPresenter(eventEmitter),
 ) {
-    var showDatabaseRestartConfirmationDialog by remember { mutableStateOf(false) }
     var showServerRestartConfirmationDialog by remember { mutableStateOf(false) }
-    var showDatabaseFileChangeWarningDialog by remember { mutableStateOf(false) }
 
-    val fileChooserLauncher = rememberFileChooserResultLauncher {
-        it ?: return@rememberFileChooserResultLauncher
-        eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it.absolutePath))
-    }
-
-    if (showDatabaseRestartConfirmationDialog) {
-        DatabaseRecreationConfirmDialog(
-            onDismissRequest = { showDatabaseRestartConfirmationDialog = false },
-            onClickApply = { migrate ->
-                eventEmitter.tryEmit(
-                    SettingsScreenEvent.RestartDatabaseAsFile(
-                        databaseFilePath = uiState.databasePath ?: return@DatabaseRecreationConfirmDialog,
-                        migrate = migrate,
-                    )
-                )
-                showDatabaseRestartConfirmationDialog = false
-            },
-        )
-    }
+    var showRestartDatabaseInMemoryConfirmationDialog by remember { mutableStateOf(false) }
+    var showRestartDatabaseWithFileConfirmationDialog by remember { mutableStateOf(false) }
 
     if (showServerRestartConfirmationDialog) {
         ServerRestartConfirmationDialog(
@@ -64,15 +43,25 @@ fun SettingsScreen(
         )
     }
 
-    if (showDatabaseFileChangeWarningDialog) {
-        DatabaseFileChangeWarningDialog(
+    if (showRestartDatabaseInMemoryConfirmationDialog) {
+        RestartDatabaseInMemoryConfirmationDialog(
             databaseFilePath = uiState.databasePath!!,
-            onDismissRequest = { showDatabaseFileChangeWarningDialog = false },
-            onClickCancel = { showDatabaseFileChangeWarningDialog = false },
+            onDismissRequest = { showRestartDatabaseInMemoryConfirmationDialog = false },
+            onClickCancel = { showRestartDatabaseInMemoryConfirmationDialog = false },
             onClickOk = {
                 eventEmitter.tryEmit(SettingsScreenEvent.RestartDatabaseInMemory(it))
-                eventEmitter.tryEmit(SettingsScreenEvent.UpdatePersistSessionData(false))
-                showDatabaseFileChangeWarningDialog = false
+                showRestartDatabaseInMemoryConfirmationDialog = false
+            },
+        )
+    }
+
+    if (showRestartDatabaseWithFileConfirmationDialog) {
+        RestartDatabaseWithFileConfirmationDialog(
+            initialDatabasePath = uiState.databasePath,
+            onDismissRequest = { showRestartDatabaseWithFileConfirmationDialog = false },
+            onClickOk = { databaseFilePath, migrate ->
+                eventEmitter.tryEmit(SettingsScreenEvent.RestartDatabaseWithFile(databaseFilePath, migrate))
+                showRestartDatabaseWithFileConfirmationDialog = false
             },
         )
     }
@@ -83,23 +72,13 @@ fun SettingsScreen(
         onToggleShowNonDebuggableProperties = { eventEmitter.tryEmit(SettingsScreenEvent.UpdateNonDebuggablePropertyVisibility(it)) },
         onClickShowInspectorForSession = { eventEmitter.tryEmit(SettingsScreenEvent.ShowInspectorForSession(it)) },
         onClickShowLogForSession = { eventEmitter.tryEmit(SettingsScreenEvent.ShowLogForSession(it)) },
-        onClickPickFile = {
-            fileChooserLauncher.launch {
-                selectedFile = File("backintime-database.db")
-                fileFilter = FileNameExtensionFilter("sqlite database file", "db", "sqlite", "sqlite3")
-                isAcceptAllFileFilterUsed = false
-            }
-        },
-        onTogglePersistSessionData = { persistData ->
-            if (uiState.databaseStatus is SettingsScreenUiState.DatabaseStatus.File) {
-                // show warning
-                showDatabaseFileChangeWarningDialog = true
+        onTogglePersistSessionData = { persist ->
+            if (persist) {
+                showRestartDatabaseWithFileConfirmationDialog = true
             } else {
-                eventEmitter.tryEmit(SettingsScreenEvent.UpdatePersistSessionData(persistData))
+                showRestartDatabaseInMemoryConfirmationDialog = true
             }
         },
-        onUpdateDatabasePath = { eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it)) },
-        onClickApplyDatabaseConfiguration = { showDatabaseRestartConfirmationDialog = true },
         onClickApplyServerConfiguration = { showServerRestartConfirmationDialog = true },
     )
 }
@@ -114,7 +93,6 @@ data class SettingsScreenUiState(
     val databasePath: String?,
 ) {
     val needsServerRestart: Boolean get() = serverStatus is ServerStatus.Running && port != serverStatus.port
-    val needsDatabaseRestart: Boolean get() = (databaseStatus as? DatabaseStatus.File)?.path != databasePath
 
     sealed interface ServerStatus {
         data object Stopped : ServerStatus
@@ -144,12 +122,9 @@ fun SettingsScreen(
     onUpdatePortNumber: (Int) -> Unit,
     onToggleShowNonDebuggableProperties: (visible: Boolean) -> Unit,
     onTogglePersistSessionData: (persist: Boolean) -> Unit,
-    onUpdateDatabasePath: (String) -> Unit,
     onClickApplyServerConfiguration: () -> Unit,
     onClickShowInspectorForSession: (sessionId: String) -> Unit,
     onClickShowLogForSession: (sessionId: String) -> Unit,
-    onClickPickFile: () -> Unit,
-    onClickApplyDatabaseConfiguration: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -175,13 +150,8 @@ fun SettingsScreen(
         HorizontalDivider()
         DataBaseSettingsSection(
             status = uiState.databaseStatus,
-            needsDatabaseRestart = uiState.needsDatabaseRestart,
             persistSessionData = uiState.persistSessionData,
-            databasePath = uiState.databasePath,
             onTogglePersistSessionData = onTogglePersistSessionData,
-            onUpdateDatabasePath = onUpdateDatabasePath,
-            onClickPickFile = onClickPickFile,
-            onClickRestart = onClickApplyDatabaseConfiguration,
         )
     }
 }

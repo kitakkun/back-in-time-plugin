@@ -15,13 +15,11 @@ import com.kitakkun.backintime.tooling.model.Tab
 
 sealed interface SettingsScreenEvent {
     data class UpdatePortNumber(val portNumber: Int) : SettingsScreenEvent
-    data class UpdatePersistSessionData(val persist: Boolean) : SettingsScreenEvent
     data class UpdateNonDebuggablePropertyVisibility(val visible: Boolean) : SettingsScreenEvent
-    data class UpdateDBPath(val dbPath: String) : SettingsScreenEvent
     data class ShowInspectorForSession(val sessionId: String) : SettingsScreenEvent
     data class ShowLogForSession(val sessionId: String) : SettingsScreenEvent
     data object RestartServer : SettingsScreenEvent
-    data class RestartDatabaseAsFile(val databaseFilePath: String, val migrate: Boolean) : SettingsScreenEvent
+    data class RestartDatabaseWithFile(val databaseFilePath: String, val migrate: Boolean) : SettingsScreenEvent
     data class RestartDatabaseInMemory(val migrate: Boolean) : SettingsScreenEvent
 }
 
@@ -47,12 +45,6 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
             is SettingsScreenEvent.UpdateNonDebuggablePropertyVisibility -> {
                 settings.update {
                     it.copy(showNonDebuggableProperties = event.visible)
-                }
-            }
-
-            is SettingsScreenEvent.UpdateDBPath -> {
-                settings.update {
-                    it.copy(databasePath = event.dbPath)
                 }
             }
 
@@ -86,19 +78,17 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
                 )
             }
 
-            is SettingsScreenEvent.UpdatePersistSessionData -> {
-                settings.loadState(settingsState.copy(persistSessionData = event.persist))
-            }
-
-            is SettingsScreenEvent.RestartDatabaseAsFile -> {
+            is SettingsScreenEvent.RestartDatabaseWithFile -> {
                 database.restartDatabaseAsFile(
                     filePath = event.databaseFilePath,
                     migrate = event.migrate,
                 )
+                settings.update { it.copy(databasePath = event.databaseFilePath, persistSessionData = true) }
             }
 
             is SettingsScreenEvent.RestartDatabaseInMemory -> {
                 database.restartDatabaseInMemory(migrate = event.migrate)
+                settings.update { it.copy(persistSessionData = false) }
             }
         }
     }

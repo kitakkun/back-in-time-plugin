@@ -21,7 +21,7 @@ import org.jetbrains.jewel.ui.component.Checkbox
 import org.jetbrains.jewel.ui.component.Text
 
 @Composable
-fun DatabaseFileChangeWarningDialog(
+fun RestartDatabaseInMemoryConfirmationDialog(
     databaseFilePath: String,
     onClickOk: (migrate: Boolean) -> Unit,
     onClickCancel: () -> Unit,
@@ -62,9 +62,9 @@ fun DatabaseFileChangeWarningDialog(
 
 @Preview
 @Composable
-private fun DatabaseFileChangeWarningDialogPreview() {
+private fun RestartDatabaseInMemoryConfirmationDialogPreview() {
     PreviewContainer {
-        DatabaseFileChangeWarningDialog(
+        RestartDatabaseInMemoryConfirmationDialog(
             databaseFilePath = "/path/to/backintime-database.db",
             onDismissRequest = {},
             onClickOk = {},
