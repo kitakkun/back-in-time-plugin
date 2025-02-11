@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.feature.settings.component.DatabaseFileChangeWarningDialog
 import com.kitakkun.backintime.feature.settings.component.DatabaseRecreationConfirmDialog
 import com.kitakkun.backintime.feature.settings.component.ServerRestartConfirmationDialog
 import com.kitakkun.backintime.feature.settings.section.DataBaseSettingsSection
@@ -32,13 +33,14 @@ fun SettingsScreen(
 ) {
     var showDatabaseRestartConfirmationDialog by remember { mutableStateOf(false) }
     var showServerRestartConfirmationDialog by remember { mutableStateOf(false) }
+    var showDatabaseFileChangeWarningDialog by remember { mutableStateOf(false) }
 
     if (showDatabaseRestartConfirmationDialog) {
         DatabaseRecreationConfirmDialog(
             onDismissRequest = { showDatabaseRestartConfirmationDialog = false },
             onClickApply = { migrate ->
                 eventEmitter.tryEmit(
-                    SettingsScreenEvent.RestartDatabase(
+                    SettingsScreenEvent.RestartDatabaseAsFile(
                         databaseFilePath = uiState.databasePath ?: return@DatabaseRecreationConfirmDialog,
                         migrate = migrate,
                     )
@@ -55,6 +57,19 @@ fun SettingsScreen(
                 eventEmitter.tryEmit(SettingsScreenEvent.RestartServer)
                 showServerRestartConfirmationDialog = false
             }
+        )
+    }
+
+    if (showDatabaseFileChangeWarningDialog) {
+        DatabaseFileChangeWarningDialog(
+            databaseFilePath = uiState.databasePath!!,
+            onDismissRequest = { showDatabaseFileChangeWarningDialog = false },
+            onClickCancel = { showDatabaseFileChangeWarningDialog = false },
+            onClickOk = {
+                eventEmitter.tryEmit(SettingsScreenEvent.RestartDatabaseInMemory(it))
+                eventEmitter.tryEmit(SettingsScreenEvent.UpdatePersistSessionData(false))
+                showDatabaseFileChangeWarningDialog = false
+            },
         )
     }
 
@@ -75,7 +90,14 @@ fun SettingsScreen(
                 eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(fileChooser.selectedFile.absolutePath))
             }
         },
-        onTogglePersistSessionData = { eventEmitter.tryEmit(SettingsScreenEvent.UpdatePersistSessionData(it)) },
+        onTogglePersistSessionData = { persistData ->
+            if (uiState.databaseStatus is SettingsScreenUiState.DatabaseStatus.File) {
+                // show warning
+                showDatabaseFileChangeWarningDialog = true
+            } else {
+                eventEmitter.tryEmit(SettingsScreenEvent.UpdatePersistSessionData(persistData))
+            }
+        },
         onUpdateDatabasePath = { eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it)) },
         onClickApplyDatabaseConfiguration = { showDatabaseRestartConfirmationDialog = true },
         onClickApplyServerConfiguration = { showServerRestartConfirmationDialog = true },

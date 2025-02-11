@@ -21,7 +21,8 @@ sealed interface SettingsScreenEvent {
     data class ShowInspectorForSession(val sessionId: String) : SettingsScreenEvent
     data class ShowLogForSession(val sessionId: String) : SettingsScreenEvent
     data object RestartServer : SettingsScreenEvent
-    data class RestartDatabase(val databaseFilePath: String, val migrate: Boolean) : SettingsScreenEvent
+    data class RestartDatabaseAsFile(val databaseFilePath: String, val migrate: Boolean) : SettingsScreenEvent
+    data class RestartDatabaseInMemory(val migrate: Boolean) : SettingsScreenEvent
 }
 
 @Composable
@@ -89,11 +90,15 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
                 settings.loadState(settingsState.copy(persistSessionData = event.persist))
             }
 
-            is SettingsScreenEvent.RestartDatabase -> {
-                database.restartDatabase(
+            is SettingsScreenEvent.RestartDatabaseAsFile -> {
+                database.restartDatabaseAsFile(
                     filePath = event.databaseFilePath,
                     migrate = event.migrate,
                 )
+            }
+
+            is SettingsScreenEvent.RestartDatabaseInMemory -> {
+                database.restartDatabaseInMemory(migrate = event.migrate)
             }
         }
     }

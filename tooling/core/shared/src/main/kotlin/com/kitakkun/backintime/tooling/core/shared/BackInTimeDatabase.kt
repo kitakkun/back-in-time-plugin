@@ -7,7 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 interface BackInTimeDatabase {
     val stateFlow: StateFlow<State>
 
-    fun restartDatabase(filePath: String, migrate: Boolean)
+    fun restartDatabaseAsFile(filePath: String, migrate: Boolean)
+    fun restartDatabaseInMemory(migrate: Boolean)
     fun insert(eventEntity: EventEntity)
     fun selectForSession(sessionId: String): Flow<List<EventEntity>>
     fun selectForInstance(sessionId: String, instanceId: String): Flow<List<EventEntity>>
