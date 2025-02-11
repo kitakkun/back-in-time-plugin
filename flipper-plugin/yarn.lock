@@ -3305,6 +3305,9 @@ babel-preset-jest@^29.6.3:
 
 "backintime-websocket-event@file:../core/websocket/event/build/dist/js/productionLibrary":
   version "0.0.1-alpha01"
+  dependencies:
+    "@js-joda/core" "3.2.0"
+    format-util "^1.0.5"
 
 balanced-match@^1.0.0:
   version "1.0.2"
