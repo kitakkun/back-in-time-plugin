@@ -23,7 +23,6 @@ import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import java.io.File
-import javax.swing.JFileChooser
 import javax.swing.filechooser.FileNameExtensionFilter
 
 @Composable
@@ -34,6 +33,11 @@ fun SettingsScreen(
     var showDatabaseRestartConfirmationDialog by remember { mutableStateOf(false) }
     var showServerRestartConfirmationDialog by remember { mutableStateOf(false) }
     var showDatabaseFileChangeWarningDialog by remember { mutableStateOf(false) }
+
+    val fileChooserLauncher = rememberFileChooserResultLauncher(
+        onPicked = { eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(it.absolutePath)) },
+        onCanceled = { /* do nothing */ },
+    )
 
     if (showDatabaseRestartConfirmationDialog) {
         DatabaseRecreationConfirmDialog(
@@ -80,14 +84,10 @@ fun SettingsScreen(
         onClickShowInspectorForSession = { eventEmitter.tryEmit(SettingsScreenEvent.ShowInspectorForSession(it)) },
         onClickShowLogForSession = { eventEmitter.tryEmit(SettingsScreenEvent.ShowLogForSession(it)) },
         onClickPickFile = {
-            val fileChooser = JFileChooser().apply {
+            fileChooserLauncher.launch {
                 selectedFile = File("backintime-database.db")
                 fileFilter = FileNameExtensionFilter("sqlite database file", "db", "sqlite", "sqlite3")
                 isAcceptAllFileFilterUsed = false
-            }
-            val result = fileChooser.showSaveDialog(null)
-            if (result == JFileChooser.APPROVE_OPTION) {
-                eventEmitter.tryEmit(SettingsScreenEvent.UpdateDBPath(fileChooser.selectedFile.absolutePath))
             }
         },
         onTogglePersistSessionData = { persistData ->
