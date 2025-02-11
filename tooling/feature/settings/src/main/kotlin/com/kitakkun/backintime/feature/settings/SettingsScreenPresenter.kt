@@ -35,15 +35,21 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     EventEffect(eventEmitter) { event ->
         when (event) {
             is SettingsScreenEvent.UpdatePortNumber -> {
-                settings.updateServerPort(event.portNumber)
+                settings.update {
+                    it.copy(serverPort = event.portNumber)
+                }
             }
 
             is SettingsScreenEvent.UpdateNonDebuggablePropertyVisibility -> {
-                settings.updateShowNonDebuggableProperties(event.visible)
+                settings.update {
+                    it.copy(showNonDebuggableProperties = event.visible)
+                }
             }
 
             is SettingsScreenEvent.UpdateDBPath -> {
-                settings.updateDatabasePath(event.dbPath)
+                settings.update {
+                    it.copy(databasePath = event.dbPath)
+                }
             }
 
             is SettingsScreenEvent.RestartServer -> {

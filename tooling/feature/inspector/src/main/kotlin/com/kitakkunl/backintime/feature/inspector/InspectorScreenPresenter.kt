@@ -35,9 +35,11 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
     val pluginStateService = LocalPluginStateService.current
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
-    val settings = LocalSettings.current
     val server = LocalServer.current
-    val showNonDebuggableProperties by rememberUpdatedState(settings.getState().showNonDebuggableProperties)
+    val serverState by rememberUpdatedState(server.state)
+
+    val settings = LocalSettings.current
+    val settingsState by rememberUpdatedState(settings.getState())
 
     val instances by rememberInstances(pluginState.globalState.selectedSessionId)
 
@@ -48,7 +50,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                     uuid = instance.id,
                     className = instance.className,
                     properties = instance.properties
-                        .filter { showNonDebuggableProperties || it.debuggable }
+                        .filter { settingsState.showNonDebuggableProperties || it.debuggable }
                         .map { property ->
                             PropertyItemUiState(
                                 name = property.name,
@@ -191,9 +193,9 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
             }
 
             is InspectorScreenEvent.UpdateNonDebuggablePropertiesVisibility -> {
-                settings.loadState(
-                    settings.getState().copy(showNonDebuggableProperties = event.visible)
-                )
+                settings.update {
+                    it.copy(showNonDebuggableProperties = event.visible)
+                }
             }
         }
     }
@@ -202,11 +204,11 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
         selectedInstanceId = pluginState.inspectorState.selectedInstanceId,
         selectedPropertyName = pluginState.inspectorState.selectedPropertyKey,
         selectedSessionId = pluginState.globalState.selectedSessionId,
-        availableSessionIds = server.state.connections.map { it.id },
+        availableSessionIds = serverState.connections.map { it.id },
         instances = instanceUiStates,
         horizontalDividerPosition = pluginState.inspectorState.horizontalSplitPanePosition,
         verticalDividerPosition = pluginState.inspectorState.verticalSplitPanePosition,
         history = history,
-        showNonDebuggableProperties = showNonDebuggableProperties,
+        showNonDebuggableProperties = settingsState.showNonDebuggableProperties,
     )
 }

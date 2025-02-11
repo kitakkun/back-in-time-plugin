@@ -11,16 +11,8 @@ interface BackInTimeDebuggerSettings {
     fun getState(): State
     fun loadState(state: State)
 
-    fun updateServerPort(port: Int) {
-        loadState(getState().copy(serverPort = port))
-    }
-
-    fun updateShowNonDebuggableProperties(showNonDebuggableProperties: Boolean) {
-        loadState(getState().copy(showNonDebuggableProperties = showNonDebuggableProperties))
-    }
-
-    fun updateDatabasePath(path: String?) {
-        loadState(getState().copy(databasePath = path))
+    fun update(block: (prevState: State) -> State) {
+        loadState(block(getState()))
     }
 
     companion object {
