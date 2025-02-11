@@ -37,7 +37,12 @@ fun SettingsScreen(
         DatabaseRecreationConfirmDialog(
             onDismissRequest = { showDatabaseRestartConfirmationDialog = false },
             onClickApply = { migrate ->
-                eventEmitter.tryEmit(SettingsScreenEvent.RestartDatabase(migrate = migrate))
+                eventEmitter.tryEmit(
+                    SettingsScreenEvent.RestartDatabase(
+                        databaseFilePath = uiState.databasePath ?: return@DatabaseRecreationConfirmDialog,
+                        migrate = migrate,
+                    )
+                )
                 showDatabaseRestartConfirmationDialog = false
             },
         )

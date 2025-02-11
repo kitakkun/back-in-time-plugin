@@ -1,8 +1,10 @@
 package com.kitakkun.backintime.feature.settings
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import com.kitakkun.backintime.tooling.core.shared.BackInTimeDatabase
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalPluginStateService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalServer
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalSettings
@@ -19,7 +21,7 @@ sealed interface SettingsScreenEvent {
     data class ShowInspectorForSession(val sessionId: String) : SettingsScreenEvent
     data class ShowLogForSession(val sessionId: String) : SettingsScreenEvent
     data object RestartServer : SettingsScreenEvent
-    data class RestartDatabase(val migrate: Boolean) : SettingsScreenEvent
+    data class RestartDatabase(val databaseFilePath: String, val migrate: Boolean) : SettingsScreenEvent
 }
 
 @Composable
@@ -29,6 +31,7 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     val server = LocalServer.current
     val settings = LocalSettings.current
 
+    val databaseState by database.stateFlow.collectAsState()
     val settingsState by rememberUpdatedState(settings.getState())
     val connections = server.state.connections
 
@@ -87,10 +90,10 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
             }
 
             is SettingsScreenEvent.RestartDatabase -> {
-//                database.restartDatabase(
-//                    filePath = TODO(),
-//                    migrate = event.migrate
-//                )
+                database.restartDatabase(
+                    filePath = event.databaseFilePath,
+                    migrate = event.migrate,
+                )
             }
         }
     }
@@ -114,6 +117,10 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
         },
         persistSessionData = settingsState.persistSessionData,
         databasePath = settingsState.databasePath,
-        databaseStatus = SettingsScreenUiState.DatabaseStatus.InMemory,
+        databaseStatus = when (val state = databaseState) {
+            is BackInTimeDatabase.State.RunningInMemory -> SettingsScreenUiState.DatabaseStatus.InMemory
+            is BackInTimeDatabase.State.RunningWithFile -> SettingsScreenUiState.DatabaseStatus.File(state.filePath)
+            is BackInTimeDatabase.State.Stopped -> TODO()
+        },
     )
 }

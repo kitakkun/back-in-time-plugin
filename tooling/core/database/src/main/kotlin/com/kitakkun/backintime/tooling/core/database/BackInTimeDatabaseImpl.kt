@@ -6,13 +6,19 @@ import com.kitakkun.backintime.tooling.core.shared.BackInTimeDatabase
 import com.kitakkun.backintime.tooling.model.EventEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import java.io.File
 
 class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
     companion object {
         val instance by lazy { BackInTimeDatabaseImpl() }
     }
+
+    private val mutableStateFlow: MutableStateFlow<BackInTimeDatabase.State> = MutableStateFlow(BackInTimeDatabase.State.RunningInMemory)
+    override val stateFlow: StateFlow<BackInTimeDatabase.State> = mutableStateFlow
 
     private var database = createDatabase()
     private val queries get() = database.eventQueries
@@ -35,6 +41,7 @@ class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
             }
         }
         database = newDatabase
+        mutableStateFlow.update { BackInTimeDatabase.State.RunningWithFile(filePath) }
     }
 
     override fun insert(eventEntity: EventEntity) {
