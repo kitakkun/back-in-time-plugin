@@ -3,6 +3,7 @@
 
 package com.kitakkun.backintime.core.websocket.event
 
+import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlin.js.ExperimentalJsExport
@@ -16,13 +17,13 @@ import kotlin.js.JsExport
 sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
     @Serializable
     data class Ping(
-        override val time: Int,
+        override val time: Int = Clock.System.now().epochSeconds.toInt(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
-        override val time: Int,
+        override val time: Int = Clock.System.now().epochSeconds.toInt(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
@@ -30,13 +31,13 @@ sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
         val targetInstanceId: String,
         val propertySignature: String,
         val jsonValue: String,
-        override val time: Int,
+        override val time: Int = Clock.System.now().epochSeconds.toInt(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
     data class Error(
         val message: String,
-        override val time: Int,
+        override val time: Int = Clock.System.now().epochSeconds.toInt(),
     ) : BackInTimeDebuggerEvent()
 
     companion object {
