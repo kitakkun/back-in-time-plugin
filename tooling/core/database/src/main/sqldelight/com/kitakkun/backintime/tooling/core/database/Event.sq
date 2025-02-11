@@ -22,6 +22,3 @@ SELECT * FROM event WHERE sessionId == ?;
 
 selectAllInstanceId:
 SELECT DISTINCT instanceId FROM event WHERE sessionId == ?;
-
-selectAllForInstance:
-SELECT * FROM event WHERE sessionId == ? AND instanceId == ?;
