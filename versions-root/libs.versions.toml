@@ -36,6 +36,7 @@ maven-publish = "0.30.0"
 
 kaml = "0.67.0"
 kotlin-react = "2025.1.2-19.0.0"
+idea = "2024.3.1"
 intelliJPlatform = "2.2.0"
 jetbrainsCompose = "1.7.3"
 jewel = "0.27.0"

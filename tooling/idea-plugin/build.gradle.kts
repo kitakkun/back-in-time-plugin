@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        create("IC", "2024.3.1")
+        intellijIdeaCommunity(libs.versions.idea)
         bundledPlugin("com.intellij.java")
     }
 
