@@ -31,17 +31,22 @@ fun rememberInstances(sessionId: String?): State<List<Instance>> {
     return remember(eachInstanceEventsFlow) {
         eachInstanceEventsFlow.map {
             it.mapNotNull { events ->
-                val registerEvent = events.filterIsInstance<EventEntity.Instance.Register>().firstOrNull() ?: return@mapNotNull null
+                val registerEvents = events.filterIsInstance<EventEntity.Instance.Register>()
+                val realClassRegisterEvent = registerEvents.lastOrNull() ?: return@mapNotNull null
+
                 Instance(
-                    id = registerEvent.instanceId,
-                    className = registerEvent.classInfo.classSignature,
-                    superClassName = registerEvent.classInfo.superClassSignature,
-                    properties = registerEvent.classInfo.properties.map { property ->
+                    id = realClassRegisterEvent.instanceId,
+                    className = realClassRegisterEvent.classInfo.classSignature,
+                    superClassName = realClassRegisterEvent.classInfo.superClassSignature,
+                    properties = registerEvents.flatMap { it.classInfo.properties }.map { property ->
+                        val parentClassSignature = property.name.split(".").dropLast(1).joinToString("")
                         Property(
                             name = property.name,
                             type = property.propertyType,
                             totalEvents = events.count { event -> event is EventEntity.Instance.StateChange && event.propertySignature == property.signature },
                             debuggable = property.debuggable,
+                            isInherited = parentClassSignature != realClassRegisterEvent.classInfo.classSignature,
+                            parentClassSignature = parentClassSignature,
                         )
                     },
                     events = events,

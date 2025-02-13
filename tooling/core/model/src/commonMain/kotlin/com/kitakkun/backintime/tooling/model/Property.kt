@@ -8,4 +8,6 @@ data class Property(
     val type: String,
     val totalEvents: Int,
     val debuggable: Boolean,
+    val isInherited: Boolean,
+    val parentClassSignature: String,
 )
