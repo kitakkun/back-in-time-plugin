@@ -1,5 +1,5 @@
 plugins {
-    `kotlin-dsl`
+    alias(libs.plugins.gradleKotlinDsl)
 }
 
 dependencies {

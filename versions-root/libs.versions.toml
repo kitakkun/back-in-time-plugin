@@ -41,6 +41,7 @@ intelliJPlatform = "2.2.0"
 jetbrainsCompose = "1.7.3"
 jewel = "0.27.0"
 sqldelight = "2.0.2"
+gradle-kotlin-dsl = "5.1.2"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -135,3 +136,4 @@ maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publ
 intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "jetbrainsCompose" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }
+gradleKotlinDsl = { id = "org.gradle.kotlin.kotlin-dsl", version.ref = "gradle-kotlin-dsl" }
