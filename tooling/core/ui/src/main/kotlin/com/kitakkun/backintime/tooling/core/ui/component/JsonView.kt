@@ -149,18 +149,6 @@ private fun AnnotatedString.Builder.appendWithIndent(
     append(text)
 }
 
-private fun AnnotatedString.Builder.appendLineWithIndent(
-    indentLevel: Int,
-    text: String,
-    indentSpaces: Int = 4,
-) {
-    appendWithIndent(
-        indentLevel = indentLevel,
-        text = text + "\n",
-        indentSpaces = indentSpaces,
-    )
-}
-
 @Preview
 @Composable
 private fun JsonViewPreview() {
