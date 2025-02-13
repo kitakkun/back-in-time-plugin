@@ -1,13 +1,8 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
-}
-
-kotlin {
-    jvmToolchain(17)
+    alias(libs.plugins.intelliJCommon)
 }
 
 dependencies {
     implementation(projects.tooling.core.model)
     implementation(projects.core.websocket.event)
-    implementation(libs.kotlinx.coroutines.core)
 }

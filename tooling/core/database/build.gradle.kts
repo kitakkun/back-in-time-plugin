@@ -1,11 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.intelliJCommon)
     alias(libs.plugins.sqldelight)
-    alias(libs.plugins.kotlinSerialization)
-}
-
-kotlin {
-    jvmToolchain(17)
 }
 
 sqldelight {
@@ -20,8 +15,12 @@ dependencies {
     implementation(projects.core.websocket.event)
     implementation(projects.tooling.core.model)
     implementation(projects.tooling.core.shared)
+
     implementation(libs.sqldelight.sqlite.driver)
-    implementation(libs.sqldelight.coroutines.extensions)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.sqldelight.coroutines.extensions) {
+        exclude(group = "org.jetbrains.kotlinx")
+    }
+
     testImplementation(libs.kotlin.test)
 }

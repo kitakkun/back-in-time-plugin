@@ -18,6 +18,8 @@ plugins {
     alias(libs.plugins.backintimePublication) apply false
     alias(libs.plugins.backintimeCompilerModule) apply false
     alias(libs.plugins.intelliJComposeFeature) apply false
+    alias(libs.plugins.intelliJCommon) apply false
+    alias(libs.plugins.intelliJJewel) apply false
 }
 
 allprojects {

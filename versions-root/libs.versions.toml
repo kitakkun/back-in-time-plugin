@@ -36,11 +36,13 @@ maven-publish = "0.30.0"
 
 kaml = "0.67.0"
 kotlin-react = "2025.1.2-19.0.0"
+
 idea = "2024.3.1"
 intelliJPlatform = "2.2.0"
 jetbrainsCompose = "1.7.3"
 jewel = "0.27.0"
 sqldelight = "2.0.2"
+kotlinx-coroutines-intellij = "1.8.0-intellij-11"
 gradle-kotlin-dsl = "5.1.2"
 
 [libraries]
@@ -110,9 +112,13 @@ maven-publish = { module = "com.vanniktech:gradle-maven-publish-plugin", version
 kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
 kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-react" }
 
-jewel = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-243", version.ref = "jewel" }
+jewel-laf = { module = "org.jetbrains.jewel:jewel-ide-laf-bridge-243", version.ref = "jewel" }
+jewel-standalone = { module = "org.jetbrains.jewel:jewel-int-ui-standalone-243", version.ref = "jewel" }
 sqldelight-sqlite-driver = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-coroutines-extensions = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+kotlinx-coroutines-core-intellij = { module = "com.intellij.platform:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines-intellij" }
+
+intellijPlatformGradlePlugin = { module = "org.jetbrains.intellij.platform:org.jetbrains.intellij.platform.gradle.plugin", version.ref = "intelliJPlatform" }
 
 [plugins]
 # convention
@@ -120,6 +126,8 @@ backintimeLint = { id = "backintime-lint", version = "unspecified" }
 backintimePublication = { id = "backintime-publication", version = "unspecified" }
 backintimeCompilerModule = { id = "backintime-compiler-module", version = "unspecified" }
 intelliJComposeFeature = { id = "intellij-compose-feature", version = "unspecified" }
+intelliJCommon = { id = "intellij-common", version = "unspecified" }
+intelliJJewel = { id = "intellij-jewel", version = "unspecified" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
