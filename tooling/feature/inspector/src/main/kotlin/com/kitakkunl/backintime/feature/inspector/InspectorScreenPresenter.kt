@@ -184,7 +184,6 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                     .map { it.propertySignature to it.newValueAsJson }
                     .distinctBy { it.first }
                     .toMap()
-                println(values)
                 server.backInTime(
                     sessionId = event.sessionId,
                     instanceId = event.instanceId,
