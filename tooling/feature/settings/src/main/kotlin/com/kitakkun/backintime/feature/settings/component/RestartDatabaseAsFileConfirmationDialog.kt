@@ -43,6 +43,7 @@ fun RestartDatabaseWithFileConfirmationDialog(
         onDismissRequest = onDismissRequest,
         onClickCancel = onDismissRequest,
         onClickOk = { onClickOk(databaseTextFieldState.text.toString(), migrateCurrentData) },
+        enableOkButton = databaseTextFieldState.text.isNotEmpty(),
     ) {
         Text(text = "DB file location:")
         TextField(

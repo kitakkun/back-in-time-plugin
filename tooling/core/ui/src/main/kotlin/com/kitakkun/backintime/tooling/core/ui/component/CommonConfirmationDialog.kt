@@ -27,6 +27,7 @@ fun CommonConfirmationDialog(
     onClickCancel: () -> Unit,
     modifier: Modifier = Modifier,
     contentSpacing: Dp = 16.dp,
+    enableOkButton: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
@@ -48,7 +49,10 @@ fun CommonConfirmationDialog(
                 ActionButton(onClickCancel) {
                     Text("Cancel")
                 }
-                DefaultButton(onClickOk) {
+                DefaultButton(
+                    enabled = enableOkButton,
+                    onClick = onClickOk,
+                ) {
                     Text("OK")
                 }
             }
