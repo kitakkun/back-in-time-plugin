@@ -58,7 +58,7 @@ private fun MethodInvocationDetailView(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "${uiState.invokedFunctionName}(...)",
+            text = "${uiState.invokedMethodSignature}(...)",
         )
         CompositionLocalProvider(LocalContentColor provides JewelTheme.contentColor.copy(alpha = 0.7f)) {
             if (uiState.stateChanges.isEmpty()) {
@@ -94,7 +94,7 @@ private fun MethodInvocationDetailViewPreview() {
         ) {
             MethodInvocationDetailView(
                 uiState = EventItemUiState.MethodInvocation(
-                    invokedFunctionName = "reload",
+                    invokedMethodSignature = "reload",
                     stateChanges = emptyList(),
                     expandedDetails = true,
                     id = "",

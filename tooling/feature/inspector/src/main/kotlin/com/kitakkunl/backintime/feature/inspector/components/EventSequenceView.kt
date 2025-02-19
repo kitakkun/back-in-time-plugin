@@ -93,7 +93,7 @@ private fun EventSequenceViewPreview() {
                                     stateUpdates = listOf("new Value")
                                 )
                             ),
-                            invokedFunctionName = "updateValues",
+                            invokedMethodSignature = "updateValues",
                             selected = false,
                             time = 0,
                         )

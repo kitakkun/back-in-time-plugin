@@ -83,7 +83,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                                         stateUpdates = stateChanges.map { it.newValueAsJson },
                                     )
                                 },
-                            invokedFunctionName = event.methodSignature,
+                            invokedMethodSignature = event.methodSignature,
                             id = event.eventId,
                             selected = eventIsSelected,
                             time = event.time,

@@ -45,7 +45,7 @@ sealed interface EventItemUiState {
         override val selected: Boolean,
         override val expandedDetails: Boolean,
         override val time: Long,
-        val invokedFunctionName: String,
+        val invokedMethodSignature: String,
         val stateChanges: List<UpdatedProperty>,
     ) : EventItemUiState {
         data class UpdatedProperty(
