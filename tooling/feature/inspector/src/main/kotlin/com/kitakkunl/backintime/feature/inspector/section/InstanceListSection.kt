@@ -11,6 +11,7 @@ import com.kitakkunl.backintime.feature.inspector.components.EmptyInstanceView
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemView
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
+import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
 
 @Composable
 fun InstanceListSection(
@@ -62,7 +63,7 @@ private fun InstanceListSectionPreview() {
             instances = List(10) {
                 InstanceItemUiState(
                     uuid = "$it",
-                    className = "com/example/A$it",
+                    classSignature = "com/example/A$it".toClassSignature(),
                     properties = listOf(),
                     propertiesExpanded = it == 0,
                     totalEventsCount = it,

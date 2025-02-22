@@ -41,14 +41,14 @@ fun PropertyInspectorSection(
             Row {
                 KeyValueRow(
                     "class",
-                    uiState.className,
+                    uiState.classSignature.asString(),
                     modifier = Modifier.weight(1f),
                 )
                 IconActionButton(
                     key = AllIconsKeys.Actions.EditSource,
                     contentDescription = "Go to source",
                     onClick = {
-                        localNavigator.navigateToClass(uiState.className)
+                        localNavigator.navigateToClass(uiState.classSignature.asString())
                     },
                 )
             }

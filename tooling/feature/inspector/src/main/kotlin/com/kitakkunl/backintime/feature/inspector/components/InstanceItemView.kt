@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.component.Badge
 import com.kitakkun.backintime.tooling.core.ui.component.HorizontalDivider
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkunl.backintime.feature.inspector.model.Signature
+import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
@@ -23,7 +25,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 data class InstanceItemUiState(
     val uuid: String,
-    val className: String,
+    val classSignature: Signature.Class,
     val properties: List<PropertyItemUiState>,
     val propertiesExpanded: Boolean,
     val totalEventsCount: Int,
@@ -53,7 +55,7 @@ fun InstanceItemView(
                 )
             }
             Text(text = uiState.uuid.take(5))
-            Text(text = uiState.className, modifier = Modifier.weight(1f))
+            Text(text = uiState.classSignature.asString(), modifier = Modifier.weight(1f))
             Badge(containerColor = Color.Red) {
                 Text(text = uiState.totalEventsCount.toString())
             }
@@ -82,7 +84,7 @@ private fun InstanceItemViewPreview() {
         InstanceItemView(
             uiState = InstanceItemUiState(
                 uuid = "c9ed94d9-1c1f-493d-b982-db34db076ffe",
-                className = "com.example.MyStateHolder",
+                classSignature = "com/example/MyStateHolder".toClassSignature(),
                 propertiesExpanded = true,
                 properties = List(10) {
                     PropertyItemUiState(

@@ -16,6 +16,7 @@ import com.kitakkun.backintime.tooling.model.EventEntity
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
+import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
 import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
 import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 import com.kitakkunl.backintime.feature.inspector.section.HistorySectionUiState
@@ -50,7 +51,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
             instances.map { instance ->
                 InstanceItemUiState(
                     uuid = instance.id,
-                    className = instance.className,
+                    classSignature = instance.className.toClassSignature(),
                     properties = instance.properties
                         .filter { settingsState.showNonDebuggableProperties || it.debuggable }
                         .map { property ->
