@@ -19,11 +19,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.component.Badge
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkunl.backintime.feature.inspector.model.Signature
+import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.ui.component.Text
 
 data class PropertyItemUiState(
-    val name: String,
+    val signature: Signature.Property,
     val type: String,
     val eventCount: Int,
     val isSelected: Boolean,
@@ -50,7 +52,7 @@ fun PropertyItemView(
             .padding(8.dp),
     ) {
         Text(
-            text = uiState.name,
+            text = uiState.signature.propertyName,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -89,7 +91,7 @@ private fun PropertyItemViewPreview() {
     PreviewContainer {
         PropertyItemView(
             uiState = PropertyItemUiState(
-                name = "prop1",
+                signature = "com/example/MyClass.prop1".toPropertySignature(),
                 type = "kotlin/Int",
                 eventCount = 10,
                 isSelected = false,

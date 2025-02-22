@@ -4,6 +4,7 @@ import kotlin.js.JsExport
 
 @JsExport
 data class Property(
+    val signature: String,
     val name: String,
     val type: String,
     val totalEvents: Int,

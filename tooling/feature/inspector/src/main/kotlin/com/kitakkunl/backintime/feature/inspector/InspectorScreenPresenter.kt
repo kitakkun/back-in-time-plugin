@@ -16,6 +16,7 @@ import com.kitakkun.backintime.tooling.model.EventEntity
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
+import com.kitakkunl.backintime.feature.inspector.model.Signature
 import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
 import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
 import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
@@ -25,7 +26,7 @@ sealed interface InspectorScreenEvent {
     data class TogglePropertyVisibility(val instanceId: String) : InspectorScreenEvent
     data class SelectSession(val id: String) : InspectorScreenEvent
     data class SelectInstance(val id: String) : InspectorScreenEvent
-    data class SelectProperty(val instanceId: String, val name: String) : InspectorScreenEvent
+    data class SelectProperty(val instanceId: String, val signature: Signature.Property) : InspectorScreenEvent
     data class UpdateVerticalDividerPosition(val position: Float) : InspectorScreenEvent
     data class UpdateHorizontalDividerPosition(val position: Float) : InspectorScreenEvent
     data class SelectEvent(val event: EventItemUiState) : InspectorScreenEvent
@@ -56,10 +57,10 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                         .filter { settingsState.showNonDebuggableProperties || it.debuggable }
                         .map { property ->
                             PropertyItemUiState(
-                                name = property.name,
+                                signature = property.signature.toPropertySignature(),
                                 type = property.type,
                                 eventCount = property.totalEvents,
-                                isSelected = pluginState.inspectorState.selectedInstanceId == instance.id && pluginState.inspectorState.selectedPropertyKey == property.name,
+                                isSelected = pluginState.inspectorState.selectedInstanceId == instance.id && pluginState.inspectorState.selectedPropertyKey == property.signature,
                             )
                         },
                     propertiesExpanded = instance.id in pluginState.inspectorState.expandedInstanceIds,
@@ -156,7 +157,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
 
             is InspectorScreenEvent.SelectProperty -> {
                 pluginStateService.updateInspectorState {
-                    it.copy(selectedInstanceId = event.instanceId, selectedPropertyKey = event.name)
+                    it.copy(selectedInstanceId = event.instanceId, selectedPropertyKey = event.signature.asString())
                 }
             }
 
@@ -204,7 +205,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
 
     return InspectorScreenUiState(
         selectedInstanceId = pluginState.inspectorState.selectedInstanceId,
-        selectedPropertyName = pluginState.inspectorState.selectedPropertyKey,
+        selectedPropertySignature = pluginState.inspectorState.selectedPropertyKey?.toPropertySignature(),
         selectedSessionId = pluginState.globalState.selectedSessionId,
         availableSessionIds = serverState.connections.map { it.id },
         instances = instanceUiStates,

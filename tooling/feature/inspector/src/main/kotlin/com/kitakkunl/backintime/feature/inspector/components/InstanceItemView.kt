@@ -18,6 +18,7 @@ import com.kitakkun.backintime.tooling.core.ui.component.HorizontalDivider
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.model.Signature
 import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
+import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
@@ -88,7 +89,7 @@ private fun InstanceItemViewPreview() {
                 propertiesExpanded = true,
                 properties = List(10) {
                     PropertyItemUiState(
-                        name = "prop$it",
+                        signature = "com/example/MyStateHolder.prop$it".toPropertySignature(),
                         type = "kotlin/String",
                         eventCount = it,
                         isSelected = false,

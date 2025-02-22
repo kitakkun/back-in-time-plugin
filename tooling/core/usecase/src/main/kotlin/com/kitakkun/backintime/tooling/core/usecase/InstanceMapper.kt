@@ -41,6 +41,7 @@ fun rememberInstances(sessionId: String?): State<List<Instance>> {
                     properties = registerEvents.flatMap { it.classInfo.properties }.map { property ->
                         val parentClassSignature = property.name.split(".").dropLast(1).joinToString("")
                         Property(
+                            signature = property.signature,
                             name = property.name,
                             type = property.propertyType,
                             totalEvents = events.count { event -> event is EventEntity.Instance.StateChange && event.propertySignature == property.signature },

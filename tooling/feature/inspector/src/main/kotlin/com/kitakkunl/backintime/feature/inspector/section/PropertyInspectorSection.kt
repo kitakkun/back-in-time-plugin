@@ -16,6 +16,7 @@ import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalIDENavigato
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.KeyValueRow
+import com.kitakkunl.backintime.feature.inspector.model.Signature
 import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.icons.AllIconsKeys
@@ -23,7 +24,7 @@ import org.jetbrains.jewel.ui.icons.AllIconsKeys
 @Composable
 fun PropertyInspectorSection(
     uiState: InstanceItemUiState?,
-    propertyName: String?,
+    propertySignature: Signature.Property?,
     modifier: Modifier = Modifier,
 ) {
     val localNavigator = LocalIDENavigator.current
@@ -52,11 +53,11 @@ fun PropertyInspectorSection(
                     },
                 )
             }
-            uiState.properties.find { it.name == propertyName }?.let {
+            uiState.properties.find { it.signature == propertySignature }?.let {
                 Text(text = "Property")
                 KeyValueRow(
                     "name",
-                    it.name,
+                    it.signature.propertyName,
                 )
                 KeyValueRow(
                     "type",
@@ -82,7 +83,7 @@ private fun PropertyInspectorSectionPreview() {
         CompositionLocalProvider(LocalIDENavigator provides IDENavigator.Noop) {
             PropertyInspectorSection(
                 uiState = null,
-                propertyName = null,
+                propertySignature = null,
             )
         }
     }

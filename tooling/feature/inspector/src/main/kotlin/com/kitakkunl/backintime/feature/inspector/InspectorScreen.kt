@@ -23,6 +23,7 @@ import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
+import com.kitakkunl.backintime.feature.inspector.model.Signature
 import com.kitakkunl.backintime.feature.inspector.section.HistorySection
 import com.kitakkunl.backintime.feature.inspector.section.HistorySectionUiState
 import com.kitakkunl.backintime.feature.inspector.section.InstanceListSection
@@ -40,7 +41,7 @@ fun InspectorScreen(
 ) {
     InspectorScreen(
         uiState = uiState,
-        onClickProperty = { instance, property -> eventEmitter.tryEmit(InspectorScreenEvent.SelectProperty(instance.uuid, property.name)) },
+        onClickProperty = { instance, property -> eventEmitter.tryEmit(InspectorScreenEvent.SelectProperty(instance.uuid, property.signature)) },
         onSelectSessionId = { eventEmitter.tryEmit(InspectorScreenEvent.SelectSession(it)) },
         onClickItem = { eventEmitter.tryEmit(InspectorScreenEvent.SelectInstance(it.uuid)) },
         onTogglePropertyVisibility = { eventEmitter.tryEmit(InspectorScreenEvent.TogglePropertyVisibility(it.uuid)) },
@@ -55,7 +56,7 @@ fun InspectorScreen(
 data class InspectorScreenUiState(
     val selectedSessionId: String?,
     val selectedInstanceId: String?,
-    val selectedPropertyName: String?,
+    val selectedPropertySignature: Signature.Property?,
     val availableSessionIds: List<String>,
     val instances: List<InstanceItemUiState>,
     val horizontalDividerPosition: Float,
@@ -133,7 +134,7 @@ fun InspectorScreen(
                     second = {
                         PropertyInspectorSection(
                             uiState = uiState.selectedInstance,
-                            propertyName = uiState.selectedPropertyName,
+                            propertySignature = uiState.selectedPropertySignature,
                             modifier = Modifier.padding(8.dp),
                         )
                     },
@@ -165,7 +166,7 @@ private fun InspectorScreenPreview() {
                 uiState = InspectorScreenUiState(
                     selectedSessionId = null,
                     selectedInstanceId = null,
-                    selectedPropertyName = null,
+                    selectedPropertySignature = null,
                     availableSessionIds = listOf(),
                     instances = listOf(),
                     horizontalDividerPosition = 0.5f,
