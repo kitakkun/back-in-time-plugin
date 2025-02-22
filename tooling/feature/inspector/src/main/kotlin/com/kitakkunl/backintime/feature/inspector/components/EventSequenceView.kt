@@ -16,6 +16,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
+import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 
 @Composable
 fun EventSequenceView(
@@ -89,11 +91,11 @@ private fun EventSequenceViewPreview() {
                             expandedDetails = it % 5 == 0,
                             stateChanges = listOf(
                                 EventItemUiState.MethodInvocation.UpdatedProperty(
-                                    name = "prop1",
+                                    signature = "prop1".toPropertySignature(),
                                     stateUpdates = listOf("new Value")
                                 )
                             ),
-                            invokedMethodSignature = "updateValues",
+                            invokedMethodSignature = "updateValues".toFunctionSignature(),
                             selected = false,
                             time = 0,
                         )

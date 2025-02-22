@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkunl.backintime.feature.inspector.model.Signature
 import org.jetbrains.jewel.ui.component.Text
 
 sealed interface EventItemUiState {
@@ -45,11 +46,11 @@ sealed interface EventItemUiState {
         override val selected: Boolean,
         override val expandedDetails: Boolean,
         override val time: Long,
-        val invokedMethodSignature: String,
+        val invokedMethodSignature: Signature.Function,
         val stateChanges: List<UpdatedProperty>,
     ) : EventItemUiState {
         data class UpdatedProperty(
-            val name: String,
+            val signature: Signature.Property,
             val stateUpdates: List<String>,
         )
     }

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.component.BalloonView
 import com.kitakkun.backintime.tooling.core.ui.component.TrianglePosition
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.foundation.theme.LocalContentColor
 import org.jetbrains.jewel.ui.component.Text
@@ -66,7 +67,7 @@ private fun MethodInvocationDetailView(
             } else {
                 uiState.stateChanges.forEach {
                     Row {
-                        Text(text = it.name)
+                        Text(text = it.signature.asString())
                         Spacer(
                             Modifier
                                 .widthIn(min = 20.dp)
@@ -94,7 +95,7 @@ private fun MethodInvocationDetailViewPreview() {
         ) {
             MethodInvocationDetailView(
                 uiState = EventItemUiState.MethodInvocation(
-                    invokedMethodSignature = "reload",
+                    invokedMethodSignature = "reload".toFunctionSignature(),
                     stateChanges = emptyList(),
                     expandedDetails = true,
                     id = "",

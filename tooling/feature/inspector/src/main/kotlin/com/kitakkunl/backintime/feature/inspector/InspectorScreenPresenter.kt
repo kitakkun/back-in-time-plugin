@@ -16,6 +16,8 @@ import com.kitakkun.backintime.tooling.model.EventEntity
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
+import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
+import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 import com.kitakkunl.backintime.feature.inspector.section.HistorySectionUiState
 
 sealed interface InspectorScreenEvent {
@@ -79,11 +81,11 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                                 .groupBy { it.propertySignature }
                                 .map { (propertyFqName, stateChanges) ->
                                     EventItemUiState.MethodInvocation.UpdatedProperty(
-                                        name = propertyFqName,
+                                        signature = propertyFqName.toPropertySignature(),
                                         stateUpdates = stateChanges.map { it.newValueAsJson },
                                     )
                                 },
-                            invokedMethodSignature = event.methodSignature,
+                            invokedMethodSignature = event.methodSignature.toFunctionSignature(),
                             id = event.eventId,
                             selected = eventIsSelected,
                             time = event.time,

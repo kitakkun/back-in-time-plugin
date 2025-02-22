@@ -79,7 +79,7 @@ private fun MethodInvocationDetailsView(
         Text("Updated Values")
         event.stateChanges.forEach {
             KeyValueRow(
-                key = it.name,
+                key = it.signature.asString(),
                 value = it.stateUpdates.joinToString(", "),
             )
         }
