@@ -59,7 +59,7 @@ private fun MethodInvocationDetailView(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            text = "${uiState.invokedMethodSignature}(...)",
+            text = "${uiState.invokedMethodSignature.asString()}(...)",
         )
         CompositionLocalProvider(LocalContentColor provides JewelTheme.contentColor.copy(alpha = 0.7f)) {
             if (uiState.stateChanges.isEmpty()) {
