@@ -4,3 +4,4 @@ build
 .kotlin
 local.properties
 .intellijPlatform
+bin
