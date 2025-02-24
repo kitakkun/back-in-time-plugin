@@ -13,16 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIcon
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.component.Badge
 import com.kitakkun.backintime.tooling.core.ui.component.HorizontalDivider
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.model.Signature
 import com.kitakkunl.backintime.feature.inspector.model.toClassSignature
 import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
-import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.component.IconButton
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 data class InstanceItemUiState(
     val uuid: String,
@@ -50,15 +50,15 @@ fun InstanceItemView(
                 .padding(8.dp),
         ) {
             IconButton(onClick = onTogglePropertyVisibility) {
-                Icon(
-                    key = if (uiState.propertiesExpanded) AllIconsKeys.General.ArrowDown else AllIconsKeys.General.ArrowRight,
-                    contentDescription = null,
-                )
+                BackInTimeIcon(iconKey = if (uiState.propertiesExpanded) BackInTimeIconsKey.ArrowDown else BackInTimeIconsKey.ArrowRight)
             }
             Text(text = uiState.uuid.take(5))
             Text(text = uiState.classSignature.asString(), modifier = Modifier.weight(1f))
             Badge(containerColor = Color.Red) {
-                Text(text = uiState.totalEventsCount.toString())
+                Text(
+                    text = uiState.totalEventsCount.toString(),
+                    color = Color.White,
+                )
             }
         }
         AnimatedVisibility(

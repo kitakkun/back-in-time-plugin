@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeSelectableIconActionButton
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkun.backintime.tooling.model.Tab
-import org.jetbrains.jewel.ui.component.SelectableIconActionButton
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun BackInTimeTopBar(
@@ -19,24 +19,21 @@ fun BackInTimeTopBar(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier) {
-        SelectableIconActionButton(
+        BackInTimeSelectableIconActionButton(
             selected = currentTab == Tab.Inspector,
             onClick = onClickInstances,
-            key = AllIconsKeys.Toolwindows.ToolWindowHierarchy,
-            contentDescription = null,
+            iconKey = BackInTimeIconsKey.ToolWindowHierarchy,
         )
-        SelectableIconActionButton(
+        BackInTimeSelectableIconActionButton(
             selected = currentTab == Tab.Log,
             onClick = onClickLog,
-            key = AllIconsKeys.Nodes.DataSchema,
-            contentDescription = null,
+            iconKey = BackInTimeIconsKey.DataSchema,
         )
         Spacer(Modifier.weight(1f))
-        SelectableIconActionButton(
+        BackInTimeSelectableIconActionButton(
             selected = currentTab == Tab.Settings,
             onClick = onClickSettings,
-            key = AllIconsKeys.General.Settings,
-            contentDescription = null,
+            iconKey = BackInTimeIconsKey.Settings,
         )
     }
 }

@@ -36,4 +36,5 @@ include(
     ":tooling:feature:inspector",
     ":tooling:feature:settings",
     ":tooling:feature:log",
+    ":tooling:standalone",
 )

@@ -22,6 +22,7 @@ import com.kitakkun.backintime.feature.settings.SettingsScreenUiState
 import com.kitakkun.backintime.feature.settings.component.SessionListView
 import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -30,7 +31,6 @@ import org.jetbrains.jewel.foundation.theme.LocalTextStyle
 import org.jetbrains.jewel.ui.component.ActionButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun ServerSettingsSection(
@@ -64,7 +64,7 @@ fun ServerSettingsSection(
     ) {
         SettingsHeadingItem(
             title = "Server",
-            iconKey = AllIconsKeys.Webreferences.WebSocket,
+            iconKey = BackInTimeIconsKey.WebSocket,
         )
         SettingsItemRow(
             label = { Text(text = "Status:") },

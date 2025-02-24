@@ -9,10 +9,10 @@ import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.SettingsScreenUiState
 import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.component.Switch
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun DataBaseSettingsSection(
@@ -27,7 +27,7 @@ fun DataBaseSettingsSection(
     ) {
         SettingsHeadingItem(
             title = "Database",
-            iconKey = AllIconsKeys.Nodes.DataSchema,
+            iconKey = BackInTimeIconsKey.DataSchema,
         )
         SettingsItemRow(
             label = { Text("Status:") },

@@ -8,10 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.component.Switch
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun InspectorSettingsSection(
@@ -25,7 +25,7 @@ fun InspectorSettingsSection(
     ) {
         SettingsHeadingItem(
             title = "Inspector",
-            iconKey = AllIconsKeys.Toolwindows.ToolWindowHierarchy,
+            iconKey = BackInTimeIconsKey.ToolWindowHierarchy,
         )
         SettingsItemRow(
             label = { Text(text = "Show non-debuggable properties:") },

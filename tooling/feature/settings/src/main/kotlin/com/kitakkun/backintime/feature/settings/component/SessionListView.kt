@@ -15,13 +15,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.SettingsScreenUiState
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconActionButton
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.component.Badge
 import com.kitakkun.backintime.tooling.core.ui.component.HorizontalDivider
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import org.jetbrains.jewel.foundation.theme.LocalTextStyle
-import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun SessionListView(
@@ -50,14 +50,12 @@ fun SessionListView(
                     )
                 )
                 Spacer(Modifier.weight(1f))
-                IconActionButton(
-                    key = AllIconsKeys.Toolwindows.ToolWindowHierarchy,
-                    contentDescription = null,
+                BackInTimeIconActionButton(
+                    iconKey = BackInTimeIconsKey.ToolWindowHierarchy,
                     onClick = { onClickShowInspector(session) },
                 )
-                IconActionButton(
-                    key = AllIconsKeys.Nodes.DataSchema,
-                    contentDescription = null,
+                BackInTimeIconActionButton(
+                    iconKey = BackInTimeIconsKey.DataSchema,
                     onClick = { onClickShowLog(session) },
                 )
             }

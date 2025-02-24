@@ -78,6 +78,7 @@ fun PropertyItemView(
                 ) {
                     Text(
                         text = if (uiState.eventCount >= 100) "99+" else uiState.eventCount.toString(),
+                        color = Color.White,
                     )
                 }
             }

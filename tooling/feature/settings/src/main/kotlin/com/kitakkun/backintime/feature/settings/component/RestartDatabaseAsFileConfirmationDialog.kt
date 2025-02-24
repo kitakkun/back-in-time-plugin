@@ -16,13 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.rememberFileChooserResultLauncher
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconActionButton
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.component.CommonConfirmationDialog
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import org.jetbrains.jewel.ui.component.Checkbox
-import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 import java.io.File
 import javax.swing.filechooser.FileNameExtensionFilter
 
@@ -49,9 +49,8 @@ fun RestartDatabaseWithFileConfirmationDialog(
         TextField(
             state = databaseTextFieldState,
             trailingIcon = {
-                IconActionButton(
-                    key = AllIconsKeys.FileTypes.UiForm,
-                    contentDescription = null,
+                BackInTimeIconActionButton(
+                    iconKey = BackInTimeIconsKey.UiForm,
                     onClick = {
                         fileChooserResultLauncher.launch {
                             selectedFile = File("backintime-database.db")

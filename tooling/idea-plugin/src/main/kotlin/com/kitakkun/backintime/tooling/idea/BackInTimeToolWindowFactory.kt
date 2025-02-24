@@ -16,6 +16,7 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.kitakkun.backintime.tooling.app.BackInTimeDebuggerApp
 import com.kitakkun.backintime.tooling.core.database.BackInTimeDatabaseImpl
+import com.kitakkun.backintime.tooling.core.ui.component.LocalIconPainterResolver
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalIDENavigator
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalPluginStateService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalServer
@@ -38,6 +39,7 @@ class BackInTimeToolWindowFactory : ToolWindowFactory {
                 LocalServer provides BackInTimeDebuggerServiceImpl.getInstance(),
                 LocalPluginStateService provides PluginStateServiceImpl.getInstance(),
                 LocalDatabase provides BackInTimeDatabaseImpl.instance,
+                LocalIconPainterResolver provides BackInTimeIconPainterResolverImpl(),
             ) {
                 BackInTimeDebuggerApp()
             }

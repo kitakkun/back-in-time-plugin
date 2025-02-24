@@ -1,4 +1,4 @@
-package com.kitakkun.backintime.tooling.idea.service
+package com.kitakkun.backintime.tooling.core.database
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent

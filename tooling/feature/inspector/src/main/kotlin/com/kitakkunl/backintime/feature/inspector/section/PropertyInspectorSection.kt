@@ -12,14 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.shared.IDENavigator
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconActionButton
+import com.kitakkun.backintime.tooling.core.ui.component.BackInTimeIconsKey
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalIDENavigator
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.KeyValueRow
 import com.kitakkunl.backintime.feature.inspector.model.Signature
-import org.jetbrains.jewel.ui.component.IconActionButton
 import org.jetbrains.jewel.ui.component.Text
-import org.jetbrains.jewel.ui.icons.AllIconsKeys
 
 @Composable
 fun PropertyInspectorSection(
@@ -45,9 +45,8 @@ fun PropertyInspectorSection(
                     uiState.classSignature.asString(),
                     modifier = Modifier.weight(1f),
                 )
-                IconActionButton(
-                    key = AllIconsKeys.Actions.EditSource,
-                    contentDescription = "Go to source",
+                BackInTimeIconActionButton(
+                    iconKey = BackInTimeIconsKey.EditSource,
                     onClick = {
                         localNavigator.navigateToClass(uiState.classSignature.asString())
                     },
