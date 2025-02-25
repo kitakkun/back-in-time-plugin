@@ -1,14 +1,14 @@
 package com.kitakkun.backintime.tooling.standalone
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -23,8 +23,8 @@ class BackInTimeIconPainterResolverImpl : BackInTimeIconPainterResolver {
                 BackInTimeIconsKey.Settings -> Icons.Default.Settings
                 BackInTimeIconsKey.ToolWindowHierarchy -> Icons.Default.BugReport
                 BackInTimeIconsKey.DataSchema -> Icons.Default.History
-                BackInTimeIconsKey.ArrowDown -> Icons.Default.ArrowDropDown
-                BackInTimeIconsKey.ArrowRight -> Icons.AutoMirrored.Filled.ArrowForward
+                BackInTimeIconsKey.ArrowDown -> Icons.Default.KeyboardArrowDown
+                BackInTimeIconsKey.ArrowRight -> Icons.Default.KeyboardArrowRight
                 BackInTimeIconsKey.WebSocket -> Icons.Default.Cloud
                 BackInTimeIconsKey.EditSource -> Icons.Default.Edit
                 BackInTimeIconsKey.UiForm -> Icons.Default.Folder
