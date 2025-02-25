@@ -24,6 +24,7 @@ dependencies {
     implementation(projects.core.websocket.event)
 
     implementation(libs.jewel.standalone)
+    implementation(libs.kotlinx.serialization.json)
 }
 
 compose.desktop {

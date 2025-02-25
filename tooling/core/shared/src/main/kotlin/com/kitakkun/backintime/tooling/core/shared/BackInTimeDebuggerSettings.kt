@@ -1,6 +1,9 @@
 package com.kitakkun.backintime.tooling.core.shared
 
+import kotlinx.serialization.Serializable
+
 interface BackInTimeDebuggerSettings {
+    @Serializable
     data class State(
         val serverPort: Int = 50023,
         val showNonDebuggableProperties: Boolean = true,
