@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.foundation.theme.LocalContentColor
 import org.jetbrains.jewel.ui.component.Icon
 import org.jetbrains.jewel.ui.theme.iconButtonStyle
 
@@ -44,6 +45,7 @@ fun BackInTimeIcon(
     Icon(
         painter = painter,
         contentDescription = null,
+        tint = LocalContentColor.current,
         modifier = modifier,
     )
 }

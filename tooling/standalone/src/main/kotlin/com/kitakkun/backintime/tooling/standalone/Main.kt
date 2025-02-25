@@ -1,7 +1,9 @@
 package com.kitakkun.backintime.tooling.standalone
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.LocalMinimumInteractiveComponentEnforcement
+import androidx.compose.material.Surface
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -14,6 +16,7 @@ import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalServer
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalSettings
 import com.kitakkun.backintime.tooling.core.ui.theme.LocalIsIDEInDarkTheme
 import com.kitakkun.backintime.tooling.core.usecase.LocalDatabase
+import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
 import org.jetbrains.jewel.ui.component.styling.DropdownIcons
 import org.jetbrains.jewel.ui.component.styling.DropdownStyle
@@ -26,7 +29,7 @@ fun main() = application {
         title = "Back-in-Time Debugger",
         onCloseRequest = ::exitApplication,
     ) {
-        IntUiTheme {
+        IntUiTheme(isDark = isSystemInDarkTheme()) {
             CompositionLocalProvider(
                 LocalMinimumInteractiveComponentEnforcement provides false,
                 LocalDefaultDropdownStyle provides DropdownStyle(
@@ -44,14 +47,16 @@ fun main() = application {
                     menuStyle = LocalDefaultDropdownStyle.current.menuStyle,
                 ),
                 LocalIconPainterResolver provides BackInTimeIconPainterResolverImpl(),
-                LocalIsIDEInDarkTheme provides true,
+                LocalIsIDEInDarkTheme provides isSystemInDarkTheme(),
                 LocalIDENavigator provides StandaloneIDENavigator(),
                 LocalSettings provides StandaloneDebuggerSettings(),
                 LocalServer provides StandaloneDebuggerService(),
                 LocalPluginStateService provides StandalonePluginStateService(),
                 LocalDatabase provides BackInTimeDatabaseImpl.instance,
             ) {
-                BackInTimeDebuggerApp()
+                Surface(color = JewelTheme.globalColors.panelBackground) {
+                    BackInTimeDebuggerApp()
+                }
             }
         }
     }

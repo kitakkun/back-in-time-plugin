@@ -35,6 +35,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Back-in-Time Debugger"
             packageVersion = "1.0.0" // FIXME: input valid version of backintime
+            jvmArgs("-Dapple.awt.application.appearance=system") // Make title bar match system theme
         }
     }
 }
