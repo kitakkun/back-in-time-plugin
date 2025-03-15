@@ -30,15 +30,16 @@ class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
         if (!dbFile.exists()) dbFile.createNewFile()
         val newDatabase = createDatabase("jdbc:sqlite:$filePath")
         if (migrate) {
-            val prevDatabase = database
-            prevDatabase.eventQueries.selectAll().executeAsList().forEach {
-                newDatabase.eventQueries.insert(
-                    id = it.id,
-                    sessionId = it.sessionId,
-                    instanceId = it.instanceId,
-                    time = it.time,
-                    event = it.event,
-                )
+            database.runCatching {
+                eventQueries.selectAll().executeAsList().forEach {
+                    newDatabase.eventQueries.insert(
+                        id = it.id,
+                        sessionId = it.sessionId,
+                        instanceId = it.instanceId,
+                        time = it.time,
+                        event = it.event,
+                    )
+                }
             }
         }
         database = newDatabase
@@ -48,15 +49,16 @@ class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
     override fun restartDatabaseInMemory(migrate: Boolean) {
         val newDatabase = createDatabase(JdbcSqliteDriver.IN_MEMORY)
         if (migrate) {
-            val prevDatabase = database
-            prevDatabase.eventQueries.selectAll().executeAsList().forEach {
-                newDatabase.eventQueries.insert(
-                    id = it.id,
-                    sessionId = it.sessionId,
-                    instanceId = it.instanceId,
-                    time = it.time,
-                    event = it.event,
-                )
+            database.runCatching {
+                eventQueries.selectAll().executeAsList().forEach {
+                    newDatabase.eventQueries.insert(
+                        id = it.id,
+                        sessionId = it.sessionId,
+                        instanceId = it.instanceId,
+                        time = it.time,
+                        event = it.event,
+                    )
+                }
             }
         }
         database = newDatabase
