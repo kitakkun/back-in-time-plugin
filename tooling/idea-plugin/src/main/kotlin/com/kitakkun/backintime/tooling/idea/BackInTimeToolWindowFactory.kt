@@ -37,7 +37,7 @@ class BackInTimeToolWindowFactory : ToolWindowFactory {
                 LocalIDENavigator provides project.service<IDENavigatorImpl>(),
                 LocalSettings provides BackInTimeDebuggerSettingsImpl.getInstance(),
                 LocalServer provides BackInTimeDebuggerServiceImpl.getInstance(),
-                LocalPluginStateService provides PluginStateServiceImpl.getInstance(),
+                LocalPluginStateService provides project.service<PluginStateServiceImpl>(),
                 LocalDatabase provides BackInTimeDatabaseImpl.instance,
                 LocalIconPainterResolver provides BackInTimeIconPainterResolverImpl(),
             ) {
