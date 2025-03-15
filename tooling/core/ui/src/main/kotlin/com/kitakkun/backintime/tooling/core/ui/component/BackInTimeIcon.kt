@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -71,7 +72,8 @@ fun BackInTimeSelectableIconActionButton(
                     Color.Transparent
                 },
             )
-            .padding(JewelTheme.iconButtonStyle.metrics.padding)
+            .padding(JewelTheme.iconButtonStyle.metrics.padding),
+        contentAlignment = Alignment.Center,
     ) {
         BackInTimeIcon(
             iconKey = iconKey,
@@ -93,6 +95,7 @@ fun BackInTimeIconActionButton(
             )
             .padding(JewelTheme.iconButtonStyle.metrics.padding)
             .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
         BackInTimeIcon(
             iconKey = iconKey,
