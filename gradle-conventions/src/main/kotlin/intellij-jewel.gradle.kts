@@ -14,7 +14,7 @@ dependencies {
     implementation(libs.findLibrary("jewel-standalone").get()) {
         exclude(group = "org.jetbrains.kotlinx")
     }
-    implementation(compose.desktop.currentOs) {
+    api(compose.desktop.currentOs) {
         exclude(group = "org.jetbrains.compose.material")
         exclude(group = "org.jetbrains.kotlinx")
     }
