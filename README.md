@@ -8,18 +8,21 @@ Also, you can easily revert the state to the previous one. We call it "back-in-t
 This plugin currently intended to be used with Android projects.
 But we are planning to support other platforms in the future.
 
-Debugging tool is available at [flipper-plugin](flipper-plugin).
+Debugging tool is available as [IntelliJ IDEA Plugin](tooling/idea-plugin). Not that it's not available from official JetBrains plugin repository yet.
 Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
 
 > [!IMPORTANT]
 > This project is still a work in progress, and its API is unstable and may change without any
 > notice.
-> Also, we are planning make back-in-time-debugger implementation independent from Flipper to
-> support other platforms (iOS, Desktop, JS...).
 > Using this plugin for a hobby project is fine, but we do not recommend using it for production
 > projects yet.
 
 ## How to use
+
+> [!IMPORTANT]
+> Note that the description below is not up to date.
+> Since we want to focus on the core functionality of the plugin, we are not actively maintaining the documentation.
+> Please refer to the demo project for understanding how to use the plugin.
 
 ### Manual Publishing Artifacts
 
