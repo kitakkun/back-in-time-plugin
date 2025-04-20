@@ -11,20 +11,25 @@ plugins {
     id("settings-conventions")
 }
 
+include(":gradle-plugin")
+include(":demo:app")
+
 include(
-    ":gradle-plugin",
     ":compiler:k2",
     ":compiler:backend",
     ":compiler:cli",
     ":compiler:yaml",
     ":compiler:common",
     ":compiler-test",
-    ":demo:app",
+)
+include(
     ":core:runtime",
     ":core:annotations",
     ":core:websocket:server",
     ":core:websocket:client",
     ":core:websocket:event",
+)
+include(
     ":tooling:flipper-lib",
     ":tooling:idea-plugin",
     ":tooling:core:model",
