@@ -1,4 +1,3 @@
-import gradle.kotlin.dsl.accessors._4afc12a4163a87e8ad5956ccbdb3ac52.compileOnly
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import util.ideaPluginRepos
 import util.libs
