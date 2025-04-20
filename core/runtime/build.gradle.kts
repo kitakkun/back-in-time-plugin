@@ -26,9 +26,6 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.uuid)
         }
-        androidMain.dependencies {
-            implementation(libs.flipper)
-        }
     }
 }
 
