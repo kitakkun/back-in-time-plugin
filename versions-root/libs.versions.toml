@@ -40,7 +40,7 @@ sqldelight = "2.0.2"
 kotlinx-coroutines-intellij = "1.8.0-intellij-11"
 gradle-kotlin-dsl = "5.1.2"
 
-viewmodelCompose = "2.8.3"
+viewmodelCompose = "2.8.4"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
