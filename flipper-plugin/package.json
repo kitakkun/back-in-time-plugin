@@ -65,7 +65,7 @@
     "@microlink/react-json-view": "^1.23.0",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
-    "@textea/json-viewer": "^3.2.3",
+    "@textea/json-viewer": "^4.0.0",
     "backintime-websocket-event": "file:../core/websocket/event/build/dist/js/productionLibrary",
     "backintime-tooling-model": "file:../tooling/core/model/build/dist/js/productionLibrary",
     "backintime-flipper-lib": "file:../tooling/flipper-lib/build/dist/js/productionLibrary",
