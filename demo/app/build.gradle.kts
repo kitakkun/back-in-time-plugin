@@ -88,7 +88,5 @@ dependencies {
     implementation(libs.koin.compose)
 
     // flipper and back-in-time
-    debugImplementation(libs.flipper)
-    debugImplementation(libs.soloader)
     implementation(libs.kotlinx.serialization.json)
 }

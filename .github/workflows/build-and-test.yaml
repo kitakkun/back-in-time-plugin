@@ -23,14 +23,3 @@ jobs:
 
       - name: Run tests
         run: ./gradlew iosSimulatorArm64Test iosX64Test jvmTest testDebugUnitTest
-
-      - name: Set up node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "21.x"
-
-      - run: yarn install
-        working-directory: flipper-plugin
-
-      - run: yarn tsc
-        working-directory: flipper-plugin

@@ -30,7 +30,6 @@ include(
     ":core:websocket:event",
 )
 include(
-    ":tooling:flipper-lib",
     ":tooling:idea-plugin",
     ":tooling:core:model",
     ":tooling:core:database",
