@@ -6,6 +6,7 @@ import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDe
 import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCapturePropertyChangesTransformer
 import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer
 import com.kitakkun.backintime.compiler.backend.transformer.implement.BackInTimeDebuggableImplementTransformer
+import com.kitakkun.backintime.compiler.backend.transformer.implement.BackInTimeEntryPointTransformer
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -24,6 +25,7 @@ class BackInTimeIrGenerationExtension(
             yamlConfiguration = yamlConfiguration,
         )
         with(context) {
+            moduleFragment.transformChildrenVoid(BackInTimeEntryPointTransformer(context))
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableCapturePropertyChangesTransformer())
             moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())

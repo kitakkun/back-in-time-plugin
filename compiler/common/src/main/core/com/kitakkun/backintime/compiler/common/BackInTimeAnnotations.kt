@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.name.FqName
 
 object BackInTimeAnnotations {
     private const val BASE_PACKAGE = "com.kitakkun.backintime.core.annotations"
+    val backInTimeEntryPointAnnotationFaName = FqName("$BASE_PACKAGE.BackInTimeEntryPoint")
     val backInTimeAnnotationFqName = FqName("$BASE_PACKAGE.BackInTime")
     val backInTimeAnnotationClassId = ClassId.topLevel(backInTimeAnnotationFqName)
 

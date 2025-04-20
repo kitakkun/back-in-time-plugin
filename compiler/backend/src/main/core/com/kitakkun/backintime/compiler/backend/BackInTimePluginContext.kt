@@ -25,6 +25,13 @@ class BackInTimePluginContext(
         ResolvedValueContainer.create(trackableStateHolder)
     } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
 
+    val backInTimeEntryPointRegisterFunctionSymbol by lazy {
+        backintimeNamedFunction(
+            subpackage = "core.runtime.internal",
+            name = "registerBackInTimeEntryPoint",
+        )
+    }
+
     // event report functions
     val reportInstanceRegistrationFunctionSymbol by lazy { backintimeNamedFunction(name = "reportInstanceRegistration", subpackage = "core.runtime.internal") }
     val reportMethodInvocationFunctionSymbol by lazy { backintimeNamedFunction(name = "reportMethodInvocation", subpackage = "core.runtime.internal") }
