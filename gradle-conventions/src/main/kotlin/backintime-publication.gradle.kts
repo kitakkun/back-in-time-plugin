@@ -11,6 +11,13 @@ with(pluginManager) {
     apply("com.vanniktech.maven.publish")
 }
 
+// avoid failure when executing publishToMavenLocal or running testkit
+tasks.withType(Sign::class).configureEach {
+    isRequired = gradle.startParameter.taskNames.none {
+        it.contains("functionalTest") || it.contains("publishToMavenLocal")
+    }
+}
+
 afterEvaluate {
     val extension = extensions.getByType(BackInTimePublicationExtension::class.java)
     val artifactId = extension.artifactId
@@ -22,7 +29,7 @@ afterEvaluate {
         pom {
             name.set("back-in-time")
             description.set("Kotlin Compiler Plugin to make your program back-in-time debuggable.")
-            inceptionYear.set("2024")
+            inceptionYear.set("2025")
             url.set("https://github.com/kitakkun/back-in-time-plugin")
             licenses {
                 license {
@@ -47,12 +54,5 @@ afterEvaluate {
 
         publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
         signAllPublications()
-
-        // avoid failure when executing publishToMavenLocal
-        tasks.withType(Sign::class).configureEach {
-            onlyIf {
-                !gradle.startParameter.taskNames.contains("publishToMavenLocal")
-            }
-        }
     }
 }
