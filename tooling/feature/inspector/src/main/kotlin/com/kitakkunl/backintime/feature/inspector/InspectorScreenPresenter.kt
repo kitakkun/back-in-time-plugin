@@ -181,11 +181,13 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
 
             is InspectorScreenEvent.BackInTime -> {
                 val instance = instances.find { it.id == event.instanceId } ?: return@EventEffect
-                val allEventsBeforeBackInTimePoint = (instance.events.takeWhile { it.eventId != event.eventId } + instance.events.find { it.eventId == event.eventId }).filterNotNull()
+                val backInTimePointEvent = instance.events.find { it.eventId == event.eventId } ?: return@EventEffect
+                val allEventsBeforeBackInTimePoint = instance.events.filter { it.time <= backInTimePointEvent.time }
                 val values = allEventsBeforeBackInTimePoint
                     .filterIsInstance<EventEntity.Instance.StateChange>()
-                    .reversed()
+                    .sortedBy { it.time }
                     .map { it.propertySignature to it.newValueAsJson }
+                    .asReversed()
                     .distinctBy { it.first }
                     .toMap()
                 server.backInTime(
