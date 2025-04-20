@@ -1,5 +1,4 @@
 plugins {
-    alias(libs.plugins.backintimeCompilerModule)
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimePublication)
