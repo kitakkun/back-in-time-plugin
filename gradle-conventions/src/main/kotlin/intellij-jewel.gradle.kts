@@ -9,7 +9,6 @@ plugins {
 dependencies {
     implementation(libs.findLibrary("jewel-laf").get()) {
         exclude(group = "org.jetbrains.kotlinx")
-        exclude(group = "com.intellij.ide")
     }
     implementation(libs.findLibrary("jewel-standalone").get()) {
         exclude(group = "org.jetbrains.kotlinx")
