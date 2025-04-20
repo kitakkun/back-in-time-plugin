@@ -18,8 +18,8 @@ espresso-core = "3.6.1"
 lifecycle-runtime-ktx = "2.8.7"
 activity-compose = "1.9.3"
 compose-bom = "2024.12.01"
-room-runtime = "2.6.1"
-koin-bom = "4.0.4"
+room-runtime = "2.7.0"
+koin = "4.0.4"
 
 ktor = "2.3.13"
 uuid = "0.8.4"
@@ -42,6 +42,8 @@ jewel = "0.27.0"
 sqldelight = "2.0.2"
 kotlinx-coroutines-intellij = "1.8.0-intellij-11"
 gradle-kotlin-dsl = "5.1.2"
+
+viewmodelCompose = "2.8.3"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
@@ -83,9 +85,11 @@ ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
-koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom" }
-koin-android = { group = "io.insert-koin", name = "koin-android" }
-koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "viewmodelCompose" }
 
 # ktor server
 ktor-server-cio = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }

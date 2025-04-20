@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 
 class TodoListActionCreator(
     private val dispatcher: Dispatcher,
-    private val todoDao: com.kitakkun.backintime.evaluation.data.TodoDao,
+    private val todoDao: TodoDao,
 ) : ActionCreator, CoroutineScope by IOScope() {
     fun reloadToDos() {
         launch {

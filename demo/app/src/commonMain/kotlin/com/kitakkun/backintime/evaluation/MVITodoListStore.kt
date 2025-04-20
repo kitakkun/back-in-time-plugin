@@ -7,13 +7,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kitakkun.backintime.core.annotations.BackInTime
 import com.kitakkun.backintime.evaluation.data.Todo
+import com.kitakkun.backintime.evaluation.data.TodoDao
 import com.kitakkun.backintime.evaluation.mvi.architecture.Store
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @BackInTime
 class MVITodoListStore(
-    private val todoDao: com.kitakkun.backintime.evaluation.data.TodoDao,
+    private val todoDao: TodoDao,
 ) : Store, ViewModel() {
     private val mutableTodos = mutableStateListOf<Todo>()
     val todos: List<Todo> = mutableTodos

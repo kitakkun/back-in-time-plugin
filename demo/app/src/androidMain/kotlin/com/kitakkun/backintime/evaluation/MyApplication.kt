@@ -2,7 +2,7 @@ package com.kitakkun.backintime.evaluation
 
 import android.app.Application
 import com.kitakkun.backintime.core.annotations.BackInTimeEntryPoint
-import com.kitakkun.backintime.evaluation.di.appModule
+import com.kitakkun.backintime.evaluation.di.commonAppModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -13,9 +13,9 @@ class MyApplication : Application() {
         super.onCreate()
 
         startKoin {
+            modules(commonAppModule)
             androidLogger()
             androidContext(this@MyApplication)
-            modules(appModule)
         }
     }
 }

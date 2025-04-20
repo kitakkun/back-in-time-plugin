@@ -8,12 +8,12 @@ import com.kitakkun.backintime.evaluation.flux.TodoListActionCreator
 import com.kitakkun.backintime.evaluation.flux.architecture.Dispatcher
 import com.kitakkun.backintime.evaluation.mvi.MVITodoListStore
 import com.kitakkun.backintime.evaluation.mvvm.MVVMTodoListViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-val appModule = module {
+val commonAppModule = module {
     // Shared
     single<TodoDatabase> {
         Room.databaseBuilder(get(), TodoDatabase::class.java, "todo-database").build()

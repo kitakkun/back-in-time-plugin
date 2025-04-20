@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import com.kitakkun.backintime.evaluation.ui.AddTodoDialog
 import com.kitakkun.backintime.evaluation.ui.EditTodoDialog
 import com.kitakkun.backintime.evaluation.ui.TodoList
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MVVMTodoListPage() {

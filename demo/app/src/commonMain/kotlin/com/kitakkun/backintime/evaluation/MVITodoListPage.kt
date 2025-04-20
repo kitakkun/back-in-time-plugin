@@ -1,4 +1,4 @@
-package com.kitakkun.backintime.evaluation.flux
+package com.kitakkun.backintime.evaluation.mvi
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -12,16 +12,14 @@ import androidx.compose.ui.Modifier
 import com.kitakkun.backintime.evaluation.ui.AddTodoDialog
 import com.kitakkun.backintime.evaluation.ui.EditTodoDialog
 import com.kitakkun.backintime.evaluation.ui.TodoList
-import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun FluxTodoListPage() {
-    val store: FluxTodoListStore = koinViewModel()
-    val actionCreator: TodoListActionCreator = koinInject()
+fun MVITodoListPage() {
+    val store: MVITodoListStore = koinViewModel()
 
     LaunchedEffect(store) {
-        actionCreator.reloadToDos()
+        store.processIntent(TodoListIntent.ReloadTodoList)
     }
 
     if (store.editingTodoId.value != null) {
@@ -30,14 +28,14 @@ fun FluxTodoListPage() {
             EditTodoDialog(
                 item = item,
                 onConfirmChange = { label ->
-                    actionCreator.updateToDoLabel(item.uuid, label)
-                    actionCreator.closeTodoEditDialog()
+                    store.processIntent(TodoListIntent.UpdateTodoLabel(item.uuid, label))
+                    store.processIntent(TodoListIntent.CloseTodoEditDialog)
                 },
                 onDelete = {
-                    actionCreator.deleteToDoItem(item.uuid)
-                    actionCreator.closeTodoEditDialog()
+                    store.processIntent(TodoListIntent.DeleteTodoItem(item.uuid))
+                    store.processIntent(TodoListIntent.CloseTodoEditDialog)
                 },
-                onDismiss = { actionCreator.closeTodoEditDialog() },
+                onDismiss = { store.processIntent(TodoListIntent.CloseTodoEditDialog) },
             )
         }
     }
@@ -45,24 +43,24 @@ fun FluxTodoListPage() {
     if (store.addingTodo.value) {
         AddTodoDialog(
             onConfirm = { label ->
-                actionCreator.addToDoItem(label)
-                actionCreator.closeAddTodoDialog()
+                store.processIntent(TodoListIntent.AddTodoItem(label))
+                store.processIntent(TodoListIntent.CloseAddTodoDialog)
             },
-            onDismiss = { actionCreator.closeAddTodoDialog() },
+            onDismiss = { store.processIntent(TodoListIntent.CloseAddTodoDialog) },
         )
     }
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { actionCreator.openAddTodoDialog() }) {
+            FloatingActionButton(onClick = { store.processIntent(TodoListIntent.OpenAddTodoDialog) }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         },
     ) { innerPadding ->
         TodoList(
             items = store.todos,
-            onCheckedChange = { id, done -> actionCreator.updateToDoStatus(id, done) },
-            onClickItem = { id -> actionCreator.openTodoEditDialog(id) },
+            onCheckedChange = { id, done -> store.processIntent(TodoListIntent.UpdateTodoStatus(id, done)) },
+            onClickItem = { id -> store.processIntent(TodoListIntent.OpenTodoEditDialog(id)) },
             modifier = Modifier.padding(innerPadding),
         )
     }
