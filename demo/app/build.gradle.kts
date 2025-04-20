@@ -70,6 +70,7 @@ kotlin {
 
             // room
             implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite.bundled)
 
             // koin
             implementation(libs.koin.core)
@@ -84,10 +85,21 @@ kotlin {
             implementation(libs.lifecycle.runtime.ktx)
             implementation(libs.activity.compose)
         }
+
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
     }
 }
 
 dependencies {
     kotlinCompilerPluginClasspath(projects.compiler.cli)
-    ksp(libs.androidx.room.compiler)
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspJvm", libs.androidx.room.compiler)
+}
+
+compose.desktop {
+    application {
+        mainClass = "com.kitakkun.backintime.evaluation.MainKt"
+    }
 }

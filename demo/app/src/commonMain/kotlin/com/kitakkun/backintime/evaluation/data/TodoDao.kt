@@ -8,20 +8,20 @@ import androidx.room.Query
 @Dao
 interface TodoDao {
     @Query("SELECT * FROM todo")
-    fun getAll(): List<Todo>
+    suspend fun getAll(): List<Todo>
 
     @Insert
-    fun insertAll(vararg todos: Todo)
+    suspend fun insertAll(vararg todos: Todo)
 
     @Query("UPDATE todo SET done = :done WHERE uuid = :uuid")
-    fun updateStatus(uuid: String, done: Boolean)
+    suspend fun updateStatus(uuid: String, done: Boolean)
 
     @Query("UPDATE todo SET label = :label WHERE uuid = :uuid")
-    fun updateLabel(uuid: String, label: String)
+    suspend fun updateLabel(uuid: String, label: String)
 
     @Delete
-    fun delete(todo: Todo)
+    suspend fun delete(todo: Todo)
 
     @Query("DELETE FROM todo WHERE uuid = :uuid")
-    fun deleteByUuid(uuid: String)
+    suspend fun deleteByUuid(uuid: String)
 }

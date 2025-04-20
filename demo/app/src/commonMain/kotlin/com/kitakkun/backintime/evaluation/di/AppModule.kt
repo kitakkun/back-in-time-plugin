@@ -1,6 +1,5 @@
 package com.kitakkun.backintime.evaluation.di
 
-import androidx.room.Room
 import com.kitakkun.backintime.evaluation.data.TodoDao
 import com.kitakkun.backintime.evaluation.data.TodoDatabase
 import com.kitakkun.backintime.evaluation.flux.FluxTodoListStore
@@ -14,12 +13,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val commonAppModule = module {
-    // Shared
-    single<TodoDatabase> {
-        Room.databaseBuilder(get(), TodoDatabase::class.java, "todo-database").build()
-    }
     single<TodoDao> { get<TodoDatabase>().todoDao() }
-
     // Flux
     singleOf(::Dispatcher)
     viewModelOf(::FluxTodoListStore)
