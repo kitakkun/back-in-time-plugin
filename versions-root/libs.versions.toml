@@ -29,7 +29,7 @@ buildconfig = "5.6.2"
 junit-jupiter = "5.11.4"
 maven-publish = "0.30.0"
 
-kaml = "0.67.0"
+kaml = "0.77.0"
 kotlin-react = "2025.1.2-19.0.0"
 
 idea = "2024.3.1"
