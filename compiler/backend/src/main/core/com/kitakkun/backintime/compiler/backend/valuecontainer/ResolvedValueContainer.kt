@@ -1,10 +1,10 @@
 package com.kitakkun.backintime.compiler.backend.valuecontainer
 
+import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
 import com.kitakkun.backintime.compiler.yaml.ParametersSignature
 import com.kitakkun.backintime.compiler.yaml.TrackableStateHolder
 import com.kitakkun.backintime.compiler.yaml.TypeSignature
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -48,11 +48,13 @@ sealed class ResolvedValueContainer {
     ) : ResolvedValueContainer()
 
     companion object {
-        context(IrPluginContext)
-        fun create(trackableStateHolder: TrackableStateHolder): ResolvedValueContainer? {
+        fun create(
+            irContext: BackInTimePluginContext,
+            trackableStateHolder: TrackableStateHolder,
+        ): ResolvedValueContainer? {
             val classId = ClassId.fromString(trackableStateHolder.classId)
 
-            val classSymbol = referenceClass(classId) ?: return null
+            val classSymbol = irContext.referenceClass(classId) ?: return null
 
             val allVisibleMemberCallables = classSymbol.owner.getAllMemberCallables().filter { it.owner.visibility.isVisibleOutside() }
             val allOverriddenCallables = allVisibleMemberCallables.flatMap { it.owner.overriddenSymbols }.toSet()
@@ -97,7 +99,7 @@ sealed class ResolvedValueContainer {
                     }
 
                     is CallableSignature.NamedFunction.TopLevel -> {
-                        referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).filter {
+                        irContext.referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).filter {
                             if (signature.receiverClassId.isNotEmpty()) {
                                 it.owner.matchesFunctionSignature(signature)
                                     && it.owner.extensionReceiverParameter?.type?.classOrNull?.owner?.classId == ClassId.fromString(signature.receiverClassId)
@@ -119,7 +121,7 @@ sealed class ResolvedValueContainer {
             }
 
             val serializeClassSymbol = (trackableStateHolder.serializeAs as? TypeSignature.Class)?.classId?.let {
-                referenceClass(ClassId.fromString(it))
+                irContext.referenceClass(ClassId.fromString(it))
             }
 
             val getterFunctionSymbol = when (val getter = trackableStateHolder.accessor.getter) {

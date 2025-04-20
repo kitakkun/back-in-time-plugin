@@ -1,9 +1,9 @@
 package com.kitakkun.backintime.compiler.backend.analyzer
 
+import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
 import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -25,12 +25,15 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addIfNotNull
 import kotlin.reflect.KClass
 
-context(IrPluginContext)
-class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitorVoid {
+class UserDefinedValueContainerAnalyzer private constructor(
+    private val irContext: BackInTimePluginContext,
+) : IrElementVisitorVoid {
     companion object {
-        context(IrPluginContext)
-        fun analyzeAdditionalValueContainerClassInfo(moduleFragment: IrModuleFragment): List<ResolvedValueContainer> {
-            with(UserDefinedValueContainerAnalyzer()) {
+        fun analyzeAdditionalValueContainerClassInfo(
+            irPluginContext: BackInTimePluginContext,
+            moduleFragment: IrModuleFragment,
+        ): List<ResolvedValueContainer> {
+            with(UserDefinedValueContainerAnalyzer(irPluginContext)) {
                 moduleFragment.acceptChildrenVoid(this)
                 return collectedInfoList
             }
@@ -69,7 +72,8 @@ class UserDefinedValueContainerAnalyzer private constructor() : IrElementVisitor
 
     private fun IrClass.getValueContainerClassInfo(): ResolvedValueContainer? {
         val isSelfContained = hasAnnotation(BackInTimeAnnotations.selfContainedValueContainerAnnotationFqName)
-        val serializeAs = annotations.findAnnotation(BackInTimeAnnotations.serializeAsAnnotationFqName)?.getAnnotationValueOrNull<KClass<*>>("clazz")?.java?.classId?.let { referenceClass(it) }
+        val serializeAs = annotations.findAnnotation(BackInTimeAnnotations.serializeAsAnnotationFqName)
+            ?.getAnnotationValueOrNull<KClass<*>>("clazz")?.java?.classId?.let { irContext.referenceClass(it) }
 
         val captureTargets = simpleFunctions()
             .filter { function ->

@@ -19,20 +19,21 @@ import org.jetbrains.kotlin.ir.util.classId
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.name.Name
 
-context(BackInTimePluginContext)
-fun IrBuilderWithScope.generateUUIDVariable(): IrVariable {
+fun IrBuilderWithScope.generateUUIDVariable(
+    irContext: BackInTimePluginContext,
+): IrVariable {
     return IrVariableImpl(
         startOffset = this.startOffset,
         endOffset = this.endOffset,
         origin = IrDeclarationOrigin.GeneratedByPlugin(BackInTimePluginKey),
         symbol = IrVariableSymbolImpl(),
         name = Name.identifier("backInTimeUUID"),
-        type = irBuiltIns.stringType,
+        type = irContext.irBuiltIns.stringType,
         isVar = false,
         isConst = false,
         isLateinit = false,
     ).apply {
-        this.initializer = irCall(uuidFunctionSymbol)
+        this.initializer = irCall(irContext.uuidFunctionSymbol)
         this.parent = this@generateUUIDVariable.parent
     }
 }

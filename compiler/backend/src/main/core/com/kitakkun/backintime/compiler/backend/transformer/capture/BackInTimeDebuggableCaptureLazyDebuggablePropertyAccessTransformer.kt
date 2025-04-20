@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
+import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
@@ -20,8 +21,9 @@ import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
-context(com.kitakkun.backintime.compiler.backend.BackInTimePluginContext)
-class BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer : IrElementTransformerVoid() {
+class BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer(
+    private val irContext: BackInTimePluginContext,
+) : IrElementTransformerVoid() {
     override fun visitCall(expression: IrCall): IrExpression {
         expression.transformChildrenVoid()
         val transformedExpression = expression.captureLazyDebuggablePropertyAccess() ?: expression
@@ -42,20 +44,20 @@ class BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer : IrEle
 
         if (!property.isBackInTimeDebuggable || !property.isDelegated) return null
 
-        with(irBuiltIns.createIrBuilder(this.symbol)) {
+        with(irContext.irBuiltIns.createIrBuilder(this.symbol)) {
             val condition = irNotEquals(
                 arg1 = irTrue(),
-                arg2 = irCall(irBuiltIns.mapClass.getSimpleFunction("get")!!).apply {
+                arg2 = irCall(irContext.irBuiltIns.mapClass.getSimpleFunction("get")!!).apply {
                     dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
                     putValueArgument(0, irString(property.name.asString()))
                 },
             )
             val thenPart = irComposite {
-                +irCall(reportNewRelationshipFunctionSymbol).apply {
+                +irCall(irContext.reportNewRelationshipFunctionSymbol).apply {
                     putValueArgument(0, receiver)
                     putValueArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
                 }
-                +irCall(irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
+                +irCall(irContext.irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
                     dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
                     putValueArgument(0, irString(property.name.asString()))
                     putValueArgument(1, irTrue())
@@ -64,7 +66,7 @@ class BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer : IrEle
             return irComposite {
                 when {
                     callingFunction.isSetter -> +thenPart
-                    callingFunction.isGetter -> +irIfThen(type = irBuiltIns.unitType, condition = condition, thenPart = thenPart)
+                    callingFunction.isGetter -> +irIfThen(type = irContext.irBuiltIns.unitType, condition = condition, thenPart = thenPart)
                 }
                 +this@captureLazyDebuggablePropertyAccess
             }

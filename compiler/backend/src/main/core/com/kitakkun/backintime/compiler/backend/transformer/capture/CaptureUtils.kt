@@ -19,13 +19,13 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.classOrNull
 
-context(BackInTimePluginContext)
 fun IrCall.captureIfNeeded(
+    irContext: BackInTimePluginContext,
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
 ): IrExpression? {
     val property = receiver?.getCorrespondingProperty() ?: return null
-    val valueContainer = valueContainerClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
+    val valueContainer = irContext.valueContainerClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
     val captureStrategy = valueContainer.captureTargetSymbols.firstOrNull { it.first == this.symbol }?.second ?: return null
     val propertySignature = property.signatureForBackInTimeDebugger()
 
@@ -34,6 +34,7 @@ fun IrCall.captureIfNeeded(
     return when (captureStrategy) {
         is CaptureStrategy.AfterCall -> {
             captureAfterCall(
+                irContext = irContext,
                 propertyGetter = propertyGetterSymbol,
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
@@ -44,6 +45,7 @@ fun IrCall.captureIfNeeded(
 
         is CaptureStrategy.ValueArgument -> {
             captureValueArgument(
+                irContext = irContext,
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
                 propertySignature = propertySignature,
@@ -53,18 +55,18 @@ fun IrCall.captureIfNeeded(
     }
 }
 
-context(BackInTimePluginContext)
 private fun IrCall.captureAfterCall(
+    irContext: BackInTimePluginContext,
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertySignature: String,
     valueContainer: ResolvedValueContainer,
     propertyGetter: IrSimpleFunctionSymbol,
 ): IrExpression {
-    val irBuilder = irBuiltIns.createIrBuilder(symbol)
+    val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
     return irBuilder.irComposite {
         +this@captureAfterCall
-        +irCall(reportPropertyValueChangeFunctionSymbol).apply {
+        +irCall(irContext.reportPropertyValueChangeFunctionSymbol).apply {
             putValueArgument(0, irGet(classDispatchReceiverParameter))
             putValueArgument(1, irGet(uuidVariable))
             putValueArgument(2, irString(propertySignature))
@@ -88,31 +90,31 @@ private fun IrCall.captureAfterCall(
             )
             putTypeArgument(
                 index = 0,
-                type = propertyGetter.owner.returnType.getSerializerType(),
+                type = propertyGetter.owner.returnType.getSerializerType(irContext),
             )
         }
     }
 }
 
-context(BackInTimePluginContext)
 private fun IrCall.captureValueArgument(
+    irContext: BackInTimePluginContext,
     index: Int,
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertySignature: String,
 ): IrExpression {
-    val irBuilder = irBuiltIns.createIrBuilder(symbol)
+    val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
     val originalValueArgument = getValueArgument(index)
 
     putValueArgument(
         index = index,
         valueArgument = with(irBuilder) {
-            irCall(captureThenReturnValueFunctionSymbol).apply {
+            irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
                 putValueArgument(0, irGet(classDispatchReceiverParameter))
                 putValueArgument(1, irGet(uuidVariable))
                 putValueArgument(2, irString(propertySignature))
                 putValueArgument(3, originalValueArgument)
-                originalValueArgument?.type?.getSerializerType()?.let {
+                originalValueArgument?.type?.getSerializerType(irContext)?.let {
                     putTypeArgument(0, it)
                 }
             }

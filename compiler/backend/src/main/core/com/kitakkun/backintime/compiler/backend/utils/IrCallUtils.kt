@@ -11,17 +11,17 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 
 val IrCall.receiver get() = dispatchReceiver ?: extensionReceiver
 
-context(BackInTimePluginContext)
-fun IrCall.isValueContainerSetterCall(): Boolean {
+fun IrCall.isValueContainerSetterCall(
+    irContext: BackInTimePluginContext
+): Boolean {
     val receiverClassSymbol = this.receiver?.type?.classOrNull ?: return false
     val callingFunctionSymbol = this.symbol
-    val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return false
+    val valueContainerClassInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return false
     return valueContainerClassInfo.captureTargetSymbols.any { it.first == callingFunctionSymbol }
 }
 
-context(BackInTimePluginContext)
-fun IrCall.isIndirectValueContainerSetterCall(): Boolean {
-    return ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this).isNotEmpty()
+fun IrCall.isIndirectValueContainerSetterCall(irContext: BackInTimePluginContext): Boolean {
+    return ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(irContext, this).isNotEmpty()
 }
 
 fun IrCall.isLambdaFunctionRelevantCall(): Boolean {

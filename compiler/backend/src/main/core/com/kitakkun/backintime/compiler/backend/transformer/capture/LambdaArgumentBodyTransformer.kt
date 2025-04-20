@@ -18,8 +18,8 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.classId
 
-context(BackInTimePluginContext)
 class LambdaArgumentBodyTransformer(
+    private val irContext: BackInTimePluginContext,
     private val passedProperties: Set<IrProperty>,
     private val classDispatchReceiverParameter: IrValueParameter,
     private val uuidVariable: IrVariable,
@@ -30,7 +30,7 @@ class LambdaArgumentBodyTransformer(
         val receiverClassId = receiver.type.classOrNull?.owner?.classId
         val callingFunction = expression.symbol
 
-        val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return expression
+        val valueContainerClassInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return expression
         if (callingFunction !in valueContainerClassInfo.captureTargetSymbols.map { it.first }) return expression
 
         val possibleReceiverProperties = passedProperties.filter {
@@ -38,10 +38,12 @@ class LambdaArgumentBodyTransformer(
             propertyClassId == receiverClassId
         }
 
-        with(irBuiltIns.createIrBuilder(expression.symbol)) {
+        with(irContext.irBuiltIns.createIrBuilder(expression.symbol)) {
             val captureCalls = possibleReceiverProperties.mapNotNull { property ->
                 val propertyGetter = property.getter ?: return@mapNotNull null
                 val captureCall = property.generateCaptureValueCallForValueContainer(
+                    irContext = irContext,
+                    irBuilder = this,
                     instanceParameter = classDispatchReceiverParameter,
                     uuidVariable = uuidVariable,
                 ) ?: return@mapNotNull null
@@ -51,7 +53,7 @@ class LambdaArgumentBodyTransformer(
                 irIfThen(
                     condition = irEquals(receiver, getPropertyInstanceCall),
                     thenPart = captureCall,
-                    type = pluginContext.irBuiltIns.unitType,
+                    type = irContext.irBuiltIns.unitType,
                 )
             }
 

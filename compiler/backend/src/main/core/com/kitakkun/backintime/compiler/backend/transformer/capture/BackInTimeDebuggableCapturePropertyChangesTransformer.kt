@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
+import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
@@ -39,8 +40,9 @@ import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.Name
 
-context(com.kitakkun.backintime.compiler.backend.BackInTimePluginContext)
-class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransformerVoidWithContext() {
+class BackInTimeDebuggableCapturePropertyChangesTransformer(
+    private val irContext: BackInTimePluginContext,
+) : IrElementTransformerVoidWithContext() {
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
         reportMethodInvocationIfNeeded(declaration)
         return super.visitFunctionNew(declaration)
@@ -55,10 +57,10 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return
 
-        with(irBuiltIns.createIrBuilder(declaration.symbol)) {
-            val uuidVariable = generateUUIDVariable()
+        with(irContext.irBuiltIns.createIrBuilder(declaration.symbol)) {
+            val uuidVariable = generateUUIDVariable(irContext)
 
-            val notifyMethodCallFunctionCall = irCall(reportMethodInvocationFunctionSymbol).apply {
+            val notifyMethodCallFunctionCall = irCall(irContext.reportMethodInvocationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClassDispatchReceiver))
                 putValueArgument(1, irGet(uuidVariable))
                 putValueArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
@@ -99,13 +101,13 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
 
         this.putValueArgument(
             index = 0,
-            valueArgument = with(irBuiltIns.createIrBuilder(symbol)) {
-                irCall(captureThenReturnValueFunctionSymbol).apply {
+            valueArgument = with(irContext.irBuiltIns.createIrBuilder(symbol)) {
+                irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
                     putValueArgument(0, irGet(classDispatchReceiverParameter))
                     putValueArgument(1, irGet(uuidVariable))
                     putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
                     putValueArgument(3, value)
-                    putTypeArgument(0, property.getter!!.returnType.getSerializerType())
+                    putTypeArgument(0, property.getter!!.returnType.getSerializerType(irContext))
                 }
             },
         )
@@ -134,7 +136,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.isBackInTimeDebuggable == true &&
-                    valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
+                    irContext.valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
             }
     }
 
@@ -143,19 +145,20 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
             transformInsideRelevantLambdaFunctions()
         }
 
-        if (isValueContainerSetterCall()) {
+        if (isValueContainerSetterCall(irContext)) {
             val function = currentClosestBackInTimeDebuggableOwnerFunction()
 
             val uuidVariable = function?.getLocalMethodInvocationIdVariable()
             val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
             return captureIfNeeded(
+                irContext = irContext,
                 classDispatchReceiverParameter = classDispatchReceiverParameter ?: return this,
                 uuidVariable = uuidVariable ?: return this,
             ) ?: this
         }
 
-        if (isIndirectValueContainerSetterCall()) {
+        if (isIndirectValueContainerSetterCall(irContext)) {
             return transformIndirectValueContainerSetterCall()
         }
 
@@ -178,6 +181,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
         involvingLambdas.forEach { lambda ->
             lambda.transformChildrenVoid(
                 LambdaArgumentBodyTransformer(
+                    irContext = irContext,
                     passedProperties = passedProperties,
                     classDispatchReceiverParameter = classDispatchReceiverParameter ?: return,
                     uuidVariable = uuidVariable ?: return,
@@ -187,15 +191,17 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer : IrElementTransform
     }
 
     private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
-        val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(this)
+        val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(irContext, this)
 
         val function = currentClosestBackInTimeDebuggableOwnerFunction()
         val uuidVariable = function?.getLocalMethodInvocationIdVariable()
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
-        with(irBuiltIns.createIrBuilder(symbol)) {
+        with(irContext.irBuiltIns.createIrBuilder(symbol)) {
             val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
                 property.generateCaptureValueCallForValueContainer(
+                    irContext = irContext,
+                    irBuilder = this,
                     instanceParameter = classDispatchReceiverParameter ?: return this@transformIndirectValueContainerSetterCall,
                     uuidVariable = uuidVariable ?: return this@transformIndirectValueContainerSetterCall,
                 )

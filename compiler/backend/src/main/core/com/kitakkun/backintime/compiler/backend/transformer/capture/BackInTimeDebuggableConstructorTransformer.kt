@@ -33,17 +33,18 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
  * insert register call and property relationship resolve calls
  * to [IrConstructor] of [IrClass]es that are [isBackInTimeDebuggable]
  */
-context(BackInTimePluginContext)
-class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
+class BackInTimeDebuggableConstructorTransformer(
+    private val irContext: BackInTimePluginContext,
+) : IrElementTransformerVoid() {
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         val parentClass = declaration.parentAsClass
         if (!parentClass.isBackInTimeDebuggable) return declaration
 
-        val irBuilder = irBuiltIns.createIrBuilder(declaration.symbol)
+        val irBuilder = irContext.irBuiltIns.createIrBuilder(declaration.symbol)
 
         val registerCall = with(irBuilder) {
             /** see [com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
-            irCall(reportInstanceRegistrationFunctionSymbol).apply {
+            irCall(irContext.reportInstanceRegistrationFunctionSymbol).apply {
                 putValueArgument(0, irGet(parentClass.thisReceiver!!))
                 putValueArgument(1, irString(parentClass.signatureForBackInTimeDebugger()))
                 putValueArgument(2, irString(parentClass.superClass?.signatureForBackInTimeDebugger() ?: "unknown"))
@@ -58,7 +59,7 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                 val parentReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
                 with(irBuilder) {
-                    irCall(reportNewRelationshipFunctionSymbol).apply {
+                    irCall(irContext.reportNewRelationshipFunctionSymbol).apply {
                         putValueArgument(0, irGet(parentReceiver))
                         putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
                     }
@@ -72,11 +73,11 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
 
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
-    ) = irCall(listOfFunction).apply {
+    ) = irCall(irContext.listOfFunction).apply {
         putValueArgument(
             0,
             irVararg(
-                irBuiltIns.stringType,
+                irContext.irBuiltIns.stringType,
                 properties
                     .filter { !it.isBackInTimeGenerated }
                     .map { irProperty ->
@@ -84,7 +85,7 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                         val propertyTypeName = propertyType?.signatureForBackInTimeDebugger() ?: "unknown"
                         val genericTypeCompletedName = propertyType?.getGenericTypes()?.firstOrNull()?.signatureForBackInTimeDebugger() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
-                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull in valueContainerClassInfoList.map { it.classSymbol }
+                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull in irContext.valueContainerClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irConcat().apply {
                             addArgument(irString(irProperty.signatureForBackInTimeDebugger()))
@@ -100,6 +101,6 @@ class BackInTimeDebuggableConstructorTransformer : IrElementTransformerVoid() {
                     }.toList(),
             ),
         )
-        putTypeArgument(0, irBuiltIns.stringType)
+        putTypeArgument(0, irContext.irBuiltIns.stringType)
     }
 }

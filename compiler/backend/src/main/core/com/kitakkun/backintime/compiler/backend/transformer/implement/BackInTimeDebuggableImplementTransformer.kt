@@ -33,8 +33,9 @@ import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.superClass
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
-context(BackInTimePluginContext)
-class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
+class BackInTimeDebuggableImplementTransformer(
+    private val irContext: BackInTimePluginContext,
+) : IrElementTransformerVoid() {
     override fun visitSimpleFunction(declaration: IrSimpleFunction): IrStatement {
         if (!declaration.isBackInTimeGenerated) return declaration
         if (declaration.name != BackInTimeConsts.forceSetValueMethodName) return declaration
@@ -74,9 +75,9 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         val (propertySignature, valueParameter) = declaration.valueParameters
         val superClassSymbol = parentClass.superClass?.symbol
 
-        return irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
+        return irContext.irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
             +irWhen(
-                type = irBuiltIns.unitType,
+                type = irContext.irBuiltIns.unitType,
                 branches = parentClass.properties
                     .mapNotNull { property ->
                         irBranch(
@@ -102,7 +103,7 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
                                     putValueArgument(1, irGet(valueParameter))
                                 }
                             } else {
-                                irCall(throwNoSuchPropertyExceptionFunctionSymbol).apply {
+                                irCall(irContext.throwNoSuchPropertyExceptionFunctionSymbol).apply {
                                     putValueArgument(0, irGet(propertySignature))
                                     putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
                                 }
@@ -113,7 +114,6 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
         }
     }
 
-    context(BackInTimePluginContext)
     private fun IrBuilderWithScope.irSetPropertyValue(
         parentClassReceiver: IrValueParameter,
         property: IrProperty,
@@ -121,12 +121,12 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
     ): IrExpression? {
         val type = property.getter?.returnType ?: return null
         val classSymbol = type.classOrNull ?: return null
-        val correspondingContainerInfo = valueContainerClassInfoList.find { it.classSymbol == classSymbol }
+        val correspondingContainerInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == classSymbol }
 
-        val deserializedValue = irCall(decodeFromStringFunction).apply {
-            extensionReceiver = irCall(backInTimeJsonGetter)
+        val deserializedValue = irCall(irContext.decodeFromStringFunction).apply {
+            extensionReceiver = irCall(irContext.backInTimeJsonGetter)
             putValueArgument(0, irGet(valueParameter))
-            putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType())
+            putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType(irContext))
         }
 
         return if (correspondingContainerInfo != null) {
@@ -161,12 +161,12 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
      * add a backing field for the [com.kitakkun.backintime.core.runtime.BackInTimeDebuggable.backInTimeInstanceUUID] property
      */
     private fun IrProperty.addBackingFieldOfBackInTimeUUID() {
-        val irBuilder = irBuiltIns.createIrBuilder(symbol)
+        val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
         this.addBackingField {
-            this.type = irBuiltIns.stringType
+            this.type = irContext.irBuiltIns.stringType
         }.apply {
             initializer = with(irBuilder) {
-                irExprBody(irCall(uuidFunctionSymbol))
+                irExprBody(irCall(irContext.uuidFunctionSymbol))
             }
         }
     }
@@ -175,18 +175,18 @@ class BackInTimeDebuggableImplementTransformer : IrElementTransformerVoid() {
      * add a backing field for the [com.kitakkun.backintime.core.runtime.BackInTimeDebuggable.backInTimeInitializedPropertyMap] property
      */
     private fun IrProperty.addBackingFieldOfBackInTimeInitializedPropertyMap() {
-        val irBuilder = irBuiltIns.createIrBuilder(symbol)
+        val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
         this.addBackingField {
-            this.type = irBuiltIns.mutableMapClass.typeWith(
-                irBuiltIns.stringType,
-                irBuiltIns.booleanType,
+            this.type = irContext.irBuiltIns.mutableMapClass.typeWith(
+                irContext.irBuiltIns.stringType,
+                irContext.irBuiltIns.booleanType,
             )
         }.apply {
             initializer = with(irBuilder) {
                 irExprBody(
-                    irCall(mutableMapOfFunction).apply {
-                        putTypeArgument(0, irBuiltIns.stringType)
-                        putTypeArgument(1, irBuiltIns.booleanType)
+                    irCall(irContext.mutableMapOfFunction).apply {
+                        putTypeArgument(0, irContext.irBuiltIns.stringType)
+                        putTypeArgument(1, irContext.irBuiltIns.booleanType)
                     },
                 )
             }

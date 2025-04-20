@@ -14,38 +14,44 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
 
-context(IrBuilderWithScope, BackInTimePluginContext)
 private fun irCapturePropertyValue(
+    irContext: BackInTimePluginContext,
+    irBuilder: IrBuilderWithScope,
     propertySignature: String,
     getValueCall: IrCall,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertyType: IrType,
-) = irCall(reportPropertyValueChangeFunctionSymbol).apply {
-    putValueArgument(0, irGet(instanceParameter))
-    putValueArgument(1, irGet(uuidVariable))
-    putValueArgument(2, irString(propertySignature))
+) = irBuilder.irCall(irContext.reportPropertyValueChangeFunctionSymbol).apply {
+    putValueArgument(0, irBuilder.irGet(instanceParameter))
+    putValueArgument(1, irBuilder.irGet(uuidVariable))
+    putValueArgument(2, irBuilder.irString(propertySignature))
     putValueArgument(3, getValueCall)
-    putTypeArgument(0, propertyType.getSerializerType())
+    putTypeArgument(0, propertyType.getSerializerType(irContext))
 }
 
-context(IrBuilderWithScope, BackInTimePluginContext)
 fun IrProperty.generateCaptureValueCallForValueContainer(
+    irContext: BackInTimePluginContext,
+    irBuilder: IrBuilderWithScope,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
 ): IrCall? {
     val getter = getter ?: return null
-    val valueGetterSymbol = getValueHolderValueGetterSymbol() ?: return null
+    val valueGetterSymbol = getValueHolderValueGetterSymbol(irContext) ?: return null
     return irCapturePropertyValue(
+        irContext = irContext,
+        irBuilder = irBuilder,
         propertySignature = signatureForBackInTimeDebugger(),
-        getValueCall = if (valueGetterSymbol == getter.symbol) {
-            irCall(getter.symbol).apply {
-                dispatchReceiver = irGet(instanceParameter)
-            }
-        } else {
-            irCall(valueGetterSymbol).apply {
-                dispatchReceiver = irCall(getter).apply {
+        getValueCall = with(irBuilder) {
+            if (valueGetterSymbol == getter.symbol) {
+                irCall(getter.symbol).apply {
                     dispatchReceiver = irGet(instanceParameter)
+                }
+            } else {
+                irCall(valueGetterSymbol).apply {
+                    dispatchReceiver = irCall(getter).apply {
+                        dispatchReceiver = irGet(instanceParameter)
+                    }
                 }
             }
         },
@@ -55,11 +61,12 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     )
 }
 
-context(BackInTimePluginContext)
-private fun IrProperty.getValueHolderValueGetterSymbol(): IrSimpleFunctionSymbol? {
+private fun IrProperty.getValueHolderValueGetterSymbol(
+    irContext: BackInTimePluginContext,
+): IrSimpleFunctionSymbol? {
     val propertyGetter = getter ?: return null
     val propertyClassSymbol = propertyGetter.returnType.classOrNull ?: return null
-    val valueContainerInfo = valueContainerClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
+    val valueContainerInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
     return when (valueContainerInfo) {
         is ResolvedValueContainer.SelfContained -> propertyGetter.symbol
         is ResolvedValueContainer.Wrapper -> valueContainerInfo.getterSymbol

@@ -19,17 +19,17 @@ class BackInTimeIrGenerationExtension(
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         VersionSpecificAPI.INSTANCE = VersionSpecificAPIImpl
 
-        val context = BackInTimePluginContext(
+        val irContext = BackInTimePluginContext(
             baseContext = pluginContext,
             moduleFragment = moduleFragment,
             yamlConfiguration = yamlConfiguration,
         )
-        with(context) {
-            moduleFragment.transformChildrenVoid(BackInTimeEntryPointTransformer(context))
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCapturePropertyChangesTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer())
-            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer())
+        with(irContext) {
+            moduleFragment.transformChildrenVoid(BackInTimeEntryPointTransformer(irContext))
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableConstructorTransformer(irContext))
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCapturePropertyChangesTransformer(irContext))
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableImplementTransformer(irContext))
+            moduleFragment.transformChildrenVoid(BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer(irContext))
         }
     }
 }

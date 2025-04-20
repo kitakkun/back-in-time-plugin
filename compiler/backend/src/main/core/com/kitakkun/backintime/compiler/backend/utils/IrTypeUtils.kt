@@ -16,9 +16,10 @@ fun IrType.getGenericTypes(): List<IrType> {
         .orEmpty()
 }
 
-context(BackInTimePluginContext)
-fun IrType.getSerializerType(): IrType? {
-    val valueContainerClassInfo = valueContainerClassInfoList.find { it.classSymbol == this.classOrNull } ?: return this
+fun IrType.getSerializerType(
+    irContext: BackInTimePluginContext,
+): IrType? {
+    val valueContainerClassInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == this.classOrNull } ?: return this
 
     val typeArguments = (this as? IrSimpleType)?.arguments?.map { it.typeOrFail } ?: return null
     val manuallyConfiguredSerializeType = valueContainerClassInfo.serializeAs?.owner?.typeWith(typeArguments)

@@ -22,8 +22,8 @@ class BackInTimePluginContext(
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
     val valueContainerClassInfoList: List<ResolvedValueContainer> = yamlConfiguration.trackableStateHolders.mapNotNull { trackableStateHolder ->
-        ResolvedValueContainer.create(trackableStateHolder)
-    } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(moduleFragment)
+        ResolvedValueContainer.create(this, trackableStateHolder)
+    } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(this, moduleFragment)
 
     val backInTimeEntryPointRegisterFunctionSymbol by lazy {
         backintimeNamedFunction(

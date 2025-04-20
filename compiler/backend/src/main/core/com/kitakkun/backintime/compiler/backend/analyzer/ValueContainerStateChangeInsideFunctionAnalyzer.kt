@@ -19,14 +19,16 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
  * check if the parameters passed to the target function are changed internally.
  * returns the parameter symbols which may be changed.
  */
-context(BackInTimePluginContext)
 class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
+    private val irContext: BackInTimePluginContext,
     target: IrSimpleFunction,
 ) : IrElementVisitorVoid {
     companion object {
-        context(BackInTimePluginContext)
-        private fun analyze(target: IrSimpleFunction): List<IrValueParameter> {
-            with(ValueContainerStateChangeInsideFunctionAnalyzer(target)) {
+        private fun analyze(
+            irContext: BackInTimePluginContext,
+            target: IrSimpleFunction
+        ): List<IrValueParameter> {
+            with(ValueContainerStateChangeInsideFunctionAnalyzer(irContext, target)) {
                 target.acceptChildrenVoid(this)
                 return modifiedParameters
             }
@@ -35,9 +37,11 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
         /**
          * returns the properties which may be changed by the normal function call.
          */
-        context(BackInTimePluginContext)
-        fun analyzePropertiesShouldBeCaptured(expression: IrCall): Set<IrProperty> {
-            val affectedParameters = analyze(expression.symbol.owner)
+        fun analyzePropertiesShouldBeCaptured(
+            irContext: BackInTimePluginContext,
+            expression: IrCall
+        ): Set<IrProperty> {
+            val affectedParameters = analyze(irContext, expression.symbol.owner)
             val affectedArguments = expression.getArgumentsWithIr()
                 .filter { (parameter, _) -> affectedParameters.any { it.symbol == parameter.symbol } }
                 .map { (_, argument) -> argument }
@@ -57,7 +61,7 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
     }
 
     override fun visitCall(expression: IrCall) {
-        if (!expression.isValueContainerSetterCall()) return
+        if (!expression.isValueContainerSetterCall(irContext)) return
 
         val receiverParameter = (expression.receiver as? IrGetValue)?.symbol?.owner as? IrValueParameter ?: return
         val correspondingParameter = parameters.find { it.symbol == receiverParameter.symbol } ?: return
