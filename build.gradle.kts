@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.intelliJPlatform) apply false
+    alias(libs.plugins.room) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
     alias(libs.plugins.backintimePublication) apply false

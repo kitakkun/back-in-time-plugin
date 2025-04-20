@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.backintimeLint)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.room)
 }
 
 kotlin {
@@ -102,4 +103,8 @@ compose.desktop {
     application {
         mainClass = "com.kitakkun.backintime.evaluation.MainKt"
     }
+}
+
+room {
+    schemaDirectory("${projectDir}/schemas")
 }
