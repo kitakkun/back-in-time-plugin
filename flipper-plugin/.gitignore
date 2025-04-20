@@ -1,6 +1,0 @@
-node_modules
-dist/
-.idea/*
-!.idea/codeStyles
-*.tgz
-*.map
