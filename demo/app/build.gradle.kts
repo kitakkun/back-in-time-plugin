@@ -61,7 +61,7 @@ dependencies {
     implementation(projects.core.runtime)
     implementation(projects.core.annotations)
     implementation(projects.core.websocket.event)
-    implementation(projects.tooling.model)
+    implementation(projects.tooling.core.model)
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)

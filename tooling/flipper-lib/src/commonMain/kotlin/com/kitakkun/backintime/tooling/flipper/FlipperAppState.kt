@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.tooling.flipper
 
+import com.kitakkun.backintime.tooling.model.BackInTimeEventData
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.DependencyInfo
 import com.kitakkun.backintime.tooling.model.InstanceInfo

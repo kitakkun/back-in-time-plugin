@@ -1,0 +1,13 @@
+<idea-plugin>
+    <id>com.kitakkun.backintime.tooling.idea</id>
+    <name>Back-in-Time</name>
+    <vendor>kitakkun</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow factoryClass="com.kitakkun.backintime.tooling.idea.BackInTimeToolWindowFactory" id="BackInTime" />
+        <applicationService serviceImplementation="com.kitakkun.backintime.tooling.idea.service.BackInTimeDebuggerSettingsImpl" />
+    </extensions>
+</idea-plugin>
