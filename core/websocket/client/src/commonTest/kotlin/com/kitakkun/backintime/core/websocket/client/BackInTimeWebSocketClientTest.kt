@@ -35,7 +35,7 @@ class BackInTimeWebSocketClientTest {
         port: Int,
         serverSession: suspend DefaultWebSocketServerSession.() -> Unit,
     ) {
-        environment {
+        engine {
             connector {
                 this.host = host
                 this.port = port

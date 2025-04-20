@@ -7,7 +7,7 @@ import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiation
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
-import io.ktor.server.engine.ApplicationEngine
+import io.ktor.server.engine.EmbeddedServer
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.plugins.origin
 import io.ktor.server.routing.routing
@@ -24,10 +24,10 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class BackInTimeWebSocketServer {
-    private var server: ApplicationEngine? = null
+    private var server: EmbeddedServer<*, *>? = null
     val isRunning: Boolean get() = server?.application?.isActive == true
 
-    val runningPort: Int? get() = server?.environment?.connectors?.firstOrNull()?.port
+    val runningPort: Int? get() = server?.engineConfig?.connectors?.firstOrNull()?.port
 
     private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
     val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()

@@ -70,8 +70,12 @@ class BackInTimeWebSocketClient(
 
                 val receiveJob = launch {
                     while (true) {
-                        val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
-                        mutableReceivedDebuggerEventFlow.emit(debuggerEvent)
+                        try {
+                            val debuggerEvent = receiveDeserialized<BackInTimeDebuggerEvent>()
+                            mutableReceivedDebuggerEventFlow.emit(debuggerEvent)
+                        } catch (_: Throwable) {
+                            // Exception will be thrown when the session is closed.
+                        }
                     }
                 }
 
