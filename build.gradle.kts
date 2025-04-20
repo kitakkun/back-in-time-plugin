@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.intelliJPlatform) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.gradleTestKitSupport) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
     alias(libs.plugins.backintimePublication) apply false

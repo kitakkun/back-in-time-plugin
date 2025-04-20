@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.javaGradlePlugin)
     alias(libs.plugins.buildconfig)
     alias(libs.plugins.backintimePublication)
+    alias(libs.plugins.gradleTestKitSupport)
 }
 
 gradlePlugin {
@@ -20,17 +21,20 @@ dependencies {
     implementation(libs.kotlin.gradle.plugin.api)
     implementation(libs.kotlin.gradle.plugin)
 
-    testImplementation(gradleTestKit())
-    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0") {
-        exclude(group = "org.codehaus.groovy")
-    }
-    testImplementation(libs.junit.jupiter)
-    testRuntimeOnly(libs.junit.platform.launcher)
+    functionalTestImplementation(libs.gradle.testkit.support)
+    functionalTestImplementation(libs.gradle.testkit.truth)
+    functionalTestImplementation(libs.kotlin.test.junit)
 }
 
 buildConfig {
+    generateAtSync.set(true)
+    useKotlinOutput()
+    sourceSets.getByName("functionalTest") {
+        className("BuildConfigForTest")
+        buildConfigField("VERSION", libs.versions.backintime.get())
+        buildConfigField("KOTLIN_VERSION", libs.versions.kotlin.get())
+    }
     buildConfigField("VERSION", libs.versions.backintime.get())
-    buildConfigField("COMPILER_PLUGIN_ID", "com.kitakkun.backintime.compiler")
 }
 
 tasks.test {

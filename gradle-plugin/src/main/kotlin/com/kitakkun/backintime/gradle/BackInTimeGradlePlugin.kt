@@ -1,76 +1,34 @@
+@file:Suppress("UNUSED")
+
 package com.kitakkun.backintime.gradle
 
-import com.kitakkun.backintime.gradle_plugin.BuildConfig
+import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinSingleTargetExtension
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
-import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
-import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
-class BackInTimeGradlePlugin : KotlinCompilerPluginSupportPlugin {
-    companion object {
-        const val VERSION = BuildConfig.VERSION
-    }
-
+class BackInTimeGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            extensions.create(
-                "backInTime",
-                BackInTimeExtension::class.java,
-            )
+            // access to initialize kotlinVersion (will be used later)
+            BackInTimePluginConst.kotlinVersion
 
-            val annotationDependencyNotation = "com.kitakkun.backintime:core-annotations:$VERSION"
-            val runtimeDependencyNotation = "com.kitakkun.backintime:core-runtime:$VERSION"
-            val eventDependencyNotation = "com.kitakkun.backintime:core-websocket-event:$VERSION"
+            plugins.apply(BackInTimeCompilerPlugin::class.java)
+
+            extensions.create("backInTime", BackInTimeExtension::class.java)
 
             when (kotlinExtension) {
                 is KotlinSingleTargetExtension<*> -> {
-                    dependencies.add("implementation", annotationDependencyNotation)
-                    dependencies.add("implementation", runtimeDependencyNotation)
-                    dependencies.add("implementation", eventDependencyNotation)
+                    dependencies.add("implementation", BackInTimePluginConst.CORE_ANNOTATIONS_LIBRARY_DEPENDENCY_NOTATION)
+                    dependencies.add("implementation", BackInTimePluginConst.CORE_RUNTIME_LIBRARY_DEPENDENCY_NOTATION)
                 }
 
                 is KotlinMultiplatformExtension -> {
-                    dependencies.add("commonMainImplementation", annotationDependencyNotation)
-                    dependencies.add("commonMainImplementation", runtimeDependencyNotation)
-                    dependencies.add("commonMainImplementation", eventDependencyNotation)
-                }
-
-                else -> {
-                    // do nothing
+                    dependencies.add("commonMainImplementation", BackInTimePluginConst.CORE_ANNOTATIONS_LIBRARY_DEPENDENCY_NOTATION)
+                    dependencies.add("commonMainImplementation", BackInTimePluginConst.CORE_RUNTIME_LIBRARY_DEPENDENCY_NOTATION)
                 }
             }
         }
-    }
-
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean {
-        if (kotlinCompilation.compileKotlinTaskName.contains("release", ignoreCase = true)) {
-            return false
-        }
-        return kotlinCompilation.project.plugins.hasPlugin(BackInTimeGradlePlugin::class.java)
-    }
-
-    override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
-        val extension = kotlinCompilation.project.extensions.findByType(BackInTimeExtension::class.java) ?: BackInTimeExtension()
-        return kotlinCompilation.target.project.provider {
-            listOf(
-                SubpluginOption(key = "enabled", value = extension.enabled.toString()),
-                SubpluginOption(key = "config", value = extension.configFilePath),
-            )
-        }
-    }
-
-    override fun getCompilerPluginId(): String = BuildConfig.COMPILER_PLUGIN_ID
-
-    override fun getPluginArtifact(): SubpluginArtifact {
-        return SubpluginArtifact(
-            groupId = "com.kitakkun.backintime",
-            artifactId = "compiler",
-            version = VERSION,
-        )
     }
 }
