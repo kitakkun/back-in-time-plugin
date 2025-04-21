@@ -41,7 +41,7 @@ gradle-kotlin-dsl = "5.1.2"
 
 viewmodelCompose = "2.8.4"
 
-gradle-testkit-support-plugin = "0.10"
+gradle-testkit-support-plugin = "0.13"
 gradle-testkit-support = "0.18"
 gradle-testkit-truth = "1.6.1"
 
