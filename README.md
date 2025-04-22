@@ -1,15 +1,19 @@
 # back-in-time-plugin
 
+[![Maven Central](https://img.shields.io/maven-central/v/com.kitakkun.backintime/core-runtime)](https://central.sonatype.com/search?namespace=com.kitakkun.backintime)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.0.0--2.1.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/kitakkun/back-in-time-plugin/blob/master/LICENSE.txt)
+![Platform](https://img.shields.io/badge/platform-Android_JVM-blue)
+
 No more print debugging, No more repetitive manual debugging.
 
-This plugin helps you to track the changes of application state during its execution.
+This plugin helps you to track state changes inside your application during its execution.
 Also, you can easily revert the state to the previous one. We call it "back-in-time" debugging.
 
-This plugin currently intended to be used with Android projects.
+Currently, this plugin intended to be used in JVM or Android projects.
 But we are planning to support other platforms in the future.
 
-Debugging tool is available as [IntelliJ IDEA Plugin](tooling/idea-plugin). Not that it's not available from official JetBrains plugin repository yet.
-Want to play with it? Android example is available at `back-in-time-demo` module in this repository.
+![](assets/back-in-time-operation-demo.gif)
 
 > [!IMPORTANT]
 > This project is still a work in progress, and its API is unstable and may change without any
@@ -17,82 +21,61 @@ Want to play with it? Android example is available at `back-in-time-demo` module
 > Using this plugin for a hobby project is fine, but we do not recommend using it for production
 > projects yet.
 
-## How to use
+## Getting Started
 
-> [!IMPORTANT]
-> Note that the description below is not up to date.
-> Since we want to focus on the core functionality of the plugin, we are not actively maintaining the documentation.
-> Please refer to the demo project for understanding how to use the plugin.
+This section will guide you through the process of setting up the back-in-time plugin in your project.
 
-### Manual Publishing Artifacts
+### Gradle Setup
 
-This plugin is still under development, and its artifacts does not exist on Maven Central yet.
-You can manually publish them to your local Maven repository by running the following command in the
-project's root directory:
-
-```shell
-./gradlew publishToMavenLocal
-```
-
-### Configure Gradle
-
-> settings.gradle.kts
+Releases of back-in-time-plugin are available in the Maven Central repository:
 
 ```kotlin
-pluginManagement {
-    repositories {
-        mavenLocal() // plugin is published to Maven Local
-        // ...
-    }
-    plugins {
-        id("com.kitakkun.backintime") version "1.0.0" apply false
-        kotlin("plugin.serialization") version "2.0.0" apply false // required by the plugin
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        mavenLocal() // annotation library and runtime library are also published to Maven Local
-        // ...
-    }
+repositories {
+    mavenCentral()
 }
 ```
 
-> build.gradle.kts
+In build.gradle.kts:
 
 ```kotlin
 plugins {
-    id("com.kitakkun.backintime") version "1.0.0"
-    kotlin("plugin.serialization")
-    ...
+    id("com.kitakkun.backintime") version "<version>"
+    kotlin("plugin.serialization") // the back-in-time plugin depends on kotlinx.serialization
 }
 
-// add required dependencies
 dependencies {
-    // Note that annotations and runtime library are automatically added by the back-in-time gradle plugin
-
-    // other dependencies required to use the plugin
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
-    // debugger is implemented as a Flipper plugin, so you need this
-    debugImplementation("com.facebook.flipper:flipper:$flipperVersion")
-    debugImplementation("com.facebook.soloader:soloader:$soloaderVersion")
-    releaseImplementation("com.facebook.flipper:flipper-noop:$flipperVersion")
+    // Only @Serializable fields can be back-in-time debuggable
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:<version>")
 }
 
 backInTime {
-    enabled = true // default is true
+    // true by default
+    enabled = true
+    // need this for debugging external library classes
+    configFilePath = "$projectDir/backintime.yaml"
 }
 ```
 
+You need to set `configFilePath` to debug external library classes like `kotlinx.coroutines.flow.MutableStateFlow`(We call them "Trackable StateHolder").
+The compiler plugin refers to this file during compilation to understand how to make the them back-in-time debuggable.
+
+For more information about the YAML configuration file and the concept of Trackable StateHolder,
+please refer to the following documents:
+
+- [YAML Configuration Guide](docs/yaml_configuration_guide.md)
+- [Trackable StateHolder](docs/trackable_stateholder.md)
+
 ### Annotate your class
 
+After syncing your project, annotations library for the back-in-time plugin will be available automatically.
+
 Annotate your class with `@BackInTime` to make it back-in-time debuggable.
-Make sure property you want to debug is holding serializable value by kotlinx.serialization.
+Make sure fields you want to debug are holding @Serializable value by kotlinx.serialization.
 
 ```kotlin
 @BackInTime
-class CounterViewModel : ViewModel() {
-    var count = 0
+class CounterStateHolder {
+    var count = 0 // Make sure its field is @Serializable
 
     fun increment() {
         count++
@@ -100,16 +83,45 @@ class CounterViewModel : ViewModel() {
 }
 ```
 
-### One more step (Setup Flipper)
+### Install the IntelliJ IDEA plugin
 
-Currently, this plugin is completely dependent on Flipper.
-You need to setup Flipper to use this plugin.
-See [Flipper](https://fbflipper.com/) for more information.
+Unfortunately, the IntelliJ IDEA plugin is not available on the official JetBrains Marketplace yet.
+You need to build it manually and install it to your IDE by following an instruction [here](tooling/idea-plugin/README.md).
 
-You can use pre-built FlipperPlugin implementation class `BackInTimeDebugFlipperPlugin` to add the
-back-in-time debugging feature to your Flipper.
-Also, debugging tool is available
-at [flipper-plugin-back-in-time](https://github.com/kitakkun/flipper-plugin-back-in-time).
+You can also use the [standalone](tooling/standalone) version of the debugger built over Compose for Desktop.
+
+### Configure the entry point
+
+You need to configure the entry point of your application to start the back-in-time debugger.
+For Android, you can do this in the `onCreate` method of your `Application` class:
+
+```kotlin
+class MyApplication : Application() {
+    @BackInTimeEntryPoint(host = "localhost", port = 8080)
+    override fun onCreate() {
+        super.onCreate()
+    }
+}
+```
+
+For JVM applications, you can do this in the `main` method:
+
+```kotlin
+@BackInTimeEntryPoint(host = "localhost", port = 8080)
+fun main() {
+}
+```
+
+The `host` and `port` parameters are used to specify the host and port of the WebSocket server.
+After installing the IDE plugin, the WebSocket server will be started automatically.
+You can check what port is used via the IDE plugin settings screen.
+
+### Run your application and start debugging
+
+Run your application and start the back-in-time debugger. That's it!
+Now you can inspect the state of debuggable classes and execute back-in-time operations.
+
+![](assets/back-in-time-operation-demo.gif)
 
 ## How it works
 
@@ -118,12 +130,13 @@ This plugin comes with two phases: compile-time and runtime.
 ### Compile-time
 
 At compile-time, this plugin finds the classes annotated with `@BackInTime` and generates the code
-to track the changes of its state.
+to track the changes of its state and a method to perform back-in-time operations.
+
 For example, if you have the following class:
 
 ```kotlin
 @BackInTime
-class CounterViewModel {
+class CounterStateHolder {
     var count = 0
 
     fun increment() {
@@ -132,37 +145,34 @@ class CounterViewModel {
 }
 ```
 
-The plugin modify the class as follows(not exact the same, just for explanation):
+The plugin will modify the class as follows(not exact the same, just for explanation):
 
 ```kotlin
+// Note that this is a pseudo code
 @BackInTime
-class CounterViewModel : BackInTimeDebuggable {
+class CounterStateHolder : BackInTimeDebuggable {
     var count = 0
-    // other required properties for debugging...
+    // other internal properties will be generated
 
     init {
-        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.RegisterInstance(...))
+        register(this)
     }
 
     fun increment() {
-        val callUUID = UUID.randomUUID().toString()
-        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.MethodCall(...))
+        reportMethodInvocation("increment")
         count++
-        BackInTimeDebugService.emitEvent(DebuggableStateHolderEvent.PropertyValueChange(...))
+        reportValueChange("count", count)
     }
 
-    fun forceSetValue(propertyName: String, value: Any?) {
-        when (propertyName) {
-            "count" -> if (value is Int) count = value
+    override fun forceSetValue(propertySignature: String, jsonValue: String) {
+        when (propertySignature) {
+            "count" -> count = deserialize<Int>(jsonValue)
         }
     }
-
-    // other required methods for debugging...
 }
 ```
 
 ### Runtime
 
 At runtime, inserted code works to enable the back-in-time debugging.
-The debugger is implemented as a Flipper plugin, so you can debug your app via Flipper.
-
+Communication between the plugin and the application is done via a WebSocket.
