@@ -6,7 +6,7 @@ import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
@@ -60,7 +60,7 @@ private fun IrCall.captureAfterCall(
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertySignature: String,
-    valueContainer: ResolvedValueContainer,
+    valueContainer: ResolvedTrackableStateHolder,
     propertyGetter: IrSimpleFunctionSymbol,
 ): IrExpression {
     val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
@@ -73,7 +73,7 @@ private fun IrCall.captureAfterCall(
             putValueArgument(
                 index = 3,
                 valueArgument = when (valueContainer) {
-                    is ResolvedValueContainer.Wrapper -> {
+                    is ResolvedTrackableStateHolder.Wrapper -> {
                         irCall(valueContainer.getterSymbol).apply {
                             dispatchReceiver = irCall(propertyGetter).apply {
                                 dispatchReceiver = irGet(classDispatchReceiverParameter)
@@ -81,7 +81,7 @@ private fun IrCall.captureAfterCall(
                         }
                     }
 
-                    is ResolvedValueContainer.SelfContained -> {
+                    is ResolvedTrackableStateHolder.SelfContained -> {
                         irCall(propertyGetter).apply {
                             dispatchReceiver = irGet(classDispatchReceiverParameter)
                         }

@@ -2,7 +2,7 @@ package com.kitakkun.backintime.compiler.backend.analyzer
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.ir.IrElement
@@ -32,7 +32,7 @@ class UserDefinedValueContainerAnalyzer private constructor(
         fun analyzeAdditionalValueContainerClassInfo(
             irPluginContext: BackInTimePluginContext,
             moduleFragment: IrModuleFragment,
-        ): List<ResolvedValueContainer> {
+        ): List<ResolvedTrackableStateHolder> {
             with(UserDefinedValueContainerAnalyzer(irPluginContext)) {
                 moduleFragment.acceptChildrenVoid(this)
                 return collectedInfoList
@@ -40,8 +40,8 @@ class UserDefinedValueContainerAnalyzer private constructor(
         }
     }
 
-    private val mutableCollectedInfoList = mutableListOf<ResolvedValueContainer>()
-    val collectedInfoList: List<ResolvedValueContainer> get() = mutableCollectedInfoList
+    private val mutableCollectedInfoList = mutableListOf<ResolvedTrackableStateHolder>()
+    val collectedInfoList: List<ResolvedTrackableStateHolder> get() = mutableCollectedInfoList
 
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
@@ -70,7 +70,7 @@ class UserDefinedValueContainerAnalyzer private constructor(
         }
     }
 
-    private fun IrClass.getValueContainerClassInfo(): ResolvedValueContainer? {
+    private fun IrClass.getValueContainerClassInfo(): ResolvedTrackableStateHolder? {
         val isSelfContained = hasAnnotation(BackInTimeAnnotations.selfContainedValueContainerAnnotationFqName)
         val serializeAs = annotations.findAnnotation(BackInTimeAnnotations.serializeAsAnnotationFqName)
             ?.getAnnotationValueOrNull<KClass<*>>("clazz")?.java?.classId?.let { irContext.referenceClass(it) }
@@ -105,14 +105,14 @@ class UserDefinedValueContainerAnalyzer private constructor(
         if (captureTargets.isEmpty()) return null
 
         if (isSelfContained) {
-            return ResolvedValueContainer.SelfContained(
+            return ResolvedTrackableStateHolder.SelfContained(
                 classSymbol = this.symbol,
                 setterSymbols = listOf(setter.symbol),
                 captureTargetSymbols = captureTargets,
                 serializeAs = serializeAs,
             )
         } else {
-            return ResolvedValueContainer.Wrapper(
+            return ResolvedTrackableStateHolder.Wrapper(
                 classSymbol = this.symbol,
                 getterSymbol = getter.symbol,
                 setterSymbols = listOf(setter.symbol),

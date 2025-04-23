@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -68,7 +68,7 @@ private fun IrProperty.getValueHolderValueGetterSymbol(
     val propertyClassSymbol = propertyGetter.returnType.classOrNull ?: return null
     val valueContainerInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
     return when (valueContainerInfo) {
-        is ResolvedValueContainer.SelfContained -> propertyGetter.symbol
-        is ResolvedValueContainer.Wrapper -> valueContainerInfo.getterSymbol
+        is ResolvedTrackableStateHolder.SelfContained -> propertyGetter.symbol
+        is ResolvedTrackableStateHolder.Wrapper -> valueContainerInfo.getterSymbol
     }
 }

@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -27,7 +27,7 @@ fun IrType.getSerializerType(
         return manuallyConfiguredSerializeType
     }
 
-    if (valueContainerClassInfo is ResolvedValueContainer.SelfContained) {
+    if (valueContainerClassInfo is ResolvedTrackableStateHolder.SelfContained) {
         return this
     }
 
