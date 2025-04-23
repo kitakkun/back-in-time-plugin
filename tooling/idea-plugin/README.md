@@ -2,12 +2,12 @@
 
 This module provides an IntelliJ IDEA plugin implementation for Back In Time.
 
-This plugin currently not available from official JetBrains plugin repository yet.
+This plugin currently not available from official JetBrains Marketplace.
 You need to manually build and install it to your IDE.
 
 ## How to install plugin manually
 
-Run the following command in the root directory of this module:
+Run the following command in the root directory of this repository to build the plugin:
 
 ```shell
 ./gradlew buildPlugin
