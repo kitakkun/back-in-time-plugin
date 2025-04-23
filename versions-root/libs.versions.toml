@@ -1,5 +1,5 @@
 [versions]
-backintime = "0.0.1-alpha01"
+backintime = "0.0.1-alpha02"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.8.1"
 androidx-core = "1.16.0"
