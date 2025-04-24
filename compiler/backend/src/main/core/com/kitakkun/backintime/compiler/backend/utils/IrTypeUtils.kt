@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -19,15 +19,15 @@ fun IrType.getGenericTypes(): List<IrType> {
 fun IrType.getSerializerType(
     irContext: BackInTimePluginContext,
 ): IrType? {
-    val valueContainerClassInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == this.classOrNull } ?: return this
+    val trackableStateHolderClassInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == this.classOrNull } ?: return this
 
     val typeArguments = (this as? IrSimpleType)?.arguments?.map { it.typeOrFail } ?: return null
-    val manuallyConfiguredSerializeType = valueContainerClassInfo.serializeAs?.owner?.typeWith(typeArguments)
+    val manuallyConfiguredSerializeType = trackableStateHolderClassInfo.serializeAs?.owner?.typeWith(typeArguments)
     if (manuallyConfiguredSerializeType != null) {
         return manuallyConfiguredSerializeType
     }
 
-    if (valueContainerClassInfo is ResolvedValueContainer.SelfContained) {
+    if (trackableStateHolderClassInfo is ResolvedTrackableStateHolder.SelfContained) {
         return this
     }
 

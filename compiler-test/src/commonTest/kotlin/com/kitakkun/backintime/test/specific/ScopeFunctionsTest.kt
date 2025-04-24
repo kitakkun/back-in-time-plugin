@@ -4,7 +4,7 @@ import com.kitakkun.backintime.core.annotations.BackInTime
 import com.kitakkun.backintime.core.annotations.Capture
 import com.kitakkun.backintime.core.annotations.Getter
 import com.kitakkun.backintime.core.annotations.Setter
-import com.kitakkun.backintime.core.annotations.ValueContainer
+import com.kitakkun.backintime.core.annotations.TrackableStateHolder
 import com.kitakkun.backintime.core.runtime.BackInTimeDebuggable
 import com.kitakkun.backintime.test.base.BackInTimeDebugServiceTest
 import kotlinx.coroutines.test.runTest
@@ -14,14 +14,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
-    @ValueContainer
-    private class AnnotationConfiguredValueContainer<T>(
+    @TrackableStateHolder
+    private class AnnotationConfiguredTrackableStateHolder<T>(
         @Getter @Setter @Capture var value: T,
     )
 
     @BackInTime
-    private class ValueContainerHolder {
-        val container = AnnotationConfiguredValueContainer(0)
+    private class TrackableStateHolderOwner {
+        val container = AnnotationConfiguredTrackableStateHolder(0)
 
         fun updateByWith(value: Int) {
             with(container) {
@@ -64,68 +64,68 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
 
     @Test
     fun withTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByWith(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByWith(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Test
     fun applyTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByApply(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByApply(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Test
     fun runTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByRun(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByRun(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Test
     fun letTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByLet(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByLet(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Test
     fun alsoTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByAlso(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByAlso(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Ignore("takeIf is not supported yet")
     @Test
     fun takeIfTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByTakeIf(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByTakeIf(10)
+        owner.assertRequirementsAreMet()
     }
 
     @Ignore("takeUnless is not supported yet")
     @Test
     fun takeUnlessTest() = runTest {
-        val holder = ValueContainerHolder()
+        val owner = TrackableStateHolderOwner()
 
-        holder.updateByTakeUnless(10)
-        holder.assertRequirementsAreMet()
+        owner.updateByTakeUnless(10)
+        owner.assertRequirementsAreMet()
     }
 
-    private fun ValueContainerHolder.assertRequirementsAreMet() {
+    private fun TrackableStateHolderOwner.assertRequirementsAreMet() {
         assertIs<BackInTimeDebuggable>(this)
         assertEquals(10, container.value)
         assertEquals(1, notifyValueChangeEvents.size)
         assertEquals(this.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
-        assertEquals("com/kitakkun/backintime/test/specific/ScopeFunctionsTest.ValueContainerHolder.container", notifyValueChangeEvents[0].propertySignature)
+        assertEquals("com/kitakkun/backintime/test/specific/ScopeFunctionsTest.TrackableStateHolderOwner.container", notifyValueChangeEvents[0].propertySignature)
         assertEquals(10, notifyValueChangeEvents[0].value.toInt())
     }
 }

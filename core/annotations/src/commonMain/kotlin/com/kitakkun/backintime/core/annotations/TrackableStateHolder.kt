@@ -5,17 +5,17 @@ package com.kitakkun.backintime.core.annotations
 import kotlin.reflect.KClass
 
 /**
- * configure ValueContainer by annotating the class with this annotation.
+ * configure TrackableStateHolder by annotating the class with this annotation.
  */
 @Target(AnnotationTarget.CLASS)
-annotation class ValueContainer
+annotation class TrackableStateHolder
 
 @Target(AnnotationTarget.CLASS)
-@ValueContainer
-annotation class SelfContainedValueContainer
+@TrackableStateHolder
+annotation class SelfContainedTrackableStateHolder
 
 @Target(AnnotationTarget.CLASS)
-annotation class ExternalValueContainerConfig(val forClass: KClass<*>)
+annotation class ExternalTrackableStateHolderConfig(val forClass: KClass<*>)
 
 @Target(AnnotationTarget.CLASS)
 annotation class SerializableAs(val clazz: KClass<*>)

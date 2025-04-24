@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -30,14 +30,14 @@ private fun irCapturePropertyValue(
     putTypeArgument(0, propertyType.getSerializerType(irContext))
 }
 
-fun IrProperty.generateCaptureValueCallForValueContainer(
+fun IrProperty.generateCaptureValueCallForTrackableStateHolder(
     irContext: BackInTimePluginContext,
     irBuilder: IrBuilderWithScope,
     instanceParameter: IrValueParameter,
     uuidVariable: IrVariable,
 ): IrCall? {
     val getter = getter ?: return null
-    val valueGetterSymbol = getValueHolderValueGetterSymbol(irContext) ?: return null
+    val valueGetterSymbol = getTrackableStateHolderGetterSymbol(irContext) ?: return null
     return irCapturePropertyValue(
         irContext = irContext,
         irBuilder = irBuilder,
@@ -61,14 +61,14 @@ fun IrProperty.generateCaptureValueCallForValueContainer(
     )
 }
 
-private fun IrProperty.getValueHolderValueGetterSymbol(
+private fun IrProperty.getTrackableStateHolderGetterSymbol(
     irContext: BackInTimePluginContext,
 ): IrSimpleFunctionSymbol? {
     val propertyGetter = getter ?: return null
     val propertyClassSymbol = propertyGetter.returnType.classOrNull ?: return null
-    val valueContainerInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
-    return when (valueContainerInfo) {
-        is ResolvedValueContainer.SelfContained -> propertyGetter.symbol
-        is ResolvedValueContainer.Wrapper -> valueContainerInfo.getterSymbol
+    val trackableStateHolderInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == propertyClassSymbol } ?: return null
+    return when (trackableStateHolderInfo) {
+        is ResolvedTrackableStateHolder.SelfContained -> propertyGetter.symbol
+        is ResolvedTrackableStateHolder.Wrapper -> trackableStateHolderInfo.getterSymbol
     }
 }

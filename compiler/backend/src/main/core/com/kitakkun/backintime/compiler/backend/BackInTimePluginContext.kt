@@ -1,8 +1,8 @@
 package com.kitakkun.backintime.compiler.backend
 
-import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedValueContainerAnalyzer
+import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedTrackableStateHolderAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -21,9 +21,9 @@ class BackInTimePluginContext(
     val yamlConfiguration: BackInTimeYamlConfiguration,
 ) : IrPluginContext by baseContext {
     val pluginContext: IrPluginContext = baseContext
-    val valueContainerClassInfoList: List<ResolvedValueContainer> = yamlConfiguration.trackableStateHolders.mapNotNull { trackableStateHolder ->
-        ResolvedValueContainer.create(this, trackableStateHolder)
-    } + UserDefinedValueContainerAnalyzer.analyzeAdditionalValueContainerClassInfo(this, moduleFragment)
+    val trackableStateHolderClassInfoList: List<ResolvedTrackableStateHolder> = yamlConfiguration.trackableStateHolders.mapNotNull { trackableStateHolder ->
+        ResolvedTrackableStateHolder.create(this, trackableStateHolder)
+    } + UserDefinedTrackableStateHolderAnalyzer.analyze(this, moduleFragment)
 
     val backInTimeEntryPointRegisterFunctionSymbol by lazy {
         backintimeNamedFunction(

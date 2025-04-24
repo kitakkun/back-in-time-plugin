@@ -85,7 +85,7 @@ class BackInTimeDebuggableConstructorTransformer(
                         val propertyTypeName = propertyType?.signatureForBackInTimeDebugger() ?: "unknown"
                         val genericTypeCompletedName = propertyType?.getGenericTypes()?.firstOrNull()?.signatureForBackInTimeDebugger() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない
-                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull in irContext.valueContainerClassInfoList.map { it.classSymbol }
+                        val isDebuggable = irProperty.isVar || propertyType?.classOrNull in irContext.trackableStateHolderClassInfoList.map { it.classSymbol }
                         val isDebuggableStateHolder = propertyType?.classOrNull?.owner?.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName) ?: false
                         irConcat().apply {
                             addArgument(irString(irProperty.signatureForBackInTimeDebugger()))

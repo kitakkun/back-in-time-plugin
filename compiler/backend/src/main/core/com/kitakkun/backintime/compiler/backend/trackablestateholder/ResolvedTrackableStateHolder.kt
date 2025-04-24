@@ -1,4 +1,4 @@
-package com.kitakkun.backintime.compiler.backend.valuecontainer
+package com.kitakkun.backintime.compiler.backend.trackablestateholder
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.synthetic.isVisibleOutside
 
-sealed class ResolvedValueContainer {
+sealed class ResolvedTrackableStateHolder {
     abstract val getterSymbol: IrSimpleFunctionSymbol?
     abstract val classSymbol: IrClassSymbol
     abstract val setterSymbols: List<IrSimpleFunctionSymbol>
@@ -35,7 +35,7 @@ sealed class ResolvedValueContainer {
         override val setterSymbols: List<IrSimpleFunctionSymbol>,
         override val captureTargetSymbols: List<Pair<IrSimpleFunctionSymbol, CaptureStrategy>>,
         override val serializeAs: IrClassSymbol?,
-    ) : ResolvedValueContainer() {
+    ) : ResolvedTrackableStateHolder() {
         override val getterSymbol: IrSimpleFunctionSymbol? = null
     }
 
@@ -45,13 +45,13 @@ sealed class ResolvedValueContainer {
         override val captureTargetSymbols: List<Pair<IrSimpleFunctionSymbol, CaptureStrategy>>,
         override val getterSymbol: IrSimpleFunctionSymbol,
         override val serializeAs: IrClassSymbol?,
-    ) : ResolvedValueContainer()
+    ) : ResolvedTrackableStateHolder()
 
     companion object {
         fun create(
             irContext: BackInTimePluginContext,
             trackableStateHolder: TrackableStateHolder,
-        ): ResolvedValueContainer? {
+        ): ResolvedTrackableStateHolder? {
             val classId = ClassId.fromString(trackableStateHolder.classId)
 
             val classSymbol = irContext.referenceClass(classId) ?: return null

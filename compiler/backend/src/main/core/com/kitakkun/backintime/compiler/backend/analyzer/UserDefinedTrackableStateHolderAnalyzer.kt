@@ -1,8 +1,8 @@
 package com.kitakkun.backintime.compiler.backend.analyzer
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedValueContainer
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.CaptureStrategy
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import org.jetbrains.kotlin.descriptors.runtime.structure.classId
 import org.jetbrains.kotlin.ir.IrElement
@@ -25,23 +25,23 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addIfNotNull
 import kotlin.reflect.KClass
 
-class UserDefinedValueContainerAnalyzer private constructor(
+class UserDefinedTrackableStateHolderAnalyzer private constructor(
     private val irContext: BackInTimePluginContext,
 ) : IrElementVisitorVoid {
     companion object {
-        fun analyzeAdditionalValueContainerClassInfo(
+        fun analyze(
             irPluginContext: BackInTimePluginContext,
             moduleFragment: IrModuleFragment,
-        ): List<ResolvedValueContainer> {
-            with(UserDefinedValueContainerAnalyzer(irPluginContext)) {
+        ): List<ResolvedTrackableStateHolder> {
+            with(UserDefinedTrackableStateHolderAnalyzer(irPluginContext)) {
                 moduleFragment.acceptChildrenVoid(this)
                 return collectedInfoList
             }
         }
     }
 
-    private val mutableCollectedInfoList = mutableListOf<ResolvedValueContainer>()
-    val collectedInfoList: List<ResolvedValueContainer> get() = mutableCollectedInfoList
+    private val mutableCollectedInfoList = mutableListOf<ResolvedTrackableStateHolder>()
+    val collectedInfoList: List<ResolvedTrackableStateHolder> get() = mutableCollectedInfoList
 
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
@@ -50,9 +50,9 @@ class UserDefinedValueContainerAnalyzer private constructor(
     override fun visitClass(declaration: IrClass) {
         declaration.acceptChildrenVoid(this)
 
-        if (!declaration.hasAnnotation(BackInTimeAnnotations.valueContainerAnnotationFqName)) return
+        if (!declaration.hasAnnotation(BackInTimeAnnotations.trackableStateHolderAnnotationFqName)) return
 
-        val containerInfo = declaration.getValueContainerClassInfo()
+        val containerInfo = declaration.getTrackableStateHolderClassInfo()
         mutableCollectedInfoList.addIfNotNull(containerInfo)
     }
 
@@ -65,13 +65,13 @@ class UserDefinedValueContainerAnalyzer private constructor(
         val propertyClass = declaration.getter?.returnType?.classOrNull?.owner ?: return
         val parentClass = declaration.parentClassOrNull ?: return
         if (parentClass.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationFqName)) {
-            val containerInfo = propertyClass.getValueContainerClassInfo()
-            mutableCollectedInfoList.addIfNotNull(containerInfo)
+            val trackableStateHolderInfo = propertyClass.getTrackableStateHolderClassInfo()
+            mutableCollectedInfoList.addIfNotNull(trackableStateHolderInfo)
         }
     }
 
-    private fun IrClass.getValueContainerClassInfo(): ResolvedValueContainer? {
-        val isSelfContained = hasAnnotation(BackInTimeAnnotations.selfContainedValueContainerAnnotationFqName)
+    private fun IrClass.getTrackableStateHolderClassInfo(): ResolvedTrackableStateHolder? {
+        val isSelfContained = hasAnnotation(BackInTimeAnnotations.selfContainedTrackableStateHolderAnnotationFqName)
         val serializeAs = annotations.findAnnotation(BackInTimeAnnotations.serializeAsAnnotationFqName)
             ?.getAnnotationValueOrNull<KClass<*>>("clazz")?.java?.classId?.let { irContext.referenceClass(it) }
 
@@ -105,14 +105,14 @@ class UserDefinedValueContainerAnalyzer private constructor(
         if (captureTargets.isEmpty()) return null
 
         if (isSelfContained) {
-            return ResolvedValueContainer.SelfContained(
+            return ResolvedTrackableStateHolder.SelfContained(
                 classSymbol = this.symbol,
                 setterSymbols = listOf(setter.symbol),
                 captureTargetSymbols = captureTargets,
                 serializeAs = serializeAs,
             )
         } else {
-            return ResolvedValueContainer.Wrapper(
+            return ResolvedTrackableStateHolder.Wrapper(
                 classSymbol = this.symbol,
                 getterSymbol = getter.symbol,
                 setterSymbols = listOf(setter.symbol),

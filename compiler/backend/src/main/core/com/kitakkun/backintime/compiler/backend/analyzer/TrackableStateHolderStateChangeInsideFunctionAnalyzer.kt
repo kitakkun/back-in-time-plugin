@@ -2,7 +2,7 @@ package com.kitakkun.backintime.compiler.backend.analyzer
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
-import com.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
+import com.kitakkun.backintime.compiler.backend.utils.isTrackableStateHolderSetterCall
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
  * check if the parameters passed to the target function are changed internally.
  * returns the parameter symbols which may be changed.
  */
-class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
+class TrackableStateHolderStateChangeInsideFunctionAnalyzer private constructor(
     private val irContext: BackInTimePluginContext,
     target: IrSimpleFunction,
 ) : IrElementVisitorVoid {
@@ -28,7 +28,7 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
             irContext: BackInTimePluginContext,
             target: IrSimpleFunction
         ): List<IrValueParameter> {
-            with(ValueContainerStateChangeInsideFunctionAnalyzer(irContext, target)) {
+            with(TrackableStateHolderStateChangeInsideFunctionAnalyzer(irContext, target)) {
                 target.acceptChildrenVoid(this)
                 return modifiedParameters
             }
@@ -61,7 +61,7 @@ class ValueContainerStateChangeInsideFunctionAnalyzer private constructor(
     }
 
     override fun visitCall(expression: IrCall) {
-        if (!expression.isValueContainerSetterCall(irContext)) return
+        if (!expression.isTrackableStateHolderSetterCall(irContext)) return
 
         val receiverParameter = (expression.receiver as? IrGetValue)?.symbol?.owner as? IrValueParameter ?: return
         val correspondingParameter = parameters.find { it.symbol == receiverParameter.symbol } ?: return

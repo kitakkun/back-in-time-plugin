@@ -11,10 +11,10 @@ import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.declarations.hasAnnotationSafe
 
-object ValueContainerDefinitionChecker : FirRegularClassChecker(MppCheckerKind.Platform) {
+object TrackableStateHolderDefinitionChecker : FirRegularClassChecker(MppCheckerKind.Platform) {
     override fun check(declaration: FirRegularClass, context: CheckerContext, reporter: DiagnosticReporter) {
         with(context) {
-            if (!declaration.hasAnnotationSafe(BackInTimeAnnotations.valueContainerAnnotationClassId, session)) return
+            if (!declaration.hasAnnotationSafe(BackInTimeAnnotations.trackableStateHolderAnnotationClassId, session)) return
             val functions = declaration.declarations.filterIsInstance<FirSimpleFunction>()
             val properties = declaration.declarations.filterIsInstance<FirProperty>()
             val functionsAndProperties = functions + properties

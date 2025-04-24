@@ -9,14 +9,14 @@ object BackInTimeAnnotations {
     val backInTimeAnnotationFqName = FqName("$BASE_PACKAGE.BackInTime")
     val backInTimeAnnotationClassId = ClassId.topLevel(backInTimeAnnotationFqName)
 
-    val valueContainerAnnotationFqName = FqName("$BASE_PACKAGE.ValueContainer")
+    val trackableStateHolderAnnotationFqName = FqName("$BASE_PACKAGE.TrackableStateHolder")
     val captureAnnotationFqName = FqName("$BASE_PACKAGE.Capture")
     val getterAnnotationFqName = FqName("$BASE_PACKAGE.Getter")
     val setterAnnotationFqName = FqName("$BASE_PACKAGE.Setter")
-    val selfContainedValueContainerAnnotationFqName = FqName("$BASE_PACKAGE.SelfContainedValueContainer")
+    val selfContainedTrackableStateHolderAnnotationFqName = FqName("$BASE_PACKAGE.SelfContainedTrackableStateHolder")
     val serializeAsAnnotationFqName = FqName("$BASE_PACKAGE.SerializeAs")
 
-    val valueContainerAnnotationClassId = ClassId.topLevel(valueContainerAnnotationFqName)
+    val trackableStateHolderAnnotationClassId = ClassId.topLevel(trackableStateHolderAnnotationFqName)
     val captureAnnotationClassId = ClassId.topLevel(captureAnnotationFqName)
     val getterAnnotationClassId = ClassId.topLevel(getterAnnotationFqName)
     val setterAnnotationClassId = ClassId.topLevel(setterAnnotationFqName)

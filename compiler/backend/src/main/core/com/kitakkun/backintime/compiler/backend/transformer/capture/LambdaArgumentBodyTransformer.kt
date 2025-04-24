@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
+import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -30,8 +30,8 @@ class LambdaArgumentBodyTransformer(
         val receiverClassId = receiver.type.classOrNull?.owner?.classId
         val callingFunction = expression.symbol
 
-        val valueContainerClassInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return expression
-        if (callingFunction !in valueContainerClassInfo.captureTargetSymbols.map { it.first }) return expression
+        val trackableStateHolderInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == receiverClassSymbol } ?: return expression
+        if (callingFunction !in trackableStateHolderInfo.captureTargetSymbols.map { it.first }) return expression
 
         val possibleReceiverProperties = passedProperties.filter {
             val propertyClassId = it.getter?.returnType?.classOrNull?.owner?.classId
@@ -41,7 +41,7 @@ class LambdaArgumentBodyTransformer(
         with(irContext.irBuiltIns.createIrBuilder(expression.symbol)) {
             val captureCalls = possibleReceiverProperties.mapNotNull { property ->
                 val propertyGetter = property.getter ?: return@mapNotNull null
-                val captureCall = property.generateCaptureValueCallForValueContainer(
+                val captureCall = property.generateCaptureValueCallForTrackableStateHolder(
                     irContext = irContext,
                     irBuilder = this,
                     instanceParameter = classDispatchReceiverParameter,
