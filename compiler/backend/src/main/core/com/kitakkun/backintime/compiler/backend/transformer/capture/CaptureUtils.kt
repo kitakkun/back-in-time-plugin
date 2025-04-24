@@ -1,12 +1,12 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.CaptureStrategy
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
-import com.kitakkun.backintime.compiler.backend.valuecontainer.CaptureStrategy
-import com.kitakkun.backintime.compiler.backend.valuecontainer.ResolvedTrackableStateHolder
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
@@ -25,8 +25,8 @@ fun IrCall.captureIfNeeded(
     uuidVariable: IrVariable,
 ): IrExpression? {
     val property = receiver?.getCorrespondingProperty() ?: return null
-    val valueContainer = irContext.valueContainerClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
-    val captureStrategy = valueContainer.captureTargetSymbols.firstOrNull { it.first == this.symbol }?.second ?: return null
+    val trackableStateHolderInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
+    val captureStrategy = trackableStateHolderInfo.captureTargetSymbols.firstOrNull { it.first == this.symbol }?.second ?: return null
     val propertySignature = property.signatureForBackInTimeDebugger()
 
     val propertyGetterSymbol = property.getter?.symbol ?: return null
@@ -39,7 +39,7 @@ fun IrCall.captureIfNeeded(
                 classDispatchReceiverParameter = classDispatchReceiverParameter,
                 uuidVariable = uuidVariable,
                 propertySignature = propertySignature,
-                valueContainer = valueContainer,
+                trackableStateHolder = trackableStateHolderInfo,
             )
         }
 
@@ -60,7 +60,7 @@ private fun IrCall.captureAfterCall(
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertySignature: String,
-    valueContainer: ResolvedTrackableStateHolder,
+    trackableStateHolder: ResolvedTrackableStateHolder,
     propertyGetter: IrSimpleFunctionSymbol,
 ): IrExpression {
     val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
@@ -72,9 +72,9 @@ private fun IrCall.captureAfterCall(
             putValueArgument(2, irString(propertySignature))
             putValueArgument(
                 index = 3,
-                valueArgument = when (valueContainer) {
+                valueArgument = when (trackableStateHolder) {
                     is ResolvedTrackableStateHolder.Wrapper -> {
-                        irCall(valueContainer.getterSymbol).apply {
+                        irCall(trackableStateHolder.getterSymbol).apply {
                             dispatchReceiver = irCall(propertyGetter).apply {
                                 dispatchReceiver = irGet(classDispatchReceiverParameter)
                             }

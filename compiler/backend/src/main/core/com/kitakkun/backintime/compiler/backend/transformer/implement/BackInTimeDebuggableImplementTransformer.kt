@@ -121,7 +121,7 @@ class BackInTimeDebuggableImplementTransformer(
     ): IrExpression? {
         val type = property.getter?.returnType ?: return null
         val classSymbol = type.classOrNull ?: return null
-        val correspondingContainerInfo = irContext.valueContainerClassInfoList.find { it.classSymbol == classSymbol }
+        val correspondingContainerInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == classSymbol }
 
         val deserializedValue = irCall(irContext.decodeFromStringFunction).apply {
             extensionReceiver = irCall(irContext.backInTimeJsonGetter)

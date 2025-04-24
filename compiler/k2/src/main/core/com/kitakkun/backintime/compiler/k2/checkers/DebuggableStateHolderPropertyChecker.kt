@@ -3,7 +3,7 @@ package com.kitakkun.backintime.compiler.k2.checkers
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import com.kitakkun.backintime.compiler.k2.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
-import com.kitakkun.backintime.compiler.k2.predicate.ValueContainerPredicate
+import com.kitakkun.backintime.compiler.k2.predicate.trackableStateHolderPredicate
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
 import org.jetbrains.kotlin.fir.FirSession
@@ -40,7 +40,7 @@ object DebuggableStateHolderPropertyChecker : FirRegularClassChecker(MppCheckerK
         if (propertyType.hasSerializableAnnotation(context.session)) return
         if (propertyType.isDebuggableStateHolder(context.session)) return
 
-        if (!propertyType.isValueContainer(context.session)) {
+        if (!propertyType.isTrackableStateHolder(context.session)) {
             return reporter.reportOn(declaration.source, FirBackInTimeErrors.PROPERTY_VALUE_MUST_BE_SERIALIZABLE, context)
         }
 
@@ -133,18 +133,16 @@ object DebuggableStateHolderPropertyChecker : FirRegularClassChecker(MppCheckerK
         return VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.hasAnnotation(serializableAnnotationClassId, session) == true
     }
 
-    private fun ConeKotlinType.isValueContainer(session: FirSession): Boolean {
-//        val predefinedInGradle = session.backInTimeCompilerConfigurationProvider.config.valueContainers.any { it.classId == this.classId }
+    private fun ConeKotlinType.isTrackableStateHolder(session: FirSession): Boolean {
         val configuredViaAnnotation = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let {
-            session.predicateBasedProvider.matches(ValueContainerPredicate, it)
-        } ?: false
-//        return predefinedInGradle || configuredViaAnnotation
+            session.predicateBasedProvider.matches(trackableStateHolderPredicate, it)
+        } == true
         return configuredViaAnnotation
     }
 
     private fun ConeKotlinType.isDebuggableStateHolder(session: FirSession): Boolean {
         return VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let {
             session.predicateBasedProvider.matches(BackInTimePredicate, it)
-        } ?: false
+        } == true
     }
 }

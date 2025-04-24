@@ -1,18 +1,18 @@
 package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
-import com.kitakkun.backintime.compiler.backend.analyzer.ValueContainerStateChangeInsideFunctionAnalyzer
+import com.kitakkun.backintime.compiler.backend.analyzer.TrackableStateHolderStateChangeInsideFunctionAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForValueContainer
+import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
 import com.kitakkun.backintime.compiler.backend.utils.getRelevantLambdaExpressions
 import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
-import com.kitakkun.backintime.compiler.backend.utils.isIndirectValueContainerSetterCall
+import com.kitakkun.backintime.compiler.backend.utils.isIndirectTrackableStateHolderSetterCall
 import com.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
-import com.kitakkun.backintime.compiler.backend.utils.isValueContainerSetterCall
+import com.kitakkun.backintime.compiler.backend.utils.isTrackableStateHolderSetterCall
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -76,9 +76,9 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
                 expression.transformPureSetterCall()
             }
 
-            expression.isValueContainerRelevantCall() -> {
+            expression.isTrackableStateHolderRelevantCall() -> {
                 super.visitCall(expression)
-                return expression.transformValueContainerRelevantCall()
+                return expression.transformTrackableStateHolderRelevantCall()
             }
         }
 
@@ -131,21 +131,21 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
         return variable
     }
 
-    private fun IrCall.isValueContainerRelevantCall(): Boolean {
+    private fun IrCall.isTrackableStateHolderRelevantCall(): Boolean {
         return VersionSpecificAPI.INSTANCE.getReceiverAndArgs(this)
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.isBackInTimeDebuggable == true &&
-                    irContext.valueContainerClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
+                    irContext.trackableStateHolderClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
             }
     }
 
-    private fun IrCall.transformValueContainerRelevantCall(): IrExpression {
+    private fun IrCall.transformTrackableStateHolderRelevantCall(): IrExpression {
         if (isLambdaFunctionRelevantCall()) {
             transformInsideRelevantLambdaFunctions()
         }
 
-        if (isValueContainerSetterCall(irContext)) {
+        if (isTrackableStateHolderSetterCall(irContext)) {
             val function = currentClosestBackInTimeDebuggableOwnerFunction()
 
             val uuidVariable = function?.getLocalMethodInvocationIdVariable()
@@ -158,8 +158,8 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
             ) ?: this
         }
 
-        if (isIndirectValueContainerSetterCall(irContext)) {
-            return transformIndirectValueContainerSetterCall()
+        if (isIndirectTrackableStateHolderSetterCall(irContext)) {
+            return transformIndirectTrackableStateHolderSetterCall()
         }
 
         return this
@@ -190,8 +190,8 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
         }
     }
 
-    private fun IrCall.transformIndirectValueContainerSetterCall(): IrExpression {
-        val propertiesShouldBeCapturedAfterCall = ValueContainerStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(irContext, this)
+    private fun IrCall.transformIndirectTrackableStateHolderSetterCall(): IrExpression {
+        val propertiesShouldBeCapturedAfterCall = TrackableStateHolderStateChangeInsideFunctionAnalyzer.analyzePropertiesShouldBeCaptured(irContext, this)
 
         val function = currentClosestBackInTimeDebuggableOwnerFunction()
         val uuidVariable = function?.getLocalMethodInvocationIdVariable()
@@ -199,18 +199,18 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
 
         with(irContext.irBuiltIns.createIrBuilder(symbol)) {
             val propertyCaptureCalls = propertiesShouldBeCapturedAfterCall.mapNotNull { property ->
-                property.generateCaptureValueCallForValueContainer(
+                property.generateCaptureValueCallForTrackableStateHolder(
                     irContext = irContext,
                     irBuilder = this,
-                    instanceParameter = classDispatchReceiverParameter ?: return this@transformIndirectValueContainerSetterCall,
-                    uuidVariable = uuidVariable ?: return this@transformIndirectValueContainerSetterCall,
+                    instanceParameter = classDispatchReceiverParameter ?: return this@transformIndirectTrackableStateHolderSetterCall,
+                    uuidVariable = uuidVariable ?: return this@transformIndirectTrackableStateHolderSetterCall,
                 )
             }
 
-            if (propertyCaptureCalls.isEmpty()) return this@transformIndirectValueContainerSetterCall
+            if (propertyCaptureCalls.isEmpty()) return this@transformIndirectTrackableStateHolderSetterCall
 
             return irComposite {
-                +this@transformIndirectValueContainerSetterCall
+                +this@transformIndirectTrackableStateHolderSetterCall
                 +propertyCaptureCalls
             }
         }
