@@ -33,7 +33,7 @@ dependencyResolutionManagement {
 
                 // FIXME: hard-coded KSP-version for the demo application
                 when (it) {
-                    "2.1.20" -> "$it-1.0.32"
+                    "2.1.20" -> "$it-2.0.0"
                     "2.1.0" -> "$it-1.0.29"
                     "2.0.21" -> "$it-1.0.28"
                     "2.0.20" -> "$it-1.0.25"
