@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.javac.resolve.classId
 
-object DebuggableStateHolderPropertyChecker : FirRegularClassChecker(MppCheckerKind.Platform) {
+object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerKind.Platform) {
     private val serializableAnnotationClassId = classId("kotlinx.serialization", "Serializable")
 
     override fun check(declaration: FirRegularClass, context: CheckerContext, reporter: DiagnosticReporter) {
