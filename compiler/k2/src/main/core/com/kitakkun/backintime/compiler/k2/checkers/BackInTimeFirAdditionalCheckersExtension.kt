@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.fir.extensions.FirDeclarationPredicateRegistrar
 
 class BackInTimeFirAdditionalCheckersExtension(session: FirSession) : FirAdditionalCheckersExtension(session) {
     override val declarationCheckers = object : DeclarationCheckers() {
-        override val regularClassCheckers: Set<FirRegularClassChecker> = setOf(TrackableStateHolderDefinitionChecker, DebuggableStateHolderPropertyChecker)
+        override val regularClassCheckers: Set<FirRegularClassChecker> = setOf(TrackableStateHolderDefinitionChecker, BackInTimeTargetClassPropertyChecker)
     }
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
