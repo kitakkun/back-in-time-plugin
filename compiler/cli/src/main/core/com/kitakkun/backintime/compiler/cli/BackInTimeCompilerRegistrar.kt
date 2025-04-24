@@ -26,7 +26,7 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         val yamlConfiguration = parseConfiguration(configuration)
         MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
 
-        FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar())
+        FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar(yamlConfiguration))
         IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(yamlConfiguration))
     }
 

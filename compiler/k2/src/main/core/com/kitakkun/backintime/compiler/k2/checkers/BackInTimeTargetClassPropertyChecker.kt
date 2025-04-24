@@ -2,6 +2,7 @@ package com.kitakkun.backintime.compiler.k2.checkers
 
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import com.kitakkun.backintime.compiler.k2.api.VersionSpecificAPI
+import com.kitakkun.backintime.compiler.k2.extension.yamlConfigurationProvider
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
 import com.kitakkun.backintime.compiler.k2.predicate.trackableStateHolderPredicate
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
@@ -134,10 +135,12 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
     }
 
     private fun ConeKotlinType.isTrackableStateHolder(session: FirSession): Boolean {
-        val configuredViaAnnotation = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let {
-            session.predicateBasedProvider.matches(trackableStateHolderPredicate, it)
-        } == true
-        return configuredViaAnnotation
+        val regularClassSymbol = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session) ?: return false
+        val configuredViaAnnotation = session.predicateBasedProvider.matches(trackableStateHolderPredicate, regularClassSymbol)
+        val configuredViaYaml = session.yamlConfigurationProvider.yamlConfiguration.trackableStateHolders.any {
+            it.classId == regularClassSymbol.classId.asString()
+        }
+        return configuredViaAnnotation || configuredViaYaml
     }
 
     private fun ConeKotlinType.isDebuggableStateHolder(session: FirSession): Boolean {
