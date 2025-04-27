@@ -47,6 +47,10 @@ kotlin {
         }
     }
 
+    sourceSets.configureEach {
+        languageSettings.enableLanguageFeature("ExplicitBackingFields")
+    }
+
     configureVersionSpecificSourceDirectories(libs.versions.kotlin.get().parseToKotlinVersion())
 
     compilerOptions {
