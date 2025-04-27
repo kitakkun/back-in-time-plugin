@@ -8,7 +8,7 @@ androidx-compose = "1.8.0"
 robolectric = "4.14.1"
 mockk = "1.14.0"
 kotlin = "2.1.20"
-android-library = "8.5.0"
+agp = "8.9.2"
 ksp = "2.1.20-2.0.0"
 
 core-ktx = "1.13.1"
@@ -114,19 +114,19 @@ gradle-testkit-truth = { module = "com.autonomousapps:gradle-testkit-truth", ver
 
 [plugins]
 # convention
-backintimeLint = { id = "backintime-lint", version = "unspecified" }
-backintimePublication = { id = "backintime-publication", version = "unspecified" }
-backintimeCompilerModule = { id = "backintime-compiler-module", version = "unspecified" }
-intelliJComposeFeature = { id = "intellij-compose-feature", version = "unspecified" }
-intelliJCommon = { id = "intellij-common", version = "unspecified" }
-intelliJJewel = { id = "intellij-jewel", version = "unspecified" }
+backintimeLint = { id = "backintime-lint" }
+backintimePublication = { id = "backintime-publication" }
+backintimeCompilerModule = { id = "backintime-compiler-module" }
+intelliJComposeFeature = { id = "intellij-compose-feature" }
+intelliJCommon = { id = "intellij-common" }
+intelliJJewel = { id = "intellij-jewel" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-androidApplication = { id = "com.android.application", version.ref = "android-library" }
-androidLibrary = { id = "com.android.library", version.ref = "android-library" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
