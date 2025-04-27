@@ -37,7 +37,7 @@ jetbrainsCompose = "1.7.3"
 jewel = "0.27.0"
 sqldelight = "2.0.2"
 kotlinx-coroutines-intellij = "1.8.0-intellij-11"
-gradle-kotlin-dsl = "5.1.2"
+gradle-kotlin-dsl = "5.2.0"
 
 viewmodelCompose = "2.8.4"
 
