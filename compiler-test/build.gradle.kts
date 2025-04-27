@@ -1,3 +1,6 @@
+import util.configureVersionSpecificSourceDirectories
+import util.parseToKotlinVersion
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -43,6 +46,8 @@ kotlin {
             }
         }
     }
+
+    configureVersionSpecificSourceDirectories(libs.versions.kotlin.get().parseToKotlinVersion())
 
     compilerOptions {
         freeCompilerArgs.addAll("-P", "plugin:com.kitakkun.backintime.compiler:config=$projectDir/backintime-default-config.yaml")
