@@ -37,7 +37,8 @@ fun BackInTimeDebuggerApp() {
     val pluginStateService = LocalPluginStateService.current
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(serverState.serverIsRunning) {
+        delay(1000)
         if (!serverState.serverIsRunning) {
             server.restartServer(settings.getState().serverPort)
         }
