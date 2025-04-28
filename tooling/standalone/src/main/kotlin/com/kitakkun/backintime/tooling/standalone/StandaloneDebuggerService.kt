@@ -1,91 +1,65 @@
 package com.kitakkun.backintime.tooling.standalone
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.server.BackInTimeWebSocketServer
+import com.kitakkun.backintime.core.websocket.server.BackInTimeWebSocketServerState
 import com.kitakkun.backintime.tooling.core.database.BackInTimeDatabaseImpl
 import com.kitakkun.backintime.tooling.core.database.BackInTimeEventConverter
 import com.kitakkun.backintime.tooling.core.shared.BackInTimeDebuggerService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class StandaloneDebuggerService : BackInTimeDebuggerService {
-    override var state: BackInTimeDebuggerService.State by mutableStateOf(
-        BackInTimeDebuggerService.State(
-            serverIsRunning = false,
-            port = null,
-            connections = emptyList()
-        )
-    )
-        private set
-
     private val server = BackInTimeWebSocketServer()
     private val database = BackInTimeDatabaseImpl.instance
     private val backInTimeEventConverter = BackInTimeEventConverter()
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    init {
-        setupServerMonitoring()
-    }
+    override val stateFlow: StateFlow<BackInTimeDebuggerService.State> = server.stateFlow.map {
+        if (it !is BackInTimeWebSocketServerState.Started) {
+            BackInTimeDebuggerService.State()
+        } else {
+            BackInTimeDebuggerService.State(
+                serverIsRunning = true,
+                port = it.port,
+                connections = it.sessions.map { sessionInfo ->
+                    BackInTimeDebuggerService.State.Connection(
+                        id = sessionInfo.id,
+                        isActive = sessionInfo.isActive,
+                        port = sessionInfo.port,
+                        address = sessionInfo.address,
+                    )
+                }
+            )
+        }
+    }.stateIn(
+        scope = coroutineScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = BackInTimeDebuggerService.State()
+    )
 
-    private fun setupServerMonitoring() {
-        coroutineScope.launch {
-            while (true) {
-                delay(5000)
-                state = state.copy(
-                    serverIsRunning = server.isRunning,
-                    port = server.runningPort,
-                )
-            }
-        }
-        coroutineScope.launch {
-            server.newSessionFlow.collect { sessionInfo ->
-                state = state.copy(
-                    connections = state.connections.toMutableList().apply {
-                        add(
-                            BackInTimeDebuggerService.State.Connection(
-                                id = sessionInfo.id,
-                                isActive = true,
-                                address = sessionInfo.address,
-                                port = sessionInfo.port,
-                            )
-                        )
-                    }.distinctBy { it.id }
-                )
-            }
-        }
-        coroutineScope.launch {
-            server.sessionClosedFlow.collect { sessionInfo ->
-                state = state.copy(
-                    connections = state.connections.toMutableList().apply {
-                        replaceAll {
-                            if (it.id == sessionInfo.id) {
-                                it.copy(isActive = false)
-                            } else {
-                                it
-                            }
-                        }
+    private var serverJob: Job? = null
+
+    override fun restartServer(port: Int) {
+        serverJob?.cancel()
+        serverJob = coroutineScope.launch {
+            server.stop()
+            server.start("localhost", port)
+            coroutineScope.launch {
+                server.eventFromClientFlow.collect {
+                    backInTimeEventConverter.convertToEntity(it.sessionId, it.event)?.let { eventEntity ->
+                        database.insert(eventEntity)
                     }
-                )
-            }
-        }
-        coroutineScope.launch {
-            server.eventFromClientFlow.collect {
-                backInTimeEventConverter.convertToEntity(it.sessionId, it.event)?.let { eventEntity ->
-                    database.insert(eventEntity)
                 }
             }
         }
-    }
-
-    override fun restartServer(port: Int) {
-        server.stop()
-        server.start("localhost", port)
     }
 
     override fun sendEvent(sessionId: String, event: BackInTimeDebuggerEvent) {

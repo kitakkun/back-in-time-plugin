@@ -5,4 +5,5 @@ data class SessionInfo(
     val host: String,
     val port: Int,
     val address: String,
+    val isActive: Boolean,
 )

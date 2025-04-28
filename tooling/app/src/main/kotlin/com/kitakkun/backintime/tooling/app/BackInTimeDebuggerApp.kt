@@ -24,13 +24,14 @@ import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkun.backintime.tooling.feature.log.LogScreen
 import com.kitakkun.backintime.tooling.model.Tab
 import com.kitakkunl.backintime.feature.inspector.InspectorScreen
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 
 @Composable
 fun BackInTimeDebuggerApp() {
     val server = LocalServer.current
-    val serverState = server.state
+    val serverState by server.stateFlow.collectAsState()
     val settings = LocalSettings.current
 
     val pluginStateService = LocalPluginStateService.current
@@ -44,7 +45,7 @@ fun BackInTimeDebuggerApp() {
 
     // automatically select the new session if no session is selected.
     LaunchedEffect(server, pluginState) {
-        snapshotFlow { server.state.connections }
+        snapshotFlow { serverState.connections }
             .distinctUntilChanged()
             .filter { it.isNotEmpty() }
             .collect {

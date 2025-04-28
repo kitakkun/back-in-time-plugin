@@ -32,7 +32,7 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
 
     val databaseState by database.stateFlow.collectAsState()
     val settingsState by rememberUpdatedState(settings.getState())
-    val connections = server.state.connections
+    val serverState by server.stateFlow.collectAsState()
 
     EventEffect(eventEmitter) { event ->
         when (event) {
@@ -94,17 +94,17 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     }
 
     return SettingsScreenUiState(
-        serverStatus = if (server.state.serverIsRunning && server.state.port != null) {
+        serverStatus = if (serverState.serverIsRunning && serverState.port != null) {
             SettingsScreenUiState.ServerStatus.Running(
-                connections.size,
-                server.state.port!!,
+                serverState.connections.size,
+                serverState.port!!,
             )
         } else {
             SettingsScreenUiState.ServerStatus.Stopped
         },
         port = settingsState.serverPort,
         showNonDebuggableProperties = settingsState.showNonDebuggableProperties,
-        sessions = connections.map {
+        sessions = serverState.connections.map {
             SettingsScreenUiState.SessionStatus(
                 id = it.id,
                 isActive = it.isActive,

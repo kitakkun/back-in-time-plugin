@@ -5,6 +5,10 @@ import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
+import io.ktor.server.application.ApplicationStarted
+import io.ktor.server.application.ApplicationStarting
+import io.ktor.server.application.ApplicationStopped
+import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
@@ -15,42 +19,75 @@ import io.ktor.server.websocket.WebSockets
 import io.ktor.server.websocket.receiveDeserialized
 import io.ktor.server.websocket.sendSerialized
 import io.ktor.server.websocket.webSocket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
+private enum class ServerApplicationStatus {
+    STARTING,
+    STARTED,
+    STOPPING,
+    STOPPED,
+}
+
+sealed class BackInTimeWebSocketServerState {
+    data object Starting : BackInTimeWebSocketServerState()
+    data class Started(val host: String, val port: Int, val sessions: List<SessionInfo>) : BackInTimeWebSocketServerState()
+    data object Stopping : BackInTimeWebSocketServerState()
+    data object Stopped : BackInTimeWebSocketServerState()
+}
+
 class BackInTimeWebSocketServer {
-    private var server: EmbeddedServer<*, *>? = null
-    val isRunning: Boolean get() = server?.application?.isActive == true
+    private var serverInstance: EmbeddedServer<*, *>? = null
 
-    val runningPort: Int? get() = server?.engineConfig?.connectors?.firstOrNull()?.port
+    private val sessions = MutableStateFlow<List<SessionInfo>>(emptyList())
+    private val serverStatus = MutableStateFlow(ServerApplicationStatus.STOPPED)
 
-    private val mutableSessionInfoList = mutableSetOf<SessionInfo>()
-    val sessionInfoList: List<SessionInfo> get() = mutableSessionInfoList.toList()
-
-    private val mutableNewSessionFlow = MutableSharedFlow<SessionInfo>()
-    val newSessionFlow = mutableNewSessionFlow.asSharedFlow()
-
-    private val mutableSessionClosedFlow = MutableSharedFlow<SessionInfo>()
-    val sessionClosedFlow = mutableSessionClosedFlow.asSharedFlow()
+    val stateFlow = combine(
+        serverStatus,
+        sessions,
+    ) { status, sessions ->
+        when (status) {
+            ServerApplicationStatus.STARTING -> BackInTimeWebSocketServerState.Starting
+            ServerApplicationStatus.STOPPING -> BackInTimeWebSocketServerState.Stopping
+            ServerApplicationStatus.STOPPED -> BackInTimeWebSocketServerState.Stopped
+            ServerApplicationStatus.STARTED -> {
+                val host = serverInstance?.engineConfig?.connectors?.firstOrNull()?.host ?: "localhost"
+                val port = serverInstance?.engineConfig?.connectors?.firstOrNull()?.port ?: 0
+                BackInTimeWebSocketServerState.Started(host, port, sessions)
+            }
+        }
+    }.stateIn(
+        scope = CoroutineScope(Dispatchers.IO),
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = BackInTimeWebSocketServerState.Stopped,
+    )
 
     private val mutableEventFromClientFlow = MutableSharedFlow<EventFromClient>()
     val eventFromClientFlow = mutableEventFromClientFlow.asSharedFlow()
 
     private val sendEventFlow = MutableSharedFlow<EventToClient>()
 
-    fun start(host: String, port: Int) {
-        server = configureServer(host, port)
-        server?.start()
+
+    suspend fun start(host: String, port: Int) {
+        serverInstance = configureServer(host, port)
+        serverInstance?.startSuspend()
     }
 
-    fun stop() {
-        server?.stop()
-        server = null
+    suspend fun stop() {
+        serverInstance?.stopSuspend()
+        serverInstance = null
     }
 
     suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
@@ -65,6 +102,22 @@ class BackInTimeWebSocketServer {
         install(WebSockets) {
             timeoutMillis = 1000 * 60 * 10
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
+        }
+
+        monitor.subscribe(ApplicationStarting) {
+            serverStatus.update { ServerApplicationStatus.STARTING }
+        }
+
+        monitor.subscribe(ApplicationStarted) {
+            serverStatus.update { ServerApplicationStatus.STARTED }
+        }
+
+        monitor.subscribe(ApplicationStopping) {
+            serverStatus.update { ServerApplicationStatus.STOPPING }
+        }
+
+        monitor.subscribe(ApplicationStopped) {
+            serverStatus.update { ServerApplicationStatus.STOPPED }
         }
 
         routing {
@@ -97,21 +150,27 @@ class BackInTimeWebSocketServer {
                     host = this.call.request.origin.remoteHost,
                     port = this.call.request.origin.remotePort,
                     address = this.call.request.origin.remoteAddress,
+                    isActive = true,
                 )
 
-                mutableSessionInfoList += sessionInfo
-                mutableNewSessionFlow.emit(sessionInfo)
+                sessions.update {
+                    (it + sessionInfo).distinctBy { it.id }
+                }
 
                 closeReason.await()
 
-                mutableSessionInfoList.remove(sessionInfo)
+                sessions.update {
+                    it.map {
+                        if (it.id == sessionId) {
+                            it.copy(isActive = false)
+                        } else {
+                            it
+                        }
+                    }
+                }
 
                 sendEventJob.cancel()
                 receiveEventJob.cancel()
-
-                launch {
-                    mutableSessionClosedFlow.emit(sessionInfo)
-                }
             }
         }
     }
