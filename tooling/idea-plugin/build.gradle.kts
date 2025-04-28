@@ -29,4 +29,7 @@ dependencies {
     implementation(projects.tooling.core.model)
     implementation(projects.tooling.core.database)
     implementation(projects.tooling.core.usecase)
+
+    // need this for ktor to work properly
+    implementation(libs.kotlinxIoCore)
 }

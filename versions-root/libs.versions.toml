@@ -45,6 +45,8 @@ gradle-testkit-support-plugin = "0.13"
 gradle-testkit-support = "0.18"
 gradle-testkit-truth = "1.6.1"
 
+kotlinxIo = "0.7.0"
+
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
 jetbrains-compose-gradle-plugin = { module = "org.jetbrains.compose:org.jetbrains.compose.gradle.plugin", version.ref = "jetbrainsCompose" }
@@ -111,6 +113,8 @@ intellijPlatformGradlePlugin = { module = "org.jetbrains.intellij.platform:org.j
 
 gradle-testkit-support = { module = "com.autonomousapps:gradle-testkit-support", version.ref = "gradle-testkit-support" }
 gradle-testkit-truth = { module = "com.autonomousapps:gradle-testkit-truth", version.ref = "gradle-testkit-truth" }
+
+kotlinxIoCore = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
 
 [plugins]
 # convention
