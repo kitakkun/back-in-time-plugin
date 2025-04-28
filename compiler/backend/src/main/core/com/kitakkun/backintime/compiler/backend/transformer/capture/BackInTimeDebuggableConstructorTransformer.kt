@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.addArgument
-import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentAsClass
@@ -81,7 +80,8 @@ class BackInTimeDebuggableConstructorTransformer(
                 properties
                     .filter { !it.isBackInTimeGenerated }
                     .map { irProperty ->
-                        val propertyType = irProperty.getter?.returnType as? IrSimpleType
+                        // prioritize the backing field type
+                        val propertyType = irProperty.backingField?.type ?: irProperty.getter?.returnType
                         val propertyTypeName = propertyType?.signatureForBackInTimeDebugger() ?: "unknown"
                         val genericTypeCompletedName = propertyType?.getGenericTypes()?.firstOrNull()?.signatureForBackInTimeDebugger() ?: propertyTypeName
                         // FIXME: 必ずしも正確な判定ではない

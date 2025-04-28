@@ -36,7 +36,7 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
         reporter: DiagnosticReporter,
         context: CheckerContext,
     ) {
-        val propertyType = declaration.returnTypeRef.coneType
+        val propertyType = declaration.backingField?.returnTypeRef?.coneType ?: declaration.returnTypeRef.coneType
         if (propertyType.isBuiltinSerializable()) return
         if (propertyType.hasSerializableAnnotation(context.session)) return
         if (propertyType.isDebuggableStateHolder(context.session)) return

@@ -11,7 +11,9 @@ import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -25,7 +27,10 @@ fun IrCall.captureIfNeeded(
     uuidVariable: IrVariable,
 ): IrExpression? {
     val property = receiver?.getCorrespondingProperty() ?: return null
-    val trackableStateHolderInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == property.getter?.returnType?.classOrNull } ?: return null
+    val trackableStateHolderInfo = irContext.trackableStateHolderClassInfoList.find {
+        it.classSymbol == property.getter?.returnType?.classOrNull ||
+            it.classSymbol == property.backingField?.type?.classOrNull
+    } ?: return null
     val captureStrategy = trackableStateHolderInfo.captureTargetSymbols.firstOrNull { it.first == this.symbol }?.second ?: return null
     val propertySignature = property.signatureForBackInTimeDebugger()
 
@@ -33,14 +38,26 @@ fun IrCall.captureIfNeeded(
 
     return when (captureStrategy) {
         is CaptureStrategy.AfterCall -> {
-            captureAfterCall(
-                irContext = irContext,
-                propertyGetter = propertyGetterSymbol,
-                classDispatchReceiverParameter = classDispatchReceiverParameter,
-                uuidVariable = uuidVariable,
-                propertySignature = propertySignature,
-                trackableStateHolder = trackableStateHolderInfo,
-            )
+            val propertyBackingField = property.backingField
+            if (propertyBackingField != null) {
+                captureAfterCallByFieldAccess(
+                    irContext = irContext,
+                    classDispatchReceiverParameter = classDispatchReceiverParameter,
+                    uuidVariable = uuidVariable,
+                    propertySignature = propertySignature,
+                    trackableStateHolder = trackableStateHolderInfo,
+                    propertyField = propertyBackingField,
+                )
+            } else {
+                captureAfterCallByPropertyGetter(
+                    irContext = irContext,
+                    classDispatchReceiverParameter = classDispatchReceiverParameter,
+                    uuidVariable = uuidVariable,
+                    propertySignature = propertySignature,
+                    trackableStateHolder = trackableStateHolderInfo,
+                    propertyGetter = propertyGetterSymbol,
+                )
+            }
         }
 
         is CaptureStrategy.ValueArgument -> {
@@ -55,13 +72,57 @@ fun IrCall.captureIfNeeded(
     }
 }
 
-private fun IrCall.captureAfterCall(
+private fun IrCall.captureAfterCallByFieldAccess(
+    irContext: BackInTimePluginContext,
+    classDispatchReceiverParameter: IrValueParameter,
+    uuidVariable: IrVariable,
+    propertySignature: String,
+    trackableStateHolder: ResolvedTrackableStateHolder,
+    propertyField: IrField,
+): IrExpression {
+    val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
+    return captureAfterCall(
+        irContext = irContext,
+        classDispatchReceiverParameter = classDispatchReceiverParameter,
+        uuidVariable = uuidVariable,
+        propertySignature = propertySignature,
+        trackableStateHolder = trackableStateHolder,
+        propertyAccessExpression = irBuilder.run {
+            irGetField(irGet(classDispatchReceiverParameter), propertyField)
+        },
+    )
+}
+
+private fun IrCall.captureAfterCallByPropertyGetter(
     irContext: BackInTimePluginContext,
     classDispatchReceiverParameter: IrValueParameter,
     uuidVariable: IrVariable,
     propertySignature: String,
     trackableStateHolder: ResolvedTrackableStateHolder,
     propertyGetter: IrSimpleFunctionSymbol,
+): IrExpression {
+    val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
+    return captureAfterCall(
+        irContext = irContext,
+        classDispatchReceiverParameter = classDispatchReceiverParameter,
+        uuidVariable = uuidVariable,
+        propertySignature = propertySignature,
+        trackableStateHolder = trackableStateHolder,
+        propertyAccessExpression = irBuilder.run {
+            irCall(propertyGetter).apply {
+                dispatchReceiver = irGet(classDispatchReceiverParameter)
+            }
+        },
+    )
+}
+
+private fun IrCall.captureAfterCall(
+    irContext: BackInTimePluginContext,
+    classDispatchReceiverParameter: IrValueParameter,
+    uuidVariable: IrVariable,
+    propertySignature: String,
+    trackableStateHolder: ResolvedTrackableStateHolder,
+    propertyAccessExpression: IrExpression,
 ): IrExpression {
     val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
     return irBuilder.irComposite {
@@ -75,22 +136,18 @@ private fun IrCall.captureAfterCall(
                 valueArgument = when (trackableStateHolder) {
                     is ResolvedTrackableStateHolder.Wrapper -> {
                         irCall(trackableStateHolder.getterSymbol).apply {
-                            dispatchReceiver = irCall(propertyGetter).apply {
-                                dispatchReceiver = irGet(classDispatchReceiverParameter)
-                            }
+                            dispatchReceiver = propertyAccessExpression
                         }
                     }
 
                     is ResolvedTrackableStateHolder.SelfContained -> {
-                        irCall(propertyGetter).apply {
-                            dispatchReceiver = irGet(classDispatchReceiverParameter)
-                        }
+                        propertyAccessExpression
                     }
                 },
             )
             putTypeArgument(
                 index = 0,
-                type = propertyGetter.owner.returnType.getSerializerType(irContext),
+                type = propertyAccessExpression.type.getSerializerType(irContext),
             )
         }
     }

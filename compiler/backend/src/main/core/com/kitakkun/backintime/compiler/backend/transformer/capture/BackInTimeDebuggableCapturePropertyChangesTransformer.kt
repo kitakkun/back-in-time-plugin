@@ -136,7 +136,10 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.isBackInTimeDebuggable == true &&
-                    irContext.trackableStateHolderClassInfoList.any { it.classSymbol == property.getter?.returnType?.classOrNull }
+                    irContext.trackableStateHolderClassInfoList.any {
+                        it.classSymbol == property.getter?.returnType?.classOrNull ||
+                            it.classSymbol == property.backingField?.type?.classOrNull
+                    }
             }
     }
 
