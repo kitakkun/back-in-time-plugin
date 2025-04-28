@@ -1,6 +1,6 @@
 package util
 
-import org.jetbrains.kotlin.gradle.dsl.KotlinBaseExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
 
 // matches:
@@ -19,7 +19,7 @@ sealed interface RangedKotlinVersion {
     data class Pre(override val version: KotlinVersion) : RangedKotlinVersion
 }
 
-fun KotlinBaseExtension.configureVersionSpecificSourceDirectories(kotlinVersion: KotlinVersion) {
+fun KotlinProjectExtension.configureVersionSpecificSourceDirectories(kotlinVersion: KotlinVersion) {
     sourceSets.forEach { sourceSet ->
         val srcDirs = sourceSet.kotlin.srcDirs
         val sourceSetRootPath = srcDirs.first().toPath().parent

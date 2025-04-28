@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import util.configureVersionSpecificSourceDirectories
 import util.libs
 import util.parseToKotlinVersion
@@ -16,7 +16,7 @@ val kotlinVersion = libs.findVersion("kotlin").get().toString().parseToKotlinVer
 val kotlinAwareVersion = "$kotlinVersion-$version"
 version = kotlinAwareVersion
 
-configure<KotlinJvmExtension> {
+configure<KotlinJvmProjectExtension> {
     jvmToolchain(17)
     configureVersionSpecificSourceDirectories(kotlinVersion)
 }
