@@ -33,3 +33,15 @@ dependencies {
     // need this for ktor to work properly
     implementation(libs.kotlinxIoCore)
 }
+
+tasks {
+    run {
+        // workaround for https://youtrack.jetbrains.com/issue/IDEA-285839/Classpath-clash-when-using-coroutines-in-an-unbundled-IntelliJ-plugin
+        buildPlugin {
+            exclude { "coroutines" in it.name && "kotlinx" in it.name }
+        }
+        prepareSandbox {
+            exclude { "coroutines" in it.name && "kotlinx" in it.name }
+        }
+    }
+}

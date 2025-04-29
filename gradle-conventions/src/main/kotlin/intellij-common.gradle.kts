@@ -15,6 +15,5 @@ repositories {
 }
 
 dependencies {
-    // FIXME: Preview not working if compileOnly, change to implementation if you need.
-    compileOnly(libs.findLibrary("kotlinx-coroutines-core-intellij").get())
+    implementation(libs.findLibrary("kotlinx-coroutines-core-intellij").get())
 }
