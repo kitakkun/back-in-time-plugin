@@ -76,23 +76,23 @@ class BackInTimeWebSocketServer {
 
     private val sendEventFlow = MutableSharedFlow<EventToClient>()
 
-    suspend fun start(host: String, port: Int) {
+    fun start(host: String, port: Int) {
         if (serverStatus.value !is ServerApplicationStatus.Stopped && serverStatus.value !is ServerApplicationStatus.Error) return
 
         serverStatus.update { ServerApplicationStatus.Starting }
 
         serverInstance = configureServer(host, port)
         try {
-            serverInstance?.startSuspend()
+            serverInstance?.start()
         } catch (e: Throwable) {
             serverStatus.update { ServerApplicationStatus.Error(e.cause?.message ?: "Unknown error") }
         }
     }
 
-    suspend fun stop() {
+    fun stop() {
         if (serverStatus.value !is ServerApplicationStatus.Started) return
         serverStatus.update { ServerApplicationStatus.Stopping }
-        serverInstance?.stopSuspend()
+        serverInstance?.stop()
         serverInstance = null
         sessions.update { emptyList() }
     }
