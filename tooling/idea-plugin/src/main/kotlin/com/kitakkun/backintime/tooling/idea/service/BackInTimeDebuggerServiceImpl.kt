@@ -33,11 +33,12 @@ class BackInTimeDebuggerServiceImpl(private val coroutineScope: CoroutineScope) 
     private val coroutineContext = Dispatchers.IO + SupervisorJob()
 
     override val stateFlow: StateFlow<BackInTimeDebuggerService.State> = server.stateFlow.map {
-        if (it !is BackInTimeWebSocketServerState.Started) {
-            BackInTimeDebuggerService.State()
-        } else {
-            BackInTimeDebuggerService.State(
-                serverIsRunning = true,
+        when (it) {
+            is BackInTimeWebSocketServerState.Starting -> BackInTimeDebuggerService.State.Starting
+            is BackInTimeWebSocketServerState.Error -> BackInTimeDebuggerService.State.Error(it.message)
+            is BackInTimeWebSocketServerState.Stopping -> BackInTimeDebuggerService.State.Stopping
+            is BackInTimeWebSocketServerState.Stopped -> BackInTimeDebuggerService.State.Stopped
+            is BackInTimeWebSocketServerState.Started -> BackInTimeDebuggerService.State.Started(
                 port = it.port,
                 connections = it.sessions.map { sessionInfo ->
                     BackInTimeDebuggerService.State.Connection(
@@ -52,26 +53,25 @@ class BackInTimeDebuggerServiceImpl(private val coroutineScope: CoroutineScope) 
     }.stateIn(
         scope = coroutineScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = BackInTimeDebuggerService.State()
+        initialValue = BackInTimeDebuggerService.State.Stopped
     )
 
     private var serverJob: Job? = null
 
     override fun restartServer(port: Int) {
-        ApplicationManager.getApplication().executeOnPooledThread {
-            serverJob = coroutineScope.launch(coroutineContext) {
-                launch {
-                    server.eventFromClientFlow.collect {
-                        backInTimeEventConverter.convertToEntity(it.sessionId, it.event)?.let { eventEntity ->
-                            database.insert(eventEntity)
-                        }
+        serverJob?.cancel()
+        serverJob = coroutineScope.launch(coroutineContext) {
+            launch {
+                server.eventFromClientFlow.collect {
+                    backInTimeEventConverter.convertToEntity(it.sessionId, it.event)?.let { eventEntity ->
+                        database.insert(eventEntity)
                     }
                 }
-
-                server.stop()
-                server.start("localhost", port)
-                thisLogger().warn("Started back-in-time debugger server at localhost:$port")
             }
+
+            server.stop()
+            server.start("localhost", port)
+            thisLogger().warn("Started back-in-time debugger server at localhost:$port")
         }
     }
 

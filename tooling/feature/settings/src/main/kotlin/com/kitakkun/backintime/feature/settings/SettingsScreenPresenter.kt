@@ -2,9 +2,12 @@ package com.kitakkun.backintime.feature.settings
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import com.kitakkun.backintime.tooling.core.shared.BackInTimeDatabase
+import com.kitakkun.backintime.tooling.core.shared.BackInTimeDebuggerService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalPluginStateService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalServer
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalSettings
@@ -33,6 +36,23 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     val databaseState by database.stateFlow.collectAsState()
     val settingsState by rememberUpdatedState(settings.getState())
     val serverState by server.stateFlow.collectAsState()
+
+    val serverStatus by remember {
+        derivedStateOf {
+            when (val state = serverState) {
+                is BackInTimeDebuggerService.State.Error -> SettingsScreenUiState.ServerStatus.Error(state.message)
+
+                is BackInTimeDebuggerService.State.Started -> SettingsScreenUiState.ServerStatus.Started(
+                    activeConnectionCount = state.connections.size,
+                    port = state.port,
+                )
+
+                is BackInTimeDebuggerService.State.Starting -> SettingsScreenUiState.ServerStatus.Starting
+                is BackInTimeDebuggerService.State.Stopped -> SettingsScreenUiState.ServerStatus.Stopped
+                is BackInTimeDebuggerService.State.Stopping -> SettingsScreenUiState.ServerStatus.Stopping
+            }
+        }
+    }
 
     EventEffect(eventEmitter) { event ->
         when (event) {
@@ -94,14 +114,7 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     }
 
     return SettingsScreenUiState(
-        serverStatus = if (serverState.serverIsRunning && serverState.port != null) {
-            SettingsScreenUiState.ServerStatus.Running(
-                serverState.connections.size,
-                serverState.port!!,
-            )
-        } else {
-            SettingsScreenUiState.ServerStatus.Stopped
-        },
+        serverStatus = serverStatus,
         port = settingsState.serverPort,
         showNonDebuggableProperties = settingsState.showNonDebuggableProperties,
         sessions = serverState.connections.map {

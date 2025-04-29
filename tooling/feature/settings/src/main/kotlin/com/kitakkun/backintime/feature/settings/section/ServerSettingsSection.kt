@@ -71,13 +71,16 @@ fun ServerSettingsSection(
             settingComponent = {
                 Text(
                     text = when (status) {
-                        is SettingsScreenUiState.ServerStatus.Running -> "Running on port ${status.port} / ${status.activeConnectionCount} connections"
+                        is SettingsScreenUiState.ServerStatus.Started -> "Running on port ${status.port} / ${status.activeConnectionCount} connections"
                         is SettingsScreenUiState.ServerStatus.Stopped -> "Stopped"
+                        is SettingsScreenUiState.ServerStatus.Error -> "Error: ${status.message}"
+                        is SettingsScreenUiState.ServerStatus.Starting -> "Starting..."
+                        is SettingsScreenUiState.ServerStatus.Stopping -> "Stopping..."
                     }
                 )
             },
         )
-        if (status is SettingsScreenUiState.ServerStatus.Running && sessions.isNotEmpty()) {
+        if (status is SettingsScreenUiState.ServerStatus.Started && sessions.isNotEmpty()) {
             SessionListView(
                 sessions = sessions,
                 onClickShowLog = { onClickShowLogForSession(it.id) },

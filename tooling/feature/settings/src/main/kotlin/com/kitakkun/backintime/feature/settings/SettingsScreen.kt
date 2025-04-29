@@ -92,14 +92,21 @@ data class SettingsScreenUiState(
     val persistSessionData: Boolean,
     val databasePath: String?,
 ) {
-    val needsServerRestart: Boolean get() = serverStatus is ServerStatus.Running && port != serverStatus.port
+    val needsServerRestart: Boolean
+        get() =
+            (serverStatus is ServerStatus.Started && port != serverStatus.port) ||
+                serverStatus is ServerStatus.Stopped || serverStatus is ServerStatus.Error
 
     sealed interface ServerStatus {
-        data object Stopped : ServerStatus
-        data class Running(
+        data object Starting : ServerStatus
+        data class Started(
             val activeConnectionCount: Int,
             val port: Int,
         ) : ServerStatus
+
+        data object Stopping : ServerStatus
+        data object Stopped : ServerStatus
+        data class Error(val message: String) : ServerStatus
     }
 
     data class SessionStatus(
@@ -162,7 +169,7 @@ private fun SettingsScreenPreview() {
     PreviewContainer {
         SettingsScreen(
             uiState = SettingsScreenUiState(
-                serverStatus = SettingsScreenUiState.ServerStatus.Running(
+                serverStatus = SettingsScreenUiState.ServerStatus.Started(
                     port = 50023,
                     activeConnectionCount = 10,
                 ),

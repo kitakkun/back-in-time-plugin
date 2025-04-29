@@ -3,14 +3,19 @@ package com.kitakkun.backintime.core.websocket.server
 import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 // FIXME: this test fails for native target
 class BackInTimeDebugServerTest {
@@ -26,13 +31,32 @@ class BackInTimeDebugServerTest {
     fun setup() {
         server = BackInTimeWebSocketServer()
         client = BackInTimeWebSocketClient(TEST_HOST, TEST_PORT)
-        server.start(TEST_HOST, TEST_PORT)
-        assertTrue { server.isRunning }
+        runTest {
+            val serverStates = mutableListOf<BackInTimeWebSocketServerState>()
+            launch {
+                server.stateFlow.take(3).toList(serverStates)
+            }
+
+            server.start(TEST_HOST, TEST_PORT)
+
+            delay(1000)
+           
+            assertEquals(
+                expected = listOf(
+                    BackInTimeWebSocketServerState.Stopped,
+                    BackInTimeWebSocketServerState.Starting,
+                    BackInTimeWebSocketServerState.Started(TEST_HOST, TEST_PORT, emptyList()),
+                ),
+                actual = serverStates,
+            )
+        }
     }
 
     @AfterTest
     fun teardown() {
-        server.stop()
+        runBlocking {
+            server.stop()
+        }
     }
 
     @Test
@@ -40,7 +64,11 @@ class BackInTimeDebugServerTest {
         var clientReceivedEvent: BackInTimeDebuggerEvent? = null
 
         val connectedThenSendEventJob = launch {
-            val sessionInfo = server.newSessionFlow.first()
+            val sessionInfo = server.stateFlow
+                .filterIsInstance<BackInTimeWebSocketServerState.Started>()
+                .filter { it.sessions.isNotEmpty() }
+                .first()
+                .sessions.first()
             server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping(0))
         }
 

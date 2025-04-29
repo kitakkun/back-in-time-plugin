@@ -6,9 +6,7 @@ import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeSessionNegotiationEvent
 import io.ktor.serialization.kotlinx.KotlinxWebsocketSerializationConverter
 import io.ktor.server.application.ApplicationStarted
-import io.ktor.server.application.ApplicationStarting
 import io.ktor.server.application.ApplicationStopped
-import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.EmbeddedServer
@@ -34,39 +32,38 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-private enum class ServerApplicationStatus {
-    STARTING,
-    STARTED,
-    STOPPING,
-    STOPPED,
+private sealed interface ServerApplicationStatus {
+    data object Starting : ServerApplicationStatus
+    data class Started(val host: String, val port: Int) : ServerApplicationStatus
+    data class Error(val message: String) : ServerApplicationStatus
+    data object Stopping : ServerApplicationStatus
+    data object Stopped : ServerApplicationStatus
 }
 
-sealed class BackInTimeWebSocketServerState {
-    data object Starting : BackInTimeWebSocketServerState()
-    data class Started(val host: String, val port: Int, val sessions: List<SessionInfo>) : BackInTimeWebSocketServerState()
-    data object Stopping : BackInTimeWebSocketServerState()
-    data object Stopped : BackInTimeWebSocketServerState()
+sealed interface BackInTimeWebSocketServerState {
+    data object Starting : BackInTimeWebSocketServerState
+    data class Started(val host: String, val port: Int, val sessions: List<SessionInfo>) : BackInTimeWebSocketServerState
+    data class Error(val message: String) : BackInTimeWebSocketServerState
+    data object Stopping : BackInTimeWebSocketServerState
+    data object Stopped : BackInTimeWebSocketServerState
 }
 
 class BackInTimeWebSocketServer {
     private var serverInstance: EmbeddedServer<*, *>? = null
 
     private val sessions = MutableStateFlow<List<SessionInfo>>(emptyList())
-    private val serverStatus = MutableStateFlow(ServerApplicationStatus.STOPPED)
+    private val serverStatus = MutableStateFlow<ServerApplicationStatus>(ServerApplicationStatus.Stopped)
 
     val stateFlow = combine(
         serverStatus,
         sessions,
     ) { status, sessions ->
         when (status) {
-            ServerApplicationStatus.STARTING -> BackInTimeWebSocketServerState.Starting
-            ServerApplicationStatus.STOPPING -> BackInTimeWebSocketServerState.Stopping
-            ServerApplicationStatus.STOPPED -> BackInTimeWebSocketServerState.Stopped
-            ServerApplicationStatus.STARTED -> {
-                val host = serverInstance?.engineConfig?.connectors?.firstOrNull()?.host ?: "localhost"
-                val port = serverInstance?.engineConfig?.connectors?.firstOrNull()?.port ?: 0
-                BackInTimeWebSocketServerState.Started(host, port, sessions)
-            }
+            is ServerApplicationStatus.Stopped -> BackInTimeWebSocketServerState.Stopped
+            is ServerApplicationStatus.Started -> BackInTimeWebSocketServerState.Started(status.host, status.port, sessions)
+            is ServerApplicationStatus.Error -> BackInTimeWebSocketServerState.Error(status.message)
+            is ServerApplicationStatus.Starting -> BackInTimeWebSocketServerState.Starting
+            is ServerApplicationStatus.Stopping -> BackInTimeWebSocketServerState.Stopping
         }
     }.stateIn(
         scope = CoroutineScope(Dispatchers.IO),
@@ -79,13 +76,22 @@ class BackInTimeWebSocketServer {
 
     private val sendEventFlow = MutableSharedFlow<EventToClient>()
 
-
     suspend fun start(host: String, port: Int) {
+        if (serverStatus.value !is ServerApplicationStatus.Stopped && serverStatus.value !is ServerApplicationStatus.Error) return
+
+        serverStatus.update { ServerApplicationStatus.Starting }
+
         serverInstance = configureServer(host, port)
-        serverInstance?.startSuspend()
+        try {
+            serverInstance?.startSuspend()
+        } catch (e: Throwable) {
+            serverStatus.update { ServerApplicationStatus.Error(e.cause?.message ?: "Unknown error") }
+        }
     }
 
     suspend fun stop() {
+        if (serverStatus.value !is ServerApplicationStatus.Started) return
+        serverStatus.update { ServerApplicationStatus.Stopping }
         serverInstance?.stopSuspend()
         serverInstance = null
     }
@@ -95,7 +101,8 @@ class BackInTimeWebSocketServer {
     }
 
     private fun configureServer(host: String, port: Int) = embeddedServer(
-        factory = CIO,
+        factory = CIO.apply {
+        },
         port = port,
         host = host,
     ) {
@@ -104,20 +111,22 @@ class BackInTimeWebSocketServer {
             contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
 
-        monitor.subscribe(ApplicationStarting) {
-            serverStatus.update { ServerApplicationStatus.STARTING }
-        }
-
         monitor.subscribe(ApplicationStarted) {
-            serverStatus.update { ServerApplicationStatus.STARTED }
-        }
-
-        monitor.subscribe(ApplicationStopping) {
-            serverStatus.update { ServerApplicationStatus.STOPPING }
+            launch {
+                val connector = engine.resolvedConnectors().firstOrNull() ?: return@launch
+                serverStatus.update {
+                    ServerApplicationStatus.Started(
+                        host = connector.host,
+                        port = connector.port
+                    )
+                }
+            }
         }
 
         monitor.subscribe(ApplicationStopped) {
-            serverStatus.update { ServerApplicationStatus.STOPPED }
+            serverStatus.update { ServerApplicationStatus.Stopped }
+            monitor.unsubscribe(ApplicationStarted) {}
+            monitor.unsubscribe(ApplicationStopped) {}
         }
 
         routing {
