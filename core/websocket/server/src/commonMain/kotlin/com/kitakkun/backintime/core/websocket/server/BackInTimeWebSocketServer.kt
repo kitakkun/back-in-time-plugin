@@ -94,6 +94,7 @@ class BackInTimeWebSocketServer {
         serverStatus.update { ServerApplicationStatus.Stopping }
         serverInstance?.stopSuspend()
         serverInstance = null
+        sessions.update { emptyList() }
     }
 
     suspend fun send(sessionId: String, event: BackInTimeDebuggerEvent) {
