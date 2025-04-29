@@ -23,11 +23,12 @@ class StandaloneDebuggerService : BackInTimeDebuggerService {
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override val stateFlow: StateFlow<BackInTimeDebuggerService.State> = server.stateFlow.map {
-        if (it !is BackInTimeWebSocketServerState.Started) {
-            BackInTimeDebuggerService.State()
-        } else {
-            BackInTimeDebuggerService.State(
-                serverIsRunning = true,
+        when (it) {
+            is BackInTimeWebSocketServerState.Starting -> BackInTimeDebuggerService.State.Starting
+            is BackInTimeWebSocketServerState.Error -> BackInTimeDebuggerService.State.Error(it.message)
+            is BackInTimeWebSocketServerState.Stopping -> BackInTimeDebuggerService.State.Stopping
+            is BackInTimeWebSocketServerState.Stopped -> BackInTimeDebuggerService.State.Stopped
+            is BackInTimeWebSocketServerState.Started -> BackInTimeDebuggerService.State.Started(
                 port = it.port,
                 connections = it.sessions.map { sessionInfo ->
                     BackInTimeDebuggerService.State.Connection(
@@ -42,7 +43,7 @@ class StandaloneDebuggerService : BackInTimeDebuggerService {
     }.stateIn(
         scope = coroutineScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = BackInTimeDebuggerService.State()
+        initialValue = BackInTimeDebuggerService.State.Stopped,
     )
 
     private var serverJob: Job? = null
