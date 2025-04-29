@@ -1,5 +1,7 @@
 package com.kitakkun.backintime.tooling.core.shared
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
 interface BackInTimeDebuggerSettings {
@@ -11,20 +13,14 @@ interface BackInTimeDebuggerSettings {
         val databasePath: String? = null,
     )
 
-    fun getState(): State
-    fun loadState(state: State)
+    val stateFlow: StateFlow<State>
 
-    fun update(block: (prevState: State) -> State) {
-        loadState(block(getState()))
-    }
+    fun update(block: (prevState: State) -> State)
 
     companion object {
         val Dummy = object : BackInTimeDebuggerSettings {
-            override fun loadState(state: State) {}
-
-            override fun getState(): State {
-                return State()
-            }
+            override val stateFlow: StateFlow<State> = MutableStateFlow(State())
+            override fun update(block: (State) -> State) {}
         }
     }
 }

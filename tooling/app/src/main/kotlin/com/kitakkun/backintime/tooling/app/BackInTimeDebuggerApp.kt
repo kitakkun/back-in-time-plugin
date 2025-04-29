@@ -31,16 +31,17 @@ import kotlinx.coroutines.flow.filter
 @Composable
 fun BackInTimeDebuggerApp() {
     val server = LocalServer.current
-    val serverState by server.stateFlow.collectAsState()
     val settings = LocalSettings.current
-
     val pluginStateService = LocalPluginStateService.current
+
+    val serverState by server.stateFlow.collectAsState()
+    val settingsState by settings.stateFlow.collectAsState()
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
     LaunchedEffect(serverState) {
         delay(1000)
         if (serverState is BackInTimeDebuggerService.State.Stopped) {
-            server.restartServer(settings.getState().serverPort)
+            server.restartServer(settingsState.serverPort)
         }
     }
 

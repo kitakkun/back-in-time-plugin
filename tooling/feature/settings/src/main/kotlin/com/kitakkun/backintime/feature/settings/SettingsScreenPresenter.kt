@@ -5,7 +5,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import com.kitakkun.backintime.tooling.core.shared.BackInTimeDatabase
 import com.kitakkun.backintime.tooling.core.shared.BackInTimeDebuggerService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalPluginStateService
@@ -34,7 +33,7 @@ fun settingsScreenPresenter(eventEmitter: EventEmitter<SettingsScreenEvent>): Se
     val settings = LocalSettings.current
 
     val databaseState by database.stateFlow.collectAsState()
-    val settingsState by rememberUpdatedState(settings.getState())
+    val settingsState by settings.stateFlow.collectAsState()
     val serverState by server.stateFlow.collectAsState()
 
     val serverStatus by remember {

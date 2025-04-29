@@ -5,7 +5,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalPluginStateService
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalServer
 import com.kitakkun.backintime.tooling.core.ui.compositionlocal.LocalSettings
@@ -43,7 +42,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
     val serverState by server.stateFlow.collectAsState()
 
     val settings = LocalSettings.current
-    val settingsState by rememberUpdatedState(settings.getState())
+    val settingsState by settings.stateFlow.collectAsState()
 
     val instances by rememberInstances(pluginState.globalState.selectedSessionId)
 
