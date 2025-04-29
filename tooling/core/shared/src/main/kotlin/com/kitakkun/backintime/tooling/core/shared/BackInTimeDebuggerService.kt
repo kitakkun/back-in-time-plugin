@@ -1,13 +1,34 @@
 package com.kitakkun.backintime.tooling.core.shared
 
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface BackInTimeDebuggerService {
-    data class State(
-        val serverIsRunning: Boolean,
-        val port: Int?,
-        val connections: List<Connection>,
-    ) {
+    sealed interface State {
+        val connections: List<Connection>
+
+        data object Starting : State {
+            override val connections: List<Connection> = emptyList()
+        }
+
+        data class Started(
+            val port: Int,
+            override val connections: List<Connection>,
+        ) : State
+
+        data class Error(val message: String) : State {
+            override val connections: List<Connection> = emptyList()
+        }
+
+        data object Stopping : State {
+            override val connections: List<Connection> = emptyList()
+        }
+
+        data object Stopped : State {
+            override val connections: List<Connection> = emptyList()
+        }
+
         data class Connection(
             val id: String,
             val isActive: Boolean,
@@ -16,7 +37,7 @@ interface BackInTimeDebuggerService {
         )
     }
 
-    val state: State
+    val stateFlow: StateFlow<State>
 
     fun restartServer(port: Int)
 
@@ -36,7 +57,7 @@ interface BackInTimeDebuggerService {
 
     companion object {
         val Dummy = object : BackInTimeDebuggerService {
-            override val state: State get() = State(true, null, emptyList())
+            override val stateFlow = MutableStateFlow(State.Stopped)
             override fun restartServer(port: Int) {}
             override fun sendEvent(sessionId: String, event: BackInTimeDebuggerEvent) {}
         }

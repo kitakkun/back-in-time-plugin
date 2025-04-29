@@ -3,14 +3,16 @@ package com.kitakkun.backintime.core.websocket.server
 import com.kitakkun.backintime.core.websocket.client.BackInTimeWebSocketClient
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebugServiceEvent
 import com.kitakkun.backintime.core.websocket.event.BackInTimeDebuggerEvent
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 // FIXME: this test fails for native target
 class BackInTimeDebugServerTest {
@@ -27,7 +29,12 @@ class BackInTimeDebugServerTest {
         server = BackInTimeWebSocketServer()
         client = BackInTimeWebSocketClient(TEST_HOST, TEST_PORT)
         server.start(TEST_HOST, TEST_PORT)
-        assertTrue { server.isRunning }
+        runBlocking {
+            assertEquals(
+                expected = BackInTimeWebSocketServerState.Started(TEST_HOST, TEST_PORT, emptyList()),
+                actual = server.stateFlow.filterIsInstance<BackInTimeWebSocketServerState.Started>().first()
+            )
+        }
     }
 
     @AfterTest
@@ -40,7 +47,11 @@ class BackInTimeDebugServerTest {
         var clientReceivedEvent: BackInTimeDebuggerEvent? = null
 
         val connectedThenSendEventJob = launch {
-            val sessionInfo = server.newSessionFlow.first()
+            val sessionInfo = server.stateFlow
+                .filterIsInstance<BackInTimeWebSocketServerState.Started>()
+                .filter { it.sessions.isNotEmpty() }
+                .first()
+                .sessions.first()
             server.send(sessionInfo.id, BackInTimeDebuggerEvent.Ping(0))
         }
 
@@ -60,12 +71,9 @@ class BackInTimeDebugServerTest {
 
     @Test
     fun `test receive event from client`() = runTest {
-        launch {
-            val (_, event) = server.eventFromClientFlow.first()
-            assertEquals(BackInTimeDebugServiceEvent.Ping(0), event)
-        }
-
         client.openSession()
         client.queueEvent(BackInTimeDebugServiceEvent.Ping(0))
+        val (_, event) = server.eventFromClientFlow.first()
+        assertEquals(BackInTimeDebugServiceEvent.Ping(0), event)
     }
 }

@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import org.jetbrains.jewel.foundation.theme.JewelTheme
 import org.jetbrains.jewel.foundation.theme.LocalTextStyle
 import org.jetbrains.jewel.ui.component.ActionButton
+import org.jetbrains.jewel.ui.component.CircularProgressIndicator
 import org.jetbrains.jewel.ui.component.Text
 import org.jetbrains.jewel.ui.component.TextField
 
@@ -71,13 +72,16 @@ fun ServerSettingsSection(
             settingComponent = {
                 Text(
                     text = when (status) {
-                        is SettingsScreenUiState.ServerStatus.Running -> "Running on port ${status.port} / ${status.activeConnectionCount} connections"
+                        is SettingsScreenUiState.ServerStatus.Started -> "Running on port ${status.port} / ${status.activeConnectionCount} connections"
                         is SettingsScreenUiState.ServerStatus.Stopped -> "Stopped"
+                        is SettingsScreenUiState.ServerStatus.Error -> "Error: ${status.message}"
+                        is SettingsScreenUiState.ServerStatus.Starting -> "Starting..."
+                        is SettingsScreenUiState.ServerStatus.Stopping -> "Stopping..."
                     }
                 )
             },
         )
-        if (status is SettingsScreenUiState.ServerStatus.Running && sessions.isNotEmpty()) {
+        if (status is SettingsScreenUiState.ServerStatus.Started && sessions.isNotEmpty()) {
             SessionListView(
                 sessions = sessions,
                 onClickShowLog = { onClickShowLogForSession(it.id) },
@@ -97,12 +101,39 @@ fun ServerSettingsSection(
                             text = "Port must be in range 0 to 65535.",
                             color = JewelTheme.globalColors.text.error,
                         )
-                    }
-                    if (needsServerRestart && !invalidPortRange) {
-                        ActionButton(
-                            content = { Text(text = "Apply") },
-                            onClick = onClickApply,
-                        )
+                    } else {
+                        when (status) {
+                            is SettingsScreenUiState.ServerStatus.Error -> {
+                                ActionButton(
+                                    onClick = onClickApply,
+                                ) {
+                                    Text(text = "Retry")
+                                }
+                            }
+
+                            is SettingsScreenUiState.ServerStatus.Started -> {
+                                if (needsServerRestart) {
+                                    ActionButton(
+                                        onClick = onClickApply,
+                                    ) {
+                                        Text(text = "Restart")
+                                    }
+                                }
+                            }
+
+                            SettingsScreenUiState.ServerStatus.Stopped -> {
+                                ActionButton(
+                                    onClick = onClickApply,
+                                ) {
+                                    Text(text = "Start")
+                                }
+                            }
+
+                            SettingsScreenUiState.ServerStatus.Starting,
+                            SettingsScreenUiState.ServerStatus.Stopping -> {
+                                CircularProgressIndicator()
+                            }
+                        }
                     }
                     TextField(
                         state = portNumberTextFieldState,

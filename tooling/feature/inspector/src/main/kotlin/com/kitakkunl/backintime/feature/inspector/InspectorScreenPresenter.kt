@@ -40,7 +40,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
     val server = LocalServer.current
-    val serverState by rememberUpdatedState(server.state)
+    val serverState by server.stateFlow.collectAsState()
 
     val settings = LocalSettings.current
     val settingsState by rememberUpdatedState(settings.getState())

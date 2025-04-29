@@ -20,6 +20,7 @@ fun logScreenPresenter(eventEmitter: EventEmitter<LogScreenEvent>): LogScreenUiS
     val pluginStateService = LocalPluginStateService.current
     val pluginState by pluginStateService.stateFlow.collectAsState()
     val server = LocalServer.current
+    val serverState by server.stateFlow.collectAsState()
 
     EventEffect(eventEmitter) { event ->
         when (event) {
@@ -40,7 +41,7 @@ fun logScreenPresenter(eventEmitter: EventEmitter<LogScreenEvent>): LogScreenUiS
     return LogScreenUiState(
         events = allEvents(pluginState.globalState.selectedSessionId),
         selectedSessionId = pluginStateService.getState().globalState.selectedSessionId,
-        sessionIdCandidates = server.state.connections.map { it.id },
+        sessionIdCandidates = serverState.connections.map { it.id },
         selectedEventId = pluginState.logState.selectedEventId,
         verticalSplitDividerPosition = pluginState.logState.verticalSplitPanePosition,
     )
