@@ -24,3 +24,5 @@ jobs:
 
       - name: Publish Plugin to JetBrains Marketplace
         run: ./gradlew publishPlugin
+        env:
+          INTELLIJ_PUBLISH_TOKEN: ${{ secrets.INTELLIJ_PUBLISH_TOKEN }}
