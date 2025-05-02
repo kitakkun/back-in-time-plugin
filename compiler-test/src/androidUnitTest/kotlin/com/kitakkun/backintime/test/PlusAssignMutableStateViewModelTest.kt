@@ -9,6 +9,6 @@ class PlusAssignMutableStateViewModelTest : BackInTimeDebugServiceTest() {
         val viewModel = PlusAssignMutableStateViewModel()
         viewModel.test()
 
-        assertEquals(1, propertyValueChangeEvents.size)
+        assertEquals(2, propertyValueChangeEvents.size)
     }
 }

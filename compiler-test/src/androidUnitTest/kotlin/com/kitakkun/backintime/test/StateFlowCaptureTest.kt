@@ -12,6 +12,7 @@ class StateFlowCaptureTest : BackInTimeDebugServiceTest() {
 
         val values = propertyValueChangeEvents.map { it.value }
         val expectedValues = listOf(
+            "\"\"",
             "\"Hoge\"",
             "\"Fuga\"",
             "\"Piyo\"",
