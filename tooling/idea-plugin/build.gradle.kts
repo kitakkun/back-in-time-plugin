@@ -52,11 +52,11 @@ intellijPlatform {
         pluginVersion.split("-").lastOrNull()?.let {
             when {
                 it.startsWith("alpha") -> {
-                    channels = listOf("alpha")
+                    channels = listOf("Alpha")
                 }
 
                 it.startsWith("beta") -> {
-                    channels = listOf("beta")
+                    channels = listOf("Beta")
                 }
             }
         }
