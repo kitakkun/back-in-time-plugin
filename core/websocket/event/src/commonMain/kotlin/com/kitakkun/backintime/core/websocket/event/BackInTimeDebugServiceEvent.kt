@@ -15,7 +15,7 @@ import kotlin.js.JsExport
 sealed class BackInTimeDebugServiceEvent : BackInTimeWebSocketEvent {
     @Serializable
     data class Ping(
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
@@ -24,7 +24,7 @@ sealed class BackInTimeDebugServiceEvent : BackInTimeWebSocketEvent {
         val classSignature: String,
         val superClassSignature: String,
         val properties: List<String>,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
@@ -33,7 +33,7 @@ sealed class BackInTimeDebugServiceEvent : BackInTimeWebSocketEvent {
         val propertySignature: String,
         val value: String,
         val methodCallUUID: String,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
@@ -41,25 +41,25 @@ sealed class BackInTimeDebugServiceEvent : BackInTimeWebSocketEvent {
         val instanceUUID: String,
         val methodSignature: String,
         val methodCallUUID: String,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     data class RegisterRelationship(
         val parentUUID: String,
         val childUUID: String,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class CheckInstanceAliveResult(
         val isAlive: Map<String, Boolean>,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     @Serializable
     data class Error(
         val message: String,
-        override val time: Int,
+        override val time: Long,
     ) : BackInTimeDebugServiceEvent()
 
     companion object {

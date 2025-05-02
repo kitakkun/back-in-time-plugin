@@ -8,5 +8,5 @@ import kotlin.js.JsExport
 @JsExport
 @Serializable
 sealed interface BackInTimeWebSocketEvent {
-    val time: Int
+    val time: Long
 }

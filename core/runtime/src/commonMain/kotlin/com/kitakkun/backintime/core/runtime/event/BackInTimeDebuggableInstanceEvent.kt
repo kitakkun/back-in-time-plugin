@@ -7,7 +7,7 @@ import kotlinx.datetime.Clock
  * events inside the BackInTimeDebuggable instance
  */
 sealed class BackInTimeDebuggableInstanceEvent {
-    val time: Int = Clock.System.now().epochSeconds.toInt()
+    val time: Long = Clock.System.now().toEpochMilliseconds()
 
     /**
      * Register an instance to the debugService

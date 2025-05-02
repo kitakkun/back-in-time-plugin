@@ -17,13 +17,13 @@ import kotlin.js.JsExport
 sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
     @Serializable
     data class Ping(
-        override val time: Int = Clock.System.now().epochSeconds.toInt(),
+        override val time: Long = Clock.System.now().toEpochMilliseconds(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
     data class CheckInstanceAlive(
         val instanceUUIDs: List<String>,
-        override val time: Int = Clock.System.now().epochSeconds.toInt(),
+        override val time: Long = Clock.System.now().toEpochMilliseconds(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
@@ -31,13 +31,13 @@ sealed class BackInTimeDebuggerEvent : BackInTimeWebSocketEvent {
         val targetInstanceId: String,
         val propertySignature: String,
         val jsonValue: String,
-        override val time: Int = Clock.System.now().epochSeconds.toInt(),
+        override val time: Long = Clock.System.now().toEpochMilliseconds(),
     ) : BackInTimeDebuggerEvent()
 
     @Serializable
     data class Error(
         val message: String,
-        override val time: Int = Clock.System.now().epochSeconds.toInt(),
+        override val time: Long = Clock.System.now().toEpochMilliseconds(),
     ) : BackInTimeDebuggerEvent()
 
     companion object {
