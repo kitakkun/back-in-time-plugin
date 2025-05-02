@@ -3,6 +3,7 @@ package com.kitakkun.backintime.compiler.backend.transformer.capture
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.analyzer.TrackableStateHolderStateChangeInsideFunctionAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
+import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
@@ -22,7 +23,9 @@ import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
@@ -34,6 +37,7 @@ import org.jetbrains.kotlin.ir.util.isPropertyAccessor
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.parentDeclarationsWithSelf
+import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -43,6 +47,88 @@ import org.jetbrains.kotlin.name.Name
 class BackInTimeDebuggableCapturePropertyChangesTransformer(
     private val irContext: BackInTimePluginContext,
 ) : IrElementTransformerVoidWithContext() {
+    override fun visitConstructor(declaration: IrConstructor): IrStatement {
+        val parentClass = declaration.parentClassOrNull ?: return super.visitConstructor(declaration)
+
+        if (!parentClass.isBackInTimeDebuggable) return super.visitConstructor(declaration)
+
+        val irBuilder = irContext.irBuiltIns.createIrBuilder(declaration.symbol)
+
+        val uuidVariable = irBuilder.generateUUIDVariable(irContext)
+
+        val methodInvocationCall = irBuilder.run {
+            irCall(irContext.reportMethodInvocationFunctionSymbol).apply {
+                putValueArgument(0, irGet(parentClass.thisReceiver!!))
+                putValueArgument(1, irGet(uuidVariable))
+                putValueArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
+            }
+        }
+
+        val captureCalls = parentClass.properties
+            .filter { !it.isBackInTimeGenerated }
+            .mapNotNull { property ->
+                val backingField = property.backingField ?: return@mapNotNull null
+
+                val fieldType = backingField.type
+                val trackableStateHolderDefinition = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == fieldType.classOrNull }
+
+                if (property.isVar && trackableStateHolderDefinition == null) {
+                    irBuilder.run {
+                        irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
+                            putValueArgument(0, irGet(parentClass.thisReceiver!!))
+                            putValueArgument(1, irGet(uuidVariable))
+                            putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
+                            putValueArgument(
+                                3, irGetField(
+                                    receiver = irGet(parentClass.thisReceiver!!),
+                                    field = backingField,
+                                )
+                            )
+                            putTypeArgument(0, fieldType.getSerializerType(irContext))
+                        }
+                    }
+                } else if (trackableStateHolderDefinition != null) {
+                    irBuilder.run {
+                        irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
+                            putValueArgument(0, irGet(parentClass.thisReceiver!!))
+                            putValueArgument(1, irGet(uuidVariable))
+                            putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
+                            putValueArgument(
+                                3, when (trackableStateHolderDefinition) {
+                                    is ResolvedTrackableStateHolder.SelfContained -> {
+                                        irGetField(
+                                            receiver = irGet(parentClass.thisReceiver!!),
+                                            field = backingField,
+                                        )
+                                    }
+
+                                    is ResolvedTrackableStateHolder.Wrapper -> {
+                                        irCall(trackableStateHolderDefinition.getterSymbol).apply {
+                                            dispatchReceiver = irGetField(
+                                                receiver = irGet(parentClass.thisReceiver!!),
+                                                field = backingField,
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                            putTypeArgument(0, fieldType.getSerializerType(irContext))
+                        }
+                    }
+                } else {
+                    null
+                }
+            }
+
+        (declaration.body as? IrBlockBody)?.statements?.let {
+            it.add(uuidVariable)
+            it.add(methodInvocationCall)
+            it.addAll(captureCalls)
+        }
+
+        return super.visitConstructor(declaration)
+    }
+
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
         reportMethodInvocationIfNeeded(declaration)
         return super.visitFunctionNew(declaration)
@@ -55,6 +141,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
         val parentClass = declaration.parentClassOrNull ?: return
         if (!parentClass.isBackInTimeDebuggable) return
 
+        // When the function is a constructor, the dispatch receiver is null.
         val parentClassDispatchReceiver = declaration.dispatchReceiverParameter ?: return
 
         with(irContext.irBuiltIns.createIrBuilder(declaration.symbol)) {

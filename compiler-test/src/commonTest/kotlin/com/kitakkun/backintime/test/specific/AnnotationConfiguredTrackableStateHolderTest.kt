@@ -45,10 +45,13 @@ class AnnotationConfiguredTrackableStateHolderTest : BackInTimeDebugServiceTest(
         delay(100)
 
         assertEquals(10, owner.trackableStateHolder.value)
-        assertEquals(1, notifyValueChangeEvents.size)
+        assertEquals(2, notifyValueChangeEvents.size)
         assertEquals(owner.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
         assertEquals(TARGET_PROPERTY_SIGNATURE, notifyValueChangeEvents[0].propertySignature)
-        assertEquals(10, notifyValueChangeEvents[0].value.toInt())
+        assertEquals(owner.backInTimeInstanceUUID, notifyValueChangeEvents[1].instanceUUID)
+        assertEquals(TARGET_PROPERTY_SIGNATURE, notifyValueChangeEvents[1].propertySignature)
+        assertEquals(0, notifyValueChangeEvents[0].value.toInt())
+        assertEquals(10, notifyValueChangeEvents[1].value.toInt())
     }
 
     @Test

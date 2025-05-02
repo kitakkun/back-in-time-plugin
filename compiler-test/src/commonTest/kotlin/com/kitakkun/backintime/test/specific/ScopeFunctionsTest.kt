@@ -123,9 +123,12 @@ class ScopeFunctionsTest : BackInTimeDebugServiceTest() {
     private fun TrackableStateHolderOwner.assertRequirementsAreMet() {
         assertIs<BackInTimeDebuggable>(this)
         assertEquals(10, container.value)
-        assertEquals(1, notifyValueChangeEvents.size)
+        assertEquals(2, notifyValueChangeEvents.size)
         assertEquals(this.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
+        assertEquals(this.backInTimeInstanceUUID, notifyValueChangeEvents[1].instanceUUID)
         assertEquals("com/kitakkun/backintime/test/specific/ScopeFunctionsTest.TrackableStateHolderOwner.container", notifyValueChangeEvents[0].propertySignature)
-        assertEquals(10, notifyValueChangeEvents[0].value.toInt())
+        assertEquals("com/kitakkun/backintime/test/specific/ScopeFunctionsTest.TrackableStateHolderOwner.container", notifyValueChangeEvents[1].propertySignature)
+        assertEquals(0, notifyValueChangeEvents[0].value.toInt())
+        assertEquals(10, notifyValueChangeEvents[1].value.toInt())
     }
 }

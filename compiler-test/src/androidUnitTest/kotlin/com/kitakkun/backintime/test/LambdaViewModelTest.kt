@@ -9,7 +9,7 @@ class LambdaViewModelTest : BackInTimeDebugServiceTest() {
         val viewModel = LambdaViewModel()
         viewModel.updateViaLocalLambda()
 
-        assertEquals(1, propertyValueChangeEvents.size)
+        assertEquals(2, propertyValueChangeEvents.size)
     }
 
     @Test
@@ -17,7 +17,7 @@ class LambdaViewModelTest : BackInTimeDebugServiceTest() {
         val viewModel = LambdaViewModel()
         viewModel.updateViaComplicatedLocalLambda()
 
-        assertEquals(1, propertyValueChangeEvents.size)
+        assertEquals(2, propertyValueChangeEvents.size)
     }
 
     @Test
@@ -25,7 +25,7 @@ class LambdaViewModelTest : BackInTimeDebugServiceTest() {
         val viewModel = LambdaViewModel()
         viewModel.updateViaLocalLambdaReceiver()
 
-        assertEquals(1, propertyValueChangeEvents.size)
+        assertEquals(2, propertyValueChangeEvents.size)
     }
 
     @Test
@@ -33,6 +33,6 @@ class LambdaViewModelTest : BackInTimeDebugServiceTest() {
         val viewModel = LambdaViewModel()
         viewModel.updateViaComplicatedLocalLambdaReceiver()
 
-        assertEquals(1, propertyValueChangeEvents.size)
+        assertEquals(2, propertyValueChangeEvents.size)
     }
 }
