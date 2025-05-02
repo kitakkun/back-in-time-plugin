@@ -1,13 +1,23 @@
 <idea-plugin>
     <id>com.kitakkun.backintime.tooling.idea</id>
-    <name>Back-in-Time</name>
+    <name>Back-In-Time</name>
     <vendor>kitakkun</vendor>
+    <description>
+        Back-in-time Plugin enables time-travel debugging for JVM and Android applications.
+        It helps developers track and revert state changes during runtime by integrating with
+        the compiler and runtime via annotations and WebSocket-based communication.
+
+        This plugin is especially useful for inspecting state changes without relying on traditional print statements,
+        and for performing back-in-time operations to restore previous states during debugging sessions.
+
+        Note: This is a work-in-progress plugin and its API is still unstable.
+    </description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.kitakkun.backintime.tooling.idea.BackInTimeToolWindowFactory" id="BackInTime" />
-        <applicationService serviceImplementation="com.kitakkun.backintime.tooling.idea.service.BackInTimeDebuggerSettingsImpl" />
+        <toolWindow factoryClass="com.kitakkun.backintime.tooling.idea.BackInTimeToolWindowFactory" id="BackInTime"/>
+        <applicationService serviceImplementation="com.kitakkun.backintime.tooling.idea.service.BackInTimeDebuggerSettingsImpl"/>
     </extensions>
 </idea-plugin>
