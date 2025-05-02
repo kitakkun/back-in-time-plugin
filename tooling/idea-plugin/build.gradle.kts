@@ -50,13 +50,17 @@ intellijPlatform {
     publishing {
         val pluginVersion = libs.versions.backintime.get()
         pluginVersion.split("-").lastOrNull()?.let {
-            when {
+            channels = when {
                 it.startsWith("alpha") -> {
-                    channels = listOf("Alpha")
+                    listOf("Alpha")
                 }
 
                 it.startsWith("beta") -> {
-                    channels = listOf("Beta")
+                    listOf("Beta")
+                }
+
+                else -> {
+                    listOf("Stable")
                 }
             }
         }
