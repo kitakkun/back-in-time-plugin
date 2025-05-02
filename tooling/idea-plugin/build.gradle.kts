@@ -60,5 +60,6 @@ intellijPlatform {
                 }
             }
         }
+        token.set(System.getenv("INTELLIJ_PUBLISH_TOKEN"))
     }
 }
