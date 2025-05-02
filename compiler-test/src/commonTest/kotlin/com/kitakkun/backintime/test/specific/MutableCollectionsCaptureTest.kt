@@ -50,7 +50,8 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         holder.mutableListTest()
         delay(100)
 
-        assertEquals(6, notifyValueChangeEvents.size)
+        // note that all fields are captured once in the constructor
+        assertEquals(9, notifyValueChangeEvents.size)
     }
 
     @Test
@@ -61,7 +62,7 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         holder.mutableSetTest()
         delay(100)
 
-        assertEquals(4, notifyValueChangeEvents.size)
+        assertEquals(7, notifyValueChangeEvents.size)
     }
 
     @Test
@@ -72,6 +73,6 @@ class MutableCollectionsCaptureTest : BackInTimeDebugServiceTest() {
         holder.mutableMapTest()
         delay(100)
 
-        assertEquals(6, notifyValueChangeEvents.size)
+        assertEquals(9, notifyValueChangeEvents.size)
     }
 }

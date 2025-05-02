@@ -25,14 +25,17 @@ class PropertyChangeEventTest : BackInTimeDebugServiceTest() {
 
         holder.updateProperty(1)
         delay(100)
-        assertEquals(expected = 1, actual = notifyValueChangeEvents.size)
+        assertEquals(expected = 2, actual = notifyValueChangeEvents.size)
         assertEquals(holder.backInTimeInstanceUUID, notifyValueChangeEvents[0].instanceUUID)
+        assertEquals(holder.backInTimeInstanceUUID, notifyValueChangeEvents[1].instanceUUID)
         assertEquals(expected = "com/kitakkun/backintime/test/basic/PropertyChangeEventTest.TestStateHolder.property", actual = notifyValueChangeEvents[0].propertySignature)
-        assertEquals(expected = 1, actual = notifyValueChangeEvents[0].value.toInt())
+        assertEquals(expected = "com/kitakkun/backintime/test/basic/PropertyChangeEventTest.TestStateHolder.property", actual = notifyValueChangeEvents[1].propertySignature)
+        assertEquals(expected = 0, actual = notifyValueChangeEvents[0].value.toInt())
+        assertEquals(expected = 1, actual = notifyValueChangeEvents[1].value.toInt())
 
         // external access can't be captured
         holder.property = 10
         delay(100)
-        assertEquals(1, notifyValueChangeEvents.size)
+        assertEquals(2, notifyValueChangeEvents.size)
     }
 }

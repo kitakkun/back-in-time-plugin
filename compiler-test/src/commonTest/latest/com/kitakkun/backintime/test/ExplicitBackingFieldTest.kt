@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.assertContentEquals
 
 class ExplicitBackingFieldTest : BackInTimeDebugServiceTest() {
     @BackInTime
@@ -24,7 +24,9 @@ class ExplicitBackingFieldTest : BackInTimeDebugServiceTest() {
         val stateHolder = StateHolderWithExplicitBackingField()
         stateHolder.updateState(42)
 
-        assertEquals(1, this.notifyValueChangeEvents.size)
-        assertEquals("42", this.notifyValueChangeEvents.single().value)
+        assertContentEquals(
+            expected = listOf("0", "42"),
+            actual = this.notifyValueChangeEvents.map { it.value }.toList(),
+        )
     }
 }

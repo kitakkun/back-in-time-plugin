@@ -29,9 +29,10 @@ class MethodCallEventTest : BackInTimeDebugServiceTest() {
 
         delay(100)
 
-        assertEquals(expected = 3, actual = notifyMethodCallEvents.size)
+        assertEquals(expected = 4, actual = notifyMethodCallEvents.size)
         assertContentEquals(
             expected = listOf(
+                "<init>():com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder",
                 "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method1():kotlin/Unit",
                 "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method2():kotlin/Unit",
                 "com/kitakkun/backintime/test/basic/MethodCallEventTest.TestStateHolder.method3():kotlin/Unit",
