@@ -45,3 +45,25 @@ tasks {
         }
     }
 }
+
+intellijPlatform {
+    publishing {
+        val pluginVersion = libs.versions.backintime.get()
+        pluginVersion.split("-").lastOrNull()?.let {
+            channels = when {
+                it.startsWith("alpha") -> {
+                    listOf("Alpha")
+                }
+
+                it.startsWith("beta") -> {
+                    listOf("Beta")
+                }
+
+                else -> {
+                    listOf("Stable")
+                }
+            }
+        }
+        token.set(System.getenv("INTELLIJ_PUBLISH_TOKEN"))
+    }
+}
