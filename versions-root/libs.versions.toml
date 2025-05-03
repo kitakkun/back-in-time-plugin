@@ -6,7 +6,6 @@ androidx-core = "1.16.0"
 androidx-lifecycle = "2.8.7"
 androidx-compose = "1.8.0"
 robolectric = "4.14.1"
-mockk = "1.14.0"
 kotlin = "2.1.20"
 agp = "8.9.2"
 ksp = "2.1.20-2.0.0"
@@ -68,7 +67,6 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-lifecycle-livedata-core-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-core-ktx", version.ref = "androidx-lifecycle" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime-android", version.ref = "androidx-compose" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 # demo
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
