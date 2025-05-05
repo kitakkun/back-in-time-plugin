@@ -1,13 +1,10 @@
-package com.kitakkun.backintime.compiler.backend.transformer.capture
+package com.kitakkun.backintime.compiler.backend.utils
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.CaptureStrategy
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
-import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
-import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
-import com.kitakkun.backintime.compiler.backend.utils.receiver
-import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -19,6 +16,7 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.classOrNull
 
 fun IrCall.captureIfNeeded(
@@ -153,7 +151,27 @@ private fun IrCall.captureAfterCall(
     }
 }
 
-private fun IrCall.captureValueArgument(
+fun captureThenReturn(
+    irContext: BackInTimePluginContext,
+    irBuilder: IrBuilderWithScope,
+    instanceParameter: IrValueParameter,
+    uuidVariable: IrVariable,
+    signature: String,
+    value: IrExpression,
+    serializerType: IrType?
+): IrExpression {
+    return irBuilder.run {
+        irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
+            putValueArgument(0, irGet(instanceParameter))
+            putValueArgument(1, irGet(uuidVariable))
+            putValueArgument(2, irString(signature))
+            putValueArgument(3, value)
+            putTypeArgument(0, serializerType)
+        }
+    }
+}
+
+fun IrCall.captureValueArgument(
     irContext: BackInTimePluginContext,
     index: Int,
     classDispatchReceiverParameter: IrValueParameter,
@@ -161,21 +179,20 @@ private fun IrCall.captureValueArgument(
     propertySignature: String,
 ): IrExpression {
     val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
-    val originalValueArgument = getValueArgument(index)
+    val originalValueArgument = getValueArgument(index) ?: return this
+    val serializerType = originalValueArgument.type.getSerializerType(irContext)
 
     putValueArgument(
         index = index,
-        valueArgument = with(irBuilder) {
-            irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
-                putValueArgument(0, irGet(classDispatchReceiverParameter))
-                putValueArgument(1, irGet(uuidVariable))
-                putValueArgument(2, irString(propertySignature))
-                putValueArgument(3, originalValueArgument)
-                originalValueArgument?.type?.getSerializerType(irContext)?.let {
-                    putTypeArgument(0, it)
-                }
-            }
-        },
+        valueArgument = captureThenReturn(
+            irContext = irContext,
+            irBuilder = irBuilder,
+            instanceParameter = classDispatchReceiverParameter,
+            uuidVariable = uuidVariable,
+            signature = propertySignature,
+            value = originalValueArgument,
+            serializerType = serializerType
+        ),
     )
     return this
 }

@@ -4,6 +4,9 @@ import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.analyzer.TrackableStateHolderStateChangeInsideFunctionAnalyzer
 import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
+import com.kitakkun.backintime.compiler.backend.utils.captureIfNeeded
+import com.kitakkun.backintime.compiler.backend.utils.captureThenReturn
+import com.kitakkun.backintime.compiler.backend.utils.captureValueArgument
 import com.kitakkun.backintime.compiler.backend.utils.generateCaptureValueCallForTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.generateUUIDVariable
 import com.kitakkun.backintime.compiler.backend.utils.getCorrespondingProperty
@@ -19,7 +22,6 @@ import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.backend.js.utils.valueArguments
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irComposite
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -72,51 +74,37 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
                 val fieldType = backingField.type
                 val trackableStateHolderDefinition = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == fieldType.classOrNull }
 
-                if (property.isVar && trackableStateHolderDefinition == null) {
-                    irBuilder.run {
-                        irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
-                            putValueArgument(0, irGet(parentClass.thisReceiver!!))
-                            putValueArgument(1, irGet(uuidVariable))
-                            putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
-                            putValueArgument(
-                                3, irGetField(
-                                    receiver = irGet(parentClass.thisReceiver!!),
-                                    field = backingField,
-                                )
-                            )
-                            putTypeArgument(0, fieldType.getSerializerType(irContext))
-                        }
-                    }
-                } else if (trackableStateHolderDefinition != null) {
-                    irBuilder.run {
-                        irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
-                            putValueArgument(0, irGet(parentClass.thisReceiver!!))
-                            putValueArgument(1, irGet(uuidVariable))
-                            putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
-                            putValueArgument(
-                                3, when (trackableStateHolderDefinition) {
-                                    is ResolvedTrackableStateHolder.SelfContained -> {
-                                        irGetField(
-                                            receiver = irGet(parentClass.thisReceiver!!),
-                                            field = backingField,
-                                        )
-                                    }
+                val thisReceiver = parentClass.thisReceiver ?: return@mapNotNull null
 
-                                    is ResolvedTrackableStateHolder.Wrapper -> {
-                                        irCall(trackableStateHolderDefinition.getterSymbol).apply {
-                                            dispatchReceiver = irGetField(
-                                                receiver = irGet(parentClass.thisReceiver!!),
-                                                field = backingField,
-                                            )
-                                        }
-                                    }
-                                }
-                            )
-                            putTypeArgument(0, fieldType.getSerializerType(irContext))
+                val getFieldCall = irBuilder.run {
+                    irGetField(
+                        receiver = irGet(thisReceiver),
+                        field = backingField,
+                    )
+                }
+
+                val getFieldValueCall = when (trackableStateHolderDefinition) {
+                    is ResolvedTrackableStateHolder.SelfContained -> getFieldCall
+                    is ResolvedTrackableStateHolder.Wrapper ->
+                        irBuilder.irCall(trackableStateHolderDefinition.getterSymbol).apply {
+                            dispatchReceiver = getFieldCall
                         }
+
+                    else -> {
+                        if (property.isVar) getFieldCall else null
                     }
-                } else {
-                    null
+                }
+
+                getFieldValueCall?.let {
+                    captureThenReturn(
+                        irContext = irContext,
+                        irBuilder = irBuilder,
+                        instanceParameter = thisReceiver,
+                        uuidVariable = uuidVariable,
+                        signature = property.signatureForBackInTimeDebugger(),
+                        value = it,
+                        serializerType = fieldType.getSerializerType(irContext)
+                    )
                 }
             }
 
@@ -184,19 +172,13 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
         val uuidVariable = function.getLocalMethodInvocationIdVariable() ?: return
         val property = this.symbol.owner.correspondingPropertySymbol?.owner ?: return
         val classDispatchReceiverParameter = function.dispatchReceiverParameter ?: return
-        val value = this.valueArguments.first()
 
-        this.putValueArgument(
+        this.captureValueArgument(
+            irContext = irContext,
             index = 0,
-            valueArgument = with(irContext.irBuiltIns.createIrBuilder(symbol)) {
-                irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
-                    putValueArgument(0, irGet(classDispatchReceiverParameter))
-                    putValueArgument(1, irGet(uuidVariable))
-                    putValueArgument(2, irString(property.signatureForBackInTimeDebugger()))
-                    putValueArgument(3, value)
-                    putTypeArgument(0, property.getter!!.returnType.getSerializerType(irContext))
-                }
-            },
+            classDispatchReceiverParameter = classDispatchReceiverParameter,
+            uuidVariable = uuidVariable,
+            propertySignature = property.signatureForBackInTimeDebugger(),
         )
     }
 
