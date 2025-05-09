@@ -85,10 +85,14 @@ class CounterStateHolder {
 
 ### Install the IntelliJ IDEA plugin
 
-Unfortunately, the IntelliJ IDEA plugin is not available on the official JetBrains Marketplace yet.
-You need to build it manually and install it to your IDE by following an instruction [here](tooling/idea-plugin/README.md).
+The IntelliJ IDEA plugin is available on the official JetBrains Marketplace.
+
+<iframe width="245px" height="48px" src="https://plugins.jetbrains.com/embeddable/install/27261"></iframe>
+
+Though it is not available in the Stable channel yet, you can manually download and install it.
 
 You can also use the [standalone](tooling/standalone) version of the debugger built over Compose for Desktop.
+The standalone version is not available in the GitHub releases for now, but we are planning to include it to releases in the future.
 
 ### Configure the entry point
 
