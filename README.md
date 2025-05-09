@@ -87,7 +87,7 @@ class CounterStateHolder {
 
 The IntelliJ IDEA plugin is available on the official JetBrains Marketplace.
 
-[Get Back-In-Time Plugin from JetBrains Marketplace](https://plugins.jetbrains.com/embeddable/install/27261)
+[Get Back-In-Time Plugin from JetBrains Marketplace](https://plugins.jetbrains.com/plugin/27261-back-in-time)
 
 Though it is not available in the Stable channel yet, you can manually download and install it.
 
