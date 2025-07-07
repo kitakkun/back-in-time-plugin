@@ -9,20 +9,6 @@ import java.nio.file.Path
  * https://github.com/Kotlin/kotlinx-rpc/blob/main/gradle-conventions-settings/src/main/kotlin/settings-conventions.settings.gradle.kts
  */
 
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
 
     versionCatalogs {
         create("libs") {
