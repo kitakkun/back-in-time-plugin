@@ -1,7 +1,6 @@
 package com.kitakkun.backintime.compiler.k2.checkers
 
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
-import com.kitakkun.backintime.compiler.k2.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.k2.extension.yamlConfigurationProvider
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
 import com.kitakkun.backintime.compiler.k2.predicate.trackableStateHolderPredicate
@@ -15,6 +14,7 @@ import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
+import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.classId
 import org.jetbrains.kotlin.fir.types.coneType
@@ -131,11 +131,11 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
     }
 
     private fun ConeKotlinType.hasSerializableAnnotation(session: FirSession): Boolean {
-        return VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.hasAnnotation(serializableAnnotationClassId, session) == true
+        return toRegularClassSymbol(session)?.hasAnnotation(serializableAnnotationClassId, session) == true
     }
 
     private fun ConeKotlinType.isTrackableStateHolder(session: FirSession): Boolean {
-        val regularClassSymbol = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session) ?: return false
+        val regularClassSymbol = toRegularClassSymbol(session) ?: return false
         val configuredViaAnnotation = session.predicateBasedProvider.matches(trackableStateHolderPredicate, regularClassSymbol)
         val configuredViaYaml = session.yamlConfigurationProvider.yamlConfiguration.trackableStateHolders.any {
             it.classId == regularClassSymbol.classId.asString()
@@ -144,7 +144,7 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
     }
 
     private fun ConeKotlinType.isDebuggableStateHolder(session: FirSession): Boolean {
-        return VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(this, session)?.let {
+        return toRegularClassSymbol(session)?.let {
             session.predicateBasedProvider.matches(BackInTimePredicate, it)
         } == true
     }

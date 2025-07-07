@@ -1,11 +1,11 @@
 package com.kitakkun.backintime.compiler.backend
 
 import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedTrackableStateHolderAnalyzer
-import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.backend.common.ir.isReifiable
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -50,7 +50,7 @@ class BackInTimePluginContext(
     val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
     val decodeFromStringFunction by lazy {
         namedFunction("kotlinx.serialization", "decodeFromString") {
-            VersionSpecificAPI.INSTANCE.isReifiable(it.owner) && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+            it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
         }
     }
 

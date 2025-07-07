@@ -1,7 +1,5 @@
 package com.kitakkun.backintime.compiler.backend
 
-import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
-import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPIImpl
 import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer
 import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableCapturePropertyChangesTransformer
 import com.kitakkun.backintime.compiler.backend.transformer.capture.BackInTimeDebuggableConstructorTransformer
@@ -17,8 +15,6 @@ class BackInTimeIrGenerationExtension(
     private val yamlConfiguration: BackInTimeYamlConfiguration,
 ) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        VersionSpecificAPI.INSTANCE = VersionSpecificAPIImpl
-
         val irContext = BackInTimePluginContext(
             baseContext = pluginContext,
             moduleFragment = moduleFragment,

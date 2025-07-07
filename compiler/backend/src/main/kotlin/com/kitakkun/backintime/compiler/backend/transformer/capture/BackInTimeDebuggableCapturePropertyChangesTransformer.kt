@@ -2,7 +2,6 @@ package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.analyzer.TrackableStateHolderStateChangeInsideFunctionAnalyzer
-import com.kitakkun.backintime.compiler.backend.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
 import com.kitakkun.backintime.compiler.backend.utils.captureIfNeeded
 import com.kitakkun.backintime.compiler.backend.utils.captureThenReturn
@@ -40,6 +39,7 @@ import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.parentDeclarationsWithSelf
 import org.jetbrains.kotlin.ir.util.properties
+import org.jetbrains.kotlin.ir.util.receiverAndArgs
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
@@ -201,7 +201,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
     }
 
     private fun IrCall.isTrackableStateHolderRelevantCall(): Boolean {
-        return VersionSpecificAPI.INSTANCE.getReceiverAndArgs(this)
+        return receiverAndArgs()
             .mapNotNull { it.getCorrespondingProperty() }
             .any { property ->
                 property.parentClassOrNull?.isBackInTimeDebuggable == true &&
@@ -245,7 +245,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
         val parentClassSymbol = function?.parentClassOrNull?.symbol
         val classDispatchReceiverParameter = function?.dispatchReceiverParameter
 
-        val passedProperties = VersionSpecificAPI.INSTANCE.getReceiverAndArgs(this)
+        val passedProperties = receiverAndArgs()
             .mapNotNull { it.getCorrespondingProperty() }
             .filter { it.parentClassOrNull?.symbol == parentClassSymbol }
             .toSet()

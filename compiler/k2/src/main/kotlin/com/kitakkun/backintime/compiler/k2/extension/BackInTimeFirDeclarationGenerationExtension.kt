@@ -2,7 +2,6 @@ package com.kitakkun.backintime.compiler.k2.extension
 
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.common.BackInTimePluginKey
-import com.kitakkun.backintime.compiler.k2.api.VersionSpecificAPI
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
@@ -12,6 +11,7 @@ import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.plugin.createMemberProperty
 import org.jetbrains.kotlin.fir.resolve.defaultType
+import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
@@ -37,7 +37,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         }
 
         val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
-        val backInTimeDebuggableInterfaceClassSymbol = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(backInTimeDebuggableInterfaceType, session) ?: return emptyList()
+        val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
 
         val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
             .declarationSymbols
@@ -62,7 +62,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         val ownerClass = context?.owner ?: return emptyList()
 
         val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
-        val backInTimeDebuggableInterfaceClassSymbol = VersionSpecificAPI.INSTANCE.resolveToRegularClassSymbol(backInTimeDebuggableInterfaceType, session) ?: return emptyList()
+        val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
 
         val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
             .declarationSymbols
