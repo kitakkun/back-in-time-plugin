@@ -14,7 +14,7 @@ core-ktx = "1.16.0"
 lifecycle-runtime-ktx = "2.9.0"
 activity-compose = "1.10.1"
 room = "2.7.1"
-sqlite-bundled = "2.5.1"
+sqlite-bundled = "2.5.2"
 koin = "4.0.4"
 
 ktor = "3.1.3"
