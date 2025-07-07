@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirRegularClassChe
 import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
+import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
@@ -24,10 +25,13 @@ import org.jetbrains.kotlin.javac.resolve.classId
 object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerKind.Platform) {
     private val serializableAnnotationClassId = classId("kotlinx.serialization", "Serializable")
 
-    override fun check(declaration: FirRegularClass, context: CheckerContext, reporter: DiagnosticReporter) {
+    context(context: CheckerContext, reporter: DiagnosticReporter)
+    override fun check(declaration: FirRegularClass) {
         if (declaration.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationClassId, context.session)) {
-            val memberProperties = declaration.declarations.filterIsInstance<FirProperty>()
-            memberProperties.forEach { property -> checkProperty(property, reporter, context) }
+            declaration.processAllDeclarations(context.session) { declaration ->
+                if (declaration !is FirProperty) return@processAllDeclarations
+                checkProperty(declaration, reporter, context)
+            }
         }
     }
 
