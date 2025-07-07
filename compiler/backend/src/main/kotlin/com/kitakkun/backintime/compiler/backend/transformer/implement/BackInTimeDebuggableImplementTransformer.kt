@@ -4,7 +4,10 @@ import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getSerializerType
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
+import com.kitakkun.backintime.compiler.backend.utils.putExtensionReceiver
+import com.kitakkun.backintime.compiler.backend.utils.putRegularArgument
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
+import com.kitakkun.backintime.compiler.backend.utils.valueParameters
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
@@ -72,7 +75,7 @@ class BackInTimeDebuggableImplementTransformer(
     private fun generateForceSetPropertyMethodBody(declaration: IrSimpleFunction): IrBody {
         val parentClass = declaration.parentAsClass
         val parentClassReceiver = declaration.dispatchReceiverParameter!!
-        val (propertySignature, valueParameter) = declaration.valueParameters
+        val (propertySignature, valueParameter) = declaration.valueParameters()
         val superClassSymbol = parentClass.superClass?.symbol
 
         return irContext.irBuiltIns.createIrBuilder(declaration.symbol).irBlockBody {
@@ -99,13 +102,13 @@ class BackInTimeDebuggableImplementTransformer(
                                     superQualifierSymbol = superClassSymbol,
                                 ).apply {
                                     dispatchReceiver = irGet(parentClassReceiver)
-                                    putValueArgument(0, irGet(propertySignature))
-                                    putValueArgument(1, irGet(valueParameter))
+                                    putRegularArgument(0, irGet(propertySignature))
+                                    putRegularArgument(1, irGet(valueParameter))
                                 }
                             } else {
                                 irCall(irContext.throwNoSuchPropertyExceptionFunctionSymbol).apply {
-                                    putValueArgument(0, irGet(propertySignature))
-                                    putValueArgument(1, irString(parentClass.kotlinFqName.asString()))
+                                    putRegularArgument(0, irGet(propertySignature))
+                                    putRegularArgument(1, irString(parentClass.kotlinFqName.asString()))
                                 }
                             },
                         ),
@@ -124,9 +127,9 @@ class BackInTimeDebuggableImplementTransformer(
         val correspondingContainerInfo = irContext.trackableStateHolderClassInfoList.find { it.classSymbol == classSymbol }
 
         val deserializedValue = irCall(irContext.decodeFromStringFunction).apply {
-            extensionReceiver = irCall(irContext.backInTimeJsonGetter)
-            putValueArgument(0, irGet(valueParameter))
-            putTypeArgument(index = 0, type = property.getter?.returnType?.getSerializerType(irContext))
+            putExtensionReceiver(irCall(irContext.backInTimeJsonGetter))
+            putRegularArgument(0, irGet(valueParameter))
+            typeArguments[0] = property.getter?.returnType?.getSerializerType(irContext)
         }
 
         return if (correspondingContainerInfo != null) {
@@ -140,7 +143,7 @@ class BackInTimeDebuggableImplementTransformer(
             val preSetterCalls = preSetterCallSymbols.map { irCall(it).apply { dispatchReceiver = propertyGetterCall } }
             val setterCall = irCall(setterCallSymbol).apply {
                 dispatchReceiver = propertyGetterCall
-                putValueArgument(0, deserializedValue)
+                putRegularArgument(0, deserializedValue)
             }
 
             irComposite {
@@ -150,7 +153,7 @@ class BackInTimeDebuggableImplementTransformer(
         } else if (property.isVar) {
             irCall(property.setter!!).apply {
                 this.dispatchReceiver = irGet(parentClassReceiver)
-                putValueArgument(0, deserializedValue)
+                putRegularArgument(0, deserializedValue)
             }
         } else {
             null
@@ -185,8 +188,8 @@ class BackInTimeDebuggableImplementTransformer(
             initializer = with(irBuilder) {
                 irExprBody(
                     irCall(irContext.mutableMapOfFunction).apply {
-                        putTypeArgument(0, irContext.irBuiltIns.stringType)
-                        putTypeArgument(1, irContext.irBuiltIns.booleanType)
+                        typeArguments[0] = irContext.irBuiltIns.stringType
+                        typeArguments[1] = irContext.irBuiltIns.booleanType
                     },
                 )
             }

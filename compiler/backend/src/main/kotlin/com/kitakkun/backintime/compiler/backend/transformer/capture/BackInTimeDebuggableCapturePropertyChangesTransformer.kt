@@ -16,6 +16,7 @@ import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
 import com.kitakkun.backintime.compiler.backend.utils.isIndirectTrackableStateHolderSetterCall
 import com.kitakkun.backintime.compiler.backend.utils.isLambdaFunctionRelevantCall
 import com.kitakkun.backintime.compiler.backend.utils.isTrackableStateHolderSetterCall
+import com.kitakkun.backintime.compiler.backend.utils.putRegularArgument
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -40,7 +41,7 @@ import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.parentDeclarationsWithSelf
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.util.receiverAndArgs
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -60,9 +61,9 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
 
         val methodInvocationCall = irBuilder.run {
             irCall(irContext.reportMethodInvocationFunctionSymbol).apply {
-                putValueArgument(0, irGet(parentClass.thisReceiver!!))
-                putValueArgument(1, irGet(uuidVariable))
-                putValueArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
+                putRegularArgument(0, irGet(parentClass.thisReceiver!!))
+                putRegularArgument(1, irGet(uuidVariable))
+                putRegularArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
             }
         }
 
@@ -136,9 +137,9 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
             val uuidVariable = generateUUIDVariable(irContext)
 
             val notifyMethodCallFunctionCall = irCall(irContext.reportMethodInvocationFunctionSymbol).apply {
-                putValueArgument(0, irGet(parentClassDispatchReceiver))
-                putValueArgument(1, irGet(uuidVariable))
-                putValueArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
+                putRegularArgument(0, irGet(parentClassDispatchReceiver))
+                putRegularArgument(1, irGet(uuidVariable))
+                putRegularArgument(2, irString(declaration.signatureForBackInTimeDebugger()))
             }
 
             (declaration.body as? IrBlockBody)?.statements?.addAll(0, listOf(uuidVariable, notifyMethodCallFunctionCall))
@@ -185,7 +186,7 @@ class BackInTimeDebuggableCapturePropertyChangesTransformer(
     private fun IrFunction.getLocalMethodInvocationIdVariable(): IrVariable? {
         var variable: IrVariable? = null
         this.acceptVoid(
-            object : IrElementVisitorVoid {
+            object : IrVisitorVoid() {
                 override fun visitElement(element: IrElement) {
                     element.acceptChildrenVoid(this)
                 }

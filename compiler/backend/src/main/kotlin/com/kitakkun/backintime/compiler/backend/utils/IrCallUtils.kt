@@ -9,7 +9,7 @@ import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.receiverAndArgs
 
-val IrCall.receiver get() = dispatchReceiver ?: extensionReceiver
+val IrCall.receiver get() = dispatchReceiver ?: extensionReceiver()
 
 fun IrCall.isTrackableStateHolderSetterCall(
     irContext: BackInTimePluginContext

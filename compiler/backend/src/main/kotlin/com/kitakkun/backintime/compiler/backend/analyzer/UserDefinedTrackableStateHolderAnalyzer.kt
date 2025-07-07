@@ -19,7 +19,7 @@ import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.simpleFunctions
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.utils.addIfNotNull
@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 
 class UserDefinedTrackableStateHolderAnalyzer private constructor(
     private val irContext: BackInTimePluginContext,
-) : IrElementVisitorVoid {
+) : IrVisitorVoid() {
     companion object {
         fun analyze(
             irPluginContext: BackInTimePluginContext,

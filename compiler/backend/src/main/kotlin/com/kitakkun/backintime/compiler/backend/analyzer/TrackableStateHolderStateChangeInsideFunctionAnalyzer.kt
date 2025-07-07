@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.util.allParameters
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 
 /**
@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 class TrackableStateHolderStateChangeInsideFunctionAnalyzer private constructor(
     private val irContext: BackInTimePluginContext,
     target: IrSimpleFunction,
-) : IrElementVisitorVoid {
+) : IrVisitorVoid() {
     companion object {
         private fun analyze(
             irContext: BackInTimePluginContext,
