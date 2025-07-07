@@ -9,7 +9,7 @@ backintimePublication {
 
 kotlin.compilerOptions {
     freeCompilerArgs = listOf(
-        "-Xcontext-receivers",
+        "-Xcontext-parameters",
         "-opt-in=org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI",
     )
 }
