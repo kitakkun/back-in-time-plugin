@@ -1,9 +1,23 @@
 rootProject.name = "gradle-conventions"
 
 pluginManagement {
-    includeBuild("../gradle-conventions-settings")
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        google()
+    }
 }
 
-plugins {
-    id("settings-conventions")
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        google()
+    }
+
+    versionCatalogs {
+        create("libs") {
+            from(files("../gradle/libs.versions.toml"))
+        }
+    }
 }
