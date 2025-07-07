@@ -28,9 +28,9 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirRegularClass) {
         if (declaration.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationClassId, context.session)) {
-            declaration.processAllDeclarations(context.session) { declaration ->
-                if (declaration !is FirProperty) return@processAllDeclarations
-                checkProperty(declaration, reporter, context)
+            declaration.processAllDeclarations(context.session) { member ->
+                if (member !is FirProperty) return@processAllDeclarations
+                checkProperty(member, reporter, context)
             }
         }
     }
