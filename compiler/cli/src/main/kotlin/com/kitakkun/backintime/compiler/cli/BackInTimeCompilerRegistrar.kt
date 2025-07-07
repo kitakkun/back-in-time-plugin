@@ -6,10 +6,10 @@ import com.kitakkun.backintime.compiler.k2.BackInTimeFirExtensionRegistrar
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfigurationParser
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
-import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
 import java.io.File
@@ -24,7 +24,7 @@ class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
         if (!enabled) return
 
         val yamlConfiguration = parseConfiguration(configuration)
-        MessageCollectorHolder.messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+        MessageCollectorHolder.messageCollector = configuration.get(CommonConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
 
         FirExtensionRegistrarAdapter.registerExtension(BackInTimeFirExtensionRegistrar(yamlConfiguration))
         IrGenerationExtension.registerExtension(BackInTimeIrGenerationExtension(yamlConfiguration))
