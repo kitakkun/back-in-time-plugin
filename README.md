@@ -1,9 +1,14 @@
 # back-in-time-plugin
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.kitakkun.backintime/core-runtime)](https://central.sonatype.com/search?namespace=com.kitakkun.backintime)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.0.0--2.1.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/kotlin-2.1.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://github.com/kitakkun/back-in-time-plugin/blob/master/LICENSE.txt)
 ![Platform](https://img.shields.io/badge/platform-Android_JVM-blue)
+
+> [!IMPORTANT]
+> Support for older versions of Kotlin has been dropped.
+> Going forward, all bug fixes and new features will be available **only** for the latest Kotlin version.
+> This change reduces maintenance overhead and allows us to focus on improving the plugin.
 
 No more print debugging, No more repetitive manual debugging.
 
