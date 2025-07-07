@@ -126,12 +126,12 @@ private fun IrCall.captureAfterCall(
     return irBuilder.irComposite {
         +this@captureAfterCall
         +irCall(irContext.reportPropertyValueChangeFunctionSymbol).apply {
-            putValueArgument(0, irGet(classDispatchReceiverParameter))
-            putValueArgument(1, irGet(uuidVariable))
-            putValueArgument(2, irString(propertySignature))
-            putValueArgument(
+            putRegularArgument(0, irGet(classDispatchReceiverParameter))
+            putRegularArgument(1, irGet(uuidVariable))
+            putRegularArgument(2, irString(propertySignature))
+            putRegularArgument(
                 index = 3,
-                valueArgument = when (trackableStateHolder) {
+                expression = when (trackableStateHolder) {
                     is ResolvedTrackableStateHolder.Wrapper -> {
                         irCall(trackableStateHolder.getterSymbol).apply {
                             dispatchReceiver = propertyAccessExpression
@@ -143,10 +143,7 @@ private fun IrCall.captureAfterCall(
                     }
                 },
             )
-            putTypeArgument(
-                index = 0,
-                type = propertyAccessExpression.type.getSerializerType(irContext),
-            )
+            typeArguments[0] = propertyAccessExpression.type.getSerializerType(irContext)
         }
     }
 }
@@ -162,11 +159,11 @@ fun captureThenReturn(
 ): IrExpression {
     return irBuilder.run {
         irCall(irContext.captureThenReturnValueFunctionSymbol).apply {
-            putValueArgument(0, irGet(instanceParameter))
-            putValueArgument(1, irGet(uuidVariable))
-            putValueArgument(2, irString(signature))
-            putValueArgument(3, value)
-            putTypeArgument(0, serializerType)
+            putRegularArgument(0, irGet(instanceParameter))
+            putRegularArgument(1, irGet(uuidVariable))
+            putRegularArgument(2, irString(signature))
+            putRegularArgument(3, value)
+            typeArguments[0] = serializerType
         }
     }
 }
@@ -179,12 +176,12 @@ fun IrCall.captureValueArgument(
     propertySignature: String,
 ): IrExpression {
     val irBuilder = irContext.irBuiltIns.createIrBuilder(symbol)
-    val originalValueArgument = getValueArgument(index) ?: return this
+    val originalValueArgument = getRegularArgument(index) ?: return this
     val serializerType = originalValueArgument.type.getSerializerType(irContext)
 
-    putValueArgument(
+    putRegularArgument(
         index = index,
-        valueArgument = captureThenReturn(
+        expression = captureThenReturn(
             irContext = irContext,
             irBuilder = irBuilder,
             instanceParameter = classDispatchReceiverParameter,

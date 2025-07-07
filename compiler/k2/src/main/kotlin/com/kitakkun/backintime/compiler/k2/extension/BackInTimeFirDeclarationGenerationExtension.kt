@@ -5,6 +5,7 @@ import com.kitakkun.backintime.compiler.common.BackInTimePluginKey
 import com.kitakkun.backintime.compiler.k2.predicate.BackInTimePredicate
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import org.jetbrains.kotlin.fir.extensions.MemberGenerationContext
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
@@ -39,10 +40,17 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
         val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
 
-        val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
-            .declarationSymbols
-            .filterIsInstance<FirPropertySymbol>()
-            .find { it.name == callableId.callableName } ?: return emptyList()
+        var originalDeclaration: FirPropertySymbol? = null
+
+        backInTimeDebuggableInterfaceClassSymbol
+            .processAllDeclarations(session) {
+                if (it is FirPropertySymbol && it.callableId.callableName == callableId.callableName) {
+                    originalDeclaration = it
+                    return@processAllDeclarations
+                }
+            }
+
+        if (originalDeclaration == null) return emptyList()
 
         return listOf(
             createMemberProperty(
@@ -64,10 +72,17 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
         val backInTimeDebuggableInterfaceType = ownerClass.resolvedSuperTypes.find { it.classId == BackInTimeConsts.backInTimeDebuggableInterfaceClassId } ?: return emptyList()
         val backInTimeDebuggableInterfaceClassSymbol = backInTimeDebuggableInterfaceType.toRegularClassSymbol(session) ?: return emptyList()
 
-        val originalDeclaration = backInTimeDebuggableInterfaceClassSymbol
-            .declarationSymbols
-            .filterIsInstance<FirNamedFunctionSymbol>()
-            .find { it.callableId.callableName == callableId.callableName } ?: return emptyList()
+        var originalDeclaration: FirNamedFunctionSymbol? = null
+
+        backInTimeDebuggableInterfaceClassSymbol
+            .processAllDeclarations(session) {
+                if (it is FirNamedFunctionSymbol && it.callableId.callableName == callableId.callableName) {
+                    originalDeclaration = it
+                    return@processAllDeclarations
+                }
+            }
+
+        if (originalDeclaration == null) return emptyList()
 
         return listOf(
             createMemberFunction(

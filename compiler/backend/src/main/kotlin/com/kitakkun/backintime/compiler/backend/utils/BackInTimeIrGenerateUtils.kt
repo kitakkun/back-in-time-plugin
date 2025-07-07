@@ -23,11 +23,11 @@ private fun irCapturePropertyValue(
     uuidVariable: IrVariable,
     propertyType: IrType,
 ) = irBuilder.irCall(irContext.reportPropertyValueChangeFunctionSymbol).apply {
-    putValueArgument(0, irBuilder.irGet(instanceParameter))
-    putValueArgument(1, irBuilder.irGet(uuidVariable))
-    putValueArgument(2, irBuilder.irString(propertySignature))
-    putValueArgument(3, getValueCall)
-    putTypeArgument(0, propertyType.getSerializerType(irContext))
+    putRegularArgument(0, irBuilder.irGet(instanceParameter))
+    putRegularArgument(1, irBuilder.irGet(uuidVariable))
+    putRegularArgument(2, irBuilder.irString(propertySignature))
+    putRegularArgument(3, getValueCall)
+    typeArguments[0] = propertyType.getSerializerType(irContext)
 }
 
 fun IrProperty.generateCaptureValueCallForTrackableStateHolder(

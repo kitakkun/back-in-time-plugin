@@ -4,6 +4,7 @@ import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.getGenericTypes
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeGenerated
+import com.kitakkun.backintime.compiler.backend.utils.putRegularArgument
 import com.kitakkun.backintime.compiler.backend.utils.signatureForBackInTimeDebugger
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -44,10 +45,10 @@ class BackInTimeDebuggableConstructorTransformer(
         val registerCall = with(irBuilder) {
             /** see [com.kitakkun.backintime.core.runtime.event.BackInTimeDebuggableInstanceEvent.RegisterTarget] */
             irCall(irContext.reportInstanceRegistrationFunctionSymbol).apply {
-                putValueArgument(0, irGet(parentClass.thisReceiver!!))
-                putValueArgument(1, irString(parentClass.signatureForBackInTimeDebugger()))
-                putValueArgument(2, irString(parentClass.superClass?.signatureForBackInTimeDebugger() ?: "unknown"))
-                putValueArgument(3, generatePropertiesInfo(parentClass.properties))
+                putRegularArgument(0, irGet(parentClass.thisReceiver!!))
+                putRegularArgument(1, irString(parentClass.signatureForBackInTimeDebugger()))
+                putRegularArgument(2, irString(parentClass.superClass?.signatureForBackInTimeDebugger() ?: "unknown"))
+                putRegularArgument(3, generatePropertiesInfo(parentClass.properties))
             }
         }
 
@@ -59,8 +60,8 @@ class BackInTimeDebuggableConstructorTransformer(
 
                 with(irBuilder) {
                     irCall(irContext.reportNewRelationshipFunctionSymbol).apply {
-                        putValueArgument(0, irGet(parentReceiver))
-                        putValueArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
+                        putRegularArgument(0, irGet(parentReceiver))
+                        putRegularArgument(1, irGetField(receiver = irGet(parentReceiver), field = backingField))
                     }
                 }
             }
@@ -73,7 +74,7 @@ class BackInTimeDebuggableConstructorTransformer(
     private fun IrBuilderWithScope.generatePropertiesInfo(
         properties: Sequence<IrProperty>,
     ) = irCall(irContext.listOfFunction).apply {
-        putValueArgument(
+        putRegularArgument(
             0,
             irVararg(
                 irContext.irBuiltIns.stringType,
@@ -101,6 +102,6 @@ class BackInTimeDebuggableConstructorTransformer(
                     }.toList(),
             ),
         )
-        putTypeArgument(0, irContext.irBuiltIns.stringType)
+        typeArguments[0] = irContext.irBuiltIns.stringType
     }
 }

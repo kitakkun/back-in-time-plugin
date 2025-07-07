@@ -2,6 +2,7 @@ package com.kitakkun.backintime.compiler.backend
 
 import com.kitakkun.backintime.compiler.backend.analyzer.UserDefinedTrackableStateHolderAnalyzer
 import com.kitakkun.backintime.compiler.backend.trackablestateholder.ResolvedTrackableStateHolder
+import com.kitakkun.backintime.compiler.backend.utils.valueParameters
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import com.kitakkun.backintime.compiler.yaml.BackInTimeYamlConfiguration
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -44,13 +45,13 @@ class BackInTimePluginContext(
     // capture utils
     val captureThenReturnValueFunctionSymbol by lazy { backintimeNamedFunction(name = "captureThenReturnValue", subpackage = "core.runtime.internal") }
 
-    val listOfFunction by lazy { namedFunction("kotlin.collections", "listOf") { it.owner.valueParameters.size == 1 && it.owner.valueParameters.first().isVararg } }
+    val listOfFunction by lazy { namedFunction("kotlin.collections", "listOf") { it.owner.valueParameters().size == 1 && it.owner.valueParameters().first().isVararg } }
 
     // kotlinx-serialization
     val backInTimeJsonGetter = referenceProperties(BackInTimeConsts.backInTimeJsonCallableId).single().owner.getter!!
     val decodeFromStringFunction by lazy {
         namedFunction("kotlinx.serialization", "decodeFromString") {
-            it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters.size == 1
+            it.owner.isReifiable() && it.owner.typeParameters.size == 1 && it.owner.valueParameters().size == 1
         }
     }
 

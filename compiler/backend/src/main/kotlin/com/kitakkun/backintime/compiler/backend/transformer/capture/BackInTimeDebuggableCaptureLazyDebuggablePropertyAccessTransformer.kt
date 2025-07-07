@@ -2,6 +2,7 @@ package com.kitakkun.backintime.compiler.backend.transformer.capture
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
 import com.kitakkun.backintime.compiler.backend.utils.isBackInTimeDebuggable
+import com.kitakkun.backintime.compiler.backend.utils.putRegularArgument
 import com.kitakkun.backintime.compiler.backend.utils.receiver
 import com.kitakkun.backintime.compiler.common.BackInTimeConsts
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
@@ -49,18 +50,18 @@ class BackInTimeDebuggableCaptureLazyDebuggablePropertyAccessTransformer(
                 arg1 = irTrue(),
                 arg2 = irCall(irContext.irBuiltIns.mapClass.getSimpleFunction("get")!!).apply {
                     dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
-                    putValueArgument(0, irString(property.name.asString()))
+                    putRegularArgument(0, irString(property.name.asString()))
                 },
             )
             val thenPart = irComposite {
                 +irCall(irContext.reportNewRelationshipFunctionSymbol).apply {
-                    putValueArgument(0, receiver)
-                    putValueArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
+                    putRegularArgument(0, receiver)
+                    putRegularArgument(1, irCall(property.getter!!).apply { dispatchReceiver = receiver })
                 }
                 +irCall(irContext.irBuiltIns.mutableMapClass.getSimpleFunction("put")!!).apply {
                     dispatchReceiver = irGetField(receiver, initializedMapProperty.backingField!!)
-                    putValueArgument(0, irString(property.name.asString()))
-                    putValueArgument(1, irTrue())
+                    putRegularArgument(0, irString(property.name.asString()))
+                    putRegularArgument(1, irTrue())
                 }
             }
             return irComposite {

@@ -1,6 +1,7 @@
 package com.kitakkun.backintime.compiler.backend.transformer.implement
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.kitakkun.backintime.compiler.backend.utils.putRegularArgument
 import com.kitakkun.backintime.compiler.common.BackInTimeAnnotations
 import org.jetbrains.kotlin.backend.common.lower.createIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.getIntConstArgument
@@ -49,8 +50,8 @@ class BackInTimeEntryPointTransformer(
         val irBuilder = irContext.irBuiltIns.createIrBuilder(declaration.symbol)
         val startServiceCall = with(irBuilder) {
             irCall(irContext.backInTimeEntryPointRegisterFunctionSymbol).apply {
-                putValueArgument(0, irString(host))
-                putValueArgument(1, irInt(port))
+                putRegularArgument(0, irString(host))
+                putRegularArgument(1, irInt(port))
             }
         }
         (declaration.body as? IrBlockBody)?.statements?.add(0, startServiceCall)

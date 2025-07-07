@@ -1,6 +1,8 @@
 package com.kitakkun.backintime.compiler.backend.trackablestateholder
 
 import com.kitakkun.backintime.compiler.backend.BackInTimePluginContext
+import com.kitakkun.backintime.compiler.backend.utils.extensionReceiverParameter
+import com.kitakkun.backintime.compiler.backend.utils.valueParameters
 import com.kitakkun.backintime.compiler.yaml.CallableSignature
 import com.kitakkun.backintime.compiler.yaml.ParametersSignature
 import com.kitakkun.backintime.compiler.yaml.TrackableStateHolder
@@ -74,7 +76,7 @@ sealed class ResolvedTrackableStateHolder {
                 }
 
                 is CallableSignature.NamedFunction -> allPossibleMemberCallables.find {
-                    it.owner.name.asString() == setter.name && it.owner.valueParameters.size == 1
+                    it.owner.name.asString() == setter.name && it.owner.valueParameters().size == 1
                 }
 
                 else -> null
@@ -102,7 +104,7 @@ sealed class ResolvedTrackableStateHolder {
                         irContext.referenceFunctions(CallableId(FqName(signature.packageFqName), Name.identifier(signature.name))).filter {
                             if (signature.receiverClassId.isNotEmpty()) {
                                 it.owner.matchesFunctionSignature(signature)
-                                    && it.owner.extensionReceiverParameter?.type?.classOrNull?.owner?.classId == ClassId.fromString(signature.receiverClassId)
+                                    && it.owner.extensionReceiverParameter()?.type?.classOrNull?.owner?.classId == ClassId.fromString(signature.receiverClassId)
                             } else {
                                 it.owner.matchesFunctionSignature(signature)
                             }
@@ -160,8 +162,8 @@ sealed class ResolvedTrackableStateHolder {
             return when (val parametersSignature = signature.valueParameters) {
                 is ParametersSignature.Any -> this.name.asString() == signature.name
                 is ParametersSignature.Specified -> {
-                    parametersSignature.parameterTypes.size == this.valueParameters.size &&
-                        parametersSignature.parameterTypes.zip(this.valueParameters).all { (typeSignature, irValueParameter) ->
+                    parametersSignature.parameterTypes.size == this.valueParameters().size &&
+                        parametersSignature.parameterTypes.zip(this.valueParameters()).all { (typeSignature, irValueParameter) ->
                             when (typeSignature) {
                                 is TypeSignature.Any -> true
 

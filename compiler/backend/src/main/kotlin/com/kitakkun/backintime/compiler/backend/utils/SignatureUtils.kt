@@ -65,11 +65,9 @@ fun IrProperty.signatureForBackInTimeDebugger(): String {
  * The signature for `member` will be: "com/example/B com/example/A.member(kotlin/Int):kotlin/String"
  */
 fun IrFunction.signatureForBackInTimeDebugger(): String {
-    val extensionReceiverSignature = extensionReceiverParameter?.type?.signatureForBackInTimeDebugger()
+    val extensionReceiverSignature = extensionReceiverParameter()?.type?.signatureForBackInTimeDebugger()
     val dispatchReceiverSignature = dispatchReceiverParameter?.type?.signatureForBackInTimeDebugger()
-    val valueParametersSignature = valueParameters
-        .map { it.type.signatureForBackInTimeDebugger() }
-        .joinToString(",")
+    val valueParametersSignature = valueParameters().joinToString(",") { it.type.signatureForBackInTimeDebugger() }
     val returnTypeSignature = returnType.signatureForBackInTimeDebugger()
 
     return StringBuilder().apply {
