@@ -22,7 +22,7 @@ uuid = "0.8.4"
 
 ktlint-gradle = "12.2.0"
 ktlint = "1.2.1"
-kotlinx-datetime = "0.7.0-0.6.x-compat"
+kotlinx-datetime = "0.7.1-0.6.x-compat"
 
 buildconfig = "5.6.7"
 junit-jupiter = "5.12.2"
