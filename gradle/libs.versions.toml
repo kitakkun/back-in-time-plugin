@@ -44,7 +44,7 @@ gradle-testkit-support-plugin = "0.13"
 gradle-testkit-support = "0.18"
 gradle-testkit-truth = "1.6.1"
 
-kotlinxIo = "0.7.0"
+kotlinxIo = "0.8.0"
 
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
