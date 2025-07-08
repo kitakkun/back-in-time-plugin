@@ -20,7 +20,7 @@ koin = "4.0.4"
 ktor = "3.2.1"
 uuid = "0.8.4"
 
-ktlint-gradle = "12.2.0"
+ktlint-gradle = "12.3.0"
 ktlint = "1.2.1"
 kotlinx-datetime = "0.7.1-0.6.x-compat"
 
