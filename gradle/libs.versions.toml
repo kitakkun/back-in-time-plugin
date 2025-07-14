@@ -26,7 +26,7 @@ kotlinx-datetime = "0.7.1-0.6.x-compat"
 
 buildconfig = "5.6.7"
 junit-jupiter = "5.13.3"
-maven-publish = "0.33.0"
+maven-publish = "0.34.0"
 
 kaml = "0.83.0"
 
