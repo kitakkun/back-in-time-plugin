@@ -10,15 +10,14 @@ import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirRegularClassChecker
-import org.jetbrains.kotlin.fir.declarations.FirProperty
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.hasAnnotation
 import org.jetbrains.kotlin.fir.declarations.processAllDeclarations
 import org.jetbrains.kotlin.fir.extensions.predicateBasedProvider
 import org.jetbrains.kotlin.fir.resolve.toRegularClassSymbol
+import org.jetbrains.kotlin.fir.symbols.impl.FirPropertySymbol
 import org.jetbrains.kotlin.fir.types.ConeKotlinType
 import org.jetbrains.kotlin.fir.types.classId
-import org.jetbrains.kotlin.fir.types.coneType
 import org.jetbrains.kotlin.fir.types.type
 import org.jetbrains.kotlin.javac.resolve.classId
 
@@ -28,19 +27,20 @@ object BackInTimeTargetClassPropertyChecker : FirRegularClassChecker(MppCheckerK
     context(context: CheckerContext, reporter: DiagnosticReporter)
     override fun check(declaration: FirRegularClass) {
         if (declaration.hasAnnotation(BackInTimeAnnotations.backInTimeAnnotationClassId, context.session)) {
+            // Since Kotlin 2.3 processAllDeclarations hands over symbols instead of declarations.
             declaration.processAllDeclarations(context.session) { member ->
-                if (member !is FirProperty) return@processAllDeclarations
+                if (member !is FirPropertySymbol) return@processAllDeclarations
                 checkProperty(member, reporter, context)
             }
         }
     }
 
     private fun checkProperty(
-        declaration: FirProperty,
+        declaration: FirPropertySymbol,
         reporter: DiagnosticReporter,
         context: CheckerContext,
     ) {
-        val propertyType = declaration.backingField?.returnTypeRef?.coneType ?: declaration.returnTypeRef.coneType
+        val propertyType = declaration.backingFieldSymbol?.resolvedReturnType ?: declaration.resolvedReturnType
         if (propertyType.isBuiltinSerializable()) return
         if (propertyType.hasSerializableAnnotation(context.session)) return
         if (propertyType.isDebuggableStateHolder(context.session)) return

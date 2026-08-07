@@ -17,6 +17,10 @@ import java.io.File
 @Suppress("unused")
 @OptIn(ExperimentalCompilerApi::class)
 class BackInTimeCompilerRegistrar : CompilerPluginRegistrar() {
+    // Kotlin 2.3 made `pluginId` abstract on CompilerPluginRegistrar; it must match the
+    // CommandLineProcessor's id so `-Xcompiler-plugin-order` can address this plugin.
+    override val pluginId: String = BackInTimeCommandLineProcessor.PLUGIN_ID
+
     override val supportsK2: Boolean get() = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {

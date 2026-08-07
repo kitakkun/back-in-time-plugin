@@ -8,6 +8,10 @@ backintimePublication {
     artifactId = "compiler-yaml"
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kaml)
