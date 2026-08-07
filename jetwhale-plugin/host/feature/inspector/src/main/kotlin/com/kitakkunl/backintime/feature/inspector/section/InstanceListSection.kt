@@ -80,6 +80,7 @@ private fun InstanceListSectionPreview() {
                 InstanceItemUiState(
                     uuid = "$it",
                     classSignature = "com/example/A$it".toClassSignature(),
+                    superClassSignature = "kotlin/Any".toClassSignature(),
                     properties = listOf(),
                     propertiesExpanded = it == 0,
                     totalEventsCount = it,

@@ -48,6 +48,7 @@ fun InspectorScreen(
         onTogglePropertyVisibility = { eventEmitter.tryEmit(InspectorScreenEvent.TogglePropertyVisibility(it.uuid)) },
         onUpdateVerticalSplitDividerPosition = { eventEmitter.tryEmit(InspectorScreenEvent.UpdateVerticalDividerPosition(it)) },
         onUpdateHorizontalSplitDividerPosition = { eventEmitter.tryEmit(InspectorScreenEvent.UpdateHorizontalDividerPosition(it)) },
+        onUpdateHistorySplitDividerPosition = { eventEmitter.tryEmit(InspectorScreenEvent.UpdateHistoryDividerPosition(it)) },
         onClickEvent = { eventEmitter.tryEmit(InspectorScreenEvent.SelectEvent(it)) },
         onPerformBackInTime = { instanceId, eventId -> eventEmitter.tryEmit(InspectorScreenEvent.BackInTime(instanceId, eventId)) },
         onToggleShowNonDebuggableProperties = { eventEmitter.tryEmit(InspectorScreenEvent.UpdateNonDebuggablePropertiesVisibility(it)) }
@@ -60,6 +61,7 @@ data class InspectorScreenUiState(
     val instances: List<InstanceItemUiState>,
     val horizontalDividerPosition: Float,
     val verticalDividerPosition: Float,
+    val historyDividerPosition: Float,
     val history: HistorySectionUiState?,
     val showNonDebuggableProperties: Boolean,
 ) {
@@ -74,6 +76,7 @@ fun InspectorScreen(
     onTogglePropertyVisibility: (InstanceItemUiState) -> Unit,
     onUpdateVerticalSplitDividerPosition: (Float) -> Unit,
     onUpdateHorizontalSplitDividerPosition: (Float) -> Unit,
+    onUpdateHistorySplitDividerPosition: (Float) -> Unit,
     onClickEvent: (event: EventItemUiState) -> Unit,
     onPerformBackInTime: (instanceId: String, eventId: String) -> Unit,
     onToggleShowNonDebuggableProperties: (Boolean) -> Unit,
@@ -143,6 +146,8 @@ fun InspectorScreen(
             second(minSize = 200.dp) {
                 HistorySection(
                     uiState = uiState.history,
+                    dividerPosition = uiState.historyDividerPosition,
+                    onUpdateDividerPosition = onUpdateHistorySplitDividerPosition,
                     onClickEvent = onClickEvent,
                     onPerformBackInTime = { onPerformBackInTime(uiState.selectedInstanceId!!, it.id) }
                 )
@@ -163,6 +168,7 @@ private fun InspectorScreenPreview() {
                 instances = listOf(),
                 horizontalDividerPosition = 0.5f,
                 verticalDividerPosition = 0.5f,
+                historyDividerPosition = 0.35f,
                 history = null,
                 showNonDebuggableProperties = true,
             ),
@@ -171,6 +177,7 @@ private fun InspectorScreenPreview() {
             onClickProperty = { _, _ -> },
             onUpdateVerticalSplitDividerPosition = {},
             onUpdateHorizontalSplitDividerPosition = {},
+            onUpdateHistorySplitDividerPosition = {},
             onTogglePropertyVisibility = {},
             onPerformBackInTime = { _, _ -> },
             onToggleShowNonDebuggableProperties = {},

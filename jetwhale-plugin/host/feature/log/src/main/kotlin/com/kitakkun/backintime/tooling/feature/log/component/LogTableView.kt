@@ -33,6 +33,9 @@ import androidx.compose.ui.unit.sp
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.EventEntity
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -113,7 +116,7 @@ private fun EventRow(
             .padding(horizontal = 12.dp, vertical = 4.dp),
     ) {
         Text(
-            text = event.time.toString(),
+            text = event.time.asWallClockTime(),
             style = MonospacedRowStyle,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -131,7 +134,17 @@ private fun EventRow(
     }
 }
 
-private val TimeColumnWidth = 110.dp
+/**
+ * Epoch millis are unreadable in a column you scan; what matters here is ordering and the gap
+ * between events, both of which a wall clock shows at a glance. The exact millisecond value is
+ * still in the payload the detail pane renders.
+ */
+private fun Long.asWallClockTime(): String =
+    TimeFormatter.format(Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()))
+
+private val TimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
+
+private val TimeColumnWidth = 100.dp
 private val MonospacedRowStyle = TextStyle(fontFamily = FontFamily.Monospace, fontSize = 12.sp)
 
 @Preview

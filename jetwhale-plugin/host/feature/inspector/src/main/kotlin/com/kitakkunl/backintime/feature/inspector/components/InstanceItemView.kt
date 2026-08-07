@@ -33,6 +33,7 @@ import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 data class InstanceItemUiState(
     val uuid: String,
     val classSignature: Signature.Class,
+    val superClassSignature: Signature.Class,
     val properties: List<PropertyItemUiState>,
     val propertiesExpanded: Boolean,
     val totalEventsCount: Int,
@@ -70,12 +71,18 @@ fun InstanceItemView(
                     .clickable(onClick = onTogglePropertyVisibility)
                     .size(20.dp),
             )
+            // Name first, package second: the simple name is what identifies the instance, so it is
+            // never the part that gets truncated. Only the package gives up width as the pane narrows.
             Text(
-                text = uiState.classSignature.asString(),
+                text = uiState.classSignature.className,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
-                // The class name is the identity here, and the tail (`…ViewModel`) carries more of it
-                // than the package prefix does, so drop from the middle rather than the end.
+            )
+            Text(
+                text = uiState.classSignature.packageFqName,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
                 overflow = TextOverflow.MiddleEllipsis,
                 modifier = Modifier.weight(1f),
             )
@@ -123,6 +130,7 @@ private fun InstanceItemViewPreview() {
             uiState = InstanceItemUiState(
                 uuid = "c9ed94d9-1c1f-493d-b982-db34db076ffe",
                 classSignature = "com/example/MyStateHolder".toClassSignature(),
+                superClassSignature = "androidx/lifecycle/ViewModel".toClassSignature(),
                 propertiesExpanded = true,
                 properties = List(10) {
                     PropertyItemUiState(
@@ -130,6 +138,9 @@ private fun InstanceItemViewPreview() {
                         type = "kotlin/String",
                         eventCount = it,
                         isSelected = false,
+                        latestValue = if (it == 0) null else it.toString(),
+                        isInherited = false,
+                        debuggable = true,
                     )
                 },
                 totalEventsCount = 10,

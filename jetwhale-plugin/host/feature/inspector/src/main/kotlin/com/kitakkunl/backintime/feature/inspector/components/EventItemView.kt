@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,15 +88,13 @@ fun EventItemView(
     Column(
         modifier = modifier
             .animateContentSize()
-            .clickable(onClick = onClick)
-            .background(
-                if (uiState.selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-                else Color.Transparent
-            )
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .clickable(onClick = onClick),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // The marker sits on the timeline that is drawn behind this item, so it stays outside the
+        // selection highlight — a highlight painted over the whole item covers the connecting line
+        // and breaks the timeline it is meant to point at.
         Box(
             modifier = Modifier
                 .background(
@@ -104,14 +103,25 @@ fun EventItemView(
                 )
                 .size(EventCircleIndicatorSize),
         )
-        Text(
-            text = uiState.label,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (uiState.selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.wrapContentWidth(unbounded = true),
-        )
-        if (uiState.expandedDetails) {
-            EventDetailView(uiState)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(
+                    color = if (uiState.selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else Color.Transparent,
+                    shape = RoundedCornerShape(6.dp),
+                )
+                .padding(horizontal = 8.dp, vertical = 4.dp),
+        ) {
+            Text(
+                text = uiState.label,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (uiState.selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.wrapContentWidth(unbounded = true),
+            )
+            if (uiState.expandedDetails) {
+                EventDetailView(uiState)
+            }
         }
     }
 }

@@ -37,6 +37,9 @@ data class InspectorState(
     val expandedInstanceIds: Set<String>,
     val horizontalSplitPanePosition: Float,
     val verticalSplitPanePosition: Float,
+    // Defaulted so state persisted before this pane was adjustable still decodes. The timeline needs
+    // far less room than the event details below it, hence 0.35 rather than an even split.
+    val historySplitPanePosition: Float = 0.35f,
     val selectedEventId: String?,
 ) {
     companion object {
@@ -46,6 +49,7 @@ data class InspectorState(
             expandedInstanceIds = emptySet(),
             horizontalSplitPanePosition = 0.5f,
             verticalSplitPanePosition = 0.5f,
+            historySplitPanePosition = 0.35f,
             selectedEventId = null,
         )
     }

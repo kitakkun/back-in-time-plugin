@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingLabel
+import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 

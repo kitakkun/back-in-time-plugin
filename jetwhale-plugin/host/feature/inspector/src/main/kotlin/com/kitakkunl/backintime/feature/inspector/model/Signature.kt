@@ -8,7 +8,9 @@ sealed interface Signature {
 
     @JvmInline
     value class Class(override val signature: String) : Signature {
-        override val packageFqName: String get() = signature.substringBeforeLast("/")
+        // substringBeforeLast returns the whole string when the separator is absent, which would
+        // report an unqualified name as its own package; an empty string says "no package" instead.
+        override val packageFqName: String get() = signature.substringBeforeLast("/", missingDelimiterValue = "")
         val className: String get() = signature.substringAfterLast("/")
     }
 

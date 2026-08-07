@@ -28,6 +28,7 @@ sealed interface InspectorScreenEvent {
     data class SelectProperty(val instanceId: String, val signature: Signature.Property) : InspectorScreenEvent
     data class UpdateVerticalDividerPosition(val position: Float) : InspectorScreenEvent
     data class UpdateHorizontalDividerPosition(val position: Float) : InspectorScreenEvent
+    data class UpdateHistoryDividerPosition(val position: Float) : InspectorScreenEvent
     data class SelectEvent(val event: EventItemUiState) : InspectorScreenEvent
     data class BackInTime(val instanceId: String, val eventId: String) : InspectorScreenEvent
     data class UpdateNonDebuggablePropertiesVisibility(val visible: Boolean) : InspectorScreenEvent
@@ -47,9 +48,18 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
     val instanceUiStates by remember {
         derivedStateOf {
             instances.map { instance ->
+                // The most recent assignment per property, which is what the inspector shows as the
+                // property's current value. Built once per instance rather than searched per
+                // property, so a long history costs one pass instead of one pass per property.
+                val latestValues = instance.events
+                    .filterIsInstance<EventEntity.Instance.StateChange>()
+                    .sortedBy { it.time }
+                    .associate { it.propertySignature to it.newValueAsJson }
+
                 InstanceItemUiState(
                     uuid = instance.id,
                     classSignature = instance.className.toClassSignature(),
+                    superClassSignature = instance.superClassName.toClassSignature(),
                     properties = instance.properties
                         .filter { settingsState.showNonDebuggableProperties || it.debuggable }
                         .map { property ->
@@ -58,6 +68,9 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                                 type = property.type,
                                 eventCount = property.totalEvents,
                                 isSelected = pluginState.inspectorState.selectedInstanceId == instance.id && pluginState.inspectorState.selectedPropertyKey == property.signature,
+                                latestValue = latestValues[property.signature],
+                                isInherited = property.isInherited,
+                                debuggable = property.debuggable,
                             )
                         },
                     propertiesExpanded = instance.id in pluginState.inspectorState.expandedInstanceIds,
@@ -166,6 +179,12 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                 }
             }
 
+            is InspectorScreenEvent.UpdateHistoryDividerPosition -> {
+                pluginStateService.updateInspectorState {
+                    it.copy(historySplitPanePosition = event.position)
+                }
+            }
+
             is InspectorScreenEvent.SelectEvent -> {
                 pluginStateService.updateInspectorState {
                     it.copy(selectedEventId = event.event.id)
@@ -205,6 +224,7 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
         instances = instanceUiStates,
         horizontalDividerPosition = pluginState.inspectorState.horizontalSplitPanePosition,
         verticalDividerPosition = pluginState.inspectorState.verticalSplitPanePosition,
+        historyDividerPosition = pluginState.inspectorState.historySplitPanePosition,
         history = history,
         showNonDebuggableProperties = settingsState.showNonDebuggableProperties,
     )

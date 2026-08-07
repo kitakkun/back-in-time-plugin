@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +28,10 @@ data class PropertyItemUiState(
     val type: String,
     val eventCount: Int,
     val isSelected: Boolean,
+    /** The value the most recent state change assigned, or `null` if it never changed. */
+    val latestValue: String?,
+    val isInherited: Boolean,
+    val debuggable: Boolean,
 )
 
 @Composable
@@ -34,21 +40,32 @@ fun PropertyItemView(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val accentColor = MaterialTheme.colorScheme.primary
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .background(
-                if (uiState.isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                else MaterialTheme.colorScheme.surfaceContainerLow
-            )
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickable(onClick = onClick)
+            // A selected property is marked with an accent rule rather than a tint: its instance row
+            // right above is tinted too, and two identical fills read as one merged block instead of
+            // "this property, inside that instance".
+            .drawBehind {
+                if (uiState.isSelected) {
+                    drawRect(
+                        color = accentColor,
+                        size = Size(width = SelectionBarWidth.toPx(), height = size.height),
+                    )
+                }
+            }
             // Indented past the instance row's disclosure arrow, so the nesting reads without a rule.
             .padding(start = 36.dp, end = 8.dp, top = 5.dp, bottom = 5.dp),
     ) {
         Text(
             text = uiState.signature.propertyName,
             style = MaterialTheme.typography.bodySmall,
+            color = if (uiState.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -71,6 +88,8 @@ fun PropertyItemView(
     }
 }
 
+private val SelectionBarWidth = 3.dp
+
 @Preview
 @Composable
 private fun PropertyItemViewPreview() {
@@ -81,6 +100,9 @@ private fun PropertyItemViewPreview() {
                 type = "kotlin/Int",
                 eventCount = 10,
                 isSelected = false,
+                latestValue = "42",
+                isInherited = false,
+                debuggable = true,
             ),
             onClick = {},
         )
