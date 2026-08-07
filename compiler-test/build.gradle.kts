@@ -44,11 +44,10 @@ kotlin {
         }
     }
 
-    sourceSets.configureEach {
-        languageSettings.enableLanguageFeature("ExplicitBackingFields")
-    }
-
     compilerOptions {
+        // Kotlin 2.4 turned `languageSettings.enableLanguageFeature` into an error; the feature now
+        // has a dedicated compiler flag.
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
         freeCompilerArgs.addAll("-P", "plugin:com.kitakkun.backintime.compiler:config=$projectDir/backintime-default-config.yaml")
     }
 }

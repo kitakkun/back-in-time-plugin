@@ -44,7 +44,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
         backInTimeDebuggableInterfaceClassSymbol
             .processAllDeclarations(session) {
-                if (it is FirPropertySymbol && it.callableId.callableName == callableId.callableName) {
+                if (it is FirPropertySymbol && it.name == callableId.callableName) {
                     originalDeclaration = it
                     return@processAllDeclarations
                 }
@@ -76,7 +76,7 @@ class BackInTimeFirDeclarationGenerationExtension(session: FirSession) : FirDecl
 
         backInTimeDebuggableInterfaceClassSymbol
             .processAllDeclarations(session) {
-                if (it is FirNamedFunctionSymbol && it.callableId.callableName == callableId.callableName) {
+                if (it is FirNamedFunctionSymbol && it.name == callableId.callableName) {
                     originalDeclaration = it
                     return@processAllDeclarations
                 }

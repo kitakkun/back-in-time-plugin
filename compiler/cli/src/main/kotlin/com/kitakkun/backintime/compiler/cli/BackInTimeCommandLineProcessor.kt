@@ -11,13 +11,14 @@ import org.jetbrains.kotlin.config.CompilerConfigurationKey
 @OptIn(ExperimentalCompilerApi::class)
 class BackInTimeCommandLineProcessor : CommandLineProcessor {
     companion object {
+        const val PLUGIN_ID = "com.kitakkun.backintime.compiler"
         private const val KEY_ENABLED = "enabled"
         private const val KEY_CONFIG_FILE = "config"
         val CONFIG_KEY_ENABLED = CompilerConfigurationKey.create<Boolean>(KEY_ENABLED)
         val CONFIG_KEY_CONFIG_FILE = CompilerConfigurationKey.create<String>(KEY_CONFIG_FILE)
     }
 
-    override val pluginId: String = "com.kitakkun.backintime.compiler"
+    override val pluginId: String = PLUGIN_ID
     override val pluginOptions: Collection<AbstractCliOption> = listOf(
         CliOption(
             optionName = KEY_ENABLED,
