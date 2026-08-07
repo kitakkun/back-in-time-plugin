@@ -1,7 +1,7 @@
 package com.kitakkun.backintime.tooling.model
 
-import kotlinx.serialization.Serializable
 import java.util.UUID
+import kotlinx.serialization.Serializable
 
 /**
  * Database entity types the debugger UI reads, written from the messages exchanged with the agent

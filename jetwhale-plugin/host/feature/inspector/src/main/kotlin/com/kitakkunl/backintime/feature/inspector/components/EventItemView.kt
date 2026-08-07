@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,11 +56,16 @@ sealed interface EventItemUiState {
         )
     }
 
+    /**
+     * A method call that changed nothing is a step you can skip past, so it is drawn muted; one
+     * that did change state is what the timeline is for, and gets the accent.
+     */
+    @get:Composable
     val color: Color
         get() = when (this) {
-            is MethodInvocation -> if (stateChanges.isEmpty()) Color.Gray else Color.Red
-            is Register -> Color.White
-            is Unregister -> Color.Gray
+            is MethodInvocation -> if (stateChanges.isEmpty()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
+            is Register -> MaterialTheme.colorScheme.tertiary
+            is Unregister -> MaterialTheme.colorScheme.outline
         }
 
     val label: String
@@ -82,16 +88,11 @@ fun EventItemView(
         modifier = modifier
             .animateContentSize()
             .clickable(onClick = onClick)
-            .then(
-                if (uiState.selected) {
-                    Modifier.background(
-                        color = Color.White.copy(alpha = 0.2f),
-                    )
-                } else {
-                    Modifier
-                }
+            .background(
+                if (uiState.selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                else Color.Transparent
             )
-            .padding(horizontal = 2.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -105,7 +106,9 @@ fun EventItemView(
         )
         Text(
             text = uiState.label,
-            modifier = Modifier.wrapContentWidth(unbounded = true)
+            style = MaterialTheme.typography.labelMedium,
+            color = if (uiState.selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.wrapContentWidth(unbounded = true),
         )
         if (uiState.expandedDetails) {
             EventDetailView(uiState)

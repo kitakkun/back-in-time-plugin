@@ -5,13 +5,13 @@ import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.driver.jdbc.sqlite.JdbcSqliteDriver
 import com.kitakkun.backintime.tooling.core.shared.BackInTimeDatabase
 import com.kitakkun.backintime.tooling.model.EventEntity
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import java.io.File
 
 class BackInTimeDatabaseImpl private constructor() : BackInTimeDatabase {
     companion object {

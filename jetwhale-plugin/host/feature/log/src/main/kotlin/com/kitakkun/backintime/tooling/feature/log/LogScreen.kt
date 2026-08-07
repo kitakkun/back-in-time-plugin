@@ -1,16 +1,18 @@
 package com.kitakkun.backintime.tooling.feature.log
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.tooling.core.ui.component.EmptyState
 import com.kitakkun.backintime.tooling.core.ui.component.JsonView
+import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
@@ -68,15 +70,25 @@ fun LogScreen(
             )
         }
         second(minSize = 200.dp) {
-            uiState.selectedEvent?.let {
+            val selected = uiState.selectedEvent
+            if (selected == null) {
+                EmptyState(text = "Select a row to see the full event.")
+            } else {
                 JsonView(
-                    jsonString = Json.encodeToString(it),
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    jsonString = prettyJson.encodeToString(selected),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
                 )
-            } ?: Text("No event selected.")
+            }
         }
+        verticalSplitter()
     }
 }
+
+/** The detail pane is the one place the whole payload is meant to be read, so it is indented. */
+private val prettyJson = Json { prettyPrint = true }
 
 @Preview
 @Composable

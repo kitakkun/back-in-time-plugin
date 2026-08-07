@@ -24,6 +24,7 @@ import com.kitakkun.jetwhale.plugins.backintime.protocol.RelationshipRegistered
 import com.kitakkun.jetwhale.protocol.messaging.JetWhaleMessageHandlers
 import com.kitakkun.jetwhale.protocol.messaging.JetWhaleMessagingException
 import com.kitakkun.jetwhale.protocol.messaging.request
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 /**
  * The back-in-time debugger as a JetWhale host plugin.

@@ -1,13 +1,10 @@
 package com.kitakkunl.backintime.feature.inspector.section
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.tooling.core.ui.component.EmptyState
+import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.EventSequenceView
@@ -26,27 +23,28 @@ fun HistorySection(
     onPerformBackInTime: (event: EventItemUiState) -> Unit,
 ) {
     VerticalSplitPane {
-        first(minSize = 200.dp) {
-            uiState?.let {
+        first(minSize = 160.dp) {
+            if (uiState == null) {
+                EmptyState(text = "Select an instance to see what happened to it.")
+            } else {
                 EventSequenceView(
-                    items = it.events,
+                    items = uiState.events,
                     onClickEvent = onClickEvent,
                 )
-            } ?: Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(text = "No instance is selected. No histories to show.")
             }
         }
-        second(minSize = 50.dp) {
-            uiState?.selectedEventData?.let {
+        second(minSize = 120.dp) {
+            val selected = uiState?.selectedEventData
+            if (selected == null) {
+                EmptyState(text = "Select an event to see its details.")
+            } else {
                 SelectedEventDetailView(
-                    selectedEvent = it,
-                    onPerformBackInTime = { onPerformBackInTime(it) }
+                    selectedEvent = selected,
+                    onPerformBackInTime = { onPerformBackInTime(selected) },
                 )
             }
         }
+        verticalSplitter()
     }
 }
 

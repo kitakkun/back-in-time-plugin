@@ -3,7 +3,13 @@ package com.kitakkunl.backintime.feature.inspector.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.tooling.core.ui.component.SectionLabel
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 
 @Composable
@@ -34,16 +41,25 @@ fun SelectedEventDetailView(
         )
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         Column(
-            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
         ) {
+            SectionLabel(text = "EVENT")
             KeyValueRow(
-                key = "eventId:",
+                key = "eventId",
                 value = selectedEvent.id,
             )
             KeyValueRow(
-                key = "time:",
+                key = "time",
                 value = selectedEvent.time.toString(),
             )
             when (selectedEvent) {
@@ -63,7 +79,7 @@ fun SelectedEventDetailView(
             ) {
                 Text(text = "Back-in-time to this point")
             }
-            Button(onClick = {}) {
+            OutlinedButton(onClick = {}) {
                 Text(text = "Edit and emit")
             }
         }
@@ -74,13 +90,21 @@ fun SelectedEventDetailView(
 private fun MethodInvocationDetailsView(
     event: EventItemUiState.MethodInvocation,
 ) {
-    Column {
-        Text("Updated Values")
-        event.stateChanges.forEach {
-            KeyValueRow(
-                key = it.signature.asString(),
-                value = it.stateUpdates.joinToString(", "),
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        SectionLabel(text = "UPDATED VALUES")
+        if (event.stateChanges.isEmpty()) {
+            Text(
+                text = "This call changed no debuggable state.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        } else {
+            event.stateChanges.forEach {
+                KeyValueRow(
+                    key = it.signature.propertyName,
+                    value = it.stateUpdates.joinToString(", "),
+                )
+            }
         }
     }
 }

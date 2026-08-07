@@ -3,6 +3,8 @@ package com.kitakkun.backintime.feature.settings.component
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,4 +23,20 @@ fun SettingsItemRow(
         label()
         settingComponent()
     }
+}
+
+/**
+ * The name of a single setting. Kept a step down from the section heading so a settings page reads
+ * as a list of small choices rather than a stack of titles.
+ */
+@Composable
+fun SettingLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = modifier,
+    )
 }

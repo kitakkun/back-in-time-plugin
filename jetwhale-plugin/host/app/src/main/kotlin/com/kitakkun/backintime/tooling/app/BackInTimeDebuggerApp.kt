@@ -3,7 +3,9 @@ package com.kitakkun.backintime.tooling.app
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,23 +59,37 @@ private fun BackInTimeDebuggerApp() {
     val pluginStateService = LocalPluginStateService.current
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
-    Column(
-        modifier = Modifier.fillMaxSize()
+    // The plugin is drawn straight onto the host's scene, which paints no background of its own;
+    // without a Surface the panes sit on whatever is behind them.
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxSize(),
     ) {
-        PrimaryTabRow(pluginState.globalState.activeTab.ordinal) {
-            BackInTimeTab.entries.forEach {
-                Tab(
-                    selected = it == pluginState.globalState.activeTab,
-                    text = { Text(it.name) },
-                    onClick = { pluginStateService.updateTab(it) }
-                )
+        Column(modifier = Modifier.fillMaxSize()) {
+            PrimaryTabRow(
+                selectedTabIndex = pluginState.globalState.activeTab.ordinal,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                divider = {},
+            ) {
+                BackInTimeTab.entries.forEach { tab ->
+                    Tab(
+                        selected = tab == pluginState.globalState.activeTab,
+                        text = {
+                            Text(
+                                text = tab.name,
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        },
+                        onClick = { pluginStateService.updateTab(tab) },
+                    )
+                }
             }
-        }
-        HorizontalDivider()
-        when (pluginState.globalState.activeTab) {
-            BackInTimeTab.Inspector -> InspectorScreen()
-            BackInTimeTab.Log -> LogScreen()
-            BackInTimeTab.Settings -> SettingsScreen()
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            when (pluginState.globalState.activeTab) {
+                BackInTimeTab.Inspector -> InspectorScreen()
+                BackInTimeTab.Log -> LogScreen()
+                BackInTimeTab.Settings -> SettingsScreen()
+            }
         }
     }
 }

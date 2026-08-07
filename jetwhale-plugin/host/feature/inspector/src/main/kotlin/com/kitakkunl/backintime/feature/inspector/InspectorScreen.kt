@@ -1,10 +1,14 @@
 package com.kitakkunl.backintime.feature.inspector
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kitakkun.backintime.tooling.core.ui.component.horizontalSplitter
+import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
@@ -93,19 +99,22 @@ fun InspectorScreen(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Show non-debuggable properties: "
-                )
-                Switch(
-                    checked = uiState.showNonDebuggableProperties,
-                    onCheckedChange = onToggleShowNonDebuggableProperties,
-                )
-            }
+            Text(
+                text = "Show non-debuggable properties",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Switch(
+                checked = uiState.showNonDebuggableProperties,
+                onCheckedChange = onToggleShowNonDebuggableProperties,
+            )
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         VerticalSplitPane(
             splitPaneState = verticalSplitLayoutState,
         ) {
@@ -113,22 +122,22 @@ fun InspectorScreen(
                 HorizontalSplitPane(
                     splitPaneState = horizontalSplitLayoutState,
                 ) {
-                    first(minSize = 200.dp) {
+                    first(minSize = 240.dp) {
                         InstanceListSection(
                             instances = uiState.instances,
+                            selectedInstanceId = uiState.selectedInstanceId,
                             onClickItem = onClickItem,
                             onClickProperty = onClickProperty,
                             onTogglePropertyVisibility = onTogglePropertyVisibility,
-                            modifier = Modifier.padding(8.dp),
                         )
                     }
-                    second(minSize = 200.dp) {
+                    second(minSize = 240.dp) {
                         PropertyInspectorSection(
                             uiState = uiState.selectedInstance,
                             propertySignature = uiState.selectedPropertySignature,
-                            modifier = Modifier.padding(8.dp),
                         )
                     }
+                    horizontalSplitter()
                 }
             }
             second(minSize = 200.dp) {
@@ -138,6 +147,7 @@ fun InspectorScreen(
                     onPerformBackInTime = { onPerformBackInTime(uiState.selectedInstanceId!!, it.id) }
                 )
             }
+            verticalSplitter()
         }
     }
 }

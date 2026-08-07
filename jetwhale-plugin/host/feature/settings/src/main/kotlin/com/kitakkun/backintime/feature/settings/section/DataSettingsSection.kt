@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.SettingsScreenUiState
 import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
+import com.kitakkun.backintime.feature.settings.component.SettingLabel
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 
@@ -31,7 +32,7 @@ fun DataBaseSettingsSection(
             icon = Icons.Default.Storage,
         )
         SettingsItemRow(
-            label = { Text("Status:") },
+            label = { SettingLabel(text = "Status") },
             settingComponent = {
                 Text(
                     text = when (status) {
@@ -42,7 +43,7 @@ fun DataBaseSettingsSection(
             }
         )
         SettingsItemRow(
-            label = { Text("Persist session data:") },
+            label = { SettingLabel(text = "Persist session data") },
             settingComponent = {
                 Switch(
                     checked = persistSessionData,

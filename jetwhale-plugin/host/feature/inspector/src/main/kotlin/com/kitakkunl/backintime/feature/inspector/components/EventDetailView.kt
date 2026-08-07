@@ -29,9 +29,9 @@ fun EventDetailView(
     BalloonView(
         position = TrianglePosition.Top,
         radius = 10.dp,
-        triangleSizeDp = 10.dp,
-        borderWidth = 4.dp,
-        modifier = Modifier.widthIn(max = 200.dp),
+        triangleSizeDp = 8.dp,
+        borderWidth = 1.dp,
+        modifier = Modifier.widthIn(max = 260.dp),
     ) {
         when (uiState) {
             is EventItemUiState.MethodInvocation -> {
@@ -56,18 +56,28 @@ private fun MethodInvocationDetailView(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Text(
             text = "${uiState.invokedMethodSignature.asString()}(...)",
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 2,
+            // The method name is the tail of the signature, so keep it and drop the package.
+            overflow = TextOverflow.MiddleEllipsis,
         )
         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)) {
             if (uiState.stateChanges.isEmpty()) {
-                Text("No state changes.")
+                Text(
+                    text = "No state changes.",
+                    style = MaterialTheme.typography.labelSmall,
+                )
             } else {
                 uiState.stateChanges.forEach {
                     Row {
-                        Text(text = it.signature.asString())
+                        Text(
+                            text = it.signature.propertyName,
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                         Spacer(
                             Modifier
                                 .widthIn(min = 20.dp)
@@ -75,6 +85,7 @@ private fun MethodInvocationDetailView(
                         )
                         Text(
                             text = it.stateUpdates.joinToString(),
+                            style = MaterialTheme.typography.labelSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

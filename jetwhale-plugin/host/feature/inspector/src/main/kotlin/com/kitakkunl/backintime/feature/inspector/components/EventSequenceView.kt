@@ -2,19 +2,21 @@ package com.kitakkunl.backintime.feature.inspector.components
 
 import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
 import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
@@ -26,13 +28,20 @@ fun EventSequenceView(
     modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
+    // Read outside drawBehind: a draw scope is not a composition and cannot resolve the theme.
+    val connectorColor = MaterialTheme.colorScheme.outline
 
     Box(
         modifier = modifier.fillMaxSize(),
     ) {
         LazyRow(
             state = lazyListState,
-            modifier = modifier.matchParentSize(),
+            // Items size to their content and hang from a common top edge, so every marker sits on
+            // one line while an expanded balloon is free to be as tall as it needs. Stretching them
+            // to the pane height instead is what used to cut the balloon off at the bottom.
+            verticalAlignment = Alignment.Top,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+            modifier = Modifier.matchParentSize(),
         ) {
             itemsIndexed(
                 items = items,
@@ -41,18 +50,19 @@ fun EventSequenceView(
                     uiState = item,
                     onClick = { onClickEvent(item) },
                     modifier = Modifier
-                        .fillParentMaxHeight()
                         .drawBehind {
                             if (index != 0) {
                                 this.drawLine(
-                                    color = Color.Red,
+                                    color = connectorColor,
+                                    strokeWidth = ConnectorStrokeWidth.toPx(),
                                     start = Offset(0f, EventCircleIndicatorSize.toPx() / 2),
                                     end = Offset(size.width / 2, EventCircleIndicatorSize.toPx() / 2),
                                 )
                             }
                             if (index != items.size - 1) {
                                 this.drawLine(
-                                    color = Color.Red,
+                                    color = connectorColor,
+                                    strokeWidth = ConnectorStrokeWidth.toPx(),
                                     start = Offset(size.width / 2, EventCircleIndicatorSize.toPx() / 2),
                                     end = Offset(size.width, EventCircleIndicatorSize.toPx() / 2),
                                 )
@@ -69,6 +79,8 @@ fun EventSequenceView(
         )
     }
 }
+
+private val ConnectorStrokeWidth = 2.dp
 
 @Preview
 @Composable
