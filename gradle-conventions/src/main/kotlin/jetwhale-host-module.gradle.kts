@@ -3,11 +3,6 @@ import util.libs
 
 /**
  * Base convention for the JVM modules that make up the JetWhale host plugin.
- *
- * JetWhale is published with a newer Kotlin than this repository builds with (the host targets
- * Kotlin 2.3+ consumers), so reading its metadata needs the escape hatch documented in JetWhale's
- * getting-started guide. It is scoped to these modules only — nothing else in the build compiles
- * against JetWhale artifacts.
  */
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -15,10 +10,6 @@ plugins {
 
 configure<KotlinJvmProjectExtension> {
     jvmToolchain(17)
-
-    compilerOptions {
-        freeCompilerArgs.add("-Xskip-metadata-version-check")
-    }
 }
 
 dependencies {

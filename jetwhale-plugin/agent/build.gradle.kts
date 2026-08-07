@@ -8,18 +8,12 @@ plugins {
 kotlin {
     jvmToolchain(17)
 
-    // JVM-based targets only. JetWhale's Kotlin/Native klibs are built with Kotlin 2.4 (klib
-    // abi_version 2.4.0), which the 2.2 Kotlin/Native compiler this repository uses cannot read --
-    // and klib ABI has no equivalent of -Xskip-metadata-version-check. The iOS targets of
-    // :core:runtime are unaffected; only this JetWhale bridge is restricted.
     jvm()
     androidTarget { publishAllLibraryVariants() }
 
-    // JetWhale is published with a newer Kotlin than this repository builds with; see
-    // jetwhale-host-module.gradle.kts for the rationale.
-    compilerOptions {
-        freeCompilerArgs.add("-Xskip-metadata-version-check")
-    }
+    // JetWhale publishes no iosX64 klib, so this module cannot offer that target either.
+    iosArm64()
+    iosSimulatorArm64()
 
     sourceSets {
         commonMain.dependencies {
