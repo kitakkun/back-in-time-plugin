@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kitakkun/JetWhale/main/schemas/plugin-manifest.schema.json",
+  "plugins": [
+    {
+      "pluginId": "com.kitakkun.jetwhale.plugins.backintime",
+      "pluginName": "Back-in-Time",
+      "version": "1.0.0",
+      "factoryClass": "com.kitakkun.jetwhale.plugins.backintime.host.BackInTimeHostPluginFactory",
+      "agentVersionRange": {
+        "min": "1.0.0",
+        "max": "1.0.0"
+      }
+    }
+  ]
+}

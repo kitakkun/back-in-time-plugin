@@ -46,6 +46,13 @@ gradle-testkit-truth = "1.6.1"
 
 kotlinxIo = "0.8.0"
 
+# JetWhale host/agent SDK, and the Compose versions the targeted host release ships at runtime.
+# The host loads the plugin jar into its own runtime, so the plugin must compile against exactly
+# those Compose artifacts rather than the (older) ones the IntelliJ tooling modules use.
+jetwhale = "1.0.0-alpha11"
+jetwhaleCompose = "1.11.1"
+jetwhaleMaterial3 = "1.11.0-alpha07"
+
 [libraries]
 ktlint-gradle = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlint-gradle" }
 jetbrains-compose-gradle-plugin = { module = "org.jetbrains.compose:org.jetbrains.compose.gradle.plugin", version.ref = "jetbrainsCompose" }
@@ -114,6 +121,24 @@ gradle-testkit-truth = { module = "com.autonomousapps:gradle-testkit-truth", ver
 
 kotlinxIoCore = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIo" }
 
+# jetwhale
+jetwhaleAgentSdk = { module = "com.kitakkun.jetwhale:jetwhale-agent-sdk", version.ref = "jetwhale" }
+jetwhaleHostSdk = { module = "com.kitakkun.jetwhale:jetwhale-host-sdk", version.ref = "jetwhale" }
+jetwhaleProtocolCore = { module = "com.kitakkun.jetwhale:jetwhale-protocol-core", version.ref = "jetwhale" }
+
+# Compose artifacts the JetWhale host provides at runtime. Declared compileOnly by the plugin
+# modules so they are never bundled into the plugin jar.
+jetwhaleComposeRuntime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "jetwhaleCompose" }
+jetwhaleComposeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "jetwhaleCompose" }
+jetwhaleComposeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "jetwhaleCompose" }
+jetwhaleComposeDesktop = { module = "org.jetbrains.compose.desktop:desktop", version.ref = "jetwhaleCompose" }
+jetwhaleComposeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "jetwhaleMaterial3" }
+jetwhaleComposeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "jetwhaleCompose" }
+# Bundled into the host application, pinned there to 1.7.3 rather than tracking the Compose version.
+jetwhaleComposeMaterialIconsExtended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+# NOT provided by the host, so this one is bundled into the plugin jar (see the host feature modules).
+jetwhaleComposeSplitPane = { module = "org.jetbrains.compose.components:components-splitpane", version.ref = "jetwhaleCompose" }
+
 [plugins]
 # convention
 backintimeLint = { id = "backintime-lint" }
@@ -122,6 +147,9 @@ backintimeCompilerModule = { id = "backintime-compiler-module" }
 intelliJComposeFeature = { id = "intellij-compose-feature" }
 intelliJCommon = { id = "intellij-common" }
 intelliJJewel = { id = "intellij-jewel" }
+jetwhaleHost = { id = "com.kitakkun.jetwhale.host", version.ref = "jetwhale" }
+jetwhaleHostModule = { id = "jetwhale-host-module" }
+jetwhaleHostComposeModule = { id = "jetwhale-host-compose-module" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-gradle" }
 
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

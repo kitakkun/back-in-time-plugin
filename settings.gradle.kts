@@ -54,3 +54,18 @@ include(
     ":tooling:feature:log",
     ":tooling:standalone",
 )
+
+include(
+    ":jetwhale-plugin:agent",
+    ":jetwhale-plugin:host:app",
+    ":jetwhale-plugin:host:plugin",
+    ":jetwhale-plugin:host:core:database",
+    ":jetwhale-plugin:host:core:model",
+    ":jetwhale-plugin:host:core:shared",
+    ":jetwhale-plugin:host:core:ui",
+    ":jetwhale-plugin:host:core:usecase",
+    ":jetwhale-plugin:host:feature:inspector",
+    ":jetwhale-plugin:host:feature:log",
+    ":jetwhale-plugin:host:feature:settings",
+    ":jetwhale-plugin:protocol",
+)
