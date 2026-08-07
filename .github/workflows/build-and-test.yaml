@@ -11,10 +11,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup JDK 17
+      - name: Set up JDKs
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          # 21 runs the Gradle daemon: the JetWhale host Gradle plugin is published for JVM 21, and
+          # the buildscript classpath is resolved against the daemon's JVM. 17 is installed
+          # alongside it because that is what every module's toolchain still targets.
+          java-version: |
+            17
+            21
           distribution: 'adopt'
 
       - id: cache-key
@@ -51,10 +56,15 @@ jobs:
           key: ${{ runner.os }}-gradle-build-${{ github.workflow }}-${{ steps.cache-key.outputs.week }}-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle-build-${{ github.workflow }}-${{ steps.cache-key.outputs.week }}
 
-      - name: Set up JDK 17
+      - name: Set up JDKs
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          # 21 runs the Gradle daemon: the JetWhale host Gradle plugin is published for JVM 21, and
+          # the buildscript classpath is resolved against the daemon's JVM. 17 is installed
+          # alongside it because that is what every module's toolchain still targets.
+          java-version: |
+            17
+            21
           distribution: 'adopt'
 
       - name: Publish to MavenLocal
