@@ -1,19 +1,19 @@
 package com.kitakkunl.backintime.feature.inspector.section
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.tooling.core.ui.component.EmptyState
-import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwEmptyState
+import com.kitakkun.jetwhale.host.ui.JwSplitPane
+import com.kitakkun.jetwhale.host.ui.rememberJwSplitPaneState
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.EventSequenceView
 import com.kitakkunl.backintime.feature.inspector.components.SelectedEventDetailView
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.jetbrains.compose.splitpane.VerticalSplitPane
-import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 data class HistorySectionUiState(
     val events: List<EventItemUiState>,
@@ -28,38 +28,41 @@ fun HistorySection(
     onClickEvent: (event: EventItemUiState) -> Unit,
     onPerformBackInTime: (event: EventItemUiState) -> Unit,
 ) {
-    val splitPaneState = rememberSplitPaneState(dividerPosition)
+    val splitPaneState = rememberJwSplitPaneState(dividerPosition)
 
     LaunchedEffect(splitPaneState) {
-        snapshotFlow { splitPaneState.positionPercentage }
+        snapshotFlow { splitPaneState.fraction }
             .distinctUntilChanged()
             .collect(onUpdateDividerPosition)
     }
 
-    VerticalSplitPane(splitPaneState = splitPaneState) {
-        first(minSize = 160.dp) {
+    JwSplitPane(
+        orientation = Orientation.Vertical,
+        state = splitPaneState,
+        firstMinSize = 160.dp,
+        secondMinSize = 120.dp,
+        first = {
             if (uiState == null) {
-                EmptyState(text = "Select an instance to see what happened to it.")
+                JwEmptyState(title = "Select an instance to see what happened to it.")
             } else {
                 EventSequenceView(
                     items = uiState.events,
                     onClickEvent = onClickEvent,
                 )
             }
-        }
-        second(minSize = 120.dp) {
+        },
+        second = {
             val selected = uiState?.selectedEventData
             if (selected == null) {
-                EmptyState(text = "Select an event to see its details.")
+                JwEmptyState(title = "Select an event to see its details.")
             } else {
                 SelectedEventDetailView(
                     selectedEvent = selected,
                     onPerformBackInTime = { onPerformBackInTime(selected) },
                 )
             }
-        }
-        verticalSplitter()
-    }
+        },
+    )
 }
 
 @Preview

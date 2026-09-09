@@ -1,10 +1,10 @@
 package com.kitakkun.backintime.feature.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.component.RestartDatabaseInMemoryConfirmationDialog
 import com.kitakkun.backintime.feature.settings.component.RestartDatabaseWithFileConfirmationDialog
 import com.kitakkun.backintime.feature.settings.section.DataBaseSettingsSection
@@ -20,6 +19,9 @@ import com.kitakkun.backintime.feature.settings.section.InspectorSettingsSection
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwHorizontalDivider
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwTheme
 
 @Composable
 fun SettingsScreen(
@@ -89,14 +91,18 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            // The pane is a plain column of rows rather than a component that paints its own
+            // ground, so it fills the ground itself -- the host does not paint behind the scene
+            // an MCP capture renders.
+            .background(JwTheme.colors.surface)
+            .padding(JwSpacing.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(JwSpacing.extraLarge),
     ) {
         InspectorSettingsSection(
             showNonDebuggableProperties = uiState.showNonDebuggableProperties,
             onToggleShowNonDebuggableProperties = onToggleShowNonDebuggableProperties,
         )
-        HorizontalDivider()
+        JwHorizontalDivider()
         DataBaseSettingsSection(
             status = uiState.databaseStatus,
             persistSessionData = uiState.persistSessionData,

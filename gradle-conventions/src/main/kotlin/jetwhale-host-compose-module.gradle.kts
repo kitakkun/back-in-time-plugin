@@ -19,13 +19,14 @@ dependencies {
         "jetwhaleComposeFoundation",
         "jetwhaleComposeUi",
         "jetwhaleComposeDesktop",
-        "jetwhaleComposeMaterial3",
         // @Preview only matters to the IDE; an absent annotation class is ignored by the JVM.
         "jetwhaleComposeUiToolingPreview",
         // Bundling this would add ~37 MB to the plugin jar. The host application ships it, and the
         // plugin classloader delegates to the host's classpath first, so compileOnly is enough --
         // at the cost of a dependency on the host continuing to bundle it.
         "jetwhaleComposeMaterialIconsExtended",
+        // JwTheme and the Jw* components -- the library the host's own screens are built from.
+        "jetwhaleHostUi",
     ).forEach { alias ->
         "compileOnly"(libs.findLibrary(alias).get())
         // The Compose compiler plugin refuses to run without the runtime on the compile classpath,

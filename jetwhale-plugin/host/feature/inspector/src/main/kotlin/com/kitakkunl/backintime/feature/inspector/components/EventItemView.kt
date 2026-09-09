@@ -1,6 +1,5 @@
 package com.kitakkunl.backintime.feature.inspector.components
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,44 +8,43 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwShapes
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwText
+import com.kitakkun.jetwhale.host.ui.JwTheme
+import com.kitakkun.jetwhale.host.ui.JwTone
 import com.kitakkunl.backintime.feature.inspector.model.Signature
 
 sealed interface EventItemUiState {
     val id: String
     val selected: Boolean
-    val expandedDetails: Boolean
     val time: Long
 
     data class Register(
         override val id: String,
         override val selected: Boolean,
-        override val expandedDetails: Boolean,
         override val time: Long,
     ) : EventItemUiState
 
     data class Unregister(
         override val id: String,
         override val selected: Boolean,
-        override val expandedDetails: Boolean,
         override val time: Long,
     ) : EventItemUiState
 
     data class MethodInvocation(
         override val id: String,
         override val selected: Boolean,
-        override val expandedDetails: Boolean,
         override val time: Long,
         val invokedMethodSignature: Signature.Function,
         val stateChanges: List<UpdatedProperty>,
@@ -64,9 +62,10 @@ sealed interface EventItemUiState {
     @get:Composable
     val color: Color
         get() = when (this) {
-            is MethodInvocation -> if (stateChanges.isEmpty()) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.primary
-            is Register -> MaterialTheme.colorScheme.tertiary
-            is Unregister -> MaterialTheme.colorScheme.outline
+            is MethodInvocation -> if (stateChanges.isEmpty()) JwTheme.colors.controlBorder else JwTheme.colors.accent
+            // The two ends of an instance's life, in the tones the host uses for exactly that.
+            is Register -> JwTone.Success.color
+            is Unregister -> JwTheme.colors.textSecondary
         }
 
     val label: String
@@ -79,6 +78,14 @@ sealed interface EventItemUiState {
 
 val EventCircleIndicatorSize = 8.dp
 
+/**
+ * Width of one event on the timeline.
+ *
+ * Fixed rather than content-sized: the markers then sit at an even pitch, which is what makes the
+ * row read as a timeline, and a label can never grow wide enough to overlap its neighbours.
+ */
+private val EventItemWidth = 108.dp
+
 @Composable
 fun EventItemView(
     uiState: EventItemUiState,
@@ -87,13 +94,13 @@ fun EventItemView(
 ) {
     Column(
         modifier = modifier
-            .animateContentSize()
+            .width(EventItemWidth)
             .clickable(onClick = onClick),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(JwSpacing.medium),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // The marker sits on the timeline that is drawn behind this item, so it stays outside the
-        // selection highlight — a highlight painted over the whole item covers the connecting line
+        // selection highlight -- a highlight painted over the whole item covers the connecting line
         // and breaks the timeline it is meant to point at.
         Box(
             modifier = Modifier
@@ -103,26 +110,19 @@ fun EventItemView(
                 )
                 .size(EventCircleIndicatorSize),
         )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        JwText(
+            text = uiState.label,
+            style = JwTheme.textStyles.label,
+            color = if (uiState.selected) JwTheme.colors.onSelection else JwTheme.colors.textSecondary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .background(
-                    color = if (uiState.selected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else Color.Transparent,
-                    shape = RoundedCornerShape(6.dp),
+                    color = if (uiState.selected) JwTheme.colors.selection else Color.Transparent,
+                    shape = JwShapes.medium,
                 )
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-        ) {
-            Text(
-                text = uiState.label,
-                style = MaterialTheme.typography.labelMedium,
-                color = if (uiState.selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.wrapContentWidth(unbounded = true),
-            )
-            if (uiState.expandedDetails) {
-                EventDetailView(uiState)
-            }
-        }
+                .padding(horizontal = JwSpacing.medium, vertical = JwSpacing.tiny),
+        )
     }
 }
 
@@ -134,7 +134,6 @@ fun EventItemViewPreview() {
             uiState = EventItemUiState.Register(
                 id = "",
                 selected = false,
-                expandedDetails = false,
                 time = 0,
             ),
             modifier = Modifier.height(100.dp),

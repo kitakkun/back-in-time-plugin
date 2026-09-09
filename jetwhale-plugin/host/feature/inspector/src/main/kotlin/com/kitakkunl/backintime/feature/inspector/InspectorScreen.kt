@@ -1,28 +1,23 @@
 package com.kitakkunl.backintime.feature.inspector
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.tooling.core.ui.component.horizontalSplitter
-import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwSplitPane
+import com.kitakkun.jetwhale.host.ui.JwSwitch
+import com.kitakkun.jetwhale.host.ui.JwText
+import com.kitakkun.jetwhale.host.ui.JwTheme
+import com.kitakkun.jetwhale.host.ui.JwToolbar
+import com.kitakkun.jetwhale.host.ui.rememberJwSplitPaneState
 import com.kitakkunl.backintime.feature.inspector.components.EventItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
@@ -32,9 +27,6 @@ import com.kitakkunl.backintime.feature.inspector.section.HistorySectionUiState
 import com.kitakkunl.backintime.feature.inspector.section.InstanceListSection
 import com.kitakkunl.backintime.feature.inspector.section.PropertyInspectorSection
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.jetbrains.compose.splitpane.HorizontalSplitPane
-import org.jetbrains.compose.splitpane.VerticalSplitPane
-import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun InspectorScreen(
@@ -81,51 +73,51 @@ fun InspectorScreen(
     onPerformBackInTime: (instanceId: String, eventId: String) -> Unit,
     onToggleShowNonDebuggableProperties: (Boolean) -> Unit,
 ) {
-    val verticalSplitLayoutState = rememberSplitPaneState(uiState.verticalDividerPosition)
-    val horizontalSplitLayoutState = rememberSplitPaneState(uiState.horizontalDividerPosition)
+    val verticalSplitLayoutState = rememberJwSplitPaneState(uiState.verticalDividerPosition)
+    val horizontalSplitLayoutState = rememberJwSplitPaneState(uiState.horizontalDividerPosition)
 
     LaunchedEffect(verticalSplitLayoutState) {
-        snapshotFlow { verticalSplitLayoutState.positionPercentage }
+        snapshotFlow { verticalSplitLayoutState.fraction }
             .distinctUntilChanged()
             .collect(onUpdateVerticalSplitDividerPosition)
     }
 
     LaunchedEffect(horizontalSplitLayoutState) {
-        snapshotFlow { horizontalSplitLayoutState.positionPercentage }
+        snapshotFlow { horizontalSplitLayoutState.fraction }
             .distinctUntilChanged()
             .collect(onUpdateHorizontalSplitDividerPosition)
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerLow)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-        ) {
-            Text(
-                text = "Show non-debuggable properties",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Switch(
-                checked = uiState.showNonDebuggableProperties,
-                onCheckedChange = onToggleShowNonDebuggableProperties,
-            )
-        }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        VerticalSplitPane(
-            splitPaneState = verticalSplitLayoutState,
-        ) {
-            first(minSize = 200.dp) {
-                HorizontalSplitPane(
-                    splitPaneState = horizontalSplitLayoutState,
-                ) {
-                    first(minSize = 240.dp) {
+        // The pane's one global control sits in the toolbar, where the host puts a pane's controls.
+        JwToolbar(
+            actions = {
+                JwText(
+                    text = "Show non-debuggable properties",
+                    style = JwTheme.textStyles.label,
+                    color = JwTheme.colors.textSecondary,
+                )
+                JwSwitch(
+                    checked = uiState.showNonDebuggableProperties,
+                    onCheckedChange = onToggleShowNonDebuggableProperties,
+                    contentDescription = "Show non-debuggable properties",
+                )
+            },
+        )
+        JwSplitPane(
+            orientation = Orientation.Vertical,
+            state = verticalSplitLayoutState,
+            firstMinSize = 200.dp,
+            secondMinSize = 200.dp,
+            first = {
+                JwSplitPane(
+                    orientation = Orientation.Horizontal,
+                    state = horizontalSplitLayoutState,
+                    firstMinSize = 240.dp,
+                    secondMinSize = 240.dp,
+                    first = {
                         InstanceListSection(
                             instances = uiState.instances,
                             selectedInstanceId = uiState.selectedInstanceId,
@@ -133,27 +125,25 @@ fun InspectorScreen(
                             onClickProperty = onClickProperty,
                             onTogglePropertyVisibility = onTogglePropertyVisibility,
                         )
-                    }
-                    second(minSize = 240.dp) {
+                    },
+                    second = {
                         PropertyInspectorSection(
                             uiState = uiState.selectedInstance,
                             propertySignature = uiState.selectedPropertySignature,
                         )
-                    }
-                    horizontalSplitter()
-                }
-            }
-            second(minSize = 200.dp) {
+                    },
+                )
+            },
+            second = {
                 HistorySection(
                     uiState = uiState.history,
                     dividerPosition = uiState.historyDividerPosition,
                     onUpdateDividerPosition = onUpdateHistorySplitDividerPosition,
                     onClickEvent = onClickEvent,
-                    onPerformBackInTime = { onPerformBackInTime(uiState.selectedInstanceId!!, it.id) }
+                    onPerformBackInTime = { onPerformBackInTime(uiState.selectedInstanceId!!, it.id) },
                 )
-            }
-            verticalSplitter()
-        }
+            },
+        )
     }
 }
 

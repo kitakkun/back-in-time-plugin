@@ -1,5 +1,6 @@
 package com.kitakkunl.backintime.feature.inspector.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,10 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,9 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.tooling.core.ui.component.SectionLabel
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwButton
+import com.kitakkun.jetwhale.host.ui.JwButtonStyle
+import com.kitakkun.jetwhale.host.ui.JwKeyValueRow
+import com.kitakkun.jetwhale.host.ui.JwSectionHeader
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwText
+import com.kitakkun.jetwhale.host.ui.JwTheme
 
 @Composable
 fun SelectedEventDetailView(
@@ -44,23 +46,27 @@ fun SelectedEventDetailView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+            .background(JwTheme.colors.surface)
+            .padding(JwSpacing.extraLarge),
+        verticalArrangement = Arrangement.spacedBy(JwSpacing.large),
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(JwSpacing.small),
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState()),
         ) {
-            SectionLabel(text = "EVENT")
-            KeyValueRow(
+            JwSectionHeader(title = "Event")
+            JwKeyValueRow(
                 key = "eventId",
                 value = selectedEvent.id,
+                monospace = true,
+                wrap = false,
             )
-            KeyValueRow(
+            JwKeyValueRow(
                 key = "time",
                 value = selectedEvent.time.toString(),
+                monospace = true,
             )
             when (selectedEvent) {
                 is EventItemUiState.MethodInvocation -> MethodInvocationDetailsView(selectedEvent)
@@ -72,16 +78,14 @@ fun SelectedEventDetailView(
         }
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(JwSpacing.medium),
         ) {
-            Button(
+            JwButton(
+                text = "Back-in-time to this point",
                 onClick = { showConfirmationDialog = true },
-            ) {
-                Text(text = "Back-in-time to this point")
-            }
-            OutlinedButton(onClick = {}) {
-                Text(text = "Edit and emit")
-            }
+                style = JwButtonStyle.Primary,
+            )
+            JwButton(text = "Edit and emit", onClick = {})
         }
     }
 }
@@ -90,19 +94,20 @@ fun SelectedEventDetailView(
 private fun MethodInvocationDetailsView(
     event: EventItemUiState.MethodInvocation,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        SectionLabel(text = "UPDATED VALUES")
+    Column(verticalArrangement = Arrangement.spacedBy(JwSpacing.small)) {
+        JwSectionHeader(title = "Updated values")
         if (event.stateChanges.isEmpty()) {
-            Text(
+            JwText(
                 text = "This call changed no debuggable state.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = JwTheme.textStyles.bodySmall,
+                color = JwTheme.colors.textSecondary,
             )
         } else {
             event.stateChanges.forEach {
-                KeyValueRow(
+                JwKeyValueRow(
                     key = it.signature.propertyName,
                     value = it.stateUpdates.joinToString(", "),
+                    monospace = true,
                 )
             }
         }
@@ -121,7 +126,6 @@ private fun SelectedEventDetailViewPreview() {
             selectedEvent = EventItemUiState.Register(
                 id = "",
                 selected = false,
-                expandedDetails = false,
                 time = 0,
             ),
             onPerformBackInTime = {},

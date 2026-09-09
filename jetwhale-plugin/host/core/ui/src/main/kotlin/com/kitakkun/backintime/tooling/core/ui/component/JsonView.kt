@@ -1,7 +1,5 @@
 package com.kitakkun.backintime.tooling.core.ui.component
 
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -12,6 +10,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwCodeBlock
+import com.kitakkun.jetwhale.host.ui.JwTheme
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -20,15 +20,25 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 
+/**
+ * A JSON document, syntax-coloured, in the host's code block.
+ *
+ * [JwCodeBlock] gives it the monospace style, the tinted box and the copy button every other code
+ * view in the host has; the colouring below is this view's own, because a JSON scheme needs more
+ * distinct hues than [JwTone][com.kitakkun.jetwhale.host.ui.JwTone] has semantics for.
+ */
 @Composable
 fun JsonView(
     jsonString: String,
-    colorStyle: JsonColorStyle = if (isSystemInDarkTheme()) JsonColorStyle.Dark else JsonColorStyle.Light,
     modifier: Modifier = Modifier,
+    // The host's dark flag, not the OS's: a user running a light host on a dark desktop still gets
+    // the light scheme.
+    colorStyle: JsonColorStyle = if (JwTheme.isDark) JsonColorStyle.Dark else JsonColorStyle.Light,
+    copyLabel: String? = "Copy JSON",
 ) {
     val jsonElement = remember(jsonString) { Json.parseToJsonElement(jsonString) }
 
-    Text(
+    JwCodeBlock(
         text = remember(colorStyle, jsonElement) {
             buildAnnotatedString {
                 appendJsonString(
@@ -38,6 +48,7 @@ fun JsonView(
                 )
             }
         },
+        copyLabel = copyLabel,
         modifier = modifier,
     )
 }

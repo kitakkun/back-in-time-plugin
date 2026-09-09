@@ -2,19 +2,20 @@ package com.kitakkun.backintime.feature.settings.section
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.feature.settings.SettingsScreenUiState
 import com.kitakkun.backintime.feature.settings.component.SettingLabel
-import com.kitakkun.backintime.feature.settings.component.SettingsHeadingItem
 import com.kitakkun.backintime.feature.settings.component.SettingsItemRow
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwSectionHeader
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwSwitch
+import com.kitakkun.jetwhale.host.ui.JwTag
+import com.kitakkun.jetwhale.host.ui.JwText
+import com.kitakkun.jetwhale.host.ui.JwTheme
+import com.kitakkun.jetwhale.host.ui.JwTone
 
 @Composable
 fun DataBaseSettingsSection(
@@ -25,31 +26,37 @@ fun DataBaseSettingsSection(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(JwSpacing.medium),
     ) {
-        SettingsHeadingItem(
-            title = "Database",
-            icon = Icons.Default.Storage,
-        )
+        JwSectionHeader(title = "Database")
         SettingsItemRow(
             label = { SettingLabel(text = "Status") },
             settingComponent = {
-                Text(
-                    text = when (status) {
-                        is SettingsScreenUiState.DatabaseStatus.File -> "Stored at ${status.path}"
-                        is SettingsScreenUiState.DatabaseStatus.InMemory -> "Serving in memory"
-                    }
-                )
-            }
+                when (status) {
+                    // The path is read character by character to check it, so it gets the code
+                    // style; the tag says which of the two modes is running at a glance.
+                    is SettingsScreenUiState.DatabaseStatus.File -> JwText(
+                        text = status.path,
+                        style = JwTheme.textStyles.code,
+                        color = JwTheme.colors.textSecondary,
+                    )
+
+                    is SettingsScreenUiState.DatabaseStatus.InMemory -> JwTag(
+                        text = "In memory",
+                        tone = JwTone.Info,
+                    )
+                }
+            },
         )
         SettingsItemRow(
             label = { SettingLabel(text = "Persist session data") },
             settingComponent = {
-                Switch(
+                JwSwitch(
                     checked = persistSessionData,
                     onCheckedChange = onTogglePersistSessionData,
+                    contentDescription = "Persist session data",
                 )
-            }
+            },
         )
     }
 }

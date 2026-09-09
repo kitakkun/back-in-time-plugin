@@ -2,13 +2,22 @@ package com.kitakkun.backintime.feature.settings.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.kitakkun.jetwhale.host.ui.JwMetrics
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwText
 
+/**
+ * One setting: its name on the left, the control that changes it on the right.
+ *
+ * The row is [JwMetrics.controlHeight] tall whether or not it holds a control, so a page of them
+ * keeps an even rhythm.
+ */
 @Composable
 fun SettingsItemRow(
     label: @Composable () -> Unit,
@@ -16,11 +25,12 @@ fun SettingsItemRow(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().heightIn(min = JwMetrics.controlHeight),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(JwSpacing.large, Alignment.Start),
     ) {
         label()
+        Spacer(Modifier.weight(1f))
         settingComponent()
     }
 }
@@ -34,9 +44,8 @@ fun SettingLabel(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    Text(
+    JwText(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
         modifier = modifier,
     )
 }

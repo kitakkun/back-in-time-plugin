@@ -1,5 +1,6 @@
 package com.kitakkun.backintime.tooling.feature.log
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -10,19 +11,19 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kitakkun.backintime.tooling.core.ui.component.EmptyState
 import com.kitakkun.backintime.tooling.core.ui.component.JsonView
-import com.kitakkun.backintime.tooling.core.ui.component.verticalSplitter
 import com.kitakkun.backintime.tooling.core.ui.logic.EventEmitter
 import com.kitakkun.backintime.tooling.core.ui.logic.rememberEventEmitter
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkun.backintime.tooling.feature.log.component.LogTableView
 import com.kitakkun.backintime.tooling.model.ClassInfo
 import com.kitakkun.backintime.tooling.model.EventEntity
+import com.kitakkun.jetwhale.host.ui.JwEmptyState
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwSplitPane
+import com.kitakkun.jetwhale.host.ui.rememberJwSplitPaneState
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.serialization.json.Json
-import org.jetbrains.compose.splitpane.VerticalSplitPane
-import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun LogScreen(
@@ -50,41 +51,42 @@ fun LogScreen(
     onSelectEvent: (EventEntity) -> Unit,
     onUpdateVerticalSplitDividerPosition: (Float) -> Unit,
 ) {
-    val verticalSplitLayoutState = rememberSplitPaneState(uiState.verticalSplitDividerPosition)
+    val verticalSplitLayoutState = rememberJwSplitPaneState(uiState.verticalSplitDividerPosition)
 
     LaunchedEffect(verticalSplitLayoutState) {
-        snapshotFlow { verticalSplitLayoutState.positionPercentage }
+        snapshotFlow { verticalSplitLayoutState.fraction }
             .distinctUntilChanged()
             .collect(onUpdateVerticalSplitDividerPosition)
     }
 
-    VerticalSplitPane(
-        splitPaneState = verticalSplitLayoutState,
+    JwSplitPane(
+        orientation = Orientation.Vertical,
+        state = verticalSplitLayoutState,
         modifier = Modifier.fillMaxSize(),
-    ) {
-        first(minSize = 200.dp) {
+        firstMinSize = 200.dp,
+        secondMinSize = 200.dp,
+        first = {
             LogTableView(
                 events = uiState.events,
                 selectedEventId = uiState.selectedEventId,
-                onSelectEvent = { onSelectEvent(it) }
+                onSelectEvent = { onSelectEvent(it) },
             )
-        }
-        second(minSize = 200.dp) {
+        },
+        second = {
             val selected = uiState.selectedEvent
             if (selected == null) {
-                EmptyState(text = "Select a row to see the full event.")
+                JwEmptyState(title = "Select a row to see the full event.")
             } else {
                 JsonView(
                     jsonString = prettyJson.encodeToString(selected),
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
-                        .padding(16.dp),
+                        .padding(JwSpacing.large),
                 )
             }
-        }
-        verticalSplitter()
-    }
+        },
+    )
 }
 
 /** The detail pane is the one place the whole payload is meant to be read, so it is indented. */

@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.kitakkun.backintime.tooling.core.ui.component.EmptyState
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwEmptyState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemUiState
 import com.kitakkunl.backintime.feature.inspector.components.InstanceItemView
 import com.kitakkunl.backintime.feature.inspector.components.PropertyItemUiState
@@ -28,8 +28,9 @@ fun InstanceListSection(
     modifier: Modifier = Modifier,
 ) {
     if (instances.isEmpty()) {
-        EmptyState(
-            text = "No instance is registered yet.\nInteract with the app to see its debuggable objects here.",
+        JwEmptyState(
+            title = "No instance is registered yet.",
+            description = "Interact with the app to see its debuggable objects here.",
             modifier = modifier,
         )
     } else {

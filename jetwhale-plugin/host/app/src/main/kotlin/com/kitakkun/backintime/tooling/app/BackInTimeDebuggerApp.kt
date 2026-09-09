@@ -2,12 +2,6 @@ package com.kitakkun.backintime.tooling.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -27,6 +21,10 @@ import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
 import com.kitakkun.backintime.tooling.core.usecase.LocalDatabase
 import com.kitakkun.backintime.tooling.feature.log.LogScreen
 import com.kitakkun.backintime.tooling.model.BackInTimeTab
+import com.kitakkun.jetwhale.host.ui.JwSurface
+import com.kitakkun.jetwhale.host.ui.JwTab
+import com.kitakkun.jetwhale.host.ui.JwTabRow
+import com.kitakkun.jetwhale.host.ui.JwTheme
 import com.kitakkunl.backintime.feature.inspector.InspectorScreen
 
 /**
@@ -60,31 +58,22 @@ private fun BackInTimeDebuggerApp() {
     val pluginState by pluginStateService.stateFlow.collectAsState()
 
     // The plugin is drawn straight onto the host's scene, which paints no background of its own;
-    // without a Surface the panes sit on whatever is behind them.
-    Surface(
-        color = MaterialTheme.colorScheme.surface,
+    // without a surface the panes sit on whatever is behind them.
+    JwSurface(
+        color = JwTheme.colors.surface,
         modifier = Modifier.fillMaxSize(),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            PrimaryTabRow(
-                selectedTabIndex = pluginState.globalState.activeTab.ordinal,
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                divider = {},
-            ) {
+            // JwTabRow draws its own bottom hairline, so the pane below needs no divider of its own.
+            JwTabRow {
                 BackInTimeTab.entries.forEach { tab ->
-                    Tab(
+                    JwTab(
                         selected = tab == pluginState.globalState.activeTab,
-                        text = {
-                            Text(
-                                text = tab.name,
-                                style = MaterialTheme.typography.labelLarge,
-                            )
-                        },
                         onClick = { pluginStateService.updateTab(tab) },
+                        text = tab.name,
                     )
                 }
             }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             when (pluginState.globalState.activeTab) {
                 BackInTimeTab.Inspector -> InspectorScreen()
                 BackInTimeTab.Log -> LogScreen()

@@ -6,6 +6,8 @@ pluginManagement {
     includeBuild("gradle-conventions")
     repositories {
         mavenCentral()
+        // JetWhale pre-release builds (see JetWhale docs: "Trying an unreleased (SNAPSHOT) build").
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         gradlePluginPortal()
         google()
     }
@@ -14,6 +16,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        // JetWhale pre-release builds (see JetWhale docs: "Trying an unreleased (SNAPSHOT) build").
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         gradlePluginPortal()
         google()
     }

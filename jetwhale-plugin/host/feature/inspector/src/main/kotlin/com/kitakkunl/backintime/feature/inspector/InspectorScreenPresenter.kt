@@ -87,7 +87,6 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                     val eventIsSelected = event.eventId == pluginState.inspectorState.selectedEventId
                     when (event) {
                         is EventEntity.Instance.MethodInvocation -> EventItemUiState.MethodInvocation(
-                            expandedDetails = true,
                             stateChanges = instance.events.filterIsInstance<EventEntity.Instance.StateChange>()
                                 .filter { it.callId == event.callId }
                                 .groupBy { it.propertySignature }
@@ -106,7 +105,6 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                         is EventEntity.Instance.Register -> EventItemUiState.Register(
                             id = event.eventId,
                             selected = eventIsSelected,
-                            expandedDetails = false,
                             time = event.time,
                         )
 
@@ -114,7 +112,6 @@ fun inspectorScreenPresenter(eventEmitter: EventEmitter<InspectorScreenEvent>): 
                         is EventEntity.Instance.Unregister -> EventItemUiState.Unregister(
                             id = event.eventId,
                             selected = event.eventId == pluginState.inspectorState.selectedEventId,
-                            expandedDetails = false,
                             time = event.time,
                         )
 

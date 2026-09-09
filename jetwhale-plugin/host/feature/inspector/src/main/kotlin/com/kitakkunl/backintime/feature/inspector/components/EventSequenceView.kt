@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +17,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.kitakkun.backintime.tooling.core.ui.preview.PreviewContainer
+import com.kitakkun.jetwhale.host.ui.JwSpacing
+import com.kitakkun.jetwhale.host.ui.JwTheme
 import com.kitakkunl.backintime.feature.inspector.model.toFunctionSignature
 import com.kitakkunl.backintime.feature.inspector.model.toPropertySignature
 
@@ -29,7 +30,7 @@ fun EventSequenceView(
 ) {
     val lazyListState = rememberLazyListState()
     // Read outside drawBehind: a draw scope is not a composition and cannot resolve the theme.
-    val connectorColor = MaterialTheme.colorScheme.outline
+    val connectorColor = JwTheme.colors.border
 
     Box(
         modifier = modifier.fillMaxSize(),
@@ -40,7 +41,7 @@ fun EventSequenceView(
             // one line while an expanded balloon is free to be as tall as it needs. Stretching them
             // to the pane height instead is what used to cut the balloon off at the bottom.
             verticalAlignment = Alignment.Top,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 12.dp),
+            contentPadding = PaddingValues(horizontal = JwSpacing.medium, vertical = JwSpacing.large),
             modifier = Modifier.matchParentSize(),
         ) {
             itemsIndexed(
@@ -92,7 +93,6 @@ private fun EventSequenceViewPreview() {
                     EventItemUiState.Register(
                         id = "-1",
                         selected = true,
-                        expandedDetails = false,
                         time = 0,
                     )
                 )
@@ -100,7 +100,6 @@ private fun EventSequenceViewPreview() {
                     List(10) {
                         EventItemUiState.MethodInvocation(
                             id = it.toString(),
-                            expandedDetails = it % 5 == 0,
                             stateChanges = listOf(
                                 EventItemUiState.MethodInvocation.UpdatedProperty(
                                     signature = "prop1".toPropertySignature(),
