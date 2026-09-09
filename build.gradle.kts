@@ -15,6 +15,7 @@ plugins {
     alias(libs.plugins.intelliJPlatform) apply false
     alias(libs.plugins.room) apply false
     alias(libs.plugins.gradleTestKitSupport) apply false
+    alias(libs.plugins.jetwhaleHost) apply false
     // convention plugin
     alias(libs.plugins.backintimeLint) apply false
     alias(libs.plugins.backintimePublication) apply false
@@ -22,6 +23,8 @@ plugins {
     alias(libs.plugins.intelliJComposeFeature) apply false
     alias(libs.plugins.intelliJCommon) apply false
     alias(libs.plugins.intelliJJewel) apply false
+    alias(libs.plugins.jetwhaleHostModule) apply false
+    alias(libs.plugins.jetwhaleHostComposeModule) apply false
 }
 
 allprojects {

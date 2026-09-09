@@ -6,6 +6,8 @@ pluginManagement {
     includeBuild("gradle-conventions")
     repositories {
         mavenCentral()
+        // JetWhale pre-release builds (see JetWhale docs: "Trying an unreleased (SNAPSHOT) build").
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         gradlePluginPortal()
         google()
     }
@@ -14,6 +16,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        // JetWhale pre-release builds (see JetWhale docs: "Trying an unreleased (SNAPSHOT) build").
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         gradlePluginPortal()
         google()
     }
@@ -53,4 +57,19 @@ include(
     ":tooling:feature:settings",
     ":tooling:feature:log",
     ":tooling:standalone",
+)
+
+include(
+    ":jetwhale-plugin:agent",
+    ":jetwhale-plugin:host:app",
+    ":jetwhale-plugin:host:plugin",
+    ":jetwhale-plugin:host:core:database",
+    ":jetwhale-plugin:host:core:model",
+    ":jetwhale-plugin:host:core:shared",
+    ":jetwhale-plugin:host:core:ui",
+    ":jetwhale-plugin:host:core:usecase",
+    ":jetwhale-plugin:host:feature:inspector",
+    ":jetwhale-plugin:host:feature:log",
+    ":jetwhale-plugin:host:feature:settings",
+    ":jetwhale-plugin:protocol",
 )
